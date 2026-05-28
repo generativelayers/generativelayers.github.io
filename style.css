@@ -188,9 +188,46 @@ a:hover {
   border-bottom: none;
 }
 
-.search-results a:hover {
+.search-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background 0.12s var(--ease);
+}
+
+.search-hit:hover,
+.search-hit-active {
   background: var(--color-green-50);
+}
+
+.search-hit-page {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--color-green-700);
+}
+
+.search-hit-section {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.search-hit-ctx {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.search-hit-ctx mark {
+  background: rgba(13, 148, 98, 0.15);
+  color: var(--color-green-800);
+  border-radius: 2px;
+  padding: 0 2px;
 }
 
 .search-empty {
@@ -199,7 +236,6 @@ a:hover {
   color: var(--color-text-muted);
   font-size: 14px;
 }
-
 
 
 /* Mobile hamburger */
