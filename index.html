@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Generative Layers | Java Framework for Governed Generative Agents</title>
-<meta name="description" content="Generative Layers is a Java framework for governed generative resource layers in BDI-first and agent-oriented systems, with research direction for Jason, ASTRA, JaCaMo, CArtAgO, LLMs, tools, APIs, and auditable external resources.">
-<meta name="keywords" content="Generative Layers, Java framework, generative agent framework, BDI agents, multi-agent systems, agent-oriented programming, Jason, ASTRA, JaCaMo, CArtAgO, LLM tools, governed AI, agentic AI framework">
+<meta name="description" content="Generative Layers is a Java framework for governed generative resource layers in BDI-first and agent-oriented systems.">
+<meta name="keywords" content="Generative Layers, Java framework, generative agents, BDI agents, multi-agent systems, Jason, ASTRA, JaCaMo, CArtAgO, LLM tools, governed AI">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.generativelayers.com/">
 <meta property="og:type" content="website">
@@ -16,11 +16,9 @@
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/288647901?v=4">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Generative Layers">
-<meta name="twitter:description" content="A Java framework for governed generative resource layers in BDI-first agent-oriented systems.">
+<meta name="twitter:description" content="A Java framework for governed generative resource layers around agent-oriented systems.">
 <meta name="twitter:image" content="https://avatars.githubusercontent.com/u/288647901?v=4">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"Generative Layers","url":"https://www.generativelayers.com/","description":"Generative Layers is a Java framework for governed generative resource layers around agent-oriented systems.","sameAs":["https://github.com/generativelayers"],"hasPart":[{"@type":"WebPage","name":"Repositories","url":"https://www.generativelayers.com/repositories.html"},{"@type":"WebPage","name":"How it Works","url":"https://www.generativelayers.com/how-it-works.html"},{"@type":"WebPage","name":"Research","url":"https://www.generativelayers.com/research.html"},{"@type":"WebPage","name":"Concepts","url":"https://www.generativelayers.com/concepts.html"},{"@type":"WebPage","name":"Getting Started","url":"https://www.generativelayers.com/getting-started.html"},{"@type":"WebPage","name":"Design Rules","url":"https://www.generativelayers.com/core-concepts.html"},{"@type":"WebPage","name":"API Reference","url":"https://www.generativelayers.com/api.html"},{"@type":"WebPage","name":"Publications","url":"https://www.generativelayers.com/publications.html"},{"@type":"WebPage","name":"Collaboration","url":"https://www.generativelayers.com/collaboration.html"}]}
-</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Generative Layers","url":"https://www.generativelayers.com/","sameAs":["https://github.com/generativelayers"]}</script>
 <link rel="stylesheet" href="style.css">
 <script defer src="search.js"></script>
 </head>
@@ -28,72 +26,25 @@
 <header class="top"><div class="brand">Generative Layers</div><input class="search" placeholder="Search docs"></header>
 <div class="layout">
 <aside class="side">
-  <a class="active" href="index.html">1. Introduction and Overview</a>
-  <a href="repositories.html">2. Repositories</a>
-  <a href="how-it-works.html">3. How it Works</a>
-  <a href="research.html">4. Research</a>
-  <a href="concepts.html">5. Concepts</a>
-  <a href="getting-started.html">6. Getting Started</a>
-  <a href="core-concepts.html">7. Design Rules</a>
-  <a href="api.html">8. API Reference</a>
-  <a href="publications.html">9. Publications</a>
-  <a href="collaboration.html">10. Collaboration</a>
+<a class="active" href="index.html">1. Introduction</a>
+<a href="repositories.html">2. Repositories</a>
+<a href="how-it-works.html">3. How it Works</a>
+<a href="research.html">4. Research</a>
+<a href="concepts.html">5. Concepts</a>
+<a href="getting-started.html">6. Getting Started</a>
+<a href="core-concepts.html">7. Design Rules</a>
+<a href="api.html">8. API Reference</a>
+<a href="publications.html">9. Publications</a>
+<a href="collaboration.html">10. Collaboration</a>
 </aside>
 <main class="main">
-  <img class="site-logo" src="https://avatars.githubusercontent.com/u/288647901?v=4" alt="Generative Layers logo">
-  <div class="status-badge">Status: early research framework / active development</div>
-  <h1>Welcome to Generative Layers</h1>
-  <p class="lead">A Java framework for governed generative resource layers around agent-oriented systems.</p>
-  <p>Generative Layers focuses on BDI-first and agent-oriented systems where reasoning semantics matter. Its purpose is to support controlled interaction between agent programs and external generative resources such as LLMs, tools, APIs, services, and assessment modules.</p>
-
-  <section class="info-panel">
-    <h2>Project purpose</h2>
-    <p>The project exists to keep a clear boundary between agent reasoning and external generation. Generated material should be handled as candidate external material, not as automatic belief, intention, plan, or action.</p>
-    <p>This makes the project relevant to academic MAS research and to engineers building agent systems that need governance, auditability, and explicit control over external resource use.</p>
-  </section>
-
-  <section class="info-panel">
-    <h2>Intended audience</h2>
-    <div class="repo-grid">
-      <div class="card"><h3>Researchers</h3><p>For studying semantic separation, governance, and LLM/tool use in agent-oriented systems.</p></div>
-      <div class="card"><h3>Engineers</h3><p>For building Java-based framework infrastructure around agent platforms and external resources.</p></div>
-      <div class="card"><h3>Agent platform users</h3><p>For experiments involving Jason, ASTRA, JaCaMo, CArtAgO, and related systems.</p></div>
-      <div class="card"><h3>Adapter contributors</h3><p>For connecting other BDI languages or MAS frameworks through explicit integration boundaries.</p></div>
-    </div>
-  </section>
-
-  <section class="info-panel">
-    <h2>Website flow</h2>
-    <ol class="flow-list">
-      <li><strong>Repositories:</strong> existing GitHub repositories.</li>
-      <li><strong>How it Works:</strong> runtime architecture and request lifecycle.</li>
-      <li><strong>Research:</strong> academic motivation, problem statement, and research questions.</li>
-      <li><strong>Concepts:</strong> terminology used by the framework.</li>
-      <li><strong>Design Rules:</strong> what the framework must and must not do.</li>
-    </ol>
-  </section>
-
-  <section class="info-panel">
-    <h2>Target Agent Platforms</h2>
-    <p>The first research direction is BDI-first, using established agent programming and MAS platforms as evaluation targets.</p>
-    <div class="repo-grid">
-      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p>AgentSpeak-style BDI reference target.</p></a>
-      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p>Practical Java-backed agent programming target.</p></a>
-      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p>MAS platform combining agents, environments, and organisations.</p></a>
-      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p>Artifact and environment framework relevant to shared resources.</p></a>
-    </div>
-  </section>
-
-  <section class="info-panel">
-    <h2>Project origin</h2>
-    <p>Generative Layers began as MSc thesis-oriented research in Advanced Software Engineering at University College Dub&#108;in.</p>
-  </section>
-
-  <section class="info-panel">
-    <h2>Project people</h2>
-    <p><strong>Dimitrios Kyriakidis</strong> — project maintainer and MSc researcher at University College Dub&#108;in.</p>
-    <p><strong>Associate Professor Rem Collier</strong> — academic supervisor and Multi-Agent Systems researcher at University College Dub&#108;in.</p>
-  </section>
+<img class="site-logo" src="https://avatars.githubusercontent.com/u/288647901?v=4" alt="Generative Layers logo">
+<div class="status-badge">Early research framework</div>
+<h1>Generative Layers</h1>
+<p class="lead">A Java framework for governed generative resource layers around agent-oriented systems.</p>
+<section class="info-panel"><h2>Purpose</h2><p>Generative Layers keeps external generation separate from agent reasoning.</p><p>LLM, tool, API, and service outputs are returned as candidate material. The host agent platform decides whether to adopt, verify, ignore, or reject them.</p></section>
+<section class="info-panel"><h2>Target platforms</h2><div class="repo-grid"><a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p>AgentSpeak-style BDI target.</p></a><a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p>Java-backed agent programming target.</p></a><a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p>Agents, environments, and organisations.</p></a><a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p>Artifacts and environment resources.</p></a></div></section>
+<section class="info-panel"><h2>Academic origin</h2><p>Generative Layers began as MSc thesis-oriented research in Advanced Software Engineering at University College D&#117;blin.</p><p><strong>Dimitrios Kyriakidis</strong> — project maintainer.</p><p><strong>Associate Professor Rem Collier</strong> — academic supervisor and Multi-Agent Systems researcher.</p></section>
 </main>
 </div>
 </body>
