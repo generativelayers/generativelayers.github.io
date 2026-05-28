@@ -98,38 +98,113 @@ function tokenise(str) {
   return str.toLowerCase().replace(/[^a-z0-9\s\-]/g, '').split(/\s+/).filter(Boolean);
 }
 
-/* --- Score an entry against query tokens (AND: all must match) --- */
+/* --- Stem a word to find its singular or base form --- */
+function stemWord(word) {
+  if (word.length <= 3) return word;
+  
+  // Plurals
+  if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+  if (word.endsWith('es') && !word.endsWith('aes') && !word.endsWith('ees')) return word.slice(0, -2);
+  if (word.endsWith('s') && !word.endsWith('ss') && !word.endsWith('us') && !word.endsWith('is')) return word.slice(0, -1);
+  
+  // Verbs / Adjectives
+  if (word.endsWith('ing')) return word.slice(0, -3);
+  if (word.endsWith('ed')) return word.slice(0, -2);
+  
+  // Suffixes
+  if (word.endsWith('tional')) return word.slice(0, -5) + 'tion';
+  if (word.endsWith('ation')) return word.slice(0, -5);
+  if (word.endsWith('ness')) return word.slice(0, -4);
+  if (word.endsWith('ment')) return word.slice(0, -4);
+  
+  return word;
+}
+
+/* --- Score an entry against query tokens (Soft-AND: exact & stemmed matching) --- */
 function scoreEntry(entry, tokens) {
-  const hay = `${entry.page} ${entry.section} ${entry.text}`.toLowerCase();
-  let total = 0;
+  const pageLower = entry.page.toLowerCase();
+  const sectionLower = entry.section.toLowerCase();
+  const textLower = entry.text.toLowerCase();
+  const hay = `${pageLower} ${sectionLower} ${textLower}`;
+  
+  let score = 0;
+  let matchesCount = 0;
+
   for (const t of tokens) {
-    if (!hay.includes(t)) return 0;
-    if (entry.page.toLowerCase().includes(t))    total += 4;
-    if (entry.section.toLowerCase().includes(t)) total += 3;
-    if (entry.text.toLowerCase().includes(t))    total += 1;
+    const stemmed = stemWord(t);
+    let matched = false;
+
+    // 1. Exact token match
+    if (hay.includes(t)) {
+      matched = true;
+      if (pageLower.includes(t)) score += 15;
+      if (sectionLower.includes(t)) score += 10;
+      if (textLower.includes(t)) score += 3;
+    } 
+    // 2. Stemmed/Fuzzy fallback match
+    else if (stemmed !== t && hay.includes(stemmed)) {
+      matched = true;
+      if (pageLower.includes(stemmed)) score += 10;
+      if (sectionLower.includes(stemmed)) score += 6;
+      if (textLower.includes(stemmed)) score += 2;
+    }
+
+    if (matched) {
+      matchesCount++;
+    }
   }
-  return total;
+
+  // Soft-AND boost: reward matching multiple query terms
+  if (matchesCount > 0) {
+    // If we matched all tokens, give a large multiplicative boost
+    if (matchesCount === tokens.length) {
+      score *= 2.0;
+    } else {
+      // Partial matches penalty to prioritize complete matches
+      score *= (matchesCount / tokens.length) * 0.7;
+    }
+    return score;
+  }
+
+  return 0;
 }
 
 /* --- Extract a context snippet around the first matching token --- */
 function snippet(text, tokens) {
   const lower = text.toLowerCase();
   let bestPos = -1;
+  let matchedToken = '';
+
   for (const t of tokens) {
-    const pos = lower.indexOf(t);
-    if (pos !== -1 && (bestPos === -1 || pos < bestPos)) bestPos = pos;
+    let pos = lower.indexOf(t);
+    if (pos === -1) {
+      const stemmed = stemWord(t);
+      pos = lower.indexOf(stemmed);
+      if (pos !== -1) {
+        bestPos = pos;
+        matchedToken = stemmed;
+        break;
+      }
+    } else {
+      bestPos = pos;
+      matchedToken = t;
+      break;
+    }
   }
+
   if (bestPos === -1) return '';
 
   // Find word boundaries around the match
-  const start = Math.max(0, text.lastIndexOf(' ', bestPos - 40) + 1);
-  const end = Math.min(text.length, text.indexOf(' ', bestPos + 50));
+  const start = Math.max(0, text.lastIndexOf(' ', bestPos - 45) + 1);
+  const end = Math.min(text.length, text.indexOf(' ', bestPos + 55));
   let s = text.slice(start, end === -1 ? undefined : end).trim();
   if (start > 0) s = '…' + s;
   if ((end !== -1) && end < text.length) s += '…';
 
-  // Highlight matching tokens
-  for (const t of tokens) {
+  // Highlight matching tokens (exact + stemmed)
+  const highlightTerms = new Set([...tokens, ...tokens.map(stemWord)]);
+  for (const t of highlightTerms) {
+    if (t.length < 3) continue; // skip extremely short terms to avoid matching arbitrary chars
     const re = new RegExp(`(${t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
     s = s.replace(re, '<mark>$1</mark>');
   }
@@ -146,6 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const results = document.createElement('div');
     results.className = 'search-results';
     wrapper.appendChild(results);
+
+    // Set premium placeholder
+    input.setAttribute('placeholder', 'Search... (Press \'/\' to focus)');
 
     let activeIdx = -1;
 
@@ -183,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (unique.length === 0) {
-        results.innerHTML = '<div class="search-empty">No results found.</div>';
+        results.innerHTML = '<div class="search-empty">No results found. Try alternative keywords.</div>';
         results.style.display = 'block';
         return [];
       }
@@ -252,6 +330,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     input.addEventListener('focus', () => {
       if (input.value.trim()) render(input.value);
+    });
+
+    // Global "/" key shortcut to focus search
+    document.addEventListener('keydown', event => {
+      // Ignore if user is inside an input, textarea or contenteditable element
+      const activeEl = document.activeElement;
+      if (activeEl && (
+        activeEl.tagName === 'INPUT' || 
+        activeEl.tagName === 'TEXTAREA' || 
+        activeEl.isContentEditable
+      )) {
+        return;
+      }
+
+      if (event.key === '/' || event.key === 's') {
+        event.preventDefault();
+        input.focus();
+        input.select();
+      }
     });
   }
 
