@@ -19,25 +19,7 @@
 <meta name="twitter:description" content="A Java framework for governed generative resource layers in BDI-first agent-oriented systems.">
 <meta name="twitter:image" content="https://avatars.githubusercontent.com/u/288647901?v=4">
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Generative Layers",
-  "url": "https://www.generativelayers.com/",
-  "description": "Generative Layers is a Java framework for governed generative resource layers around agent-oriented systems.",
-  "sameAs": ["https://github.com/generativelayers"],
-  "hasPart": [
-    {"@type": "WebPage", "name": "Repositories", "url": "https://www.generativelayers.com/repositories.html"},
-    {"@type": "WebPage", "name": "How it Works", "url": "https://www.generativelayers.com/how-it-works.html"},
-    {"@type": "WebPage", "name": "Research", "url": "https://www.generativelayers.com/research.html"},
-    {"@type": "WebPage", "name": "Concepts", "url": "https://www.generativelayers.com/concepts.html"},
-    {"@type": "WebPage", "name": "Getting Started", "url": "https://www.generativelayers.com/getting-started.html"},
-    {"@type": "WebPage", "name": "Core Concepts", "url": "https://www.generativelayers.com/core-concepts.html"},
-    {"@type": "WebPage", "name": "API Reference", "url": "https://www.generativelayers.com/api.html"},
-    {"@type": "WebPage", "name": "Publications", "url": "https://www.generativelayers.com/publications.html"},
-    {"@type": "WebPage", "name": "Collaboration", "url": "https://www.generativelayers.com/collaboration.html"}
-  ]
-}
+{"@context":"https://schema.org","@type":"WebSite","name":"Generative Layers","url":"https://www.generativelayers.com/","description":"Generative Layers is a Java framework for governed generative resource layers around agent-oriented systems.","sameAs":["https://github.com/generativelayers"],"hasPart":[{"@type":"WebPage","name":"Repositories","url":"https://www.generativelayers.com/repositories.html"},{"@type":"WebPage","name":"How it Works","url":"https://www.generativelayers.com/how-it-works.html"},{"@type":"WebPage","name":"Research","url":"https://www.generativelayers.com/research.html"},{"@type":"WebPage","name":"Concepts","url":"https://www.generativelayers.com/concepts.html"},{"@type":"WebPage","name":"Getting Started","url":"https://www.generativelayers.com/getting-started.html"},{"@type":"WebPage","name":"Design Rules","url":"https://www.generativelayers.com/core-concepts.html"},{"@type":"WebPage","name":"API Reference","url":"https://www.generativelayers.com/api.html"},{"@type":"WebPage","name":"Publications","url":"https://www.generativelayers.com/publications.html"},{"@type":"WebPage","name":"Collaboration","url":"https://www.generativelayers.com/collaboration.html"}]}
 </script>
 <link rel="stylesheet" href="style.css">
 <script defer src="search.js"></script>
@@ -52,7 +34,7 @@
   <a href="research.html">4. Research</a>
   <a href="concepts.html">5. Concepts</a>
   <a href="getting-started.html">6. Getting Started</a>
-  <a href="core-concepts.html">7. Core Concepts</a>
+  <a href="core-concepts.html">7. Design Rules</a>
   <a href="api.html">8. API Reference</a>
   <a href="publications.html">9. Publications</a>
   <a href="collaboration.html">10. Collaboration</a>
@@ -62,74 +44,44 @@
   <div class="status-badge">Status: early research framework / active development</div>
   <h1>Welcome to Generative Layers</h1>
   <p class="lead">A Java framework for governed generative resource layers around agent-oriented systems.</p>
-  <p>Generative Layers is designed for BDI-first systems and integration experiments with Jason, ASTRA, JaCaMo, CArtAgO, and related agent frameworks.</p>
-  <p>The framework investigates how LLMs, tools, APIs, services, and external resources can be exposed to agent programs without collapsing external generation into the agent's internal reasoning semantics.</p>
+  <p>Generative Layers focuses on BDI-first and agent-oriented systems where reasoning semantics matter. Its purpose is to support controlled interaction between agent programs and external generative resources such as LLMs, tools, APIs, services, and assessment modules.</p>
 
   <section class="info-panel">
-    <h2>What it is</h2>
-    <p>Generative Layers is not a chatbot wrapper and it is not a replacement for ASTRA, Jason, JaCaMo, CArtAgO, or other agent-oriented platforms. It is a Java framework layer that sits between an agent system and external generative resources.</p>
-    <p>The framework exposes external capabilities as governed resources. An agent can ask for a generated answer, a tool assessment, a candidate plan, a structured analysis, or a resource action. The result is returned as candidate material. The agent system still decides whether that material becomes a belief, supports a goal, triggers an action, or is rejected.</p>
+    <h2>Project purpose</h2>
+    <p>The project exists to keep a clear boundary between agent reasoning and external generation. Generated material should be handled as candidate external material, not as automatic belief, intention, plan, or action.</p>
+    <p>This makes the project relevant to academic MAS research and to engineers building agent systems that need governance, auditability, and explicit control over external resource use.</p>
   </section>
 
   <section class="info-panel">
-    <h2>Architecture overview</h2>
-    <div class="architecture">
-      <div class="arch-box">Agent program: goals, beliefs, plans, intentions, and platform semantics</div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-box">Platform adapter: Jason, ASTRA, JaCaMo, CArtAgO-style integration points</div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-box">Generative Layers core: request model, response model, provider abstraction</div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-box">Governance boundary: policy checks, admissibility, logging, audit, failure handling</div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-box">External resources: LLMs, tools, APIs, services, assessment modules</div>
-    </div>
-  </section>
-
-  <section class="info-panel">
-    <h2>Target Agent Platforms</h2>
-    <p>The first implementation direction is BDI-first. These platforms provide the language, runtime, environment, and organisation material needed to test Generative Layers across real agent-oriented systems.</p>
+    <h2>Intended audience</h2>
     <div class="repo-grid">
-      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p><strong>Official site:</strong> jason-lang.github.io</p><p>Jason is the primary academic reference target for AgentSpeak-style BDI examples.</p></a>
-      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p><strong>Official site:</strong> astralanguage.com</p><p>ASTRA is the practical implementation and experimentation target.</p></a>
-      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p><strong>Official site:</strong> jacamo-lang.github.io</p><p>JaCaMo is relevant for experiments combining agents, environments, and organisations.</p></a>
-      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p><strong>Repository:</strong> github.com/CArtAgO-lang/cartago</p><p>CArtAgO is relevant for modelling external resources through artifacts.</p></a>
+      <div class="card"><h3>Researchers</h3><p>For studying semantic separation, governance, and LLM/tool use in agent-oriented systems.</p></div>
+      <div class="card"><h3>Engineers</h3><p>For building Java-based framework infrastructure around agent platforms and external resources.</p></div>
+      <div class="card"><h3>Agent platform users</h3><p>For experiments involving Jason, ASTRA, JaCaMo, CArtAgO, and related systems.</p></div>
+      <div class="card"><h3>Adapter contributors</h3><p>For connecting other BDI languages or MAS frameworks through explicit integration boundaries.</p></div>
     </div>
   </section>
 
   <section class="info-panel">
-    <h2>Why this framework is needed</h2>
-    <p>Current agentic AI systems often rely on large language models to plan, choose tools, call services, and revise behaviour. That is powerful, but it can blur the boundary between reasoning, execution, tool use, and external generation.</p>
-    <p>Generative Layers makes that boundary explicit. Generated output is treated as external candidate material, not as automatic belief, intention, or action. The host agent platform remains responsible for adoption, admissibility, execution, and traceability.</p>
-  </section>
-
-  <section class="info-panel">
-    <h2>How it is used</h2>
+    <h2>Website flow</h2>
     <ol class="flow-list">
-      <li>An agent reaches a goal, plan step, action, or module call that requires generative support.</li>
-      <li>The platform adapter sends a structured request to Generative Layers.</li>
-      <li>The governance layer checks policies, context, admissibility rules, limits, and audit requirements.</li>
-      <li>A provider invokes the selected external resource, such as an LLM, API, tool, service, or assessment module.</li>
-      <li>The response is normalised into a structured result with status, evidence, warnings, metadata, and audit information.</li>
-      <li>The agent receives the result and decides what to do using its own language semantics.</li>
+      <li><strong>Repositories:</strong> existing GitHub repositories.</li>
+      <li><strong>How it Works:</strong> runtime architecture and request lifecycle.</li>
+      <li><strong>Research:</strong> academic motivation, problem statement, and research questions.</li>
+      <li><strong>Concepts:</strong> terminology used by the framework.</li>
+      <li><strong>Design Rules:</strong> what the framework must and must not do.</li>
     </ol>
   </section>
 
   <section class="info-panel">
-    <h2>Framework shape</h2>
+    <h2>Target Agent Platforms</h2>
+    <p>The first research direction is BDI-first, using established agent programming and MAS platforms as evaluation targets.</p>
     <div class="repo-grid">
-      <div class="card"><h3>Core</h3><p>Shared request, response, policy, audit, provider, and execution abstractions.</p></div>
-      <div class="card"><h3>Adapters</h3><p>Thin integrations for ASTRA, Jason, and later JaCaMo or CArtAgO-style environments.</p></div>
-      <div class="card"><h3>Providers</h3><p>Modules that connect governed requests to LLMs, APIs, tools, services, and external resources.</p></div>
-      <div class="card"><h3>Evaluation</h3><p>Experiments comparing direct generative behaviour against BDI-controlled generative resource usage.</p></div>
+      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p>AgentSpeak-style BDI reference target.</p></a>
+      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p>Practical Java-backed agent programming target.</p></a>
+      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p>MAS platform combining agents, environments, and organisations.</p></a>
+      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p>Artifact and environment framework relevant to shared resources.</p></a>
     </div>
-  </section>
-
-  <section class="info-panel">
-    <h2>Research direction</h2>
-    <p>The project investigates how generative capabilities can be integrated into agent-oriented systems through governed resource layers while preserving the reasoning semantics of the host platform.</p>
-    <p>The initial focus is BDI-first because BDI systems provide clear semantics for beliefs, goals, intentions, plans, actions, and deliberation. Later work may generalise the framework to other autonomous software systems.</p>
-    <p><a href="research.html">Read the research framing and research questions.</a></p>
   </section>
 
   <section class="info-panel">
