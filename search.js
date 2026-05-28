@@ -6,9 +6,10 @@ const searchIndex = [
   { title: 'Collaboration', url: 'collaboration.html', text: 'collaboration adapters integrations BDI languages MAS frameworks email code prototype repository' }
 ];
 
-document.addEventListener('DOMContentLoaded', () => {
+window.initSearch = function initSearch() {
   const input = document.querySelector('.search');
-  if (!input) return;
+  if (!input || input.dataset.ready === 'true') return;
+  input.dataset.ready = 'true';
 
   const results = document.createElement('div');
   results.className = 'search-results';
@@ -58,4 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', event => {
     if (!event.target.closest('.top')) results.style.display = 'none';
   });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('site-layer')) window.initSearch();
 });
