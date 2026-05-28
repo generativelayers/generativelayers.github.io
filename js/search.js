@@ -1,17 +1,145 @@
 /* ================================================================
-   Generative Layers — Search & Mobile Menu
+   Generative Layers — Dynamic Content Search & Mobile Menu
+   ================================================================
+   The search crawls all site pages at runtime, parses real DOM
+   content into section-level entries, and searches against that.
+   Nothing is hardcoded — if a page changes, search reflects it.
    ================================================================ */
 
-const searchIndex = [
-  { title: 'Introduction', url: 'index.html', text: 'Generative Layers Java framework governed generative resource layers agent systems ASTRA Jason JaCaMo CArtAgO adapters integrations BDI languages MAS frameworks email' },
-  { title: 'Framework', url: 'framework.html', text: 'request path adapter governance provider candidate material design rules beliefs plans actions LLM tools APIs services' },
-  { title: 'Research', url: 'research.html', text: 'research problem questions contribution thesis BDI agents multi agent systems University College Dublin Rem Collier Dimitrios Kyriakidis ASTRA' },
-  { title: 'Repositories', url: 'repositories.html', text: 'framework examples docs GitHub Java ASTRA Jason JaCaMo CArtAgO' }
+const PAGES = [
+  'index.html',
+  'framework.html',
+  'research.html',
+  'repositories.html'
 ];
+
+let searchIndex = null; // built lazily on first interaction
+
+/* --- Crawl all pages and build search index --- */
+async function buildIndex() {
+  const entries = [];
+
+  for (const pageUrl of PAGES) {
+    try {
+      const resp = await fetch(pageUrl, { cache: 'no-cache' });
+      if (!resp.ok) continue;
+      const html = await resp.text();
+
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const main = doc.querySelector('.main') || doc.querySelector('#page-content') || doc.body;
+      if (!main) continue;
+
+      // Page title from <h1> or <title>
+      const h1 = main.querySelector('h1');
+      const pageTitle = h1 ? h1.textContent.trim() : (doc.title || pageUrl);
+
+      // Walk through the main content and split into sections by headings
+      const sections = [];
+      let currentSection = { heading: pageTitle, id: '', texts: [] };
+
+      for (const node of main.children) {
+        // Skip footer, nav, non-content
+        if (node.tagName === 'FOOTER' || node.tagName === 'NAV') continue;
+        if (node.classList && node.classList.contains('footer')) continue;
+        if (node.classList && node.classList.contains('site-logo')) continue;
+
+        // New section boundary at <h2> or <section> with an <h2>
+        const heading = (node.tagName === 'H2') ? node
+          : (node.tagName === 'SECTION' || node.classList?.contains('info-panel'))
+            ? node.querySelector('h2')
+            : null;
+
+        if (heading && currentSection.texts.length > 0) {
+          sections.push({ ...currentSection });
+          currentSection = {
+            heading: heading.textContent.trim(),
+            id: heading.id || node.id || '',
+            texts: []
+          };
+        } else if (heading && currentSection.texts.length === 0) {
+          currentSection.heading = heading.textContent.trim();
+          currentSection.id = heading.id || node.id || '';
+        }
+
+        // Extract all text content from this node
+        const text = node.textContent.trim();
+        if (text && text.length > 1) {
+          currentSection.texts.push(text);
+        }
+      }
+
+      // Push last section
+      if (currentSection.texts.length > 0) {
+        sections.push(currentSection);
+      }
+
+      // Create index entries
+      for (const sec of sections) {
+        const fullText = sec.texts.join(' ');
+        const anchor = sec.id ? `#${sec.id}` : '';
+        entries.push({
+          page: pageTitle,
+          section: sec.heading,
+          text: fullText,
+          url: pageUrl + anchor
+        });
+      }
+
+    } catch (e) {
+      // Silently skip pages that fail to load
+    }
+  }
+
+  return entries;
+}
+
+/* --- Tokenise query into lowercase words --- */
+function tokenise(str) {
+  return str.toLowerCase().replace(/[^a-z0-9\s\-]/g, '').split(/\s+/).filter(Boolean);
+}
+
+/* --- Score an entry against query tokens (AND: all must match) --- */
+function scoreEntry(entry, tokens) {
+  const hay = `${entry.page} ${entry.section} ${entry.text}`.toLowerCase();
+  let total = 0;
+  for (const t of tokens) {
+    if (!hay.includes(t)) return 0;
+    if (entry.page.toLowerCase().includes(t))    total += 4;
+    if (entry.section.toLowerCase().includes(t)) total += 3;
+    if (entry.text.toLowerCase().includes(t))    total += 1;
+  }
+  return total;
+}
+
+/* --- Extract a context snippet around the first matching token --- */
+function snippet(text, tokens) {
+  const lower = text.toLowerCase();
+  let bestPos = -1;
+  for (const t of tokens) {
+    const pos = lower.indexOf(t);
+    if (pos !== -1 && (bestPos === -1 || pos < bestPos)) bestPos = pos;
+  }
+  if (bestPos === -1) return '';
+
+  // Find word boundaries around the match
+  const start = Math.max(0, text.lastIndexOf(' ', bestPos - 40) + 1);
+  const end = Math.min(text.length, text.indexOf(' ', bestPos + 50));
+  let s = text.slice(start, end === -1 ? undefined : end).trim();
+  if (start > 0) s = '…' + s;
+  if ((end !== -1) && end < text.length) s += '…';
+
+  // Highlight matching tokens
+  for (const t of tokens) {
+    const re = new RegExp(`(${t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    s = s.replace(re, '<mark>$1</mark>');
+  }
+  return s;
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---- Search ---- */
+  /* ==== Search ==== */
   const input = document.querySelector('.search');
   if (input) {
     const wrapper = input.closest('.search-wrapper');
@@ -19,49 +147,99 @@ document.addEventListener('DOMContentLoaded', () => {
     results.className = 'search-results';
     wrapper.appendChild(results);
 
-    function render(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
+    let activeIdx = -1;
+
+    async function ensureIndex() {
+      if (!searchIndex) {
+        searchIndex = await buildIndex();
+      }
+      return searchIndex;
+    }
+
+    // Start building index immediately in background
+    ensureIndex();
+
+    async function render(query) {
+      activeIdx = -1;
+      const tokens = tokenise(query);
+      if (tokens.length === 0) {
         results.innerHTML = '';
         results.style.display = 'none';
         return [];
       }
 
-      const matches = searchIndex
-        .map(item => {
-          const haystack = `${item.title} ${item.text}`.toLowerCase();
-          let score = 0;
-          if (item.title.toLowerCase().includes(q)) score += 3;
-          if (haystack.includes(q)) score += 1;
-          return { ...item, score };
-        })
-        .filter(item => item.score > 0)
-        .sort((a, b) => b.score - a.score);
+      const index = await ensureIndex();
 
-      if (matches.length === 0) {
-        results.innerHTML = '<div class="search-empty">No matching documentation page.</div>';
+      const matches = index
+        .map(entry => ({ ...entry, _score: scoreEntry(entry, tokens) }))
+        .filter(e => e._score > 0)
+        .sort((a, b) => b._score - a._score);
+
+      // Deduplicate by URL
+      const seen = new Set();
+      const unique = [];
+      for (const m of matches) {
+        if (!seen.has(m.url)) { seen.add(m.url); unique.push(m); }
+      }
+
+      if (unique.length === 0) {
+        results.innerHTML = '<div class="search-empty">No results found.</div>';
         results.style.display = 'block';
         return [];
       }
 
-      results.innerHTML = matches
-        .slice(0, 5)
-        .map(item => `<a href="${item.url}">${item.title}</a>`)
-        .join('');
+      results.innerHTML = unique.slice(0, 8).map((item, i) => {
+        const ctx = snippet(item.text, tokens);
+        return `<a href="${item.url}" class="search-hit" data-idx="${i}">
+          <span class="search-hit-page">${item.page}</span>
+          <span class="search-hit-section">${item.section}</span>
+          ${ctx ? `<span class="search-hit-ctx">${ctx}</span>` : ''}
+        </a>`;
+      }).join('');
       results.style.display = 'block';
-      return matches;
+      return unique;
     }
 
-    input.addEventListener('input', () => render(input.value));
+    /* --- Keyboard navigation --- */
+    function setActive(idx) {
+      const items = results.querySelectorAll('.search-hit');
+      items.forEach(el => el.classList.remove('search-hit-active'));
+      if (idx >= 0 && idx < items.length) {
+        items[idx].classList.add('search-hit-active');
+        items[idx].scrollIntoView({ block: 'nearest' });
+      }
+      activeIdx = idx;
+    }
+
+    let debounceTimer;
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => render(input.value), 80);
+    });
 
     input.addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
-        const matches = render(input.value);
-        if (matches.length > 0) window.location.href = matches[0].url;
-      }
-      if (event.key === 'Escape') {
+      const items = results.querySelectorAll('.search-hit');
+      const count = items.length;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setActive(activeIdx < count - 1 ? activeIdx + 1 : 0);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setActive(activeIdx > 0 ? activeIdx - 1 : count - 1);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (activeIdx >= 0 && items[activeIdx]) {
+          window.location.href = items[activeIdx].getAttribute('href');
+        } else {
+          render(input.value).then(matches => {
+            if (matches.length > 0) window.location.href = matches[0].url;
+          });
+        }
+      } else if (event.key === 'Escape') {
         input.value = '';
-        render('');
+        results.innerHTML = '';
+        results.style.display = 'none';
         input.blur();
       }
     });
@@ -71,9 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
         results.style.display = 'none';
       }
     });
+
+    input.addEventListener('focus', () => {
+      if (input.value.trim()) render(input.value);
+    });
   }
 
-  /* ---- Mobile sidebar toggle ---- */
+  /* ==== Mobile sidebar toggle ==== */
   const toggle = document.querySelector('.menu-toggle');
   const sidebar = document.getElementById('sidebar');
   const backdrop = document.getElementById('sidebarBackdrop');
@@ -83,21 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
       sidebar.classList.add('open');
       if (backdrop) backdrop.classList.add('open');
     }
-
     function closeSidebar() {
       sidebar.classList.remove('open');
       if (backdrop) backdrop.classList.remove('open');
     }
-
     toggle.addEventListener('click', () => {
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     });
-
-    if (backdrop) {
-      backdrop.addEventListener('click', closeSidebar);
-    }
-
-    // Close on Escape
+    if (backdrop) backdrop.addEventListener('click', closeSidebar);
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeSidebar();
     });
