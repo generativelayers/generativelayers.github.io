@@ -1,9 +1,9 @@
-async function loadLayer() {
-  const layerTarget = document.getElementById('site-layer');
+async function loadLayout() {
+  const layoutTarget = document.getElementById('site-layer');
   const contentTarget = document.getElementById('page-content');
-  if (!layerTarget || !contentTarget) return;
+  if (!layoutTarget || !contentTarget) return;
 
-  const response = await fetch('layer.html', { cache: 'no-cache' });
+  const response = await fetch('layout.html', { cache: 'no-cache' });
   const html = await response.text();
   const wrapper = document.createElement('div');
   wrapper.innerHTML = html;
@@ -33,11 +33,11 @@ async function loadLayer() {
   layout.appendChild(side);
   layout.appendChild(main);
 
-  layerTarget.appendChild(header);
-  layerTarget.appendChild(layout);
+  layoutTarget.appendChild(header);
+  layoutTarget.appendChild(layout);
   contentTarget.remove();
 
   if (window.initSearch) window.initSearch();
 }
 
-document.addEventListener('DOMContentLoaded', loadLayer);
+document.addEventListener('DOMContentLoaded', loadLayout);
