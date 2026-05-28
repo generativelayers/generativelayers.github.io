@@ -1,12 +1,94 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Research | Generative Layers</title>
-<meta name="description" content="Research framing for Generative Layers: problem statement, research questions, contribution, and academic context.">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.generativelayers.com/research.html">
-<link rel="icon" href="/icon/favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="style.css"><script defer src="js/search.js"></script><script defer src="js/layer.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research | Generative Layers</title>
+  <meta name="description" content="Research framing for Generative Layers: problem statement, research questions, contribution, and academic context.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/research.html">
+  <link rel="icon" href="/icon/favicon.ico" type="image/x-icon">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="js/search.js"></script>
 </head>
-<body data-page="research"><div id="site-layer"></div><div id="page-content"><h1>Research</h1><p class="lead">Governed generative resource layers for agent-oriented systems.</p><section class="info-panel"><h2>Problem</h2><p>Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.</p></section><section class="info-panel"><h2>Research questions</h2><ol class="flow-list"><li>How can generated outputs be exposed to BDI agents without directly modifying agent state?</li><li>What governance boundary is needed for auditable resource access?</li><li>Can the same resource-layer model work across Jason, ASTRA, and related MAS frameworks?</li></ol></section><section class="info-panel"><h2>Contribution</h2><p>A Java framework boundary between agent reasoning and external generative resource use.</p></section><section class="info-panel"><h2>Academic context</h2><p>Generative Layers is MSc thesis-oriented research in Advanced Software Engineering.</p><p><strong><a href="https://github.com/kyriakidisdimitrios/">Dimitrios Kyriakidis</a></strong> — project maintainer.</p><p><strong><a href="https://github.com/remcollier">Associate Professor Rem Collier</a></strong> — academic supervisor, Multi-Agent Systems researcher, and founder of <a href="https://www.astralanguage.com">ASTRA</a>.</p></section></div></body></html>
+<body>
+
+  <!-- Header -->
+  <header class="top">
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a class="header-brand" href="index.html">
+        <img src="https://avatars.githubusercontent.com/u/288647901?v=4" alt="GL" width="36" height="36">
+        <span>Generative Layers</span>
+      </a>
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search docs…" aria-label="Search documentation">
+      </div>
+      <a class="header-github" href="https://github.com/generativelayers" title="GitHub" aria-label="GitHub organisation">
+        <i class="fa-brands fa-github"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="side" id="sidebar">
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a class="active" href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Research</h1>
+      <p class="lead">Governed generative resource layers for agent-oriented systems.</p>
+
+      <section class="info-panel">
+        <h2>Problem</h2>
+        <p>Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.</p>
+      </section>
+
+      <section class="info-panel">
+        <h2>Research questions</h2>
+        <ol class="flow-list">
+          <li>How can generated outputs be exposed to BDI agents without directly modifying agent state?</li>
+          <li>What governance boundary is needed for auditable resource access?</li>
+          <li>Can the same resource-layer model work across Jason, ASTRA, and related MAS frameworks?</li>
+        </ol>
+      </section>
+
+      <section class="info-panel">
+        <h2>Contribution</h2>
+        <p>A Java framework boundary between agent reasoning and external generative resource use.</p>
+      </section>
+
+      <section class="info-panel">
+        <h2>Academic context</h2>
+        <p>Generative Layers is MSc thesis-oriented research in Advanced Software Engineering.</p>
+        <p><strong><a href="https://github.com/kyriakidisdimitrios/">Dimitrios Kyriakidis</a></strong> — project maintainer.</p>
+        <p><strong><a href="https://github.com/remcollier">Associate Professor Rem Collier</a></strong> — academic supervisor, Multi-Agent Systems researcher, and founder of <a href="https://www.astralanguage.com">ASTRA</a>.</p>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <span>&copy; 2025 Generative Layers &middot; Apache 2.0</span>
+        <div class="footer-links">
+          <a href="https://github.com/generativelayers">GitHub</a>
+          <a href="mailto:info@generativelayers.com">Contact</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+</body>
+</html>
