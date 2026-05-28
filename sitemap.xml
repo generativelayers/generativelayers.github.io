@@ -1,2 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://www.generativelayers.com/</loc><priority>1.0</priority></url><url><loc>https://www.generativelayers.com/framework.html</loc><priority>0.9</priority></url><url><loc>https://www.generativelayers.com/research.html</loc><priority>0.9</priority></url><url><loc>https://www.generativelayers.com/repositories.html</loc><priority>0.8</priority></url></urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+                            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- Main Introduction Page -->
+  <url>
+    <loc>https://www.generativelayers.com/</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Framework Architecture Page -->
+  <url>
+    <loc>https://www.generativelayers.com/framework.html</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Academic Research Context Page -->
+  <url>
+    <loc>https://www.generativelayers.com/research.html</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Code Repositories Page -->
+  <url>
+    <loc>https://www.generativelayers.com/repositories.html</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+</urlset>
