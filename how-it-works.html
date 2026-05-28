@@ -37,14 +37,11 @@
   </section>
 
   <section class="info-panel">
-    <h2>Platform targets</h2>
-    <p>The first implementation targets are established agent-oriented platforms where the framework can be evaluated without replacing the host language semantics.</p>
-    <div class="repo-grid">
-      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p>Used as a primary academic reference language for AgentSpeak-style BDI examples.</p></a>
-      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p>Used as a practical implementation and experimentation platform.</p></a>
-      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p>Relevant for experiments that combine agents, environments, and organisations.</p></a>
-      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p>Relevant for modelling external resources and environments through artifacts.</p></a>
-    </div>
+    <h2>How each platform fits</h2>
+    <div class="card"><h3><a href="https://jason-lang.github.io/">Jason</a></h3><p>Jason is the first academic reference target. A Jason adapter should expose Generative Layers as internal actions or environment-level services. The key test is whether generated outputs can be kept outside the belief base until the agent deliberately adopts them.</p></div>
+    <div class="card"><h3><a href="https://www.astralanguage.com">ASTRA</a></h3><p>ASTRA is the first practical implementation target. A Generative Layers integration can be explored through modules, actions, sensors, predicates, and events. This makes ASTRA suitable for fast experiments on governed LLM calls and structured resource responses.</p></div>
+    <div class="card"><h3><a href="https://jacamo-lang.github.io/">JaCaMo</a></h3><p>JaCaMo is relevant when the research expands from single-agent calls to multi-agent settings involving agents, artifacts, and organisations. Generative Layers can be used to study whether governance should sit at the agent, environment, or organisation boundary.</p></div>
+    <div class="card"><h3><a href="https://github.com/CArtAgO-lang/cartago">CArtAgO</a></h3><p>CArtAgO is relevant for modelling tools and external services as artifacts. This is useful when generative capabilities should appear as shared environmental resources rather than as hidden internal agent functions.</p></div>
   </section>
 
   <section class="info-panel">
