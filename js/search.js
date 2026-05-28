@@ -1,9 +1,8 @@
 const searchIndex = [
-  { title: 'Introduction', url: 'index.html', text: 'Generative Layers Java framework governed generative resource layers agent systems Jason ASTRA JaCaMo CArtAgO' },
+  { title: 'Introduction', url: 'index.html', text: 'Generative Layers Java framework governed generative resource layers agent systems ASTRA Jason JaCaMo CArtAgO adapters integrations BDI languages MAS frameworks email' },
   { title: 'Framework', url: 'framework.html', text: 'request path adapter governance provider candidate material design rules beliefs plans actions LLM tools APIs services' },
-  { title: 'Research', url: 'research.html', text: 'research problem questions contribution thesis BDI agents multi agent systems University College Dublin Rem Collier Dimitrios Kyriakidis' },
-  { title: 'Repositories', url: 'repositories.html', text: 'framework examples docs GitHub Java Jason ASTRA JaCaMo CArtAgO' },
-  { title: 'Collaboration', url: 'collaboration.html', text: 'collaboration adapters integrations BDI languages MAS frameworks email code prototype repository' }
+  { title: 'Research', url: 'research.html', text: 'research problem questions contribution thesis BDI agents multi agent systems University College Dublin Rem Collier Dimitrios Kyriakidis ASTRA' },
+  { title: 'Repositories', url: 'repositories.html', text: 'framework examples docs GitHub Java ASTRA Jason JaCaMo CArtAgO' }
 ];
 
 window.initSearch = function initSearch() {
