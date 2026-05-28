@@ -111,26 +111,11 @@ a:hover {
   max-width: 1400px;
 }
 
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: white;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.header-brand img {
+.header-logo {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-}
-
-.header-brand span {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .search-wrapper {
@@ -215,18 +200,7 @@ a:hover {
   font-size: 14px;
 }
 
-.header-github {
-  display: flex;
-  align-items: center;
-  color: rgba(255,255,255,0.8);
-  font-size: 22px;
-  transition: color 0.2s var(--ease);
-  flex-shrink: 0;
-}
 
-.header-github:hover {
-  color: white;
-}
 
 /* Mobile hamburger */
 .menu-toggle {
@@ -698,9 +672,6 @@ p, li {
     flex: 1;
   }
 
-  .header-brand span {
-    display: none;
-  }
 }
 
 @media (max-width: 500px) {
