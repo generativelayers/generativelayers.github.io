@@ -16,33 +16,62 @@
 <aside class="side">
   <a class="active" href="index.html">1. Introduction and Overview</a>
   <a href="repositories.html">2. Repositories</a>
-  <a href="concepts.html">3. Generative Layers Concepts</a>
-  <a href="getting-started.html">4. Getting Started</a>
-  <a href="core-concepts.html">5. Core Concepts</a>
-  <a href="api.html">6. API Library</a>
-  <a href="publications.html">7. Publications</a>
+  <a href="how-it-works.html">3. How it Works</a>
+  <a href="concepts.html">4. Generative Layers Concepts</a>
+  <a href="getting-started.html">5. Getting Started</a>
+  <a href="core-concepts.html">6. Core Concepts</a>
+  <a href="api.html">7. API Library</a>
+  <a href="publications.html">8. Publications</a>
 </aside>
 <main class="main">
   <h1>Welcome to Generative Layers</h1>
-  <p class="lead">A governed generative agent framework for semantically controlled interaction with external models, tools, services, and resources.</p>
+  <p class="lead">A governed generative agent framework for semantically controlled interaction with external models, tools, services, APIs, and resources.</p>
   <p>Generative Layers is framework infrastructure for agent systems that need controlled access to modern generative and agentic AI capabilities while preserving the reasoning semantics of established agent platforms.</p>
   <p>The project separates agent-side decisions from external resource calls so that interaction can be checked, logged, governed, tested, and handled through explicit framework boundaries.</p>
 
   <section class="info-panel">
-    <h2>Project origin</h2>
-    <p>Generative Layers started as thesis-oriented research by Dimitrios Kyriakidis as part of the MSc in Advanced Software Engineering at University College Dublin. The work investigates how governance, decision constraints, and external generative capabilities can be layered around agent systems without collapsing those concerns into the agent's internal reasoning process.</p>
+    <h2>What it is</h2>
+    <p>Generative Layers is not a chatbot wrapper and it is not a replacement for ASTRA, Jason, JaCaMo, or other agent-oriented platforms. It is a framework layer that sits between an agent system and external generative resources.</p>
+    <p>The framework exposes external capabilities as governed resources. An agent can ask for a generated answer, a tool assessment, a candidate plan, a structured analysis, or a resource action. The result is returned as candidate material. The agent system still decides whether that material becomes a belief, supports a goal, triggers an action, or is rejected.</p>
   </section>
 
   <section class="info-panel">
     <h2>Why this framework is needed</h2>
-    <p>Current agentic AI systems often rely on large language models to plan, choose tools, call services, and revise their behaviour. That is powerful, but it can blur the boundary between reasoning, execution, tool use, and external generation.</p>
-    <p>Generative Layers aims to provide a reusable framework where BDI and agent-oriented systems can use these capabilities through governed resource layers. LLM output is treated as candidate external material, not as automatic belief, intention, or action. The agent platform remains responsible for adoption, admissibility, execution, and traceability.</p>
+    <p>Current agentic AI systems often rely on large language models to plan, choose tools, call services, and revise behaviour. That is powerful, but it can blur the boundary between reasoning, execution, tool use, and external generation.</p>
+    <p>Generative Layers aims to make that boundary explicit. LLM output is treated as external candidate material, not as automatic belief, intention, or action. The agent platform remains responsible for adoption, admissibility, execution, and traceability.</p>
+  </section>
+
+  <section class="info-panel">
+    <h2>How it is used</h2>
+    <ol class="flow-list">
+      <li>An ASTRA or Jason agent reaches a goal, plan step, action, or module call that requires generative support.</li>
+      <li>The platform adapter sends a structured request to Generative Layers.</li>
+      <li>The governance layer checks policies, context, admissibility rules, limits, and audit requirements.</li>
+      <li>A provider module invokes the selected external resource, such as an LLM, API, tool, service, or assessment module.</li>
+      <li>The response is normalised into a structured result with status, evidence, warnings, metadata, and audit information.</li>
+      <li>The agent receives the result and decides what to do using its own language semantics.</li>
+    </ol>
+  </section>
+
+  <section class="info-panel">
+    <h2>Framework shape</h2>
+    <div class="repo-grid">
+      <div class="card"><h3>Core</h3><p>Shared request, response, policy, audit, provider, and execution abstractions.</p></div>
+      <div class="card"><h3>Adapters</h3><p>Thin integrations for ASTRA, Jason, and later JaCaMo or CArtAgO-style environments.</p></div>
+      <div class="card"><h3>Providers</h3><p>Modules that connect governed requests to LLMs, APIs, tools, services, and external resources.</p></div>
+      <div class="card"><h3>Tests</h3><p>Experiments comparing direct generative behaviour against BDI-controlled generative resource usage.</p></div>
+    </div>
   </section>
 
   <section class="info-panel">
     <h2>Research direction</h2>
-    <p>The framework is intended to support experiments in ASTRA and Jason, with extensions toward JaCaMo and CArtAgO-style environments. The goal is to make agentic AI techniques testable within agent programming languages, so that implementation results can be evaluated and developed into academic publications.</p>
-    <p>The broader research direction is BDI-first, not BDI-only: the initial focus is on BDI agent systems because they provide clear semantics for beliefs, goals, intentions, plans, actions, and deliberation. Later work may generalise the framework to other agent-oriented and autonomous software systems.</p>
+    <p>The framework is intended to support experiments in ASTRA and Jason, with extensions toward JaCaMo and CArtAgO-style environments. The goal is to make agentic AI techniques testable within agent programming languages, so implementation results can be evaluated and developed into academic publications.</p>
+    <p>The broader research direction is BDI-first, not BDI-only. The initial focus is on BDI agent systems because they provide clear semantics for beliefs, goals, intentions, plans, actions, and deliberation. Later work may generalise the framework to other agent-oriented and autonomous software systems.</p>
+  </section>
+
+  <section class="info-panel">
+    <h2>Project origin</h2>
+    <p>Generative Layers started as thesis-oriented research by Dimitrios Kyriakidis as part of the MSc in Advanced Software Engineering at University College Dublin. The work investigates how governance, decision constraints, and external generative capabilities can be layered around agent systems without collapsing those concerns into the agent's internal reasoning process.</p>
   </section>
 
   <section class="info-panel">
@@ -57,7 +86,8 @@
     <p><strong>Associate Professor Rem Collier</strong> — Multi-Agent Systems researcher, University College Dublin.</p>
   </section>
 
-  <a class="button" href="https://github.com/generativelayers">View GitHub Organization</a>
+  <a class="button" href="how-it-works.html">Read how it works</a>
+  <a class="button secondary" href="https://github.com/generativelayers">View GitHub Organization</a>
 </main>
 </div>
 </body>
