@@ -36,13 +36,13 @@
   </section>
 
   <section class="info-panel">
-    <h2>Target platforms</h2>
-    <p>The initial research and implementation direction is BDI-first, using established agent programming languages and environment frameworks as test targets.</p>
+    <h2>Target platforms and source material</h2>
+    <p>The first implementation direction is BDI-first. These platforms provide the language, runtime, environment, and organisation material needed to test Generative Layers across real agent-oriented systems.</p>
     <div class="repo-grid">
-      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p>AgentSpeak-based BDI programming language and reference target for academic examples.</p></a>
-      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p>Agent programming language used as an implementation and experimentation target.</p></a>
-      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p>Multi-agent programming platform combining Jason, CArtAgO, and organisational abstractions.</p></a>
-      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p>Artifact and environment framework relevant for resource and environment-level integration.</p></a>
+      <a class="repo-card" href="https://jason-lang.github.io/"><h3>Jason</h3><p><strong>Official site:</strong> jason-lang.github.io</p><p>Jason is the primary academic reference target for AgentSpeak-style BDI examples. Generative Layers should provide a Jason adapter where generated outputs are returned as structured candidate material and only become beliefs, plans, or actions through explicit Jason-side reasoning.</p></a>
+      <a class="repo-card" href="https://www.astralanguage.com"><h3>ASTRA</h3><p><strong>Official site:</strong> astralanguage.com</p><p>ASTRA is the practical implementation and experimentation target. Generative Layers should integrate through ASTRA modules, actions, sensors, predicates, or events while keeping ASTRA's agent cycle and language semantics intact.</p></a>
+      <a class="repo-card" href="https://jacamo-lang.github.io/"><h3>JaCaMo</h3><p><strong>Official site:</strong> jacamo-lang.github.io</p><p>JaCaMo is relevant for experiments that combine agents, shared environments, and organisational abstractions. Generative Layers can later be evaluated in richer MAS scenarios where governance applies across agents, roles, artefacts, and coordinated tasks.</p></a>
+      <a class="repo-card" href="https://github.com/CArtAgO-lang/cartago"><h3>CArtAgO</h3><p><strong>Repository:</strong> github.com/CArtAgO-lang/cartago</p><p>CArtAgO is relevant for modelling environments and external resources through artifacts. It is a strong candidate for treating generative tools, LLM services, APIs, and assessment modules as governed resources available to agents.</p></a>
     </div>
   </section>
 
