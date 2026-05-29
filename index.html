@@ -120,9 +120,27 @@
             </button>
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
-            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 12px; color: var(--color-text-secondary);">Generative Layers is built to support secure integration with prominent BDI (Belief-Desire-Intention) agent languages and multi-agent programming platforms. The core framework currently offers native, production-tested integrations for <strong>ASTRA</strong>, <strong>Jason</strong>, and the integrated <strong>JaCaMo</strong> platform (which binds Jason BDI agents, CArtAgO environments, and Moise organizations together).</p>
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 16px; color: var(--color-text-secondary);">Generative Layers is built to support secure integration with prominent BDI (Belief-Desire-Intention) agent languages and multi-agent programming platforms. The core framework currently offers native, production-tested integrations for <strong>ASTRA</strong>, <strong>Jason</strong>, and the integrated <strong>JaCaMo</strong> platform (which binds Jason BDI agents, CArtAgO environments, and Moise organizations together).</p>
             
-            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 12px; color: var(--color-text-secondary);">To view complete syntax comparisons, code snippets, and learn how integrations are realized natively under the hood (as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts), explore the <a href="framework.html#platform-syntax">Platform syntax comparison</a> developer reference guide.</p>
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 16px; font-weight: 600; color: var(--color-text);">Compare how the same governance flow (configuring, invoking, validating, and adopting candidate material) is realized natively across each target agent environment:</p>
+
+            <!-- Platform Integration Architectures Sub-Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 16px 0 24px 0;">
+              <div style="padding: 18px; border-left: 3px solid #1e40af; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #1e40af;">
+                <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em;">ASTRA Module</h4>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a native <strong>ASTRA Module</strong> written in Java. Commands are mapped to inline custom statements prefixed with the module binding <code>gl</code>.</p>
+              </div>
+              <div style="padding: 18px; border-left: 3px solid #be185d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #be185d;">
+                <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #be185d; text-transform: uppercase; letter-spacing: 0.05em;">Jason Internal Actions</h4>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as standard <strong>AgentSpeak Internal Actions</strong> in Java. Invoked natively by BDI agents using custom extensions prefixed with <code>gl.</code>.</p>
+              </div>
+              <div style="padding: 18px; border-left: 3px solid #15803d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #15803d;">
+                <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.05em;">CArtAgO Artifact (JaCaMo)</h4>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a <strong>CArtAgO Environment Artifact</strong> in Java. Commands are operations called once focused on the artifact, receiving updates via observable beliefs.</p>
+              </div>
+            </div>
+
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 12px; color: var(--color-text-secondary);">To view complete syntax comparisons, code snippets, and learn how integrations are realized natively under the hood, explore the <a href="framework.html#platform-syntax">Platform syntax comparison</a> developer reference guide.</p>
             
             <p style="font-size: 15px; line-height: 1.6; border-top: 1px dashed var(--color-border); padding-top: 12px; margin-bottom: 0; color: var(--color-text-secondary);">Interested in connecting Generative Layers to another BDI agent language, Multi-Agent System (MAS) framework, or custom agent platform? We warmly welcome new integrations and adapters! Contact us at <a href="mailto:info@generativelayers.com">info@generativelayers.com</a>.</p>
           </div>
