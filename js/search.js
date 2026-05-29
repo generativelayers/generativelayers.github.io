@@ -222,9 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     results.className = 'search-results';
     wrapper.appendChild(results);
 
-    // Set premium placeholder
-    input.setAttribute('placeholder', 'Search... (Press \'/\' to focus)');
-
     let activeIdx = -1;
 
     async function ensureIndex() {
