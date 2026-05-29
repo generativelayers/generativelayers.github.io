@@ -415,6 +415,38 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
             </div>
           </div>
           <div class="tab-content active" id="p3-astra">
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
+
+    <span class="keyword">rule</span> +!main(list args) {
+        console.println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
+        gl.use_provider();
+        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+        !decide(rid);
+    }
+
+    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        string cid = gl.candidate(rid);
+        string conf = gl.field(rid, <span class="string">"confidence"</span>);
+        !assess(cid, conf);
+    }
+
+    <span class="keyword">rule</span> +!assess(string cid, string conf) : conf == <span class="string">"1.0"</span> {
+        gl.accept(cid);
+        console.println(<span class="string">"High confidence (1.0) &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="keyword">rule</span> +!assess(string cid, string conf) : conf == <span class="string">"0.0"</span> {
+        gl.reject(cid);
+        console.println(<span class="string">"Low confidence (0.0) &rarr; REJECTED"</span>);
+    }
+
+    <span class="keyword">rule</span> +!assess(string cid, string conf) {
+        console.println(<span class="string">"Medium confidence ("</span> + conf + <span class="string">") &rarr; ESCALATING"</span>);
+    }
+}</code></pre>
+          </div>
             <pre><code><span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
     string cid = gl.candidate(rid);
     double conf = (double) gl.field(rid, <span class="string">"confidence"</span>);
@@ -440,6 +472,34 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
 }</code></pre>
           </div>
           <div class="tab-content" id="p3-jason">
+            <pre><code>!start.
+
++!start
+   &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
+      gl.use_provider;
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !decide(Rid).
+
++!decide(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- gl.candidate(Rid, Cid);
+      gl.field(Rid, <span class="string">"confidence"</span>, Conf);
+      !assess(Cid, Conf).
+
++!assess(Cid, <span class="string">"1.0"</span>)
+   &lt;- gl.accept(Cid);
+      .println(<span class="string">"High confidence (1.0) -&gt; ACCEPTED"</span>);
+      .stopMAS.
+
++!assess(Cid, <span class="string">"0.0"</span>)
+   &lt;- gl.reject(Cid);
+      .println(<span class="string">"Low confidence (0.0) -&gt; REJECTED"</span>);
+      .stopMAS.
+
++!assess(Cid, Conf)
+   &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
+      .stopMAS.</code></pre>
+          </div>
             <pre><code>+!decide(Rid)
     :   gl.valid(Rid, <span class="keyword">true</span>)
     <-  gl.candidate(Rid, Cid);
@@ -465,6 +525,40 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
         .print(<span class="string">"Low confidence &mdash; rejected"</span>).</code></pre>
           </div>
           <div class="tab-content" id="p3-jacamo">
+            <pre><code>!start.
+
++!start
+   &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
+      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId);
+      use_provider;
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      valid(Rid, IsValid);
+      !decide(Rid, IsValid).
+
++!decide(Rid, <span class="keyword">true</span>)
+   &lt;- candidate(Rid, Cid);
+      field(Rid, <span class="string">"confidence"</span>, Conf);
+      !assess(Cid, Conf).
+
++!decide(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
+      .stopMAS.
+
++!assess(Cid, <span class="string">"1.0"</span>)
+   &lt;- accept(Cid);
+      .println(<span class="string">"High confidence (1.0) -&gt; ACCEPTED"</span>);
+      .stopMAS.
+
++!assess(Cid, <span class="string">"0.0"</span>)
+   &lt;- reject(Cid);
+      .println(<span class="string">"Low confidence (0.0) -&gt; REJECTED"</span>);
+      .stopMAS.
+
++!assess(Cid, Conf)
+   &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
+      .stopMAS.</code></pre>
+          </div>
             <pre><code>+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
     candidate(Rid, Cid);
     field(Rid, <span class="string">"confidence"</span>, Conf);
