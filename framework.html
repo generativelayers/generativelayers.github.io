@@ -429,7 +429,7 @@ rule +!request_support(string agent, string goal, string prompt) {
               <tr class="cmd-row" id="row-invoke_with_beliefs" data-group="invocation">
                 <td><code class="cmd-name">invoke_with_beliefs(...)</code></td>
                 <td><span class="badge-str">String</span></td>
-                <td>Execute a generative body, prepending structured beliefs as RAG context.</td>
+                <td>Execute a generative body, prepending structured agent beliefs as <strong>RAG</strong> (Retrieval-Augmented Generation) context to ground the LLM output in existing knowledge.</td>
                 <td style="text-align: center;">
                   <button class="view-example-btn" onclick="toggleRow('invoke_with_beliefs')" title="View Examples">
                     <i class="fa-solid fa-eye"></i>
@@ -1045,6 +1045,7 @@ rule +!peer_review(string cid) {
                 <code style="font-size: 13px; font-weight: 700; color: #7c3aed;">rag.ground</code>
                 <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f5f3ff; color: #7c3aed; margin-left: 6px;">RAG</span>
                 <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">GROUND_FACT · SUMMARISE · EXPLAIN</p>
+                <p style="margin: 4px 0 0 0; font-size: 11.5px; color: var(--color-text-muted); line-height: 1.4;">Retrieval-Augmented Generation: agent beliefs are prepended to the prompt so outputs are grounded in existing knowledge.</p>
               </div>
               <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #0891b2; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
                 <code style="font-size: 13px; font-weight: 700; color: #0891b2;">planner.decompose</code>
