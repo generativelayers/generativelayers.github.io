@@ -82,15 +82,51 @@
 
       <section class="info-panel" id="target-platforms">
         <h2>Target platforms</h2>
-        <p>Generative Layers is built to support secure integration with prominent BDI (Belief-Desire-Intention) agent languages and multi-agent programming platforms. The core framework currently offers native, production-tested integrations for <strong>ASTRA</strong>, <strong>Jason</strong>, and the integrated <strong>JaCaMo</strong> platform (which binds Jason BDI agents, CArtAgO environments, and Moise organizations together).</p>
         
-        <p style="margin-top: 16px;">
-          To view complete syntax comparisons, code snippets, and learn how integrations are realized natively under the hood (as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts), explore the <a href="framework.html#platform-syntax">Platform syntax comparison</a> developer reference guide.
-        </p>
+        <!-- Platform Links Grid -->
+        <div class="repo-grid" style="margin-bottom: 20px;">
+          <a class="repo-card" href="https://www.astralanguage.com" target="_blank" rel="noopener noreferrer">
+            <h3 style="margin: 0; display: flex; align-items: center; justify-content: space-between;">
+              <span>ASTRA</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; color: var(--color-text-muted);"></i>
+            </h3>
+            <p style="margin: 6px 0 0 0; font-size: 14px; font-weight: normal; color: var(--color-text-secondary);">AgentSpeak(TR)-style BDI target.</p>
+          </a>
+          <a class="repo-card" href="https://jason-lang.github.io/" target="_blank" rel="noopener noreferrer">
+            <h3 style="margin: 0; display: flex; align-items: center; justify-content: space-between;">
+              <span>Jason</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; color: var(--color-text-muted);"></i>
+            </h3>
+            <p style="margin: 6px 0 0 0; font-size: 14px; font-weight: normal; color: var(--color-text-secondary);">AgentSpeak-style BDI target.</p>
+          </a>
+          <a class="repo-card" href="https://jacamo-lang.github.io/" target="_blank" rel="noopener noreferrer">
+            <h3 style="margin: 0; display: flex; align-items: center; justify-content: space-between;">
+              <span>JaCaMo</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; color: var(--color-text-muted);"></i>
+            </h3>
+            <p style="margin: 6px 0 0 0; font-size: 14px; font-weight: normal; color: var(--color-text-secondary);">Jason, CArtAgO, and Moise integration.</p>
+          </a>
+        </div>
 
-        <p style="margin-top: 20px; font-size: 15.5px; line-height: 1.6; color: var(--color-text-secondary); border-top: 1px dashed var(--color-border); padding-top: 16px;">
-          Interested in connecting Generative Layers to another BDI agent language, Multi-Agent System (MAS) framework, or custom agent platform? We warmly welcome new integrations and adapters! Contact us at <a href="mailto:info@generativelayers.com">info@generativelayers.com</a>.
-        </p>
+        <!-- Expandable Adapter Specifications -->
+        <div class="concept-card card" id="concept-platform-details" onclick="toggleConcept('platform-details')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-layer-group"></i> Integration Details & Specifications</h3>
+              <p class="concept-desc">Governance architecture, target platforms, and custom integration adapters.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 12px; color: var(--color-text-secondary);">Generative Layers is built to support secure integration with prominent BDI (Belief-Desire-Intention) agent languages and multi-agent programming platforms. The core framework currently offers native, production-tested integrations for <strong>ASTRA</strong>, <strong>Jason</strong>, and the integrated <strong>JaCaMo</strong> platform (which binds Jason BDI agents, CArtAgO environments, and Moise organizations together).</p>
+            
+            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 12px; color: var(--color-text-secondary);">To view complete syntax comparisons, code snippets, and learn how integrations are realized natively under the hood (as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts), explore the <a href="framework.html#platform-syntax">Platform syntax comparison</a> developer reference guide.</p>
+            
+            <p style="font-size: 15px; line-height: 1.6; border-top: 1px dashed var(--color-border); padding-top: 12px; margin-bottom: 0; color: var(--color-text-secondary);">Interested in connecting Generative Layers to another BDI agent language, Multi-Agent System (MAS) framework, or custom agent platform? We warmly welcome new integrations and adapters! Contact us at <a href="mailto:info@generativelayers.com">info@generativelayers.com</a>.</p>
+          </div>
+        </div>
       </section>
 
       <!-- Footer -->
@@ -103,6 +139,22 @@
       </footer>
     </main>
   </div>
+
+  <script>
+    // --- Toggle Core Concept Accordion ---
+    window.toggleConcept = function(conceptId) {
+      const card = document.getElementById('concept-' + conceptId);
+      if (!card) return;
+      
+      const isExpanded = card.classList.contains('expanded');
+      
+      if (isExpanded) {
+        card.classList.remove('expanded');
+      } else {
+        card.classList.add('expanded');
+      }
+    };
+  </script>
 
 </body>
 </html>
