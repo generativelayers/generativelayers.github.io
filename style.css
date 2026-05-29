@@ -1031,9 +1031,9 @@ pre code {
 }
 
 /* Simple Premium Syntax Colors */
-.tab-content .keyword { color: #f472b6; font-weight: 600; }
-.tab-content .comment { color: #6b7280; font-style: italic; }
-.tab-content .string  { color: #34d399; }
+.tab-content .keyword, .tabs-container .keyword { color: #f472b6; font-weight: 600; }
+.tab-content .comment, .tabs-container .comment { color: #6b7280; font-style: italic; }
+.tab-content .string, .tabs-container .string  { color: #34d399; }
 
 /* ================================================================
    Responsive Custom Tweaks

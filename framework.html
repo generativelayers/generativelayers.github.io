@@ -79,7 +79,7 @@
       <p class="lead">The framework boundary between agent programs and external generative resources.</p>
 
       <section class="info-panel" id="getting-started">
-        <h2><i class="fa-solid fa-rocket" style="margin-right:8px;color:var(--color-accent);"></i>Getting started</h2>
+        <h2><i class="fa-solid fa-rocket" style="margin-right:8px;color:var(--color-green-700);"></i>Getting started</h2>
         <p>Generative Layers is available on <strong>Maven Central</strong>. Add it to your project and start integrating LLMs into your BDI agents in minutes.</p>
 
         <!-- Install Tabs -->
@@ -89,39 +89,39 @@
         </div>
 
         <div id="install-maven" class="install-block">
-          <div style="position:relative;">
+          <div class="tabs-container" style="position:relative;margin:0;">
             <pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;<span style="color:var(--color-accent);">com.generativelayers</span>&lt;/groupId&gt;
-    &lt;artifactId&gt;<span style="color:var(--color-accent);">generative-layers-core</span>&lt;/artifactId&gt;
-    &lt;version&gt;<span style="color:#4ade80;">0.1.0</span>&lt;/version&gt;
+    &lt;groupId&gt;<span class="string">com.generativelayers</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="string">generative-layers-core</span>&lt;/artifactId&gt;
+    &lt;version&gt;<span class="string">0.1.0</span>&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-            <button class="copy-btn" onclick="copySnippet(this, '&lt;dependency&gt;\n    &lt;groupId&gt;com.generativelayers&lt;/groupId&gt;\n    &lt;artifactId&gt;generative-layers-core&lt;/artifactId&gt;\n    &lt;version&gt;0.1.0&lt;/version&gt;\n&lt;/dependency&gt;')" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--color-text-secondary);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
+            <button class="copy-btn" onclick="copySnippet(this, '&lt;dependency&gt;\n    &lt;groupId&gt;com.generativelayers&lt;/groupId&gt;\n    &lt;artifactId&gt;generative-layers-core&lt;/artifactId&gt;\n    &lt;version&gt;0.1.0&lt;/version&gt;\n&lt;/dependency&gt;')" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#8f929d;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
               <i class="fa-regular fa-copy"></i>
             </button>
           </div>
         </div>
 
         <div id="install-gradle" class="install-block" style="display:none;">
-          <div style="position:relative;">
-            <pre><code>implementation '<span style="color:var(--color-accent);">com.generativelayers</span>:<span style="color:var(--color-accent);">generative-layers-core</span>:<span style="color:#4ade80;">0.1.0</span>'</code></pre>
-            <button class="copy-btn" onclick="copySnippet(this, &quot;implementation 'com.generativelayers:generative-layers-core:0.1.0'&quot;)" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--color-text-secondary);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
+          <div class="tabs-container" style="position:relative;margin:0;">
+            <pre><code>implementation '<span class="string">com.generativelayers</span>:<span class="string">generative-layers-core</span>:<span class="string">0.1.0</span>'</code></pre>
+            <button class="copy-btn" onclick="copySnippet(this, &quot;implementation 'com.generativelayers:generative-layers-core:0.1.0'&quot;)" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#8f929d;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
               <i class="fa-regular fa-copy"></i>
             </button>
           </div>
         </div>
 
         <div style="margin-top:16px;">
-          <a href="https://central.sonatype.com/artifact/com.generativelayers/generative-layers-core" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-accent);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          <a href="https://central.sonatype.com/artifact/com.generativelayers/generative-layers-core" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-green-700);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Maven Central
           </a>
-          <span style="margin:0 12px;color:rgba(255,255,255,0.2);">|</span>
-          <a href="https://github.com/generativelayers/framework" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-accent);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          <span style="margin:0 12px;color:var(--color-border);">|</span>
+          <a href="https://github.com/generativelayers/framework" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-green-700);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
             <i class="fa-brands fa-github"></i> Source on GitHub
           </a>
         </div>
 
         <!-- Prerequisites -->
-        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-list-check" style="margin-right:8px;color:var(--color-accent);"></i>Prerequisites</h3>
+        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-list-check" style="margin-right:8px;color:var(--color-green-700);"></i>Prerequisites</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;margin-top:12px;">
           <div class="card" style="padding:14px 16px;">
             <div style="font-weight:600;font-size:14px;margin-bottom:4px;"><i class="fa-brands fa-java" style="margin-right:6px;color:#f89820;"></i>Java 17+</div>
@@ -138,102 +138,34 @@
         </div>
 
         <!-- Environment Setup -->
-        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-gear" style="margin-right:8px;color:var(--color-accent);"></i>Environment setup</h3>
+        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-gear" style="margin-right:8px;color:var(--color-green-700);"></i>Environment setup</h3>
         <p style="font-size:14px;color:var(--color-text-secondary);margin-top:8px;">Set your LLM API key as an environment variable. The framework reads it automatically at runtime.</p>
-        <pre><code><span class="comment"># Gemini (Google AI)</span>
+        <div class="tabs-container" style="margin:12px 0;">
+          <pre><code><span class="comment"># Gemini (Google AI)</span>
 export GEMINI_API_KEY="your-gemini-api-key"
 
 <span class="comment"># OpenAI (alternative)</span>
 export OPENAI_API_KEY="your-openai-api-key"</code></pre>
-
-        <!-- Minimal Example -->
-        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-accent);"></i>Minimal example</h3>
-        <p style="font-size:14px;color:var(--color-text-secondary);margin-top:8px;">A complete agent that configures a provider, sends a prompt, validates the output, and decides whether to adopt it. This is the full GL lifecycle in &sim;10 lines.</p>
-
-        <div class="command-filters" style="margin-bottom:16px;margin-top:12px;">
-          <button class="filter-btn active" onclick="switchExampleTab('astra')" id="example-tab-astra">ASTRA</button>
-          <button class="filter-btn" onclick="switchExampleTab('jason')" id="example-tab-jason">Jason</button>
-          <button class="filter-btn" onclick="switchExampleTab('jacamo')" id="example-tab-jacamo">JaCaMo</button>
         </div>
 
-        <div id="example-astra" class="example-block">
-          <pre><code><span class="comment">// ASTRA — complete GL lifecycle</span>
-agent MyAgent extends gl.GLModule {
-    rule +!main(list args) {
-        <span class="comment">// 1. Configure & activate provider</span>
-        gl.configure("model", "gemini-2.0-flash");
-        gl.use_provider("gemini");
-
-        <span class="comment">// 2. Invoke the LLM with a prompt</span>
-        string rid = gl.ask("MyAgent", "classify",
-            "Classify this fruit: apple");
-
-        <span class="comment">// 3. Check validity & adopt result</span>
-        if (gl.valid(rid)) {
-            string label = gl.field(rid, "label");
-            string cid = gl.candidate(rid);
-            gl.accept(cid);
-            console.println("Adopted: " + label);
-        } else {
-            console.println("Rejected: " + gl.outcome(rid));
-        }
-    }
-}</code></pre>
-        </div>
-
-        <div id="example-jason" class="example-block" style="display:none;">
-          <pre><code><span class="comment">// Jason — complete GL lifecycle</span>
-!main.
-
-+!main <-
-    <span class="comment">// 1. Configure & activate provider</span>
-    gl.configure("model", "gemini-2.0-flash");
-    gl.use_provider("gemini");
-
-    <span class="comment">// 2. Invoke the LLM with a prompt</span>
-    gl.ask("agent1", "classify",
-        "Classify this fruit: apple", Rid);
-
-    <span class="comment">// 3. Check validity & adopt result</span>
-    !decide(Rid).
+        <!-- Minimal Usage -->
+        <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-green-700);"></i>What it looks like</h3>
+        <p style="font-size:14px;color:var(--color-text-secondary);margin-top:8px;">A one-call invocation with governed validation. See the full lifecycle across all three platforms in the <a href="#platform-syntax" style="color:var(--color-green-700);font-weight:600;">Platform syntax comparison</a> below.</p>
+        <div class="tabs-container" style="margin:12px 0;">
+          <pre><code><span class="comment">// Jason — ask, validate, adopt</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);
+gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
 
 +!decide(Rid) : gl.valid(Rid, true) <-
-    gl.field(Rid, "label", Label);
+    gl.field(Rid, <span class="string">"label"</span>, Label);
     gl.candidate(Rid, Cid);
     gl.accept(Cid);
-    .print("Adopted: ", Label).
-
-+!decide(Rid) : gl.valid(Rid, false) <-
-    gl.outcome(Rid, Outcome);
-    .print("Rejected: ", Outcome).</code></pre>
+    .print(<span class="string">"Adopted: "</span>, Label).</code></pre>
         </div>
 
-        <div id="example-jacamo" class="example-block" style="display:none;">
-          <pre><code><span class="comment">// JaCaMo — complete GL lifecycle (artifact-based)</span>
-!main.
-
-+!main <-
-    <span class="comment">// 1. Configure & activate provider</span>
-    configure("model", "gemini-2.0-flash");
-    use_provider("gemini");
-
-    <span class="comment">// 2. Invoke the LLM with a prompt</span>
-    ask("agent1", "classify",
-        "Classify this fruit: apple", Rid).
-
-<span class="comment">// 3. React to observable property changes</span>
-+gl_result(Rid, Outcome, true) <-
-    field(Rid, "label", Label);
-    candidate(Rid, Cid);
-    accept(Cid);
-    .print("Adopted: ", Label).
-
-+gl_result(Rid, Outcome, false) <-
-    .print("Rejected: ", Outcome).</code></pre>
-        </div>
-
-        <div class="card" style="padding:16px;margin-top:16px;border-left:3px solid var(--color-accent);">
-          <div style="font-weight:600;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;color:var(--color-accent);"></i>What just happened?</div>
+        <div class="card" style="padding:16px;margin-top:16px;border-left:3px solid var(--color-green-700);">
+          <div style="font-weight:600;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;color:var(--color-green-700);"></i>What just happened?</div>
           <ol style="font-size:13px;color:var(--color-text-secondary);margin:0;padding-left:20px;line-height:1.7;">
             <li><strong>configure + use_provider</strong> — selected Gemini as the active LLM provider.</li>
             <li><strong>ask</strong> — sent a prompt through the governance pipeline → provider → returned a result ID.</li>
@@ -245,13 +177,13 @@ agent MyAgent extends gl.GLModule {
 
         <!-- Full Examples Link -->
         <div style="margin-top:20px;">
-          <a href="https://github.com/generativelayers/examples" target="_blank" rel="noopener" class="card" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;text-decoration:none;color:var(--color-text);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--color-accent)'" onmouseout="this.style.borderColor=''">
+          <a href="https://github.com/generativelayers/examples" target="_blank" rel="noopener" class="card" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;text-decoration:none;color:var(--color-text);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--color-green-700)'" onmouseout="this.style.borderColor=''">
             <i class="fa-brands fa-github" style="font-size:18px;"></i>
             <div>
               <div style="font-weight:600;font-size:14px;">Browse full examples</div>
               <div style="font-size:12px;color:var(--color-text-secondary);">6 complete projects across ASTRA, Jason, and JaCaMo.</div>
             </div>
-            <i class="fa-solid fa-arrow-right" style="margin-left:auto;color:var(--color-accent);"></i>
+            <i class="fa-solid fa-arrow-right" style="margin-left:auto;color:var(--color-green-700);"></i>
           </a>
         </div>
       </section>
