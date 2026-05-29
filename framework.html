@@ -766,42 +766,7 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-assess" data-group="deliberation" onclick="toggleRow('assess')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">assess(...)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
-                <td><span class="badge-bool">boolean</span></td>
-                <td>Record a peer verdict assessment of another agent's candidate.</td>
-              </tr>
-              <tr class="cmd-details-row" id="details-assess" style="display: none;">
-                <td colspan="3" style="padding: 0;">
-                  <div class="cmd-details-content">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
-                      <div class="mini-tabs">
-                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'assess', 'astra')">ASTRA</button>
-                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jason')">Jason</button>
-                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jacamo')">JaCaMo</button>
-                      </div>
-                    </div>
-                    <div class="mini-code-container">
-                      <div class="mini-code-block active" id="code-assess-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!verify_peer(string cid) {
-    gl.assess("peer_b", cid, "ACCEPT", 0.95, "Adheres to safety");
-}</code></pre></div>
-                      <div class="mini-code-block" id="code-assess-jason"><pre><code><span class="comment">// Jason</span>
-+!verify_peer(Cid) <-
-    gl.assess("peer_b", Cid, "ACCEPT", 0.95, "Adheres to safety").</code></pre></div>
-                      <div class="mini-code-block" id="code-assess-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-+!verify_peer(Cid) <-
-    assess("peer_b", Cid, "ACCEPT", 0.95, "Adheres to safety").</code></pre></div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
+
             </tbody>
           </table>
         </div>
