@@ -235,241 +235,6 @@
         </div>
       </section>
 
-      <section class="info-panel" id="architecture-internals">
-        <h2>Architecture internals</h2>
-        <p>The 16 canonical commands are powered by a layered internal architecture. These components are not directly exposed to agent code — they operate behind the adapter boundary, governing every <code>invoke()</code> call.</p>
-
-        <!-- Generative Bodies & Affordances -->
-        <div class="concept-card card" id="concept-bodies" onclick="toggleConcept('bodies')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-cubes"></i> Generative Bodies &amp; Affordances</h3>
-              <p class="concept-desc">Pre-registered body instances, affordance types, and candidate type mapping.</p>
-            </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
-            <p style="margin: 0 0 12px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">When an agent calls <code>invoke(agent, goal, <strong>bodyId</strong>, <strong>affordance</strong>, prompt, required)</code>, the framework resolves the <strong>body ID</strong> to a registered <code>GenerativeBody</code> instance and maps the <strong>affordance</strong> to a semantic <code>CandidateType</code>. The shorthand <code>ask()</code> uses <code>llm.answer</code> with the <code>ANSWER</code> affordance.</p>
-
-            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">6 Pre-registered Bodies</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 16px;">
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #1e40af; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #1e40af;">llm.answer</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #eff6ff; color: #1e40af; margin-left: 6px;">LLM</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">ANSWER · CLASSIFY · SUMMARISE</p>
-              </div>
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #7c3aed; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #7c3aed;">rag.ground</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f5f3ff; color: #7c3aed; margin-left: 6px;">RAG</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">GROUND_FACT · SUMMARISE · EXPLAIN</p>
-              </div>
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #0891b2; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #0891b2;">planner.decompose</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #ecfeff; color: #0891b2; margin-left: 6px;">PLANNER</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">DECOMPOSE_GOAL</p>
-              </div>
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #ea580c; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #ea580c;">tool.propose</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #fff7ed; color: #ea580c; margin-left: 6px;">TOOL_PROPOSER</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">PROPOSE_TOOL_CALL · PROPOSE_ACTION</p>
-              </div>
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #be185d; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #be185d;">memory.retrieve</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #fdf2f8; color: #be185d; margin-left: 6px;">MEMORY</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">RETRIEVE_MEMORY</p>
-              </div>
-              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #15803d; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-                <code style="font-size: 13px; font-weight: 700; color: #15803d;">reflect.critique</code>
-                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f0fdf4; color: #15803d; margin-left: 6px;">REFLECTOR</span>
-                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">REFLECT · CRITIQUE · EXPLAIN</p>
-              </div>
-            </div>
-
-            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">13 Affordance Types</p>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ANSWER</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">CLASSIFY</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">SUMMARISE</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">GROUND_FACT</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">DECOMPOSE_GOAL</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">PROPOSE_TOOL_CALL</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">PROPOSE_ACTION</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">RETRIEVE_MEMORY</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">REFLECT</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">CRITIQUE</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ASSESS</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">EXPLAIN</code>
-              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ESCALATE</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Governance Pipeline -->
-        <div class="concept-card card" id="concept-pipeline" onclick="toggleConcept('pipeline')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-arrows-spin"></i> Governance Pipeline</h3>
-              <p class="concept-desc">The 5-step kernel pipeline executed on every invocation.</p>
-            </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
-            <p style="margin: 0 0 14px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">Every call to <code>invoke()</code> or <code>ask()</code> passes through the <code>GovernanceKernel</code>. The kernel orchestrates a strict 5-step pipeline — no step can be skipped, and every step produces an auditable trace.</p>
-            <ol style="margin: 0; padding-left: 20px; list-style: none; counter-reset: step;">
-              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
-                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #1e40af; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">1</span>
-                <strong style="color: var(--color-text);">Policy Gate</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">The <code>GovernancePolicy</code> evaluates the request. Returns <code>ALLOW</code>, <code>DENY</code>, or <code>ESCALATE</code>. Denied requests never reach the provider.</p>
-              </li>
-              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
-                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">2</span>
-                <strong style="color: var(--color-text);">Conversation Context</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">If a <code>conversationId</code> is provided, past prompt/response turns are prepended to the current prompt for multi-turn dialogue.</p>
-              </li>
-              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
-                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #ea580c; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">3</span>
-                <strong style="color: var(--color-text);">Provider Call + Retry</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">The <code>GenerativeProvider</code> calls the LLM. If the call fails or validation rejects the output, the <code>RetryPolicy</code> can re-prompt with error feedback appended.</p>
-              </li>
-              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
-                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #be185d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">4</span>
-                <strong style="color: var(--color-text);">Candidate Creation</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">Validated output is wrapped in a governed <code>Candidate</code> with status <code>VALIDATED</code> or <code>INVALID</code>. Both prompt and output are stored as content-addressed blobs.</p>
-              </li>
-              <li style="margin-bottom: 4px; position: relative; padding-left: 32px;">
-                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #15803d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">5</span>
-                <strong style="color: var(--color-text);">Trace &amp; Turn Recording</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">An immutable <code>TraceRecord</code> is created for audit. On success, the conversation context records the new turn for future multi-turn use.</p>
-              </li>
-            </ol>
-          </div>
-        </div>
-
-        <!-- Kernel SPI Ports -->
-        <div class="concept-card card" id="concept-spi" onclick="toggleConcept('spi')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-plug"></i> Kernel SPI Ports</h3>
-              <p class="concept-desc">10 pluggable interfaces that define all kernel behaviour.</p>
-            </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
-            <p style="margin: 0 0 14px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">The <code>GovernanceKernel</code> delegates every decision to replaceable SPI ports defined in <code>KernelPorts</code>. Default implementations are provided by <code>KernelDefaults</code> and <code>InMemoryKernelStores</code>.</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px;">
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-server" style="font-size: 11px; color: #1e40af; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">GenerativeProvider</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— LLM backend</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-shield-halved" style="font-size: 11px; color: #b91c1c; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">GovernancePolicy</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— pre-generation policy gate</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-check-double" style="font-size: 11px; color: #15803d; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">ResponseValidator</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— post-generation schema check</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-scale-balanced" style="font-size: 11px; color: #7c3aed; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">AdmissibilityChecker</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— pre-acceptance gate</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-database" style="font-size: 11px; color: #0891b2; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">BlobStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— content-addressed storage</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-cube" style="font-size: 11px; color: #be185d; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">CandidateStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— candidate lifecycle</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-clipboard-check" style="font-size: 11px; color: #ea580c; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">AssessmentStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— peer assessment records</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-box-archive" style="font-size: 11px; color: #4338ca; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">ResultStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— generation result records</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-timeline" style="font-size: 11px; color: #059669; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">TraceSink</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— append-only audit trail</span></div>
-              </div>
-              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
-                <i class="fa-solid fa-chart-line" style="font-size: 11px; color: #ca8a04; flex-shrink: 0; margin-top: 2px;"></i>
-                <div><code style="font-size: 12px; font-weight: 700;">MetricsSink</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— invocation counters</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Outcomes & Retry -->
-        <div class="concept-card card" id="concept-outcomes" onclick="toggleConcept('outcomes')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-rotate"></i> Outcomes &amp; Retry</h3>
-              <p class="concept-desc">Result categories, assessment verdicts, and automatic retry with error feedback.</p>
-            </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
-            <p style="margin: 0 0 14px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">4 Outcome Categories</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-bottom: 16px;">
-              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
-                <strong style="font-size: 12.5px; color: #1e40af;">PolicyOutcome</strong>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">ALLOW</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">DENY</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">ESCALATE</code>
-                </div>
-              </div>
-              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
-                <strong style="font-size: 12.5px; color: #7c3aed;">AdmissibilityOutcome</strong>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">ADMISSIBLE</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">INADMISSIBLE</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">ESCALATE</code>
-                </div>
-              </div>
-              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
-                <strong style="font-size: 12.5px; color: #15803d;">ResultOutcome</strong>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">SUCCESS</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">GOVERNANCE_DENIED</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">GOVERNANCE_ESCALATED</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">PROVIDER_FAILED</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">INVALID_OUTPUT</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">STORED_ONLY</code>
-                </div>
-              </div>
-              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
-                <strong style="font-size: 12.5px; color: #be185d;">AssessmentVerdict</strong>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">ACCEPT</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">REJECT</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">UNCERTAIN</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fdf2f8; border-radius: 3px; color: #be185d;">NEEDS_EVIDENCE</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fdf2f8; border-radius: 3px; color: #be185d;">NEEDS_HUMAN</code>
-                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">RETRY</code>
-                </div>
-              </div>
-            </div>
-
-            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">Retry Policy</p>
-            <ul style="margin: 0; padding-left: 18px;">
-              <li style="margin-bottom: 6px; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>Default</strong>: No retries — fail on first invalid output or provider error.</li>
-              <li style="margin-bottom: 6px; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>With retries</strong>: Configurable max attempts. Validation errors and provider exceptions are appended to re-prompts as error feedback, enabling self-correcting generation.</li>
-              <li style="font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>Conversation context</strong>: Multi-turn dialogue tracking per conversation ID. Successful prompt/response turns are recorded and prepended to future prompts.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
       <section class="info-panel" id="canonical-commands">
         <h2>Canonical commands</h2>
@@ -1247,6 +1012,242 @@ rule +!peer_review(string cid) {
  +!check_admissibility(Cid)
      :   admissible(Cid, false)
      <-  reject(Cid).</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-panel" id="architecture-internals">
+        <h2>Architecture internals</h2>
+        <p>The 16 canonical commands are powered by a layered internal architecture. These components are not directly exposed to agent code — they operate behind the adapter boundary, governing every <code>invoke()</code> call.</p>
+
+        <!-- Generative Bodies & Affordances -->
+        <div class="concept-card card" id="concept-bodies" onclick="toggleConcept('bodies')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-cubes"></i> Generative Bodies &amp; Affordances</h3>
+              <p class="concept-desc">Pre-registered body instances, affordance types, and candidate type mapping.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <p style="margin: 0 0 12px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">When an agent calls <code>invoke(agent, goal, <strong>bodyId</strong>, <strong>affordance</strong>, prompt, required)</code>, the framework resolves the <strong>body ID</strong> to a registered <code>GenerativeBody</code> instance and maps the <strong>affordance</strong> to a semantic <code>CandidateType</code>. The shorthand <code>ask()</code> uses <code>llm.answer</code> with the <code>ANSWER</code> affordance.</p>
+
+            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">6 Pre-registered Bodies</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 16px;">
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #1e40af; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #1e40af;">llm.answer</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #eff6ff; color: #1e40af; margin-left: 6px;">LLM</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">ANSWER · CLASSIFY · SUMMARISE</p>
+              </div>
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #7c3aed; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #7c3aed;">rag.ground</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f5f3ff; color: #7c3aed; margin-left: 6px;">RAG</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">GROUND_FACT · SUMMARISE · EXPLAIN</p>
+              </div>
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #0891b2; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #0891b2;">planner.decompose</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #ecfeff; color: #0891b2; margin-left: 6px;">PLANNER</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">DECOMPOSE_GOAL</p>
+              </div>
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #ea580c; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #ea580c;">tool.propose</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #fff7ed; color: #ea580c; margin-left: 6px;">TOOL_PROPOSER</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">PROPOSE_TOOL_CALL · PROPOSE_ACTION</p>
+              </div>
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #be185d; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #be185d;">memory.retrieve</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #fdf2f8; color: #be185d; margin-left: 6px;">MEMORY</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">RETRIEVE_MEMORY</p>
+              </div>
+              <div style="padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid #15803d; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+                <code style="font-size: 13px; font-weight: 700; color: #15803d;">reflect.critique</code>
+                <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f0fdf4; color: #15803d; margin-left: 6px;">REFLECTOR</span>
+                <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;">REFLECT · CRITIQUE · EXPLAIN</p>
+              </div>
+            </div>
+
+            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">13 Affordance Types</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ANSWER</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">CLASSIFY</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">SUMMARISE</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">GROUND_FACT</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">DECOMPOSE_GOAL</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">PROPOSE_TOOL_CALL</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">PROPOSE_ACTION</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">RETRIEVE_MEMORY</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">REFLECT</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">CRITIQUE</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ASSESS</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">EXPLAIN</code>
+              <code style="font-size: 11px; padding: 3px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px;">ESCALATE</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Governance Pipeline -->
+        <div class="concept-card card" id="concept-pipeline" onclick="toggleConcept('pipeline')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-arrows-spin"></i> Governance Pipeline</h3>
+              <p class="concept-desc">The 5-step kernel pipeline executed on every invocation.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <p style="margin: 0 0 14px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">Every call to <code>invoke()</code> or <code>ask()</code> passes through the <code>GovernanceKernel</code>. The kernel orchestrates a strict 5-step pipeline — no step can be skipped, and every step produces an auditable trace.</p>
+            <ol style="margin: 0; padding-left: 20px; list-style: none; counter-reset: step;">
+              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
+                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #1e40af; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">1</span>
+                <strong style="color: var(--color-text);">Policy Gate</strong>
+                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">The <code>GovernancePolicy</code> evaluates the request. Returns <code>ALLOW</code>, <code>DENY</code>, or <code>ESCALATE</code>. Denied requests never reach the provider.</p>
+              </li>
+              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
+                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">2</span>
+                <strong style="color: var(--color-text);">Conversation Context</strong>
+                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">If a <code>conversationId</code> is provided, past prompt/response turns are prepended to the current prompt for multi-turn dialogue.</p>
+              </li>
+              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
+                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #ea580c; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">3</span>
+                <strong style="color: var(--color-text);">Provider Call + Retry</strong>
+                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">The <code>GenerativeProvider</code> calls the LLM. If the call fails or validation rejects the output, the <code>RetryPolicy</code> can re-prompt with error feedback appended.</p>
+              </li>
+              <li style="margin-bottom: 14px; position: relative; padding-left: 32px;">
+                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #be185d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">4</span>
+                <strong style="color: var(--color-text);">Candidate Creation</strong>
+                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">Validated output is wrapped in a governed <code>Candidate</code> with status <code>VALIDATED</code> or <code>INVALID</code>. Both prompt and output are stored as content-addressed blobs.</p>
+              </li>
+              <li style="margin-bottom: 4px; position: relative; padding-left: 32px;">
+                <span style="position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: #15803d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">5</span>
+                <strong style="color: var(--color-text);">Trace &amp; Turn Recording</strong>
+                <p style="margin: 4px 0 0 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;">An immutable <code>TraceRecord</code> is created for audit. On success, the conversation context records the new turn for future multi-turn use.</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Kernel SPI Ports -->
+        <div class="concept-card card" id="concept-spi" onclick="toggleConcept('spi')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-plug"></i> Kernel SPI Ports</h3>
+              <p class="concept-desc">10 pluggable interfaces that define all kernel behaviour.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <p style="margin: 0 0 14px 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">The <code>GovernanceKernel</code> delegates every decision to replaceable SPI ports defined in <code>KernelPorts</code>. Default implementations are provided by <code>KernelDefaults</code> and <code>InMemoryKernelStores</code>.</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px;">
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-server" style="font-size: 11px; color: #1e40af; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">GenerativeProvider</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— LLM backend</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-shield-halved" style="font-size: 11px; color: #b91c1c; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">GovernancePolicy</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— pre-generation policy gate</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-check-double" style="font-size: 11px; color: #15803d; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">ResponseValidator</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— post-generation schema check</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-scale-balanced" style="font-size: 11px; color: #7c3aed; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">AdmissibilityChecker</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— pre-acceptance gate</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-database" style="font-size: 11px; color: #0891b2; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">BlobStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— content-addressed storage</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-cube" style="font-size: 11px; color: #be185d; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">CandidateStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— candidate lifecycle</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-clipboard-check" style="font-size: 11px; color: #ea580c; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">AssessmentStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— peer assessment records</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-box-archive" style="font-size: 11px; color: #4338ca; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">ResultStore</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— generation result records</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-timeline" style="font-size: 11px; color: #059669; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">TraceSink</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— append-only audit trail</span></div>
+              </div>
+              <div style="padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: baseline; gap: 8px;">
+                <i class="fa-solid fa-chart-line" style="font-size: 11px; color: #ca8a04; flex-shrink: 0; margin-top: 2px;"></i>
+                <div><code style="font-size: 12px; font-weight: 700;">MetricsSink</code><span style="font-size: 12px; color: var(--color-text-secondary); margin-left: 6px;">— invocation counters</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outcomes & Retry -->
+        <div class="concept-card card" id="concept-outcomes" onclick="toggleConcept('outcomes')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-rotate"></i> Outcomes &amp; Retry</h3>
+              <p class="concept-desc">Result categories, assessment verdicts, and automatic retry with error feedback.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <p style="margin: 0 0 14px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">4 Outcome Categories</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-bottom: 16px;">
+              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                <strong style="font-size: 12.5px; color: #1e40af;">PolicyOutcome</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">ALLOW</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">DENY</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">ESCALATE</code>
+                </div>
+              </div>
+              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                <strong style="font-size: 12.5px; color: #7c3aed;">AdmissibilityOutcome</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">ADMISSIBLE</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">INADMISSIBLE</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">ESCALATE</code>
+                </div>
+              </div>
+              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                <strong style="font-size: 12.5px; color: #15803d;">ResultOutcome</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">SUCCESS</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">GOVERNANCE_DENIED</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">GOVERNANCE_ESCALATED</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">PROVIDER_FAILED</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">INVALID_OUTPUT</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">STORED_ONLY</code>
+                </div>
+              </div>
+              <div style="padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                <strong style="font-size: 12.5px; color: #be185d;">AssessmentVerdict</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #f0fdf4; border-radius: 3px; color: #15803d;">ACCEPT</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fef2f2; border-radius: 3px; color: #b91c1c;">REJECT</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fff7ed; border-radius: 3px; color: #ea580c;">UNCERTAIN</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fdf2f8; border-radius: 3px; color: #be185d;">NEEDS_EVIDENCE</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #fdf2f8; border-radius: 3px; color: #be185d;">NEEDS_HUMAN</code>
+                  <code style="font-size: 10.5px; padding: 2px 6px; background: #eff6ff; border-radius: 3px; color: #1e40af;">RETRY</code>
+                </div>
+              </div>
+            </div>
+
+            <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 13px; color: var(--color-text); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.05em;">Retry Policy</p>
+            <ul style="margin: 0; padding-left: 18px;">
+              <li style="margin-bottom: 6px; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>Default</strong>: No retries — fail on first invalid output or provider error.</li>
+              <li style="margin-bottom: 6px; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>With retries</strong>: Configurable max attempts. Validation errors and provider exceptions are appended to re-prompts as error feedback, enabling self-correcting generation.</li>
+              <li style="font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5;"><strong>Conversation context</strong>: Multi-turn dialogue tracking per conversation ID. Successful prompt/response turns are recorded and prepended to future prompts.</li>
+            </ul>
           </div>
         </div>
       </section>
