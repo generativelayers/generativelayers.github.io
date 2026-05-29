@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=2.2">
+  <link rel="stylesheet" href="style.css?v=2.3">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -82,7 +82,7 @@
       <section class="info-panel" id="request-path">
         <h2>Request path</h2>
         <div class="architecture">
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-ask')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-user-gear arch-icon-indicator"></i>
               <span>1. Agent asks for external support.</span>
@@ -90,7 +90,7 @@
             <span class="arch-phase-badge phase-initiation">Initiation</span>
           </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-use_provider')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-diagram-project arch-icon-indicator"></i>
               <span>2. Adapter creates a Generative Layers request.</span>
@@ -98,7 +98,7 @@
             <span class="arch-phase-badge phase-translation">Adapter</span>
           </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-admissible')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-shield-halved arch-icon-indicator"></i>
               <span>3. Governance checks policy, limits, context, and audit requirements.</span>
@@ -106,7 +106,7 @@
             <span class="arch-phase-badge phase-governance">Governance</span>
           </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-invoke')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-server arch-icon-indicator"></i>
               <span>4. Provider calls an LLM, tool, API, service, or module.</span>
@@ -114,7 +114,7 @@
             <span class="arch-phase-badge phase-execution">Provider</span>
           </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-candidate')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-cube arch-icon-indicator"></i>
               <span>5. Result returns as candidate material.</span>
@@ -122,7 +122,7 @@
             <span class="arch-phase-badge phase-material">Material</span>
           </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">
+          <div class="arch-box" onclick="scrollToCommand('row-accept')" title="Click to view matching API command">
             <div class="arch-text-wrapper">
               <i class="fa-solid fa-scale-balanced arch-icon-indicator"></i>
               <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
@@ -940,6 +940,29 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
   </div>
 
   <script>
+    // --- Smooth Scroll & Flash Highlight matching Canonical Command ---
+    window.scrollToCommand = function(rowId) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+
+      // If the row is currently hidden due to an active filter, switch filter to 'All'
+      if (row.style.display === 'none') {
+        const allFilterBtn = document.querySelector('.filter-btn[data-group="all"]');
+        if (allFilterBtn) {
+          allFilterBtn.click();
+        }
+      }
+
+      // Smooth scroll the target row into the center of the viewport
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Add temporary visual flash-glow highlight
+      row.classList.add('flash-highlight');
+      setTimeout(() => {
+        row.classList.remove('flash-highlight');
+      }, 1500);
+    };
+
     // --- Dynamic Accordion for Command Details ---
     window.toggleRow = function(cmdId) {
       const row = document.getElementById('row-' + cmdId);
