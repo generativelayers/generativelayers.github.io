@@ -810,7 +810,6 @@ p, li {
   border-collapse: collapse;
   text-align: left;
   font-family: var(--font-sans);
-  min-width: 600px;
 }
 
 .commands-table th:nth-child(1),
