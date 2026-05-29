@@ -496,7 +496,11 @@ p, li {
 }
 
 .arch-box {
-  background: var(--color-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--color-green-600);
   border-radius: var(--radius-sm);
@@ -504,11 +508,25 @@ p, li {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-text);
-  transition: border-left-color 0.2s var(--ease);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
 }
 
 .arch-box:hover {
-  border-left-color: var(--color-green-accent);
+  border-left-color: var(--color-green-accent) !important;
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 6px 16px rgba(13, 148, 98, 0.08);
+  background: rgba(13, 148, 98, 0.03) !important;
+}
+
+@keyframes flash-glow {
+  0% { background-color: transparent; }
+  25% { background-color: rgba(13, 148, 98, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.flash-highlight {
+  animation: flash-glow 1.5s var(--ease) forwards;
 }
 
 .arch-arrow {
@@ -1156,12 +1174,6 @@ code {
 }
 
 /* --- Iconified Request Path Grid --- */
-.arch-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
 
 .arch-text-wrapper {
   display: flex;
