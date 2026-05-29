@@ -79,48 +79,95 @@
       <h1>Research</h1>
       <p class="lead">Governed generative resource layers for agent-oriented systems.</p>
 
-      <section class="info-panel" id="problem">
-        <h2>Problem</h2>
-        <p>Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.</p>
-      </section>
-
-      <section class="info-panel" id="research-questions">
-        <h2>Research questions</h2>
-        <ol class="flow-list">
-          <li>How can generated outputs be exposed to BDI agents without directly modifying agent state?</li>
-          <li>What governance boundary is needed for auditable resource access?</li>
-          <li>Can the same resource-layer model work across Jason, ASTRA, and related MAS frameworks?</li>
-        </ol>
-      </section>
-
-      <section class="info-panel" id="contribution">
-        <h2>Contribution</h2>
-        <p>A Java framework boundary between agent reasoning and external generative resource use.</p>
-      </section>
-
-      <section class="info-panel" id="academic-context">
-        <h2>Academic context</h2>
-        <p>Generative Layers is MSc thesis-oriented research in Advanced Software Engineering at <a href="https://www.ucd.ie/cs/study/postgraduate/">UCD</a>.</p>
-        <p><strong><a href="https://github.com/kyriakidisdimitrios/">Dimitrios Kyriakidis</a></strong> — project maintainer.</p>
-        <p><strong><a href="https://github.com/remcollier">Associate Professor Rem Collier</a></strong> — academic supervisor, Multi-Agent Systems researcher, and founder of <a href="https://www.astralanguage.com">ASTRA</a>.</p>
-      </section>
-
-      <section class="info-panel" id="citation">
-        <h2>Cite Generative Layers</h2>
-        <p>If you use this framework or research in your academic work, please cite it using the following BibTeX format:</p>
-        <div class="citation-block">
-          <div class="citation-header">
-            <span>BibTeX Entry</span>
-            <button class="copy-btn" onclick="copyCitation()"><i class="fa-regular fa-copy"></i> Copy</button>
+      <!-- Problem & Contribution Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px;">
+        <div class="info-panel" id="problem" style="margin: 0; border-left: 4px solid var(--color-green-700);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px; color: var(--color-green-700);"></i>
+            <h2 style="margin: 0; font-size: 18px;">The Problem</h2>
           </div>
-          <pre><code id="bibtex-code">@misc{generativelayers2026,
-  author       = {Kyriakidis, Dimitrios and Collier, Rem},
-  title        = {Generative Layers: Governed Generative Resource Layers for BDI Systems},
-  year         = {2026},
-  publisher    = {GitHub},
-  journal      = {GitHub Repository},
-  howpublished = {\url{https://github.com/generativelayers/framework}}
-}</code></pre>
+          <p style="margin: 0; line-height: 1.6; color: var(--color-text-secondary);">Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.</p>
+        </div>
+
+        <div class="info-panel" id="contribution" style="margin: 0; border-left: 4px solid var(--color-green-700);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <i class="fa-solid fa-award" style="font-size: 20px; color: var(--color-green-700);"></i>
+            <h2 style="margin: 0; font-size: 18px;">The Contribution</h2>
+          </div>
+          <p style="margin: 0; line-height: 1.6; color: var(--color-text-secondary);">A Java framework boundary between agent reasoning and external generative resource use.</p>
+        </div>
+      </div>
+
+      <!-- Research Questions Section -->
+      <section class="info-panel" id="research-questions">
+        <h2>Research Questions</h2>
+        <p class="lead" style="font-size: 15px; margin-bottom: 20px; color: var(--color-text-secondary);">The framework addresses three foundational questions at the intersection of BDI theory and generative models:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <!-- RQ1 -->
+          <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <span class="arch-phase-badge phase-reasoning" style="font-size: 10px; font-weight: 800;">RQ1</span>
+                <h3 style="margin: 0; font-size: 16px; font-family: var(--font-heading);">State Isolation</h3>
+              </div>
+              <p style="margin: 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">How can generated outputs be exposed to BDI agents without directly modifying agent state?</p>
+            </div>
+          </div>
+
+          <!-- RQ2 -->
+          <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <span class="arch-phase-badge phase-governance" style="font-size: 10px; font-weight: 800;">RQ2</span>
+                <h3 style="margin: 0; font-size: 16px; font-family: var(--font-heading);">Auditable Boundaries</h3>
+              </div>
+              <p style="margin: 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">What governance boundary is needed for auditable resource access?</p>
+            </div>
+          </div>
+
+          <!-- RQ3 -->
+          <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <span class="arch-phase-badge phase-translation" style="font-size: 10px; font-weight: 800;">RQ3</span>
+                <h3 style="margin: 0; font-size: 16px; font-family: var(--font-heading);">Cross-Platform Parity</h3>
+              </div>
+              <p style="margin: 0; line-height: 1.6; color: var(--color-text-secondary); font-size: 14.5px;">Can the same resource-layer model work across Jason, ASTRA, and related MAS frameworks?</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Academic Context Section -->
+      <section class="info-panel" id="academic-context">
+        <h2>Academic Context</h2>
+        <p class="lead" style="font-size: 15px; margin-bottom: 24px; color: var(--color-text-secondary);">Generative Layers is MSc thesis-oriented research in Advanced Software Engineering at <a href="https://www.ucd.ie/cs/study/postgraduate/" target="_blank">University College Dublin (UCD)</a>.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <!-- Dimitrios Profile Card -->
+          <div class="card" style="padding: 24px; display: flex; align-items: flex-start; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-green-50); border: 1px solid var(--color-green-200); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="fa-solid fa-graduation-cap" style="font-size: 22px; color: var(--color-green-700);"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 4px 0; font-size: 16px; font-family: var(--font-heading);"><a href="https://github.com/kyriakidisdimitrios/" target="_blank" style="color: var(--color-text); text-decoration: none;">Dimitrios Kyriakidis</a></h3>
+              <span class="arch-phase-badge phase-execution" style="font-size: 9px; font-weight: 700; padding: 2px 6px;">UCD Project Lead</span>
+              <p style="margin: 8px 0 0 0; font-size: 13.5px; line-height: 1.5; color: var(--color-text-secondary);">MSc Researcher and core project maintainer of the Generative Layers adapters and core governance engine.</p>
+            </div>
+          </div>
+
+          <!-- Rem Profile Card -->
+          <div class="card" style="padding: 24px; display: flex; align-items: flex-start; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-green-50); border: 1px solid var(--color-green-200); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="fa-solid fa-user-tie" style="font-size: 22px; color: var(--color-green-700);"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 4px 0; font-size: 16px; font-family: var(--font-heading);"><a href="https://github.com/remcollier" target="_blank" style="color: var(--color-text); text-decoration: none;">Assoc. Prof. Rem Collier</a></h3>
+              <span class="arch-phase-badge phase-material" style="font-size: 9px; font-weight: 700; padding: 2px 6px;">Academic Supervisor</span>
+              <p style="margin: 8px 0 0 0; font-size: 13.5px; line-height: 1.5; color: var(--color-text-secondary);">Academic supervisor, Multi-Agent Systems researcher, and founder of the <a href="https://www.astralanguage.com" target="_blank">ASTRA programming language</a>.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -135,16 +182,5 @@
     </main>
   </div>
 
-  <script>
-    function copyCitation() {
-      const bibtex = document.getElementById('bibtex-code').textContent;
-      navigator.clipboard.writeText(bibtex).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check" style="color:#34d399"></i> Copied!';
-        setTimeout(() => { btn.innerHTML = orig; }, 1800);
-      });
-    }
-  </script>
 </body>
 </html>
