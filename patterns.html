@@ -447,30 +447,6 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
     }
 }</code></pre>
           </div>
-            <pre><code><span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-    string cid = gl.candidate(rid);
-    double conf = (double) gl.field(rid, <span class="string">"confidence"</span>);
-    !assess_confidence(cid, conf);
-}
-
-<span class="comment">// High confidence &rarr; accept</span>
-<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf > 0.8 {
-    gl.accept(cid);
-    console.println(<span class="string">"High confidence &mdash; accepted"</span>);
-}
-
-<span class="comment">// Medium confidence &rarr; escalate to verification</span>
-<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf > 0.5 {
-    console.println(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
-    !verify(cid);
-}
-
-<span class="comment">// Low confidence &rarr; reject</span>
-<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf &lt;= 0.5 {
-    gl.reject(cid);
-    console.println(<span class="string">"Low confidence &mdash; rejected"</span>);
-}</code></pre>
-          </div>
           <div class="tab-content" id="p3-jason">
             <pre><code>!start.
 
@@ -499,30 +475,6 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
 +!assess(Cid, Conf)
    &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
       .stopMAS.</code></pre>
-          </div>
-            <pre><code>+!decide(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.candidate(Rid, Cid);
-        gl.field(Rid, <span class="string">"confidence"</span>, Conf);
-        !assess_confidence(Cid, Conf).
-
-<span class="comment">// High confidence &rarr; accept</span>
-+!assess_confidence(Cid, Conf)
-    :   Conf > 0.8
-    <-  gl.accept(Cid);
-        .print(<span class="string">"High confidence &mdash; accepted"</span>).
-
-<span class="comment">// Medium confidence &rarr; escalate to verification</span>
-+!assess_confidence(Cid, Conf)
-    :   Conf > 0.5
-    <-  .print(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
-        !verify(Cid).
-
-<span class="comment">// Low confidence &rarr; reject</span>
-+!assess_confidence(Cid, Conf)
-    :   Conf &lt;= 0.5
-    <-  gl.reject(Cid);
-        .print(<span class="string">"Low confidence &mdash; rejected"</span>).</code></pre>
           </div>
           <div class="tab-content" id="p3-jacamo">
             <pre><code>!start.
@@ -558,26 +510,6 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
 +!assess(Cid, Conf)
    &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
       .stopMAS.</code></pre>
-          </div>
-            <pre><code>+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    candidate(Rid, Cid);
-    field(Rid, <span class="string">"confidence"</span>, Conf);
-    !assess_confidence(Cid, Conf).
-
-+!assess_confidence(Cid, Conf)
-    :   Conf > 0.8
-    <-  accept(Cid);
-        .print(<span class="string">"High confidence &mdash; accepted"</span>).
-
-+!assess_confidence(Cid, Conf)
-    :   Conf > 0.5
-    <-  .print(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
-        !verify(Cid).
-
-+!assess_confidence(Cid, Conf)
-    :   Conf &lt;= 0.5
-    <-  reject(Cid);
-        .print(<span class="string">"Low confidence &mdash; rejected"</span>).</code></pre>
           </div>
         </div>
 
