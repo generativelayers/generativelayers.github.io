@@ -283,47 +283,73 @@
             <pre><code class="language-astra"><span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
 
 <span class="keyword">rule</span> +!main(list args) {
-    <span class="comment">// 1. Configure and use provider</span>
+    <span class="comment">// 1. Setup provider</span>
     gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
     gl.use_provider(<span class="string">"gemini"</span>);
     
-    <span class="comment">// 2. Invoke and check validity</span>
-    string rid = gl.ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>);
-    <span class="keyword">if</span> (gl.valid(rid)) {
-        string cid = gl.candidate(rid);
-        
-        <span class="comment">// 3. Deliberate and adopt</span>
-        <span class="keyword">if</span> (gl.admissible(cid)) {
-            gl.accept(cid);
-        } <span class="keyword">else</span> {
-            gl.reject(cid);
-        }
-    }
+    <span class="comment">// 2. Trigger asynchronous query sub-goal</span>
+    !request_support(<span class="string">"my_agent"</span>, <span class="string">"solve_task"</span>, <span class="string">"Create candidate plan"</span>);
+}
+
+<span class="comment">// Subgoal plan: invokes the resource asynchronously</span>
+<span class="keyword">rule</span> +!request_support(string agent, string goal, string prompt) {
+    string rid = gl.ask(agent, goal, prompt);
+    !deliberate_result(rid);
+}
+
+<span class="comment">// Deliberation subgoal plans using pattern-matching guards:</span>
+<span class="keyword">rule</span> +!deliberate_result(string rid) : gl.valid(rid) {
+    string cid = gl.candidate(rid);
+    !deliberate_candidate(cid);
+}
+
+<span class="keyword">rule</span> +!deliberate_result(string rid) : not gl.valid(rid) {
+    console.println(<span class="string">"Generated output is invalid: "</span> + gl.outcome(rid));
+}
+
+<span class="comment">// Deliberating candidate with BDI context guards:</span>
+<span class="keyword">rule</span> +!deliberate_candidate(string cid) : gl.admissible(cid) {
+    gl.accept(cid);
+}
+
+<span class="keyword">rule</span> +!deliberate_candidate(string cid) : not gl.admissible(cid) {
+    gl.reject(cid);
 }</code></pre>
           </div>
           <div class="tab-content" id="jason-code">
             <pre><code class="language-agentspeak">!main.
 
 +!main <-
-    <span class="comment">// 1. Configure and use provider</span>
+    <span class="comment">// 1. Setup provider</span>
     gl.actions.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>, _);
     gl.actions.use_provider(<span class="string">"gemini"</span>, _);
     
-    <span class="comment">// 2. Invoke and check validity</span>
-    gl.actions.ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>, Rid);
-    gl.actions.valid(Rid, Valid);
-    
-    <span class="keyword">if</span> (Valid == true) {
-        gl.actions.candidate(Rid, Cid);
-        
-        <span class="comment">// 3. Deliberate and adopt</span>
-        gl.actions.admissible(Cid, Admissible);
-        <span class="keyword">if</span> (Admissible == true) {
-            gl.actions.accept(Cid, _);
-        } <span class="keyword">else</span> {
-            gl.actions.reject(Cid, _);
-        }
-    }.</code></pre>
+    <span class="comment">// 2. Trigger asynchronous query sub-goal</span>
+    !request_support(<span class="string">"my_agent"</span>, <span class="string">"solve_task"</span>, <span class="string">"Create candidate plan"</span>).
+
++!request_support(Agent, Goal, Prompt) <-
+    gl.actions.ask(Agent, Goal, Prompt, Rid);
+    !deliberate_result(Rid).
+
+<span class="comment">// Deliberation subgoals reacting to context guards instead of if-else:</span>
++!deliberate_result(Rid)
+    :   gl.actions.valid(Rid, true)
+    <-  gl.actions.candidate(Rid, Cid);
+        !deliberate_candidate(Cid).
+
++!deliberate_result(Rid)
+    :   gl.actions.valid(Rid, false)
+    <-  gl.actions.outcome(Rid, Outcome);
+        .print(<span class="string">"Generated output is invalid: "</span>, Outcome).
+
+<span class="comment">// Deliberating candidate with BDI guard conditions:</span>
++!deliberate_candidate(Cid)
+    :   gl.actions.admissible(Cid, true)
+    <-  gl.actions.accept(Cid, _).
+
++!deliberate_candidate(Cid)
+    :   gl.actions.admissible(Cid, false)
+    <-  gl.actions.reject(Cid, _).</code></pre>
           </div>
           <div class="tab-content" id="jacamo-code">
             <pre><code class="language-agentspeak">!main.
@@ -333,19 +359,31 @@
     makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], Id);
     focus(Id);
     
-    <span class="comment">// 2. Configure and invoke using standard operations</span>
+    <span class="comment">// 2. Configure and invoke standard operations</span>
     configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
     use_provider(<span class="string">"gemini"</span>);
-    ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>, Rid).
+    ask(<span class="string">"agent"</span>, <span class="string">"solve_task"</span>, <span class="string">"Create candidate plan"</span>, Rid).
 
-<span class="comment">// 3. Deliberation triggered automatically by sensing observable property gl_result</span>
+<span class="comment">// 3. Reacting to CArtAgO observable belief updates asynchronously:</span>
 +gl_result(Rid, Outcome, true) <-
-    candidate(Rid, Cid);
-    admissible(Cid, true);
-    accept(Cid).
+    !deliberate_result(Rid).
 
 +gl_result(Rid, Outcome, false) <-
-    .print(<span class="string">"Generated output is invalid"</span>).</code></pre>
+    .print(<span class="string">"Generated output is invalid: "</span>, Outcome).
+
+<span class="comment">// Subgoal delegation:</span>
++!deliberate_result(Rid) <-
+    candidate(Rid, Cid);
+    !check_admissibility(Cid).
+
+<span class="comment">// BDI Guard conditions on sub-plans:</span>
++!check_admissibility(Cid)
+    :   admissible(Cid, true)
+    <-  accept(Cid).
+
++!check_admissibility(Cid)
+    :   admissible(Cid, false)
+    <-  reject(Cid).</code></pre>
           </div>
         </div>
       </section>
