@@ -210,6 +210,22 @@
             </div>
           </div>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleDetail('simple-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('simple-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-simple-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 1: Simple Validation ===
+[GL] Provider (auto-detected): gemini
+Valid output &rarr; ACCEPTED: fruit</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM classifies "apple" and returns <code>label=fruit</code>. The schema is valid, so the agent accepts. If the LLM fails or returns malformed output, the agent prints <code>Invalid output &rarr; REJECTED</code>.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════════════════════ -->
@@ -310,6 +326,22 @@ known(<span class="string">"fruit"</span>). known(<span class="string">"vegetabl
           <div class="pattern-detail" id="detail-content" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The LLM returned valid output &mdash; <code>gl.valid</code> passes. But the agent delegates to a sub-goal <code>!check_content</code> with <strong>two context-guarded plans</strong>. The guard <code>known(Label)</code> checks the agent's own belief base. If the LLM says "legume" but the agent only knows "fruit", "vegetable", and "grain", the second plan fires and rejects. This is <strong>practical reasoning</strong> &mdash; the BDI engine selects the appropriate plan based on the agent's beliefs, exactly as BDI theory intended.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleDetail('content-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('content-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-content-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 2: Content Inspection ===
+[GL] Provider (auto-detected): gemini
+Known category &rarr; ACCEPTED: fruit</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns <code>label=fruit</code>, which matches the agent's known categories (fruit, vegetable, grain). If the LLM returned "legume" instead, the agent would reject it as an unknown category.</p>
             </div>
           </div>
         </div>
@@ -419,6 +451,22 @@ known(<span class="string">"fruit"</span>). known(<span class="string">"vegetabl
           <div class="pattern-detail" id="detail-confidence" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Three context-guarded plans for <code>!assess_confidence</code> implement a tiered strategy. The BDI engine evaluates guards <strong>top-to-bottom</strong>: <strong>above 0.8</strong> &mdash; accept immediately. <strong>Between 0.5 and 0.8</strong> &mdash; escalate to a verification sub-goal. <strong>Below 0.5</strong> &mdash; reject outright. The thresholds are up to you &mdash; 0.9 for medical, 0.6 for chat. No if/else needed; the BDI engine's plan selection handles it natively.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleDetail('confidence-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-confidence-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 3: Confidence Threshold ===
+[GL] Provider (auto-detected): gemini
+Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns a confidence score alongside its classification. Scores above 0.8 are accepted, 0.5&ndash;0.8 escalated, and below 0.5 rejected. Actual thresholds are configurable by the developer.</p>
             </div>
           </div>
         </div>
@@ -551,6 +599,23 @@ known(<span class="string">"fruit"</span>). known(<span class="string">"vegetabl
             </div>
           </div>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #8b5cf6;cursor:pointer;" onclick="toggleDetail('crossllm-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#8b5cf6;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-crossllm-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 4: Cross-LLM Verification ===
+[GL] Provider 1 (Gemini): label=fruit
+[GL] Provider 2 (OpenAI): agreement=yes
+Both LLMs agree &mdash; ACCEPTED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Gemini classifies "apple" as "fruit", then OpenAI verifies the answer. If both agree, the agent accepts. If they disagree, the agent rejects. Requires two provider API keys.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════════════════════ -->
@@ -642,6 +707,24 @@ known_food(<span class="string">"fruit"</span>). known_food(<span class="string"
           <div class="pattern-detail" id="detail-agentreview" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Agent A generates a candidate but <strong>does not decide alone</strong>. It sends the label to Agent B via standard BDI messaging. Agent B has two context-guarded plans for <code>!review</code> &mdash; one fires if the label matches a known food belief, the other if it doesn't. Agent A reacts to the verdict via belief triggers (<code>+approved</code> / <code>+disapproved</code>). <strong>Neither agent blindly trusts the LLM or each other</strong> &mdash; each applies its own governance. Note: ASTRA does not natively support inter-agent messaging, so this pattern is shown for Jason and JaCaMo only.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleDetail('agentreview-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-agentreview-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 5: Agent-to-Agent Review ===
+[GL] Provider (auto-detected): gemini
+[agentA] Sending to peer for review: fruit
+[agentB] Reviewing &mdash; known_food(fruit) &rarr; APPROVED
+[agentA] Peer approved &rarr; ACCEPTED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Agent A asks the LLM to classify "tomato", then sends the result to Agent B for review. Agent B checks against its own beliefs (<code>known_food</code>). If verified, it sends <code>approved</code> back to Agent A, which then accepts the candidate.</p>
             </div>
           </div>
         </div>
@@ -769,6 +852,22 @@ category(<span class="string">"apple"</span>, <span class="string">"fruit"</span
             </div>
           </div>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('belief-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-belief-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 6: Belief Consistency ===
+[GL] Provider (auto-detected): gemini
+Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The agent already believes <code>category("apple", "fruit")</code>. The LLM confirms this &mdash; so the result is accepted as consistent. If the LLM said "vegetable", it would be rejected as a contradiction. For unknown items, the agent adopts the answer as new knowledge.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════════════════════ -->
@@ -869,6 +968,23 @@ category(<span class="string">"apple"</span>, <span class="string">"fruit"</span
             </div>
           </div>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #10b981;cursor:pointer;" onclick="toggleDetail('voting-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#10b981;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-voting-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 7: Majority Voting ===
+[GL] Provider (auto-detected): gemini
+Provider 1: vegetable | Provider 2: vegetable | Provider 3: fruit
+Majority agrees on 'vegetable' &rarr; ACCEPTED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Three LLM calls are made (can use different providers). Labels are compared pairwise. If any two agree, the majority answer is accepted. If all three disagree, no decision is made. This is the most defensive pattern.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════════════════════ -->
@@ -964,6 +1080,24 @@ category(<span class="string">"apple"</span>, <span class="string">"fruit"</span
           <div class="pattern-detail" id="detail-refinement" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Each step is a separate sub-goal with its own context guard (<code>gl.valid</code>). The agent chains: <strong>Draft</strong> &rarr; <strong>Critique</strong> &rarr; <strong>Refine</strong> &rarr; <strong>Accept</strong>. Only the final refined output is accepted. The draft and critique are intermediate &mdash; never adopted as beliefs. Each step goes through the full governance pipeline: validation, candidate creation, and traceability.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f97316;cursor:pointer;" onclick="toggleDetail('refinement-result')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-terminal" style="font-size:14px;color:#f97316;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement-result')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-refinement-result" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 8: Iterative Refinement ===
+[GL] Provider (auto-detected): gemini
+Draft generated (valid) &rarr; requesting critique
+Critique received (valid) &rarr; refining
+Draft &rarr; Critique &rarr; Refine pipeline complete &rarr; ACCEPTED</code></pre>
+              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">A three-step pipeline: generate a draft, critique it, refine it. Each step is validated independently. Only the final refined version is accepted. If any step fails validation, the pipeline aborts.</p>
             </div>
           </div>
         </div>
