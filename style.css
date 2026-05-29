@@ -521,12 +521,12 @@ p, li {
 
 @keyframes flash-glow {
   0% { background-color: transparent; }
-  25% { background-color: rgba(13, 148, 98, 0.2); }
+  20% { background-color: rgba(52, 211, 153, 0.35); }
   100% { background-color: transparent; }
 }
 
-.flash-highlight {
-  animation: flash-glow 1.5s var(--ease) forwards;
+.flash-highlight td {
+  animation: flash-glow 1.5s var(--ease) forwards !important;
 }
 
 .arch-arrow {

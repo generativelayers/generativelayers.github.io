@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=2.4">
+  <link rel="stylesheet" href="style.css?v=2.5">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -983,8 +983,32 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
         }
       }
 
-      // Smooth scroll the target row into the center of the viewport
-      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Check if the row is already fully within the viewport
+      const rect = row.getBoundingClientRect();
+      const headerHeight = 90; // sticky header + spacing
+      const isVisible = (
+        rect.top >= headerHeight &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) - 50
+      );
+
+      if (!isVisible) {
+        // Calculate the absolute vertical position of the row
+        const absoluteElementTop = rect.top + window.pageYOffset;
+        
+        // Scroll the target row so it is positioned at 35% of the viewport height from the top
+        // This keeps the table headers/context visible above and below it, preventing disorientation.
+        const targetScrollY = absoluteElementTop - (window.innerHeight * 0.35);
+        
+        window.scrollTo({
+          top: Math.max(0, targetScrollY),
+          behavior: 'smooth'
+        });
+      }
+
+      // Remove existing class in case it was triggered recently
+      row.classList.remove('flash-highlight');
+      // Force a browser reflow to restart the CSS animation cleanly
+      row.offsetWidth;
 
       // Add temporary visual flash-glow highlight
       row.classList.add('flash-highlight');
