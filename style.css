@@ -521,6 +521,19 @@ p, li {
   background: rgba(13, 148, 98, 0.03) !important;
 }
 
+@media (min-width: 601px) {
+  .arch-box {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  .arch-phase-badge {
+    margin-left: auto !important;
+  }
+}
+
 @keyframes flash-glow {
   0% { background-color: transparent; }
   10% { background-color: rgba(52, 211, 153, 0.45); }
@@ -1218,7 +1231,7 @@ pre code {
 }
 
 .phase-initiation { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
-.phase-adapter { background: #fdf2f8; border: 1px solid #fce7f3; color: #be185d; }
+.phase-step-two { background: #fdf2f8; border: 1px solid #fce7f3; color: #be185d; }
 .phase-governance { background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; }
 .phase-execution { background: #faf5ff; border: 1px solid #f3e8ff; color: #6b21a8; }
 .phase-material { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
