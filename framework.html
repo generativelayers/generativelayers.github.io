@@ -861,24 +861,6 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
 
       <section class="info-panel" id="platform-syntax">
         <h2>Platform syntax comparison</h2>
-        <p>Compare how the same governance flow (configuring, invoking, validating, and adopting candidate material) is written natively across each target agent environment:</p>
-
-        <!-- Platform Integration Architectures -->
-        <div class="platform-meta-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 20px 0 28px;">
-          <div class="card" style="padding: 20px; border-left: 4px solid #1e40af; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-            <h4 style="margin: 0 0 8px 0; font-family: var(--font-heading); font-size: 15px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em;">ASTRA Module</h4>
-            <p style="margin: 0; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">Implemented as a native <strong>ASTRA Module</strong> written in Java. Commands are mapped to inline custom statements prefixed with the module binding <code>gl</code>.</p>
-          </div>
-          <div class="card" style="padding: 20px; border-left: 4px solid #be185d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-            <h4 style="margin: 0 0 8px 0; font-family: var(--font-heading); font-size: 15px; font-weight: 700; color: #be185d; text-transform: uppercase; letter-spacing: 0.05em;">Jason Internal Actions</h4>
-            <p style="margin: 0; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">Implemented as standard <strong>AgentSpeak Internal Actions</strong> in Java. Invoked natively by BDI agents using custom extensions prefixed with <code>gl.</code>.</p>
-          </div>
-          <div class="card" style="padding: 20px; border-left: 4px solid #15803d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
-            <h4 style="margin: 0 0 8px 0; font-family: var(--font-heading); font-size: 15px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.05em;">CArtAgO Artifact (JaCaMo)</h4>
-            <p style="margin: 0; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">Implemented as a <strong>CArtAgO Environment Artifact</strong> in Java. Commands are operations called once focused on the artifact, receiving updates via observable beliefs.</p>
-          </div>
-        </div>
-
         <div class="tabs-container">
           <div class="tabs-header">
             <div class="tabs-buttons">
