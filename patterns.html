@@ -134,59 +134,72 @@
             </div>
           </div>
           <div class="tab-content active" id="p1-astra">
-            <pre><code><span class="keyword">rule</span> +!classify() {
-    string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
-    !decide(rid);
-}
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
 
-<span class="comment">// Context guard: valid output &rarr; accept</span>
-<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-    string cid = gl.candidate(rid);
-    gl.accept(cid);
-    console.println(<span class="string">"Accepted: "</span> + gl.field(rid, <span class="string">"label"</span>));
-}
+    <span class="keyword">rule</span> +!main(list args) {
+        console.println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
+        gl.use_provider();
+        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+        !decide(rid);
+    }
 
-<span class="comment">// Context guard: invalid output &rarr; reject</span>
-<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">false</span> {
-    string cid = gl.candidate(rid);
-    gl.reject(cid);
-    console.println(<span class="string">"Rejected: invalid format"</span>);
+    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        string cid = gl.candidate(rid);
+        gl.accept(cid);
+        console.println(<span class="string">"Valid output &rarr; ACCEPTED: "</span> + gl.field(rid, <span class="string">"label"</span>));
+    }
+
+    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">false</span> {
+        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
+    }
 }</code></pre>
           </div>
           <div class="tab-content" id="p1-jason">
-            <pre><code>+!classify <-
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-    !decide(Rid).
+            <pre><code>!start.
 
-<span class="comment">// Context guard: valid output &rarr; accept</span>
-+!decide(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
-        gl.candidate(Rid, Cid);
-        gl.accept(Cid);
-        .print(<span class="string">"Accepted: "</span>, Label).
++!start
+   &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
+      gl.use_provider;
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !decide(Rid).
 
-<span class="comment">// Context guard: invalid output &rarr; reject</span>
 +!decide(Rid)
-    :   gl.valid(Rid, <span class="keyword">false</span>)
-    <-  gl.candidate(Rid, Cid);
-        gl.reject(Cid);
-        .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- gl.candidate(Rid, Cid);
+      gl.accept(Cid);
+      gl.field(Rid, <span class="string">"label"</span>, Label);
+      .println(<span class="string">"Valid output -&gt; ACCEPTED: "</span>, Label);
+      .stopMAS.
+
++!decide(Rid)
+   :  gl.valid(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
+      .stopMAS.</code></pre>
           </div>
           <div class="tab-content" id="p1-jacamo">
-            <pre><code>+!classify <-
-    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid).
+            <pre><code>!start.
 
-<span class="comment">// Reacting to CArtAgO observable belief:</span>
-+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    candidate(Rid, Cid);
-    accept(Cid);
-    .print(<span class="string">"Accepted"</span>).
++!start
+   &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
+      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId);
+      use_provider;
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      valid(Rid, IsValid);
+      !decide(Rid, IsValid).
 
-+gl_result(Rid, Outcome, <span class="keyword">false</span>) <-
-    candidate(Rid, Cid);
-    reject(Cid);
-    .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
++!decide(Rid, <span class="keyword">true</span>)
+   &lt;- candidate(Rid, Cid);
+      accept(Cid);
+      field(Rid, <span class="string">"label"</span>, Label);
+      .println(<span class="string">"Valid output -&gt; ACCEPTED: "</span>, Label);
+      .stopMAS.
+
++!decide(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
+      .stopMAS.</code></pre>
           </div>
         </div>
 
@@ -251,67 +264,99 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
             </div>
           </div>
           <div class="tab-content active" id="p2-astra">
-            <pre><code><span class="comment">// Agent's known categories</span>
-+known(<span class="string">"fruit"</span>). +known(<span class="string">"vegetable"</span>). +known(<span class="string">"grain"</span>).
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
 
-<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-    string label = gl.field(rid, <span class="string">"label"</span>);
-    string cid = gl.candidate(rid);
-    !check_content(cid, label);
-}
+    <span class="keyword">types</span> pattern_types {
+        <span class="keyword">formula</span> known(string);
+    }
 
-<span class="comment">// Context guard: known category &rarr; accept</span>
-<span class="keyword">rule</span> +!check_content(string cid, string label) : known(label) {
-    gl.accept(cid);
-    console.println(<span class="string">"Accepted known category: "</span> + label);
-}
+    <span class="keyword">initial</span> known(<span class="string">"fruit"</span>), known(<span class="string">"vegetable"</span>), known(<span class="string">"grain"</span>);
 
-<span class="comment">// Context guard: unknown category &rarr; reject</span>
-<span class="keyword">rule</span> +!check_content(string cid, string label) : ~known(label) {
-    gl.reject(cid);
-    console.println(<span class="string">"Rejected unknown category: "</span> + label);
+    <span class="keyword">rule</span> +!main(list args) {
+        console.println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
+        gl.use_provider();
+        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+        !decide(rid);
+    }
+
+    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        string label = gl.field(rid, <span class="string">"label"</span>);
+        string cid = gl.candidate(rid);
+        !check_content(cid, label);
+    }
+
+    <span class="keyword">rule</span> +!check_content(string cid, string label) : known(label) {
+        gl.accept(cid);
+        console.println(<span class="string">"Known category '"</span> + label + <span class="string">"' &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="keyword">rule</span> +!check_content(string cid, string label) : ~known(label) {
+        gl.reject(cid);
+        console.println(<span class="string">"Unknown category '"</span> + label + <span class="string">"' &rarr; REJECTED"</span>);
+    }
 }</code></pre>
           </div>
           <div class="tab-content" id="p2-jason">
-            <pre><code><span class="comment">// Agent's known categories as beliefs</span>
-known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+            <pre><code>known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+
+!start.
+
++!start
+   &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
+      gl.use_provider;
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !decide(Rid).
 
 +!decide(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
-        gl.candidate(Rid, Cid);
-        !check_content(Cid, Label).
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
+      gl.candidate(Rid, Cid);
+      !check_content(Cid, Label).
 
-<span class="comment">// Context guard: known category &rarr; accept</span>
 +!check_content(Cid, Label)
-    :   known(Label)
-    <-  gl.accept(Cid);
-        .print(<span class="string">"Accepted known category: "</span>, Label).
+   :  known(Label)
+   &lt;- gl.accept(Cid);
+      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' -&gt; ACCEPTED"</span>);
+      .stopMAS.
 
-<span class="comment">// Context guard: unknown category &rarr; reject</span>
 +!check_content(Cid, Label)
-    :   not known(Label)
-    <-  gl.reject(Cid);
-        .print(<span class="string">"Rejected unknown category: "</span>, Label).</code></pre>
+   :  not known(Label)
+   &lt;- gl.reject(Cid);
+      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' -&gt; REJECTED"</span>);
+      .stopMAS.</code></pre>
           </div>
           <div class="tab-content" id="p2-jacamo">
-            <pre><code><span class="comment">// Agent's known categories as beliefs</span>
-known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+            <pre><code>known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
 
-+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    field(Rid, <span class="string">"label"</span>, Label);
-    candidate(Rid, Cid);
-    !check_content(Cid, Label).
+!start.
+
++!start
+   &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
+      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId);
+      use_provider;
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      valid(Rid, IsValid);
+      !decide(Rid, IsValid).
+
++!decide(Rid, <span class="keyword">true</span>)
+   &lt;- field(Rid, <span class="string">"label"</span>, Label);
+      candidate(Rid, Cid);
+      !check_content(Cid, Label).
 
 +!check_content(Cid, Label)
-    :   known(Label)
-    <-  accept(Cid);
-        .print(<span class="string">"Accepted known category: "</span>, Label).
+   :  known(Label)
+   &lt;- accept(Cid);
+      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' -&gt; ACCEPTED"</span>);
+      .stopMAS.
 
 +!check_content(Cid, Label)
-    :   not known(Label)
-    <-  reject(Cid);
-        .print(<span class="string">"Rejected unknown category: "</span>, Label).</code></pre>
+   :  not known(Label)
+   &lt;- reject(Cid);
+      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' -&gt; REJECTED"</span>);
+      .stopMAS.</code></pre>
           </div>
         </div>
 
