@@ -1305,7 +1305,8 @@ code {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  display: inline-flex;
+  display: flex;
+  margin: 0 auto;
   align-items: center;
   justify-content: center;
   cursor: pointer;
