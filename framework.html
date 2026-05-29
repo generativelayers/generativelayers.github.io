@@ -57,7 +57,6 @@
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input class="search" placeholder="Search…" aria-label="Search">
-        <span class="hotkey-badge">/</span>
       </div>
     </div>
   </header>
@@ -979,25 +978,6 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
         </div>
       </section>
 
-      <section class="info-panel" id="design-rules">
-        <h2>Design rules</h2>
-        <ul class="flow-list">
-          <li>Do not silently insert beliefs.</li>
-          <li>Do not silently execute generated tool calls.</li>
-          <li>Expose denials, warnings, and failures.</li>
-          <li>Keep adapters thin.</li>
-          <li>Keep the host agent language in control.</li>
-        </ul>
-      </section>
-
-      <!-- Footer -->
-      <footer class="footer">
-        <span>&copy; <script>document.write(new Date().getFullYear())</script> Generative Layers &middot; Apache 2.0</span>
-        <div class="footer-links">
-          <a href="https://github.com/generativelayers">GitHub</a>
-          <a href="mailto:info@generativelayers.com">Contact</a>
-        </div>
-      </footer>
     </main>
   </div>
 
