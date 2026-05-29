@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceptance Patterns | Generative Layers</title>
+  <meta name="description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents. Cross-LLM verification, confidence thresholds, agent-to-agent review, and more.">
+  <meta name="keywords" content="acceptance patterns, governance, BDI agents, LLM verification, candidate material, Generative Layers">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/patterns.html">
+  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Generative Layers">
+  <meta property="og:title" content="Acceptance Patterns | Generative Layers">
+  <meta property="og:description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents.">
+  <meta property="og:url" content="https://www.generativelayers.com/patterns.html">
+  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Acceptance Patterns | Generative Layers">
+  <meta name="twitter:description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents.">
+  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Acceptance Patterns for Governed LLM Integration",
+    "description": "Patterns for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
+    "url": "https://www.generativelayers.com/patterns.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Generative Layers",
+      "url": "https://www.generativelayers.com/"
+    }
+  }
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=3.6">
+  <script defer src="js/search.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="top">
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search…" aria-label="Search">
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="side" id="sidebar">
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a class="active" href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
+      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Acceptance Patterns</h1>
+      <p class="lead">Acceptance is up to the developer. The framework gives you the tools — your agent decides what to do with LLM output.</p>
+
+      <!-- Core Principle -->
+      <section class="info-panel" id="core-principle">
+        <h2><i class="fa-solid fa-gavel" style="margin-right:8px;color:var(--color-green-700);"></i>The Core Principle</h2>
+        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);">
+          <p style="font-size:15px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
+            The LLM is a <strong>tool</strong>, not a decision-maker. When an agent calls <code>gl.ask</code>, the LLM output becomes 
+            <strong>candidate material</strong> — never adopted beliefs. The agent's own BDI reasoning cycle decides whether to 
+            <code>accept</code> or <code>reject</code> each candidate.
+          </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px;">
+          <div class="card" style="padding:16px;text-align:center;">
+            <i class="fa-solid fa-brain" style="font-size:24px;color:var(--color-green-700);"></i>
+            <div style="font-weight:700;font-size:14px;margin-top:8px;">Agent Decides</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">BDI reasoning, not the LLM</div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <i class="fa-solid fa-code" style="font-size:24px;color:var(--color-green-700);"></i>
+            <div style="font-weight:700;font-size:14px;margin-top:8px;">Developer Controls</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">You write the acceptance logic</div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <i class="fa-solid fa-shield-halved" style="font-size:24px;color:var(--color-green-700);"></i>
+            <div style="font-weight:700;font-size:14px;margin-top:8px;">Governed Boundary</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Nothing enters beliefs unchecked</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pattern 1: Simple Validation -->
+      <section class="info-panel" id="pattern-simple">
+        <h2><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#22c55e;"></i>Pattern 1 — Simple Validation</h2>
+        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> Quick prototyping, low-risk tasks, trusted providers.<br>
+            <strong>What it checks:</strong> Schema format only (did the LLM return the right fields?).<br>
+            <strong>What it does NOT check:</strong> Whether the answer is actually correct.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — accept if format is valid, reject otherwise</span>
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    gl.candidate(Rid, Cid);
+    gl.accept(Cid);
+    .print(<span class="string">"Accepted: "</span>, Label).
+
++!decide(Rid) : gl.valid(Rid, <span class="keyword">false</span>) <-
+    gl.candidate(Rid, Cid);
+    gl.reject(Cid);
+    .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 2: Content Inspection -->
+      <section class="info-panel" id="pattern-content">
+        <h2><i class="fa-solid fa-magnifying-glass" style="margin-right:8px;color:#3b82f6;"></i>Pattern 2 — Content Inspection</h2>
+        <p>The agent extracts fields and inspects the actual content before deciding. Accept only if the answer meets domain-specific criteria.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> When you have business rules about valid answers.<br>
+            <strong>Examples:</strong> Must contain a keyword, must be in a known set, must not contain forbidden terms.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — accept only if the label is a known category</span>
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    gl.candidate(Rid, Cid);
+
+    <span class="comment">// Check against agent's own knowledge</span>
+    <span class="keyword">if</span> (Label == <span class="string">"fruit"</span> | Label == <span class="string">"vegetable"</span> | Label == <span class="string">"grain"</span>) {
+        gl.accept(Cid);
+        .print(<span class="string">"Accepted known category: "</span>, Label);
+    } <span class="keyword">else</span> {
+        gl.reject(Cid);
+        .print(<span class="string">"Rejected unknown category: "</span>, Label);
+    }.</code></pre>
+        </div>
+
+        <div class="tabs-container" style="margin-top:12px;">
+          <pre><code><span class="comment">// Jason — reject if the response contains forbidden content</span>
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"response"</span>, Response);
+    gl.candidate(Rid, Cid);
+
+    <span class="keyword">if</span> (.substring(<span class="string">"password"</span>, Response)) {
+        gl.reject(Cid);
+        .print(<span class="string">"Rejected: contains sensitive content"</span>);
+    } <span class="keyword">else</span> {
+        gl.accept(Cid);
+    }.</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 3: Confidence Threshold -->
+      <section class="info-panel" id="pattern-confidence">
+        <h2><i class="fa-solid fa-gauge-high" style="margin-right:8px;color:#f59e0b;"></i>Pattern 3 — Confidence Threshold</h2>
+        <p>Ask the LLM to include a confidence score in its response. The agent accepts only if confidence exceeds a threshold.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty.<br>
+            <strong>Schema requires:</strong> A <code>confidence</code> field (0.0–1.0) alongside the answer.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — accept only if confidence > 0.8</span>
++!classify <-
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>,
+        <span class="string">"Classify this item. Return label and confidence (0-1).\nItem: apple"</span>, Rid).
+
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    gl.field(Rid, <span class="string">"confidence"</span>, Conf);
+    gl.candidate(Rid, Cid);
+
+    <span class="keyword">if</span> (Conf > 0.8) {
+        gl.accept(Cid);
+        .print(<span class="string">"High confidence — accepted: "</span>, Label, <span class="string">" ("</span>, Conf, <span class="string">")"</span>);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (Conf > 0.5) {
+        .print(<span class="string">"Medium confidence — requesting verification: "</span>, Label);
+        !verify(Label, Cid);
+    } <span class="keyword">else</span> {
+        gl.reject(Cid);
+        .print(<span class="string">"Low confidence — rejected: "</span>, Label, <span class="string">" ("</span>, Conf, <span class="string">")"</span>);
+    }.</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 4: Cross-LLM Verification -->
+      <section class="info-panel" id="pattern-cross-llm">
+        <h2><i class="fa-solid fa-arrows-left-right" style="margin-right:8px;color:#8b5cf6;"></i>Pattern 4 — Cross-LLM Verification</h2>
+        <p>Ask one LLM, then ask a different LLM to verify the answer. Accept only if both providers agree.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> High-stakes decisions, reducing single-provider bias.<br>
+            <strong>How it works:</strong> Switch providers with <code>gl.use_provider</code>, send the first answer to the second LLM for verification.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — ask Gemini, then verify with OpenAI</span>
+
+<span class="comment">// Step 1: Ask Gemini to classify</span>
++!classify <-
+    gl.use_provider(<span class="string">"gemini"</span>);
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, GeminiRid).
+
+<span class="comment">// Step 2: Send Gemini's answer to OpenAI for verification</span>
++!decide(GeminiRid) : gl.valid(GeminiRid, <span class="keyword">true</span>) <-
+    gl.field(GeminiRid, <span class="string">"label"</span>, GeminiLabel);
+    +gemini_answer(GeminiRid, GeminiLabel);        <span class="comment">// remember it</span>
+
+    gl.use_provider(<span class="string">"openai"</span>);
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-4o"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
+        .concat(<span class="string">"Is this classification correct? Item: apple → "</span>, GeminiLabel,
+                <span class="string">". Reply with: agreement=yes or agreement=no, and label=your_answer"</span>),
+        OpenAIRid).
+
+<span class="comment">// Step 3: Compare both answers</span>
++!decide(OpenAIRid) : gl.valid(OpenAIRid, <span class="keyword">true</span>)
+    & gemini_answer(OrigRid, GeminiLabel) <-
+    gl.field(OpenAIRid, <span class="string">"agreement"</span>, Agreement);
+    gl.candidate(OrigRid, OrigCid);
+
+    <span class="keyword">if</span> (Agreement == <span class="string">"yes"</span>) {
+        gl.accept(OrigCid);
+        .print(<span class="string">"Both LLMs agree: "</span>, GeminiLabel, <span class="string">" ✓"</span>);
+    } <span class="keyword">else</span> {
+        gl.reject(OrigCid);
+        gl.field(OpenAIRid, <span class="string">"label"</span>, AltLabel);
+        .print(<span class="string">"LLMs disagree! Gemini: "</span>, GeminiLabel, <span class="string">" vs OpenAI: "</span>, AltLabel);
+    }.</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 5: Agent-to-Agent Review -->
+      <section class="info-panel" id="pattern-agent-review">
+        <h2><i class="fa-solid fa-users" style="margin-right:8px;color:#ec4899;"></i>Pattern 5 — Agent-to-Agent Review</h2>
+        <p>One agent generates content, then sends it to a peer agent for review. The peer uses its own beliefs and reasoning to approve or reject — no LLM involved in the review step.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> Multi-agent systems where agents have different expertise or knowledge.<br>
+            <strong>How it works:</strong> Standard BDI messaging (<code>.send</code>) combined with governed candidates.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// ─── Agent A: generates and requests peer review ───</span>
+
++!classify <-
+    gl.ask(<span class="string">"agentA"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid).
+
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    <span class="comment">// Don't accept yet — ask Agent B to verify</span>
+    .send(agentB, achieve, review(Label, Rid)).
+
+<span class="comment">// Agent B approved</span>
++approved(Rid) <-
+    gl.candidate(Rid, Cid);
+    gl.accept(Cid);
+    .print(<span class="string">"Peer-approved and accepted"</span>).
+
+<span class="comment">// Agent B rejected</span>
++disapproved(Rid, Reason) <-
+    gl.candidate(Rid, Cid);
+    gl.reject(Cid);
+    .print(<span class="string">"Peer rejected: "</span>, Reason).
+
+
+<span class="comment">// ─── Agent B: reviews using its own beliefs ───</span>
+
++!review(Label, Rid) <-
+    <span class="comment">// Agent B checks against its own knowledge base</span>
+    <span class="keyword">if</span> (known_food(Label)) {
+        .send(agentA, tell, approved(Rid));
+    } <span class="keyword">else</span> {
+        .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>));
+    }.</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 6: Belief Consistency -->
+      <section class="info-panel" id="pattern-belief">
+        <h2><i class="fa-solid fa-scale-balanced" style="margin-right:8px;color:#06b6d4;"></i>Pattern 6 — Belief Consistency Check</h2>
+        <p>The agent compares the LLM's answer against its existing beliefs. Contradictions are rejected, consistent answers are accepted.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> When the agent has prior knowledge and must not adopt contradictions.<br>
+            <strong>Key idea:</strong> BDI agents have beliefs — use them as a validation layer.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — agent has existing beliefs about food categories</span>
+category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>).
+category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
+category(<span class="string">"rice"</span>, <span class="string">"grain"</span>).
+
++!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
+    gl.field(Rid, <span class="string">"item"</span>, Item);
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    gl.candidate(Rid, Cid);
+
+    <span class="comment">// Check if I already have a belief about this item</span>
+    <span class="keyword">if</span> (category(Item, ExistingLabel)) {
+        <span class="keyword">if</span> (Label == ExistingLabel) {
+            gl.accept(Cid);
+            .print(<span class="string">"Confirmed my belief: "</span>, Item, <span class="string">" = "</span>, Label);
+        } <span class="keyword">else</span> {
+            gl.reject(Cid);
+            .print(<span class="string">"Contradicts my belief! I know "</span>, Item, <span class="string">" = "</span>,
+                   ExistingLabel, <span class="string">", LLM said: "</span>, Label);
+        };
+    } <span class="keyword">else</span> {
+        <span class="comment">// No prior belief — accept as new knowledge</span>
+        gl.accept(Cid);
+        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">" = "</span>, Label);
+    }.</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 7: Majority Voting -->
+      <section class="info-panel" id="pattern-voting">
+        <h2><i class="fa-solid fa-check-double" style="margin-right:8px;color:#10b981;"></i>Pattern 7 — Majority Voting</h2>
+        <p>Ask multiple LLMs the same question. Accept only the answer that a majority agrees on.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> Critical decisions where no single LLM should be trusted alone.<br>
+            <strong>How it works:</strong> Collect answers from N providers, tally votes, accept the majority winner.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — ask 3 providers, accept the majority answer</span>
+
++!classify <-
+    <span class="comment">// Ask all three providers</span>
+    gl.use_provider(<span class="string">"gemini"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
+    gl.use_provider(<span class="string">"openai"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
+    gl.use_provider(<span class="string">"anthropic"</span>);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
+
+    <span class="comment">// Collect answers</span>
+    gl.field(R1, <span class="string">"label"</span>, L1);
+    gl.field(R2, <span class="string">"label"</span>, L2);
+    gl.field(R3, <span class="string">"label"</span>, L3);
+
+    <span class="comment">// Majority vote</span>
+    <span class="keyword">if</span> (L1 == L2 | L1 == L3) {
+        +winner(L1, R1);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (L2 == L3) {
+        +winner(L2, R2);
+    } <span class="keyword">else</span> {
+        .print(<span class="string">"No consensus — all three disagree!"</span>);
+    }.
+
++winner(Label, Rid) <-
+    gl.candidate(Rid, Cid);
+    gl.accept(Cid);
+    .print(<span class="string">"Majority agrees: "</span>, Label).</code></pre>
+        </div>
+      </section>
+
+      <!-- Pattern 8: Iterative Refinement -->
+      <section class="info-panel" id="pattern-refinement">
+        <h2><i class="fa-solid fa-rotate" style="margin-right:8px;color:#f97316;"></i>Pattern 8 — Iterative Refinement</h2>
+        <p>The agent generates an answer, critiques it, then refines it. Each round goes through governance. Accept only the final refined version.</p>
+
+        <div class="card" style="padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+            <strong>When to use:</strong> Complex tasks like writing, analysis, or planning where first drafts are rarely good enough.<br>
+            <strong>How it works:</strong> Generate → Critique → Refine → Accept. Each step is governed.
+          </div>
+        </div>
+
+        <div class="tabs-container" style="margin:0;">
+          <pre><code><span class="comment">// Jason — generate, critique, refine, then accept</span>
+
+<span class="comment">// Step 1: Generate a draft</span>
++!write_report <-
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>,
+        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid).
+
+<span class="comment">// Step 2: Critique the draft</span>
++!decide(DraftRid) : gl.valid(DraftRid, <span class="keyword">true</span>) <-
+    gl.field(DraftRid, <span class="string">"text"</span>, Draft);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
+        .concat(<span class="string">"Critique this summary. List problems:\n"</span>, Draft), CritiqueRid).
+
+<span class="comment">// Step 3: Refine using the critique</span>
++!decide(CritiqueRid) : gl.valid(CritiqueRid, <span class="keyword">true</span>) <-
+    gl.field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
+    gl.field(DraftRid, <span class="string">"text"</span>, Draft);
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
+        .concat(<span class="string">"Improve this:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid).
+
+<span class="comment">// Step 4: Accept only the refined version</span>
++!decide(FinalRid) : gl.valid(FinalRid, <span class="keyword">true</span>) <-
+    gl.candidate(FinalRid, Cid);
+    gl.accept(Cid);
+    gl.field(FinalRid, <span class="string">"text"</span>, FinalText);
+    .print(<span class="string">"Final accepted version:\n"</span>, FinalText).</code></pre>
+        </div>
+      </section>
+
+      <!-- Summary -->
+      <section class="info-panel" id="summary">
+        <h2><i class="fa-solid fa-table-list" style="margin-right:8px;color:var(--color-green-700);"></i>Pattern Summary</h2>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
+                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Pattern</th>
+                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Who Decides</th>
+                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Use Case</th>
+                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Risk Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-simple" style="color:var(--color-green-700);font-weight:600;">Simple Validation</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Schema validator</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Prototyping, trusted providers</td>
+                <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">Low</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-content" style="color:var(--color-green-700);font-weight:600;">Content Inspection</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent logic</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Business rules, keyword filtering</td>
+                <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">Low</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-confidence" style="color:var(--color-green-700);font-weight:600;">Confidence Threshold</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent + LLM self-report</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Uncertainty-aware decisions</td>
+                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-cross-llm" style="color:var(--color-green-700);font-weight:600;">Cross-LLM Verification</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent comparing two LLMs</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Reducing single-provider bias</td>
+                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-agent-review" style="color:var(--color-green-700);font-weight:600;">Agent-to-Agent Review</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Peer agent</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-agent collaboration</td>
+                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-belief" style="color:var(--color-green-700);font-weight:600;">Belief Consistency</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent's existing beliefs</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Preventing contradictions</td>
+                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);">
+                <td style="padding:10px 12px;"><a href="#pattern-voting" style="color:var(--color-green-700);font-weight:600;">Majority Voting</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Consensus of N providers</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Critical decisions</td>
+                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;"><a href="#pattern-refinement" style="color:var(--color-green-700);font-weight:600;">Iterative Refinement</a></td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-step pipeline</td>
+                <td style="padding:10px 12px;color:var(--color-text-secondary);">Complex generation tasks</td>
+                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // --- Mobile sidebar toggle ---
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarBackdrop').classList.toggle('open');
+    });
+    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.remove('open');
+      this.classList.remove('open');
+    });
+  </script>
+
+</body>
+</html>
