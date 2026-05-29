@@ -976,3 +976,198 @@ code {
     font-size: 13.5px;
   }
 }
+
+/* ================================================================
+   Premium Website Enhancements
+   ================================================================ */
+
+/* --- Global Search Shortcut Badge & Focus --- */
+.search-wrapper {
+  position: relative;
+}
+
+.hotkey-badge {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: all 0.2s var(--ease);
+}
+
+.search:focus + .hotkey-badge {
+  opacity: 0;
+  transform: translateY(-50%) scale(0.8);
+}
+
+.search:focus {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+}
+
+/* --- Repositories Page Premium Badges --- */
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.repo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.repo-card-header h3 {
+  margin: 0;
+}
+
+.badge-lang {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-java {
+  background: #fdf4ff;
+  border: 1px solid #f5d0fe;
+  color: #a21caf;
+}
+
+.badge-agentspeak {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.badge-doc {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+.repo-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border-light);
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.repo-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* --- Research Page Citation Block --- */
+.citation-block {
+  background: #1e1e24;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.citation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #15151a;
+  border-bottom: 1px solid #2d2d35;
+  padding: 10px 20px;
+  color: #8f929d;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.copy-btn {
+  background: none;
+  border: 1px solid #2d2d35;
+  color: #8f929d;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s var(--ease);
+}
+
+.copy-btn:hover {
+  color: white;
+  border-color: white;
+}
+
+.citation-block pre {
+  margin: 0;
+  padding: 20px;
+  background: #1e1e24;
+}
+
+.citation-block code {
+  color: #d1d5db;
+  font-size: 13.5px;
+}
+
+/* --- Iconified Request Path Grid --- */
+.arch-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.arch-text-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.arch-icon-indicator {
+  font-size: 18px;
+  color: var(--color-green-700);
+  width: 24px;
+  text-align: center;
+}
+
+.arch-phase-badge {
+  font-family: var(--font-heading);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.phase-reasoning { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
+.phase-translation { background: #fdf2f8; border: 1px solid #fce7f3; color: #be185d; }
+.phase-governance { background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; }
+.phase-execution { background: #faf5ff; border: 1px solid #f3e8ff; color: #6b21a8; }
+.phase-material { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+.phase-deliberation { background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; }
