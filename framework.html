@@ -122,22 +122,23 @@
 
         <!-- Prerequisites -->
         <h3 style="margin-top:28px;font-size:16px;"><i class="fa-solid fa-list-check" style="margin-right:8px;color:var(--color-green-700);"></i>Prerequisites</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;margin-top:12px;">
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
 
           <!-- Java 17+ -->
           <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('java')">
-            <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;"><i class="fa-brands fa-java" style="margin-right:6px;color:#f89820;"></i>Java 17+</div>
-                <div style="font-size:13px;color:var(--color-text-secondary);">JDK 17 or higher required.</div>
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-brands fa-java" style="font-size:20px;color:#f89820;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">Java 17+</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">JDK 17 or higher required.</span>
               </div>
-              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('java')">
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('java')">
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
             <div class="prereq-details" id="prereq-java" style="display:none;" onclick="event.stopPropagation()">
-              <div style="padding:0 16px 14px;">
-                <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;">Verify your Java version:</div>
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Verify your Java version:</div>
                 <div class="tabs-container" style="margin:0;">
                   <pre style="padding:14px 18px;"><code>$ java -version
 openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
@@ -151,18 +152,19 @@ openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
 
           <!-- API Key -->
           <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('apikey')">
-            <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;"><i class="fa-solid fa-key" style="margin-right:6px;color:#4ade80;"></i>API Key</div>
-                <div style="font-size:13px;color:var(--color-text-secondary);">A Gemini or OpenAI API key.</div>
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-solid fa-key" style="font-size:16px;color:#4ade80;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">API Key</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">A Gemini or OpenAI API key.</span>
               </div>
-              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('apikey')">
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('apikey')">
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
             <div class="prereq-details" id="prereq-apikey" style="display:none;" onclick="event.stopPropagation()">
-              <div style="padding:0 16px 14px;">
-                <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;">Set your key as an environment variable:</div>
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Set your key as an environment variable:</div>
                 <div class="tabs-container" style="margin:0;">
                   <pre style="padding:14px 18px;"><code><span class="comment"># Gemini</span>
 $ export GEMINI_API_KEY=<span class="string">"AIzaSy...your-key-here"</span>
@@ -179,18 +181,19 @@ $ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span></
 
           <!-- Agent Platform -->
           <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('platform')">
-            <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;"><i class="fa-solid fa-robot" style="margin-right:6px;color:#60a5fa;"></i>Agent Platform</div>
-                <div style="font-size:13px;color:var(--color-text-secondary);">ASTRA, Jason, or JaCaMo.</div>
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-solid fa-robot" style="font-size:16px;color:#60a5fa;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">Agent Platform</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">ASTRA, Jason, or JaCaMo.</span>
               </div>
-              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('platform')">
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('platform')">
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
             <div class="prereq-details" id="prereq-platform" style="display:none;" onclick="event.stopPropagation()">
-              <div style="padding:0 16px 14px;">
-                <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:6px;">Choose your BDI agent platform:</div>
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 6px;">Choose your BDI agent platform:</div>
                 <ul style="font-size:13px;color:var(--color-text-secondary);margin:0;padding-left:18px;line-height:1.8;">
                   <li><a href="https://astralanguage.com/" target="_blank" rel="noopener" style="color:var(--color-green-700);font-weight:600;">ASTRA</a> — Teleo-reactive Java agent language</li>
                   <li><a href="https://jason-lang.github.io/" target="_blank" rel="noopener" style="color:var(--color-green-700);font-weight:600;">Jason</a> — AgentSpeak(L) interpreter</li>
