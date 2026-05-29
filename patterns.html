@@ -71,6 +71,7 @@
       <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
       <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
       <a class="active" href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
+      <a href="#providers" style="padding-left:36px;font-size:13px;"><i class="fa-solid fa-plug" style="font-size:12px;"></i><span>Providers</span></a>
       <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
       <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
     </aside>
@@ -1175,7 +1176,7 @@ Draft &rarr; Critique &rarr; Refine pipeline complete &rarr; ACCEPTED</code></pr
       </section>
 
       <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Summary Table -->
+      <!-- Pattern Summary -->
       <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="summary">
         <h2><i class="fa-solid fa-table-list" style="margin-right:8px;color:var(--color-green-700);"></i>Pattern Summary</h2>
@@ -1200,6 +1201,279 @@ Draft &rarr; Critique &rarr; Refine pipeline complete &rarr; ACCEPTED</code></pr
               <tr><td style="padding:10px 12px;"><a href="#pattern-refinement" style="color:var(--color-green-700);font-weight:600;">Iterative Refinement</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-step pipeline</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Chained sub-goal guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- Providers -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <section class="info-panel" id="providers">
+        <h2><i class="fa-solid fa-plug" style="margin-right:8px;color:#06b6d4;"></i>Providers</h2>
+        <p>Generative Layers supports multiple LLM providers out of the box. The framework uses a <strong>unified architecture</strong> &mdash; one provider class handles all services that implement the Chat Completions API. Gemini uses Google's native API and has its own provider.</p>
+
+        <!-- Architecture Overview -->
+        <div class="card" style="padding:20px;border-left:3px solid #06b6d4;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Architecture</div>
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+            <code>ChatCompletionsProvider</code> &mdash; One class handles <strong>all</strong> services using the Chat Completions API format (Groq, Cerebras, OpenAI, DeepSeek, and any custom endpoint).<br>
+            <code>GeminiProvider</code> &mdash; Separate class for Google's native Gemini API (different protocol).<br><br>
+            <strong>Adding a new provider requires zero framework changes.</strong> Just configure the endpoint, model, and API key from your agent code.
+          </div>
+        </div>
+
+        <!-- Built-in Providers Table -->
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px;"><i class="fa-solid fa-list" style="margin-right:6px;color:#06b6d4;"></i>Built-in Providers</div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
+                  <th style="padding:10px 12px;font-weight:700;">Provider</th>
+                  <th style="padding:10px 12px;font-weight:700;">Free Tier</th>
+                  <th style="padding:10px 12px;font-weight:700;">Tested Models</th>
+                  <th style="padding:10px 12px;font-weight:700;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--color-border-light);">
+                  <td style="padding:10px 12px;font-weight:600;color:#22c55e;">Gemini</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">15 req/min, 1,500/day</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gemini-2.0-flash</code>, <code>gemini-2.5-flash</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--color-border-light);">
+                  <td style="padding:10px 12px;font-weight:600;color:#f97316;">Groq</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">30 req/min, 14,400/day</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>llama-3.3-70b-versatile</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--color-border-light);">
+                  <td style="padding:10px 12px;font-weight:600;color:#ef4444;">Cerebras</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-oss-120b</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--color-border-light);">
+                  <td style="padding:10px 12px;font-weight:600;color:#3b82f6;">OpenAI</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Paid only</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-4o</code>, <code>gpt-4o-mini</code></td>
+                  <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 12px;font-weight:600;color:#8b5cf6;">DeepSeek</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Small initial credit</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>deepseek-chat</code></td>
+                  <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Getting API Keys -->
+        <div class="card" style="padding:0;margin-bottom:16px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('provider-keys')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-key" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Getting API Keys</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('provider-keys')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-provider-keys" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-top:12px;">
+                <strong style="color:#22c55e;">Gemini</strong> &mdash; <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--color-green-700);">aistudio.google.com/apikey</a><br>
+                Sign in with Google &rarr; Create API Key &rarr; Export as <code>GEMINI_API_KEY</code><br><br>
+
+                <strong style="color:#f97316;">Groq</strong> &mdash; <a href="https://console.groq.com/keys" target="_blank" style="color:var(--color-green-700);">console.groq.com/keys</a><br>
+                Sign up (free) &rarr; Create API Key &rarr; Export as <code>GROQ_API_KEY</code><br><br>
+
+                <strong style="color:#ef4444;">Cerebras</strong> &mdash; <a href="https://cloud.cerebras.ai" target="_blank" style="color:var(--color-green-700);">cloud.cerebras.ai</a><br>
+                Sign up (no credit card) &rarr; API Keys &rarr; Export as <code>CEREBRAS_API_KEY</code><br><br>
+
+                <strong style="color:#3b82f6;">OpenAI</strong> &mdash; <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--color-green-700);">platform.openai.com/api-keys</a><br>
+                Sign up &rarr; Create API Key &rarr; Export as <code>OPENAI_API_KEY</code><br><br>
+
+                <strong style="color:#8b5cf6;">DeepSeek</strong> &mdash; <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:var(--color-green-700);">platform.deepseek.com/api_keys</a><br>
+                Sign up &rarr; Create API Key &rarr; Export as <code>DEEPSEEK_API_KEY</code>
+              </div>
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:14px 0 0;overflow-x:auto;"><code><span class="comment"># Set your API key as an environment variable</span>
+<span class="comment"># Linux / macOS:</span>
+export GROQ_API_KEY="gsk_your_key_here"
+
+<span class="comment"># Windows (PowerShell):</span>
+$env:GROQ_API_KEY = "gsk_your_key_here"
+
+<span class="comment"># Windows (CMD):</span>
+set GROQ_API_KEY=gsk_your_key_here</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usage Examples -->
+        <div style="font-size:15px;font-weight:700;margin:20px 0 12px;"><i class="fa-solid fa-code" style="margin-right:6px;color:#06b6d4;"></i>Usage Examples</div>
+
+        <!-- Gemini (different protocol) -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #22c55e;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#22c55e;"><i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Native Google API)</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's own API protocol &mdash; <strong>not</strong> the Chat Completions format. It has its own dedicated provider class.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-gemini-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-gemini-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-gemini-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-gemini-astra">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-gemini-jason">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-gemini-jacamo">
+              <pre><code>configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+use_provider(<span class="string">"gemini"</span>);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Groq -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #f97316;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#f97316;"><i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq (Recommended Free Option)</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Ultra-fast inference with generous free tier. Best for development and testing.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-groq-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-groq-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-groq-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-groq-astra">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+gl.use_provider(<span class="string">"groq"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-groq-jason">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+gl.use_provider(<span class="string">"groq"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-groq-jacamo">
+              <pre><code>configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+use_provider(<span class="string">"groq"</span>);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cerebras -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#ef4444;"><i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">High-speed wafer-scale inference. Free tier with no credit card required.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-cerebras-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-cerebras-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-cerebras-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-cerebras-astra">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+gl.use_provider(<span class="string">"cerebras"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-cerebras-jason">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+gl.use_provider(<span class="string">"cerebras"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-cerebras-jacamo">
+              <pre><code>configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+use_provider(<span class="string">"cerebras"</span>);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Provider -->
+        <div class="card" style="padding:0;margin-bottom:16px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('provider-custom')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-wrench" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Using Any Custom Provider (Zero Code Changes)</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('provider-custom')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-provider-custom" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
+                Any service implementing the Chat Completions API format works immediately &mdash; <strong>no framework update required</strong>. 
+                Just provide the endpoint, model name, and API key environment variable.
+                This includes Together AI, Fireworks, Ollama (local), LM Studio, Azure OpenAI, and any future provider.
+              </p>
+              <div class="tabs-container">
+                <div class="tabs-header">
+                  <div class="tabs-buttons">
+                    <button class="tab-btn active" data-tab="prov-custom-astra">ASTRA</button>
+                    <button class="tab-btn" data-tab="prov-custom-jason">Jason</button>
+                    <button class="tab-btn" data-tab="prov-custom-jacamo">JaCaMo</button>
+                  </div>
+                </div>
+                <div class="tab-content active" id="prov-custom-astra">
+                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
+gl.configure(<span class="string">"endpoint"</span>, <span class="string">"https://api.your-provider.com/v1/chat/completions"</span>);
+gl.configure(<span class="string">"model"</span>, <span class="string">"your-model-name"</span>);
+gl.configure(<span class="string">"apiKeyEnv"</span>, <span class="string">"YOUR_API_KEY"</span>);
+gl.use_provider(<span class="string">"chatcompletions"</span>);
+
+<span class="comment">// Or use any name — it auto-detects from endpoint</span>
+gl.use_provider(<span class="string">"my-custom-provider"</span>);</code></pre>
+                </div>
+                <div class="tab-content" id="prov-custom-jason">
+                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
+gl.configure(<span class="string">"endpoint"</span>, <span class="string">"https://api.your-provider.com/v1/chat/completions"</span>);
+gl.configure(<span class="string">"model"</span>, <span class="string">"your-model-name"</span>);
+gl.configure(<span class="string">"apiKeyEnv"</span>, <span class="string">"YOUR_API_KEY"</span>);
+gl.use_provider(<span class="string">"chatcompletions"</span>);</code></pre>
+                </div>
+                <div class="tab-content" id="prov-custom-jacamo">
+                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
+configure(<span class="string">"endpoint"</span>, <span class="string">"https://api.your-provider.com/v1/chat/completions"</span>);
+configure(<span class="string">"model"</span>, <span class="string">"your-model-name"</span>);
+configure(<span class="string">"apiKeyEnv"</span>, <span class="string">"YOUR_API_KEY"</span>);
+use_provider(<span class="string">"chatcompletions"</span>);</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Switching providers -->
+        <div class="card" style="padding:0;margin-bottom:16px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('provider-switching')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-arrows-left-right" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Switching Providers at Runtime</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('provider-switching')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-provider-switching" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
+                Providers can be switched at any point during execution. This enables patterns like <a href="#pattern-cross-llm" style="color:var(--color-green-700);">Cross-LLM Verification</a>, where one LLM generates and another verifies.
+              </p>
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// Ask Groq first</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+gl.use_provider(<span class="string">"groq"</span>);
+string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+
+<span class="comment">// Then verify with Cerebras</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+gl.use_provider(<span class="string">"cerebras"</span>);
+string vrid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>, <span class="string">"Is apple = fruit correct?"</span>);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-detection -->
+        <div class="card" style="padding:16px;border-left:3px solid #06b6d4;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;color:#06b6d4;"></i>Auto-Detection</div>
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+            If no provider is specified, the framework auto-detects by checking which API key environment variables are set. Priority order: <code>GEMINI_API_KEY</code> &rarr; <code>GROQ_API_KEY</code> &rarr; <code>CEREBRAS_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>. Falls back to a deterministic fake provider for testing without any API key.
+          </div>
         </div>
       </section>
 
