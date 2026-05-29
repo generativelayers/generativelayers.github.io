@@ -321,35 +321,35 @@
  
  +!main <-
      <span class="comment">// 1. Setup provider</span>
-     gl.actions.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
-     gl.actions.use_provider(<span class="string">"gemini"</span>);
+     gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
+     gl.use_provider(<span class="string">"gemini"</span>);
      
      <span class="comment">// 2. Trigger asynchronous query sub-goal</span>
      !request_support(<span class="string">"my_agent"</span>, <span class="string">"solve_task"</span>, <span class="string">"Create candidate plan"</span>).
  
  +!request_support(Agent, Goal, Prompt) <-
-     gl.actions.ask(Agent, Goal, Prompt, Rid);
+     gl.ask(Agent, Goal, Prompt, Rid);
      !deliberate_result(Rid).
  
  <span class="comment">// Deliberation subgoals reacting to context guards instead of if-else:</span>
  +!deliberate_result(Rid)
-     :   gl.actions.valid(Rid, true)
-     <-  gl.actions.candidate(Rid, Cid);
+     :   gl.valid(Rid, true)
+     <-  gl.candidate(Rid, Cid);
          !deliberate_candidate(Cid).
  
  +!deliberate_result(Rid)
-     :   gl.actions.valid(Rid, false)
-     <-  gl.actions.outcome(Rid, Outcome);
+     :   gl.valid(Rid, false)
+     <-  gl.outcome(Rid, Outcome);
          .print(<span class="string">"Generated output is invalid: "</span>, Outcome).
  
  <span class="comment">// Deliberating candidate with BDI guard conditions:</span>
  +!deliberate_candidate(Cid)
-     :   gl.actions.admissible(Cid, true)
-     <-  gl.actions.accept(Cid).
+     :   gl.admissible(Cid, true)
+     <-  gl.accept(Cid).
  
  +!deliberate_candidate(Cid)
-     :   gl.actions.admissible(Cid, false)
-     <-  gl.actions.reject(Cid).</code></pre>
+     :   gl.admissible(Cid, false)
+     <-  gl.reject(Cid).</code></pre>
           </div>
           <div class="tab-content" id="jacamo-code">
             <pre><code class="language-agentspeak">!main.
