@@ -141,7 +141,8 @@
 
     <span class="keyword">rule</span> +!main(list args) {
         console.println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
-        gl.use_provider();
+        gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+        gl.use_provider(<span class="string">"groq"</span>);
         string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
         !decide(rid);
     }
@@ -162,7 +163,8 @@
 
 +!start
    &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
-      gl.use_provider;
+      gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      gl.use_provider(<span class="string">"groq"</span>);
       gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       !decide(Rid).
 
@@ -186,7 +188,8 @@
    &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
       makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
       focus(GlId);
-      use_provider;
+      configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      use_provider(<span class="string">"groq"</span>);
       ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       valid(Rid, IsValid);
       !decide(Rid, IsValid).
@@ -277,7 +280,8 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
 
     <span class="keyword">rule</span> +!main(list args) {
         console.println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
-        gl.use_provider();
+        gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+        gl.use_provider(<span class="string">"groq"</span>);
         string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
         !decide(rid);
     }
@@ -306,7 +310,8 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
 
 +!start
    &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
-      gl.use_provider;
+      gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      gl.use_provider(<span class="string">"groq"</span>);
       gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       !decide(Rid).
 
@@ -337,7 +342,8 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
    &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
       makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
       focus(GlId);
-      use_provider;
+      configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      use_provider(<span class="string">"groq"</span>);
       ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       valid(Rid, IsValid);
       !decide(Rid, IsValid).
@@ -422,7 +428,8 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
 
     <span class="keyword">rule</span> +!main(list args) {
         console.println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
-        gl.use_provider();
+        gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+        gl.use_provider(<span class="string">"groq"</span>);
         string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
         !decide(rid);
     }
@@ -453,7 +460,8 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
 
 +!start
    &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
-      gl.use_provider;
+      gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      gl.use_provider(<span class="string">"groq"</span>);
       gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       !decide(Rid).
 
@@ -484,7 +492,8 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
    &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
       makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
       focus(GlId);
-      use_provider;
+      configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+      use_provider(<span class="string">"groq"</span>);
       ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
       valid(Rid, IsValid);
       !decide(Rid, IsValid).
@@ -569,15 +578,17 @@ Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
           <div class="tab-content active" id="p4-astra">
             <pre><code><span class="comment">// Step 1: Ask Gemini</span>
 <span class="keyword">rule</span> +!classify() {
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
     gl.use_provider(<span class="string">"gemini"</span>);
     string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
     !verify_with_second(rid);
 }
 
-<span class="comment">// Step 2: Send to OpenAI for verification</span>
+<span class="comment">// Step 2: Send to Groq for verification</span>
 <span class="keyword">rule</span> +!verify_with_second(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
     string label = gl.field(rid, <span class="string">"label"</span>);
-    gl.use_provider(<span class="string">"openai"</span>);
+    gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+    gl.use_provider(<span class="string">"groq"</span>);
     string vrid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
         <span class="string">"Is this correct? apple = "</span> + label);
     !compare_results(rid, vrid);
@@ -600,16 +611,18 @@ Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
           <div class="tab-content" id="p4-jason">
             <pre><code><span class="comment">// Step 1: Ask Gemini</span>
 +!classify <-
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
     gl.use_provider(<span class="string">"gemini"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
     !verify_with_second(Rid).
 
-<span class="comment">// Step 2: Send to OpenAI for verification</span>
+<span class="comment">// Step 2: Send to Groq for verification</span>
 +!verify_with_second(Rid)
     :   gl.valid(Rid, <span class="keyword">true</span>)
     <-  gl.field(Rid, <span class="string">"label"</span>, Label);
         +gemini_answer(Rid, Label);
-        gl.use_provider(<span class="string">"openai"</span>);
+        gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+        gl.use_provider(<span class="string">"groq"</span>);
         gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
             .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid);
         !compare_results(Rid, Vrid).
@@ -634,14 +647,16 @@ Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
           <div class="tab-content" id="p4-jacamo">
             <pre><code><span class="comment">// Step 1: Ask Gemini</span>
 +!classify <-
+    configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
     use_provider(<span class="string">"gemini"</span>);
     ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid).
 
-<span class="comment">// Step 2: Gemini result received &rarr; verify with OpenAI</span>
+<span class="comment">// Step 2: Gemini result received &rarr; verify with Groq</span>
 +gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
     field(Rid, <span class="string">"label"</span>, Label);
     +gemini_answer(Rid, Label);
-    use_provider(<span class="string">"openai"</span>);
+    configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+    use_provider(<span class="string">"groq"</span>);
     ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
         .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid).
 
@@ -966,11 +981,14 @@ Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
           <div class="tab-content active" id="p7-jason">
             <pre><code>+!classify <-
     <span class="comment">// Ask three providers</span>
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
     gl.use_provider(<span class="string">"gemini"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
-    gl.use_provider(<span class="string">"openai"</span>);
+    gl.configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+    gl.use_provider(<span class="string">"groq"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
-    gl.use_provider(<span class="string">"anthropic"</span>);
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+    gl.use_provider(<span class="string">"cerebras"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
     gl.field(R1, <span class="string">"label"</span>, L1); gl.field(R2, <span class="string">"label"</span>, L2); gl.field(R3, <span class="string">"label"</span>, L3);
     !vote(R1, L1, R2, L2, R3, L3).
@@ -1000,11 +1018,14 @@ Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
           </div>
           <div class="tab-content" id="p7-jacamo">
             <pre><code>+!classify <-
+    configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
     use_provider(<span class="string">"gemini"</span>);
     ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
-    use_provider(<span class="string">"openai"</span>);
+    configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
+    use_provider(<span class="string">"groq"</span>);
     ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
-    use_provider(<span class="string">"anthropic"</span>);
+    configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
+    use_provider(<span class="string">"cerebras"</span>);
     ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
     field(R1, <span class="string">"label"</span>, L1); field(R2, <span class="string">"label"</span>, L2); field(R3, <span class="string">"label"</span>, L3);
     !vote(R1, L1, R2, L2, R3, L3).
