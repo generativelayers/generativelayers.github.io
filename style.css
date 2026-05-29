@@ -811,7 +811,7 @@ p, li {
 /* --- Responsive Table Container --- */
 .table-container {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -887,6 +887,8 @@ p, li {
   padding: 4px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid #d1eae0;
+  word-break: break-all;
+  white-space: normal;
 }
 
 .small-overloads {
