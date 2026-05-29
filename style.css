@@ -497,6 +497,8 @@ p, li {
 
 .arch-box {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
@@ -1211,6 +1213,8 @@ pre code {
   border-radius: 4px;
   text-transform: uppercase;
   user-select: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .phase-initiation { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
