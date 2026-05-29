@@ -852,6 +852,43 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
                 </td>
               </tr>
  
+              <tr class="cmd-row" id="row-assess" data-group="decision">
+                <td><code class="cmd-name">assess(assessorId, candidateId, verdict, confidence, explanation)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Record a peer assessment on another agent's candidate material.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('assess')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="cmd-details-row" id="details-assess" style="display: none;">
+                <td colspan="4" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax &amp; Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'assess', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-assess-astra"><pre><code><span class="comment">// ASTRA</span>
+rule +!peer_review(string cid) {
+    gl.assess("assessor_agent", cid, "APPROVED", 0.95, "Output is consistent");
+}</code></pre></div>
+                      <div class="mini-code-block" id="code-assess-jason"><pre><code><span class="comment">// Jason</span>
++!peer_review(Cid) &lt;-
+    gl.assess("assessor_agent", Cid, "APPROVED", 0.95, "Output is consistent").</code></pre></div>
+                      <div class="mini-code-block" id="code-assess-jacamo"><pre><code><span class="comment">// JaCaMo</span>
++!peer_review(Cid) &lt;-
+    assess("assessor_agent", Cid, "APPROVED", 0.95, "Output is consistent").</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
 
             </tbody>
           </table>
