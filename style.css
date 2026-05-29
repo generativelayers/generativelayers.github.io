@@ -1165,12 +1165,12 @@ code {
   user-select: none;
 }
 
-.phase-reasoning { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
+.phase-initiation { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
 .phase-translation { background: #fdf2f8; border: 1px solid #fce7f3; color: #be185d; }
 .phase-governance { background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; }
 .phase-execution { background: #faf5ff; border: 1px solid #f3e8ff; color: #6b21a8; }
 .phase-material { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-.phase-deliberation { background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; }
+.phase-decision { background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; }
 
 /* ================================================================
    Expandable Command Details Row
