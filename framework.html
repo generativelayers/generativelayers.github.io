@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=2.5">
+  <link rel="stylesheet" href="style.css?v=2.6">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -135,54 +135,104 @@
       <section class="info-panel" id="core-concepts">
         <h2>Core concepts</h2>
         
-        <div class="card" style="padding: 24px; margin: 16px 0;">
-          <h3 style="margin-top: 0; color: var(--color-green-700); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-user-gear"></i> Agent Layer</h3>
-          <p style="margin: 8px 0 12px 0; font-weight: 600; color: var(--color-text);">The host agent platform and its execution semantics.</p>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">
-            <li><strong>Autonomous Control</strong>: Maintains the main BDI (Belief-Desire-Intention) reasoning loop, managing the agent's internal state.</li>
-            <li><strong>Asynchronous Triggers</strong>: Inquires external support asynchronously, maintaining internal stability while waiting for generative responses.</li>
-            <li><strong>Context-Guarded Decision</strong>: Employs native agent guard conditions to decide whether to adopt, verify, ignore, or reject the candidate material.</li>
-          </ul>
+        <!-- Agent Layer -->
+        <div class="concept-card card" id="concept-agent-layer" onclick="toggleConcept('agent-layer')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-user-gear"></i> Agent Layer</h3>
+              <p class="concept-desc">The host agent platform and its execution semantics.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <ul>
+              <li><strong>Autonomous Control</strong>: Maintains the main BDI (Belief-Desire-Intention) reasoning loop, managing the agent's internal state.</li>
+              <li><strong>Asynchronous Triggers</strong>: Inquires external support asynchronously, maintaining internal stability while waiting for generative responses.</li>
+              <li><strong>Context-Guarded Decision</strong>: Employs native agent guard conditions to decide whether to adopt, verify, ignore, or reject the candidate material.</li>
+            </ul>
+          </div>
         </div>
         
-        <div class="card" style="padding: 24px; margin: 16px 0;">
-          <h3 style="margin-top: 0; color: var(--color-green-700); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-diagram-project"></i> Adapter</h3>
-          <p style="margin: 8px 0 12px 0; font-weight: 600; color: var(--color-text);">The bridge between an agent framework and Generative Layers.</p>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">
-            <li><strong>Datatype Translation</strong>: Maps native agent datatypes (like AgentSpeak terms, structures, and lists) to standard Java parameters and vice versa.</li>
-            <li><strong>Syntactic Integration</strong>: Realizes the canonical API as native extensions, such as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts.</li>
-            <li><strong>Asynchronous Lifecycle Binding</strong>: Manages request session tracking, binding asynchronous responses to the initiating agent context.</li>
-          </ul>
+        <!-- Adapter -->
+        <div class="concept-card card" id="concept-adapter" onclick="toggleConcept('adapter')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-diagram-project"></i> Adapter</h3>
+              <p class="concept-desc">The bridge between an agent framework and Generative Layers.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <ul>
+              <li><strong>Datatype Translation</strong>: Maps native agent datatypes (like AgentSpeak terms, structures, and lists) to standard Java parameters and vice versa.</li>
+              <li><strong>Syntactic Integration</strong>: Realizes the canonical API as native extensions, such as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts.</li>
+              <li><strong>Asynchronous Lifecycle Binding</strong>: Manages request session tracking, binding asynchronous responses to the initiating agent context.</li>
+            </ul>
+          </div>
         </div>
 
-        <div class="card" style="padding: 24px; margin: 16px 0;">
-          <h3 style="margin-top: 0; color: var(--color-green-700); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-shield-halved"></i> Governance Boundary</h3>
-          <p style="margin: 8px 0 12px 0; font-weight: 600; color: var(--color-text);">Policy, limits, audit, and admissibility checks.</p>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">
-            <li><strong>Decoupled Safety Policies</strong>: Enforces budget rules, token limits, rate caps, and content boundaries completely outside of agent logic.</li>
-            <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log all request contexts, policies checked, and outbound results.</li>
-            <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
-          </ul>
+        <!-- Governance Boundary -->
+        <div class="concept-card card" id="concept-governance" onclick="toggleConcept('governance')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-shield-halved"></i> Governance Boundary</h3>
+              <p class="concept-desc">Policy, limits, audit, and admissibility checks.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <ul>
+              <li><strong>Decoupled Safety Policies</strong>: Enforces budget rules, token limits, rate caps, and content boundaries completely outside of agent logic.</li>
+              <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log all request contexts, policies checked, and outbound results.</li>
+              <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
+            </ul>
+          </div>
         </div>
 
-        <div class="card" style="padding: 24px; margin: 16px 0;">
-          <h3 style="margin-top: 0; color: var(--color-green-700); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-server"></i> Provider</h3>
-          <p style="margin: 8px 0 12px 0; font-weight: 600; color: var(--color-text);">The abstract connector to an LLM, tool, API, service, or module.</p>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">
-            <li><strong>Resource Abstraction</strong>: Encapsulates model-specific API calls, tool setups, or service connections under a unified invocation contract.</li>
-            <li><strong>Resilience & Networking</strong>: Isolates HTTP requests, handles rate limits (429s), and manages retries/backoffs without blocking agent threads.</li>
-            <li><strong>Unified Interface</strong>: Simplifies provider switching (e.g. swapping model endpoints or mock providers) with zero changes to agent logic.</li>
-          </ul>
+        <!-- Provider -->
+        <div class="concept-card card" id="concept-provider" onclick="toggleConcept('provider')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-server"></i> Provider</h3>
+              <p class="concept-desc">The abstract connector to an LLM, tool, API, service, or module.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <ul>
+              <li><strong>Resource Abstraction</strong>: Encapsulates model-specific API calls, tool setups, or service connections under a unified invocation contract.</li>
+              <li><strong>Resilience & Networking</strong>: Isolates HTTP requests, handles rate limits (429s), and manages retries/backoffs without blocking agent threads.</li>
+              <li><strong>Unified Interface</strong>: Simplifies provider switching (e.g. swapping model endpoints or mock providers) with zero changes to agent logic.</li>
+            </ul>
+          </div>
         </div>
 
-        <div class="card" style="padding: 24px; margin: 16px 0;">
-          <h3 style="margin-top: 0; color: var(--color-green-700); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-cube"></i> Candidate Material</h3>
-          <p style="margin: 8px 0 12px 0; font-weight: 600; color: var(--color-text);">External output that may be adopted, verified, ignored, or rejected.</p>
-          <ul style="margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: var(--color-text-secondary);">
-            <li><strong>Isolated State Container</strong>: Exposes the generated values to the agent without automatically modifying any internal beliefs or plans.</li>
-            <li><strong>Structured Inspections</strong>: Provides safe query boundaries (via <code>valid()</code> and <code>field()</code>) so agents can inspect the data before adoption.</li>
-            <li><strong>Deliberated Incorporation</strong>: Merges fields into the agent's belief base only when the agent explicitly adopts the candidate (via <code>accept()</code>).</li>
-          </ul>
+        <!-- Candidate Material -->
+        <div class="concept-card card" id="concept-material" onclick="toggleConcept('material')">
+          <div class="concept-header">
+            <div class="concept-title-group">
+              <h3 class="concept-title"><i class="fa-solid fa-cube"></i> Candidate Material</h3>
+              <p class="concept-desc">External output that may be adopted, verified, ignored, or rejected.</p>
+            </div>
+            <button class="concept-toggle-btn" aria-label="Expand Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <ul>
+              <li><strong>Isolated State Container</strong>: Exposes the generated values to the agent without automatically modifying any internal beliefs or plans.</li>
+              <li><strong>Structured Inspections</strong>: Provides safe query boundaries (via <code>valid()</code> and <code>field()</code>) so agents can inspect the data before adoption.</li>
+              <li><strong>Deliberated Incorporation</strong>: Merges fields into the agent's belief base only when the agent explicitly adopts the candidate (via <code>accept()</code>).</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -1015,6 +1065,20 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
       setTimeout(() => {
         row.classList.remove('flash-highlight');
       }, 1500);
+    };
+
+    // --- Toggle Core Concept Accordion ---
+    window.toggleConcept = function(conceptId) {
+      const card = document.getElementById('concept-' + conceptId);
+      if (!card) return;
+      
+      const isExpanded = card.classList.contains('expanded');
+      
+      if (isExpanded) {
+        card.classList.remove('expanded');
+      } else {
+        card.classList.add('expanded');
+      }
     };
 
     // --- Dynamic Accordion for Command Details ---
