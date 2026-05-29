@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2.0">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -57,6 +57,7 @@
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input class="search" placeholder="Search…" aria-label="Search">
+        <span class="hotkey-badge">/</span>
       </div>
     </div>
   </header>
@@ -104,6 +105,25 @@
         <p><strong><a href="https://github.com/remcollier">Associate Professor Rem Collier</a></strong> — academic supervisor, Multi-Agent Systems researcher, and founder of <a href="https://www.astralanguage.com">ASTRA</a>.</p>
       </section>
 
+      <section class="info-panel" id="citation">
+        <h2>Cite Generative Layers</h2>
+        <p>If you use this framework or research in your academic work, please cite it using the following BibTeX format:</p>
+        <div class="citation-block">
+          <div class="citation-header">
+            <span>BibTeX Entry</span>
+            <button class="copy-btn" onclick="copyCitation()"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code id="bibtex-code">@misc{generativelayers2026,
+  author       = {Kyriakidis, Dimitrios and Collier, Rem},
+  title        = {Generative Layers: Governed Generative Resource Layers for BDI Systems},
+  year         = {2026},
+  publisher    = {GitHub},
+  journal      = {GitHub Repository},
+  howpublished = {\url{https://github.com/generativelayers/framework}}
+}</code></pre>
+        </div>
+      </section>
+
       <!-- Footer -->
       <footer class="footer">
         <span>&copy; <script>document.write(new Date().getFullYear())</script> Generative Layers &middot; Apache 2.0</span>
@@ -115,5 +135,16 @@
     </main>
   </div>
 
+  <script>
+    function copyCitation() {
+      const bibtex = document.getElementById('bibtex-code').textContent;
+      navigator.clipboard.writeText(bibtex).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check" style="color:#34d399"></i> Copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 1800);
+      });
+    }
+  </script>
 </body>
 </html>

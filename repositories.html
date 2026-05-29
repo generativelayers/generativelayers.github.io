@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2.0">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -57,6 +57,7 @@
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input class="search" placeholder="Search…" aria-label="Search">
+        <span class="hotkey-badge">/</span>
       </div>
     </div>
   </header>
@@ -80,18 +81,38 @@
 
       <div class="repo-grid" id="github-repositories">
         <a class="repo-card" href="https://github.com/generativelayers/framework">
-          <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
-          <p>Main Java framework repository.</p>
+          <div class="repo-card-header">
+            <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
+            <span class="badge-lang badge-java">Java</span>
+          </div>
+          <p>Main Java framework repository containing the Governance Kernel, DirectAdapter, and the ASTRA, Jason, and JaCaMo adapters.</p>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
+            <span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span>
+          </div>
         </a>
         <a class="repo-card" href="https://github.com/generativelayers/examples">
-          <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
-          <p>Jason, ASTRA, JaCaMo, and CArtAgO examples.</p>
+          <div class="repo-card-header">
+            <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
+            <span class="badge-lang badge-agentspeak">AgentSpeak</span>
+          </div>
+          <p>Complete multi-agent development examples and configuration scripts for Jason, ASTRA, and JaCaMo frameworks.</p>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
+            <span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span>
+          </div>
         </a>
         <a class="repo-card" href="https://github.com/generativelayers/docs">
-          <h3><i class="fa-solid fa-book" style="font-size:14px;margin-right:6px"></i> docs</h3>
-          <p>Documentation and research notes.</p>
+          <div class="repo-card-header">
+            <h3><i class="fa-solid fa-book" style="font-size:14px;margin-right:6px"></i> docs</h3>
+            <span class="badge-lang badge-doc">Docs</span>
+          </div>
+          <p>Documentation sources, detailed architecture specifications, research notes, and academic publication drafts.</p>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
+            <span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span>
+          </div>
         </a>
-
       </div>
 
       <div class="note" style="margin-top:32px">

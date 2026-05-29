@@ -57,6 +57,7 @@
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input class="search" placeholder="Search…" aria-label="Search">
+        <span class="hotkey-badge">/</span>
       </div>
     </div>
   </header>
@@ -81,17 +82,53 @@
       <section class="info-panel" id="request-path">
         <h2>Request path</h2>
         <div class="architecture">
-          <div class="arch-box">1. Agent asks for external support.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-user-gear arch-icon-indicator"></i>
+              <span>1. Agent asks for external support.</span>
+            </div>
+            <span class="arch-phase-badge phase-reasoning">Reasoning</span>
+          </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">2. Adapter creates a Generative Layers request.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-diagram-project arch-icon-indicator"></i>
+              <span>2. Adapter creates a Generative Layers request.</span>
+            </div>
+            <span class="arch-phase-badge phase-translation">Adapter</span>
+          </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">3. Governance checks policy, limits, context, and audit requirements.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-shield-halved arch-icon-indicator"></i>
+              <span>3. Governance checks policy, limits, context, and audit requirements.</span>
+            </div>
+            <span class="arch-phase-badge phase-governance">Governance</span>
+          </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">4. Provider calls an LLM, tool, API, service, or module.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-server arch-icon-indicator"></i>
+              <span>4. Provider calls an LLM, tool, API, service, or module.</span>
+            </div>
+            <span class="arch-phase-badge phase-execution">Provider</span>
+          </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">5. Result returns as candidate material.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-cube arch-icon-indicator"></i>
+              <span>5. Result returns as candidate material.</span>
+            </div>
+            <span class="arch-phase-badge phase-material">Material</span>
+          </div>
           <div class="arch-arrow">↓</div>
-          <div class="arch-box">6. Agent decides whether to adopt, verify, ignore, or reject it.</div>
+          <div class="arch-box">
+            <div class="arch-text-wrapper">
+              <i class="fa-solid fa-scale-balanced arch-icon-indicator"></i>
+              <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
+            </div>
+            <span class="arch-phase-badge phase-deliberation">Deliberation</span>
+          </div>
         </div>
       </section>
 
