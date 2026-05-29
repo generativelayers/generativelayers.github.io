@@ -87,7 +87,7 @@
               <i class="fa-solid fa-user-gear arch-icon-indicator"></i>
               <span>1. Agent asks for external support.</span>
             </div>
-            <span class="arch-phase-badge phase-reasoning">Reasoning</span>
+            <span class="arch-phase-badge phase-initiation">Initiation</span>
           </div>
           <div class="arch-arrow">↓</div>
           <div class="arch-box">
@@ -127,7 +127,7 @@
               <i class="fa-solid fa-scale-balanced arch-icon-indicator"></i>
               <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
             </div>
-            <span class="arch-phase-badge phase-deliberation">Deliberation</span>
+            <span class="arch-phase-badge phase-decision">Decision</span>
           </div>
         </div>
       </section>
@@ -136,7 +136,7 @@
         <h2>Core concepts</h2>
         <div class="card">
           <h3>Agent layer</h3>
-          <p>The host agent platform and its reasoning semantics.</p>
+          <p>The host agent platform and its execution semantics.</p>
         </div>
         <div class="card">
           <h3>Adapter</h3>
@@ -165,7 +165,7 @@
           <button class="filter-btn active" data-group="all">All</button>
           <button class="filter-btn" data-group="lifecycle">Lifecycle</button>
           <button class="filter-btn" data-group="invocation">Invocation</button>
-          <button class="filter-btn" data-group="deliberation">Deliberation</button>
+          <button class="filter-btn" data-group="decision">Decision</button>
         </div>
 
         <div class="table-container">
@@ -326,12 +326,12 @@ rule +!check_providers() {
                       <div class="mini-code-block active" id="code-invoke-astra"><pre><code><span class="comment">// ASTRA</span>
 rule +!request_support(string agent, string goal, string prompt) {
     string rid = gl.invoke(agent, goal, "llm.answer", "ANSWER", prompt, "label");
-    !deliberate_result(rid);
+    !decide_result(rid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-invoke-jason"><pre><code><span class="comment">// Jason</span>
 +!request_support(Agent, Goal, Prompt) <-
     gl.invoke(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", Rid);
-    !deliberate_result(Rid).</code></pre></div>
+    !decide_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-invoke-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!request_support(Agent, Goal, Prompt) <-
     invoke(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", Rid).</code></pre></div>
@@ -365,12 +365,12 @@ rule +!request_support(string agent, string goal, string prompt) {
                       <div class="mini-code-block active" id="code-invoke_with_beliefs-astra"><pre><code><span class="comment">// ASTRA</span>
 rule +!request_rag(string agent, string goal, string prompt) {
     string rid = gl.invoke_with_beliefs(agent, goal, "llm.answer", "ANSWER", prompt, "label", "pref(fruit)");
-    !deliberate_result(rid);
+    !decide_result(rid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-invoke_with_beliefs-jason"><pre><code><span class="comment">// Jason</span>
 +!request_rag(Agent, Goal, Prompt) <-
     gl.invoke_with_beliefs(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", "pref(fruit)", Rid);
-    !deliberate_result(Rid).</code></pre></div>
+    !decide_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-invoke_with_beliefs-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!request_rag(Agent, Goal, Prompt) <-
     invoke_with_beliefs(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", "pref(fruit)", Rid).</code></pre></div>
@@ -404,12 +404,12 @@ rule +!request_rag(string agent, string goal, string prompt) {
                       <div class="mini-code-block active" id="code-ask-astra"><pre><code><span class="comment">// ASTRA</span>
 rule +!request_support(string agent, string goal, string prompt) {
     string rid = gl.ask(agent, goal, prompt);
-    !deliberate_result(rid);
+    !decide_result(rid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jason"><pre><code><span class="comment">// Jason</span>
 +!request_support(Agent, Goal, Prompt) <-
     gl.ask(Agent, Goal, Prompt, Rid);
-    !deliberate_result(Rid).</code></pre></div>
+    !decide_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!request_support(Agent, Goal, Prompt) <-
     ask(Agent, Goal, Prompt, Rid).</code></pre></div>
@@ -441,17 +441,17 @@ rule +!request_support(string agent, string goal, string prompt) {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-valid-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+rule +!decide_result(string rid) : gl.valid(rid) == true {
     string cid = gl.candidate(rid);
-    !deliberate_candidate(cid);
+    !decide_candidate(cid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-valid-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_result(Rid) : gl.valid(Rid, true) <-
++!decide_result(Rid) : gl.valid(Rid, true) <-
     gl.candidate(Rid, Cid);
-    !deliberate_candidate(Cid).</code></pre></div>
+    !decide_candidate(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-valid-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +gl_result(Rid, Outcome, true) <-
-    !deliberate_result(Rid).</code></pre></div>
+    !decide_result(Rid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -480,12 +480,12 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == true {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-field-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+rule +!decide_result(string rid) : gl.valid(rid) == true {
     string val = gl.field(rid, "label");
     console.println("Extracted: " + val);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-field-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_result(Rid) : gl.valid(Rid, true) <-
++!decide_result(Rid) : gl.valid(Rid, true) <-
     gl.field(Rid, "label", Val);
     .print("Extracted: ", Val).</code></pre></div>
                       <div class="mini-code-block" id="code-field-jacamo"><pre><code><span class="comment">// JaCaMo</span>
@@ -520,16 +520,16 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == true {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-candidate-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+rule +!decide_result(string rid) : gl.valid(rid) == true {
     string cid = gl.candidate(rid);
-    !deliberate_candidate(cid);
+    !decide_candidate(cid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-candidate-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_result(Rid) : gl.valid(Rid, true) <-
++!decide_result(Rid) : gl.valid(Rid, true) <-
     gl.candidate(Rid, Cid);
-    !deliberate_candidate(Cid).</code></pre></div>
+    !decide_candidate(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-candidate-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-+!deliberate_result(Rid) <-
++!decide_result(Rid) <-
     candidate(Rid, Cid);
     !check_admissibility(Cid).</code></pre></div>
                     </div>
@@ -600,11 +600,11 @@ rule +!log_trace(string rid) {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-outcome-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_result(string rid) : gl.valid(rid) == false {
+rule +!decide_result(string rid) : gl.valid(rid) == false {
     console.println("Failed: " + gl.outcome(rid));
 }</code></pre></div>
                       <div class="mini-code-block" id="code-outcome-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_result(Rid) : gl.valid(Rid, false) <-
++!decide_result(Rid) : gl.valid(Rid, false) <-
     gl.outcome(Rid, Outcome);
     .print("Failed: ", Outcome).</code></pre></div>
                       <div class="mini-code-block" id="code-outcome-jacamo"><pre><code><span class="comment">// JaCaMo</span>
@@ -655,8 +655,8 @@ rule +!share_context(string targetAgent) {
                 </td>
               </tr>
  
-              <!-- Deliberation -->
-              <tr class="cmd-row" id="row-admissible" data-group="deliberation">
+              <!-- Decision -->
+              <tr class="cmd-row" id="row-admissible" data-group="decision">
                 <td><code class="cmd-name">admissible(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Check whether the candidate currently satisfies all active governance policies.</td>
@@ -679,11 +679,11 @@ rule +!share_context(string targetAgent) {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-admissible-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
+rule +!decide_candidate(string cid) : gl.admissible(cid) == true {
     gl.accept(cid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-admissible-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_candidate(Cid) : gl.admissible(Cid, true) <-
++!decide_candidate(Cid) : gl.admissible(Cid, true) <-
     gl.accept(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-admissible-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!check_admissibility(Cid) : admissible(Cid, true) <-
@@ -693,7 +693,7 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-accept" data-group="deliberation">
+              <tr class="cmd-row" id="row-accept" data-group="decision">
                 <td><code class="cmd-name">accept(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Explicit adoption of the candidate, incorporating its fields into the agent's beliefs.</td>
@@ -716,11 +716,11 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-accept-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
+rule +!decide_candidate(string cid) : gl.admissible(cid) == true {
     gl.accept(cid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-accept-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_candidate(Cid) : gl.admissible(Cid, true) <-
++!decide_candidate(Cid) : gl.admissible(Cid, true) <-
     gl.accept(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-accept-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!check_admissibility(Cid) : admissible(Cid, true) <-
@@ -730,7 +730,7 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-reject" data-group="deliberation">
+              <tr class="cmd-row" id="row-reject" data-group="decision">
                 <td><code class="cmd-name">reject(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Reject a candidate output, refusing adoption.</td>
@@ -753,11 +753,11 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-reject-astra"><pre><code><span class="comment">// ASTRA</span>
-rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
+rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
     gl.reject(cid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-reject-jason"><pre><code><span class="comment">// Jason</span>
-+!deliberate_candidate(Cid) : gl.admissible(Cid, false) <-
++!decide_candidate(Cid) : gl.admissible(Cid, false) <-
     gl.reject(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-reject-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!check_admissibility(Cid) : admissible(Cid, false) <-
@@ -801,25 +801,25 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
  <span class="comment">// Subgoal plan: invokes the resource asynchronously</span>
  <span class="keyword">rule</span> +!request_support(string agent, string goal, string prompt) {
      string rid = gl.ask(agent, goal, prompt);
-     !deliberate_result(rid);
+     !decide_result(rid);
  }
  
- <span class="comment">// Deliberation subgoal plans using pattern-matching guards:</span>
- <span class="keyword">rule</span> +!deliberate_result(string rid) : gl.valid(rid) == true {
+ <span class="comment">// Decision subgoal plans using pattern-matching guards:</span>
+ <span class="keyword">rule</span> +!decide_result(string rid) : gl.valid(rid) == true {
      string cid = gl.candidate(rid);
-     !deliberate_candidate(cid);
+     !decide_candidate(cid);
  }
  
- <span class="keyword">rule</span> +!deliberate_result(string rid) : gl.valid(rid) == false {
+ <span class="keyword">rule</span> +!decide_result(string rid) : gl.valid(rid) == false {
      console.println(<span class="string">"Generated output is invalid: "</span> + gl.outcome(rid));
  }
  
- <span class="comment">// Deliberating candidate with BDI context guards:</span>
- <span class="keyword">rule</span> +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
+ <span class="comment">// Deciding candidate with BDI context guards:</span>
+ <span class="keyword">rule</span> +!decide_candidate(string cid) : gl.admissible(cid) == true {
      gl.accept(cid);
  }
  
- <span class="keyword">rule</span> +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
+ <span class="keyword">rule</span> +!decide_candidate(string cid) : gl.admissible(cid) == false {
      gl.reject(cid);
  }</code></pre>
           </div>
@@ -836,25 +836,25 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
  
  +!request_support(Agent, Goal, Prompt) <-
      gl.ask(Agent, Goal, Prompt, Rid);
-     !deliberate_result(Rid).
+     !decide_result(Rid).
  
- <span class="comment">// Deliberation subgoals reacting to context guards instead of if-else:</span>
- +!deliberate_result(Rid)
+ <span class="comment">// Decision subgoals reacting to context guards instead of if-else:</span>
+ +!decide_result(Rid)
      :   gl.valid(Rid, true)
      <-  gl.candidate(Rid, Cid);
-         !deliberate_candidate(Cid).
+         !decide_candidate(Cid).
  
- +!deliberate_result(Rid)
+ +!decide_result(Rid)
      :   gl.valid(Rid, false)
      <-  gl.outcome(Rid, Outcome);
          .print(<span class="string">"Generated output is invalid: "</span>, Outcome).
  
- <span class="comment">// Deliberating candidate with BDI guard conditions:</span>
- +!deliberate_candidate(Cid)
+ <span class="comment">// Deciding candidate with BDI guard conditions:</span>
+ +!decide_candidate(Cid)
      :   gl.admissible(Cid, true)
      <-  gl.accept(Cid).
  
- +!deliberate_candidate(Cid)
+ +!decide_candidate(Cid)
      :   gl.admissible(Cid, false)
      <-  gl.reject(Cid).</code></pre>
           </div>
@@ -873,13 +873,13 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
  
  <span class="comment">// 3. Reacting to CArtAgO observable belief updates asynchronously:</span>
  +gl_result(Rid, Outcome, true) <-
-     !deliberate_result(Rid).
+     !decide_result(Rid).
  
  +gl_result(Rid, Outcome, false) <-
      .print(<span class="string">"Generated output is invalid: "</span>, Outcome).
  
  <span class="comment">// Subgoal delegation:</span>
- +!deliberate_result(Rid) <-
+ +!decide_result(Rid) <-
      candidate(Rid, Cid);
      !check_admissibility(Cid).
  
