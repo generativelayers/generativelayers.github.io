@@ -119,6 +119,197 @@
         </div>
       </section>
 
+      <section class="info-panel" id="canonical-commands">
+        <h2>Canonical commands</h2>
+        <p>The framework establishes a strict canonical contract of 16 core commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
+
+        <!-- Command Filters -->
+        <div class="command-filters">
+          <button class="filter-btn active" data-group="all">All</button>
+          <button class="filter-btn" data-group="lifecycle">Lifecycle</button>
+          <button class="filter-btn" data-group="invocation">Invocation</button>
+          <button class="filter-btn" data-group="deliberation">Deliberation</button>
+        </div>
+
+        <div class="table-container">
+          <table class="commands-table">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Return Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Lifecycle -->
+              <tr class="cmd-row" data-group="lifecycle">
+                <td><code class="cmd-name">configure(key, value)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Set a configuration key-value pair prior to provider activation.</td>
+              </tr>
+              <tr class="cmd-row" data-group="lifecycle">
+                <td><code class="cmd-name">use_provider()</code> <span class="small-overloads">(+2 overloads)</span></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Activate a generative provider (by default, or named with optional model).</td>
+              </tr>
+              <tr class="cmd-row" data-group="lifecycle">
+                <td><code class="cmd-name">providers()</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Fetch a comma-separated list of all available provider names.</td>
+              </tr>
+              <!-- Invocation -->
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">invoke(agent, goal, body, affordance, prompt, requiredCsv)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Execute a defined generative body (affordance model interaction). Returns result ID.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">invoke_with_beliefs(...)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Execute a generative body, prepending structured beliefs as RAG context.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">ask(agentId, goalId, prompt)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Shorthand LLM invocation using the baseline standard answer affordance.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">valid(resultId)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Check whether the generated output passed schema validation constraint checks.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">field(resultId, name)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Extract a specific named field's value from a validated response schema.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">candidate(resultId)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Retrieve the unique Candidate ID associated with a result.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">trace(resultId)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Get the auditability trace ID generated for the invocation lifecycle.</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">outcome(resultId)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Get the outcome name (e.g. <code>VALIDATED</code>, <code>INVALID</code>, <code>GOVERNANCE_DENIED</code>).</td>
+              </tr>
+              <tr class="cmd-row" data-group="invocation">
+                <td><code class="cmd-name">knowledge(agentId)</code></td>
+                <td><span class="badge-str">String</span></td>
+                <td>Retrieve all accepted knowledge formatted as semicolon-separated key-value entries.</td>
+              </tr>
+              <!-- Deliberation -->
+              <tr class="cmd-row" data-group="deliberation">
+                <td><code class="cmd-name">admissible(candidateId)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Check whether the candidate currently satisfies all active governance policies.</td>
+              </tr>
+              <tr class="cmd-row" data-group="deliberation">
+                <td><code class="cmd-name">accept(candidateId)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Explicit adoption of the candidate, incorporating its fields into the agent's beliefs.</td>
+              </tr>
+              <tr class="cmd-row" data-group="deliberation">
+                <td><code class="cmd-name">reject(candidateId)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Reject a candidate output, refusing adoption.</td>
+              </tr>
+              <tr class="cmd-row" data-group="deliberation">
+                <td><code class="cmd-name">assess(...)</code></td>
+                <td><span class="badge-bool">boolean</span></td>
+                <td>Record a peer verdict assessment of another agent's candidate.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="info-panel" id="platform-syntax">
+        <h2>Platform syntax comparison</h2>
+        <p>Compare how the exact same core flow (configuring, invoking, validating, and adopting candidate material) is written natively across the target agent languages:</p>
+
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="astra-code">ASTRA</button>
+            <button class="tab-btn" data-tab="jason-code">Jason</button>
+            <button class="tab-btn" data-tab="jacamo-code">JaCaMo</button>
+          </div>
+          <div class="tab-content active" id="astra-code">
+            <pre><code class="language-astra"><span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+
+<span class="keyword">rule</span> +!main(list args) {
+    <span class="comment">// 1. Configure and use provider</span>
+    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
+    gl.use_provider(<span class="string">"gemini"</span>);
+    
+    <span class="comment">// 2. Invoke and check validity</span>
+    string rid = gl.ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>);
+    <span class="keyword">if</span> (gl.valid(rid)) {
+        string cid = gl.candidate(rid);
+        
+        <span class="comment">// 3. Deliberate and adopt</span>
+        <span class="keyword">if</span> (gl.admissible(cid)) {
+            gl.accept(cid);
+        } <span class="keyword">else</span> {
+            gl.reject(cid);
+        }
+    }
+}</code></pre>
+          </div>
+          <div class="tab-content" id="jason-code">
+            <pre><code class="language-agentspeak">!main.
+
++!main <-
+    <span class="comment">// 1. Configure and use provider</span>
+    gl.actions.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>, _);
+    gl.actions.use_provider(<span class="string">"gemini"</span>, _);
+    
+    <span class="comment">// 2. Invoke and check validity</span>
+    gl.actions.ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>, Rid);
+    gl.actions.valid(Rid, Valid);
+    
+    <span class="keyword">if</span> (Valid == true) {
+        gl.actions.candidate(Rid, Cid);
+        
+        <span class="comment">// 3. Deliberate and adopt</span>
+        gl.actions.admissible(Cid, Admissible);
+        <span class="keyword">if</span> (Admissible == true) {
+            gl.actions.accept(Cid, _);
+        } <span class="keyword">else</span> {
+            gl.actions.reject(Cid, _);
+        }
+    }.</code></pre>
+          </div>
+          <div class="tab-content" id="jacamo-code">
+            <pre><code class="language-agentspeak">!main.
+
++!main <-
+    <span class="comment">// 1. Focus on the CArtAgO environment artifact</span>
+    makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], Id);
+    focus(Id);
+    
+    <span class="comment">// 2. Configure and invoke using standard operations</span>
+    configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);
+    use_provider(<span class="string">"gemini"</span>);
+    ask(<span class="string">"agent"</span>, <span class="string">"goal"</span>, <span class="string">"prompt"</span>, Rid).
+
+<span class="comment">// 3. Deliberation triggered automatically by sensing observable property gl_result</span>
++gl_result(Rid, Outcome, true) <-
+    candidate(Rid, Cid);
+    admissible(Cid, true);
+    accept(Cid).
+
++gl_result(Rid, Outcome, false) <-
+    .print(<span class="string">"Generated output is invalid"</span>).</code></pre>
+          </div>
+        </div>
+      </section>
+
       <section class="info-panel" id="design-rules">
         <h2>Design rules</h2>
         <ul class="flow-list">
@@ -140,6 +331,45 @@
       </footer>
     </main>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Table Filter Logic ---
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const rows = document.querySelectorAll('.cmd-row');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const group = btn.getAttribute('data-group');
+          rows.forEach(row => {
+            if (group === 'all' || row.getAttribute('data-group') === group) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // --- Tabs Logic ---
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+
+          btn.classList.add('active');
+          const targetTab = btn.getAttribute('data-tab');
+          document.getElementById(targetTab).classList.add('active');
+        });
+      });
+    });
+  </script>
 
 </body>
 </html>

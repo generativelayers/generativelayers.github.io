@@ -735,3 +735,223 @@ p, li {
     max-width: none;
   }
 }
+
+/* ================================================================
+   Interactive API & Command Reference Styles
+   ================================================================ */
+
+/* --- Command Filters --- */
+.command-filters {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 24px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+}
+
+.filter-btn:hover {
+  border-color: var(--color-green-600);
+  color: var(--color-green-700);
+  background: var(--color-green-50);
+}
+
+.filter-btn.active {
+  background: var(--color-green-700);
+  border-color: var(--color-green-700);
+  color: white;
+  box-shadow: 0 4px 10px rgba(13, 148, 98, 0.2);
+}
+
+/* --- Responsive Table Container --- */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 32px;
+}
+
+.commands-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--font-sans);
+  min-width: 600px;
+}
+
+.commands-table th,
+.commands-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+
+.commands-table th {
+  background: var(--color-green-50);
+  color: var(--color-green-800);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.commands-table tr:last-child td {
+  border-bottom: none;
+}
+
+.commands-table tr {
+  transition: background-color 0.15s var(--ease);
+}
+
+.commands-table tr:hover {
+  background-color: rgba(13, 148, 98, 0.02);
+}
+
+/* --- Inline Code & Table Badges --- */
+.cmd-name {
+  font-family: 'Consolas', 'Fira Code', Monaco, monospace;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #0b8254;
+  background: #f1f8f5;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d1eae0;
+}
+
+.small-overloads {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.badge-bool,
+.badge-str {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.badge-bool {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1e40af;
+}
+
+.badge-str {
+  background: #faf5ff;
+  border: 1px solid #f3e8ff;
+  color: #6b21a8;
+}
+
+/* --- Code Comparison Tabs --- */
+.tabs-container {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #1e1e24;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.tabs-header {
+  display: flex;
+  background: #15151a;
+  border-bottom: 1px solid #2d2d35;
+  padding: 0 10px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: #8f929d;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: white;
+}
+
+.tab-btn.active {
+  color: var(--color-green-accent);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
+  height: 2px;
+  background: var(--color-green-accent);
+  border-radius: 2px 2px 0 0;
+}
+
+.tab-content {
+  display: none;
+  padding: 0;
+  background: #1e1e24;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* --- Dark Mode Code Blocks --- */
+pre {
+  margin: 0;
+  padding: 24px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Fira Code', Monaco, monospace;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+code {
+  font-family: inherit;
+  color: #e5e7eb;
+}
+
+/* Simple Premium Syntax Colors */
+.tab-content .keyword { color: #f472b6; font-weight: 600; }
+.tab-content .comment { color: #6b7280; font-style: italic; }
+.tab-content .string  { color: #34d399; }
+
+/* ================================================================
+   Responsive Custom Tweaks
+   ================================================================ */
+@media (max-width: 600px) {
+  .commands-table th,
+  .commands-table td {
+    padding: 12px 14px;
+  }
+  .cmd-name {
+    font-size: 13.5px;
+  }
+}
