@@ -1450,7 +1450,7 @@ pre code {
 }
 
 .concept-card.expanded .concept-details {
-  max-height: 500px; /* high enough to cover all text */
+  max-height: 2000px; /* high enough to prevent any clipping on large cards */
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px dashed var(--color-border);
