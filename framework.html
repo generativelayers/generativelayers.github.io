@@ -179,87 +179,534 @@
             </thead>
             <tbody>
               <!-- Lifecycle -->
-              <tr class="cmd-row" data-group="lifecycle">
-                <td><code class="cmd-name">configure(key, value)</code></td>
+              <tr class="cmd-row" id="row-configure" data-group="lifecycle" onclick="toggleRow('configure')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">configure(key, value)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Set a configuration key-value pair prior to provider activation.</td>
               </tr>
-              <tr class="cmd-row" data-group="lifecycle">
-                <td><code class="cmd-name">use_provider()</code> <span class="small-overloads">(+2 overloads)</span></td>
+              <tr class="cmd-details-row" id="details-configure" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'configure', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'configure', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'configure', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-configure-astra"><pre><code><span class="comment">// ASTRA</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-configure-jason"><pre><code><span class="comment">// Jason</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-configure-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-use_provider" data-group="lifecycle" onclick="toggleRow('use_provider')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span><code class="cmd-name">use_provider()</code> <span class="small-overloads">(+2 overloads)</span></span>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Activate a generative provider (by default, or named with optional model).</td>
               </tr>
-              <tr class="cmd-row" data-group="lifecycle">
-                <td><code class="cmd-name">providers()</code></td>
+              <tr class="cmd-details-row" id="details-use_provider" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'use_provider', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'use_provider', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'use_provider', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-use_provider-astra"><pre><code><span class="comment">// ASTRA</span>
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-use_provider-jason"><pre><code><span class="comment">// Jason</span>
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-use_provider-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+use_provider(<span class="string">"gemini"</span>);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-providers" data-group="lifecycle" onclick="toggleRow('providers')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">providers()</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Fetch a comma-separated list of all available provider names.</td>
               </tr>
+              <tr class="cmd-details-row" id="details-providers" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'providers', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'providers', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'providers', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-providers-astra"><pre><code><span class="comment">// ASTRA</span>
+string list = gl.providers();</code></pre></div>
+                      <div class="mini-code-block" id="code-providers-jason"><pre><code><span class="comment">// Jason</span>
+gl.providers(List);</code></pre></div>
+                      <div class="mini-code-block" id="code-providers-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+providers(List);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
               <!-- Invocation -->
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">invoke(agent, goal, body, affordance, prompt, requiredCsv)</code></td>
+              <tr class="cmd-row" id="row-invoke" data-group="invocation" onclick="toggleRow('invoke')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">invoke(agent, goal, body, affordance, prompt, requiredCsv)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Execute a defined generative body (affordance model interaction). Returns result ID.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">invoke_with_beliefs(...)</code></td>
+              <tr class="cmd-details-row" id="details-invoke" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'invoke', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'invoke', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'invoke', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-invoke-astra"><pre><code><span class="comment">// ASTRA</span>
+string rid = gl.invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-invoke-jason"><pre><code><span class="comment">// Jason</span>
+gl.invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>, Rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-invoke-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>, Rid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-invoke_with_beliefs" data-group="invocation" onclick="toggleRow('invoke_with_beliefs')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">invoke_with_beliefs(...)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Execute a generative body, prepending structured beliefs as RAG context.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">ask(agentId, goalId, prompt)</code></td>
+              <tr class="cmd-details-row" id="details-invoke_with_beliefs" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'invoke_with_beliefs', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'invoke_with_beliefs', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'invoke_with_beliefs', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-invoke_with_beliefs-astra"><pre><code><span class="comment">// ASTRA</span>
+string rid = gl.invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-invoke_with_beliefs-jason"><pre><code><span class="comment">// Jason</span>
+gl.invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>, Rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-invoke_with_beliefs-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>, Rid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-ask" data-group="invocation" onclick="toggleRow('ask')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">ask(agentId, goalId, prompt)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Shorthand LLM invocation using the baseline standard answer affordance.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">valid(resultId)</code></td>
+              <tr class="cmd-details-row" id="details-ask" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'ask', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'ask', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'ask', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-ask-astra"><pre><code><span class="comment">// ASTRA</span>
+string rid = gl.ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-ask-jason"><pre><code><span class="comment">// Jason</span>
+gl.ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>, Rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-ask-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>, Rid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-valid" data-group="invocation" onclick="toggleRow('valid')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">valid(resultId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Check whether the generated output passed schema validation constraint checks.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">field(resultId, name)</code></td>
+              <tr class="cmd-details-row" id="details-valid" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'valid', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'valid', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'valid', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-valid-astra"><pre><code><span class="comment">// ASTRA</span>
+boolean isValid = gl.valid(rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-valid-jason"><pre><code><span class="comment">// Jason</span>
+gl.valid(Rid, IsValid);</code></pre></div>
+                      <div class="mini-code-block" id="code-valid-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+valid(Rid, IsValid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-field" data-group="invocation" onclick="toggleRow('field')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">field(resultId, name)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Extract a specific named field's value from a validated response schema.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">candidate(resultId)</code></td>
+              <tr class="cmd-details-row" id="details-field" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'field', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'field', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'field', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-field-astra"><pre><code><span class="comment">// ASTRA</span>
+string val = gl.field(rid, <span class="string">"label"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-field-jason"><pre><code><span class="comment">// Jason</span>
+gl.field(Rid, <span class="string">"label"</span>, Val);</code></pre></div>
+                      <div class="mini-code-block" id="code-field-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+field(Rid, <span class="string">"label"</span>, Val);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-candidate" data-group="invocation" onclick="toggleRow('candidate')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">candidate(resultId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Retrieve the unique Candidate ID associated with a result.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">trace(resultId)</code></td>
+              <tr class="cmd-details-row" id="details-candidate" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'candidate', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'candidate', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'candidate', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-candidate-astra"><pre><code><span class="comment">// ASTRA</span>
+string cid = gl.candidate(rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-candidate-jason"><pre><code><span class="comment">// Jason</span>
+gl.candidate(Rid, Cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-candidate-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+candidate(Rid, Cid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-trace" data-group="invocation" onclick="toggleRow('trace')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">trace(resultId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Get the auditability trace ID generated for the invocation lifecycle.</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">outcome(resultId)</code></td>
+              <tr class="cmd-details-row" id="details-trace" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'trace', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'trace', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'trace', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-trace-astra"><pre><code><span class="comment">// ASTRA</span>
+string tid = gl.trace(rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-trace-jason"><pre><code><span class="comment">// Jason</span>
+gl.trace(Rid, Tid);</code></pre></div>
+                      <div class="mini-code-block" id="code-trace-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+trace(Rid, Tid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-outcome" data-group="invocation" onclick="toggleRow('outcome')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">outcome(resultId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Get the outcome name (e.g. <code>VALIDATED</code>, <code>INVALID</code>, <code>GOVERNANCE_DENIED</code>).</td>
               </tr>
-              <tr class="cmd-row" data-group="invocation">
-                <td><code class="cmd-name">knowledge(agentId)</code></td>
+              <tr class="cmd-details-row" id="details-outcome" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'outcome', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'outcome', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'outcome', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-outcome-astra"><pre><code><span class="comment">// ASTRA</span>
+string out = gl.outcome(rid);</code></pre></div>
+                      <div class="mini-code-block" id="code-outcome-jason"><pre><code><span class="comment">// Jason</span>
+gl.outcome(Rid, Out);</code></pre></div>
+                      <div class="mini-code-block" id="code-outcome-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+outcome(Rid, Out);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-knowledge" data-group="invocation" onclick="toggleRow('knowledge')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">knowledge(agentId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-str">String</span></td>
                 <td>Retrieve all accepted knowledge formatted as semicolon-separated key-value entries.</td>
               </tr>
+              <tr class="cmd-details-row" id="details-knowledge" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'knowledge', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'knowledge', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'knowledge', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-knowledge-astra"><pre><code><span class="comment">// ASTRA</span>
+string kn = gl.knowledge(<span class="string">"agent_a"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-knowledge-jason"><pre><code><span class="comment">// Jason</span>
+gl.knowledge(<span class="string">"agent_a"</span>, Kn);</code></pre></div>
+                      <div class="mini-code-block" id="code-knowledge-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+knowledge(<span class="string">"agent_a"</span>, Kn);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
               <!-- Deliberation -->
-              <tr class="cmd-row" data-group="deliberation">
-                <td><code class="cmd-name">admissible(candidateId)</code></td>
+              <tr class="cmd-row" id="row-admissible" data-group="deliberation" onclick="toggleRow('admissible')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">admissible(candidateId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Check whether the candidate currently satisfies all active governance policies.</td>
               </tr>
-              <tr class="cmd-row" data-group="deliberation">
-                <td><code class="cmd-name">accept(candidateId)</code></td>
+              <tr class="cmd-details-row" id="details-admissible" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'admissible', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'admissible', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'admissible', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-admissible-astra"><pre><code><span class="comment">// ASTRA</span>
+boolean adm = gl.admissible(cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-admissible-jason"><pre><code><span class="comment">// Jason</span>
+gl.admissible(Cid, Adm);</code></pre></div>
+                      <div class="mini-code-block" id="code-admissible-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+admissible(Cid, Adm);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-accept" data-group="deliberation" onclick="toggleRow('accept')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">accept(candidateId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Explicit adoption of the candidate, incorporating its fields into the agent's beliefs.</td>
               </tr>
-              <tr class="cmd-row" data-group="deliberation">
-                <td><code class="cmd-name">reject(candidateId)</code></td>
+              <tr class="cmd-details-row" id="details-accept" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'accept', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'accept', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'accept', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-accept-astra"><pre><code><span class="comment">// ASTRA</span>
+gl.accept(cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-accept-jason"><pre><code><span class="comment">// Jason</span>
+gl.accept(Cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-accept-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+accept(Cid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-reject" data-group="deliberation" onclick="toggleRow('reject')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">reject(candidateId)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Reject a candidate output, refusing adoption.</td>
               </tr>
-              <tr class="cmd-row" data-group="deliberation">
-                <td><code class="cmd-name">assess(...)</code></td>
+              <tr class="cmd-details-row" id="details-reject" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'reject', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'reject', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'reject', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-reject-astra"><pre><code><span class="comment">// ASTRA</span>
+gl.reject(cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-reject-jason"><pre><code><span class="comment">// Jason</span>
+gl.reject(Cid);</code></pre></div>
+                      <div class="mini-code-block" id="code-reject-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+reject(Cid);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+ 
+              <tr class="cmd-row" id="row-assess" data-group="deliberation" onclick="toggleRow('assess')">
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <code class="cmd-name">assess(...)</code>
+                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                  </div>
+                </td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Record a peer verdict assessment of another agent's candidate.</td>
+              </tr>
+              <tr class="cmd-details-row" id="details-assess" style="display: none;">
+                <td colspan="3" style="padding: 0;">
+                  <div class="cmd-details-content">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
+                      <div class="mini-tabs">
+                        <button class="mini-tab-btn active" onclick="switchMiniTab(event, 'assess', 'astra')">ASTRA</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jason')">Jason</button>
+                        <button class="mini-tab-btn" onclick="switchMiniTab(event, 'assess', 'jacamo')">JaCaMo</button>
+                      </div>
+                    </div>
+                    <div class="mini-code-container">
+                      <div class="mini-code-block active" id="code-assess-astra"><pre><code><span class="comment">// ASTRA</span>
+gl.assess(<span class="string">"assessor"</span>, cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-assess-jason"><pre><code><span class="comment">// Jason</span>
+gl.assess(<span class="string">"assessor"</span>, Cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
+                      <div class="mini-code-block" id="code-assess-jacamo"><pre><code><span class="comment">// JaCaMo</span>
+assess(<span class="string">"assessor"</span>, Cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
+                    </div>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -411,6 +858,70 @@
   </div>
 
   <script>
+    // --- Dynamic Accordion for Command Details ---
+    window.toggleRow = function(cmdId) {
+      const row = document.getElementById('row-' + cmdId);
+      const detailsRow = document.getElementById('details-' + cmdId);
+      if (!row || !detailsRow) return;
+      
+      const isExpanded = row.classList.contains('expanded');
+      
+      // Close all other expanded rows first for a clean single-open accordion feel
+      document.querySelectorAll('.cmd-row.expanded').forEach(r => {
+        if (r !== row) {
+          r.classList.remove('expanded');
+          const otherId = r.id.replace('row-', '');
+          const otherDetails = document.getElementById('details-' + otherId);
+          if (otherDetails) {
+            otherDetails.classList.remove('open');
+            setTimeout(() => { 
+              if (!otherDetails.classList.contains('open')) {
+                otherDetails.style.display = 'none'; 
+              }
+            }, 300);
+          }
+        }
+      });
+
+      if (isExpanded) {
+        row.classList.remove('expanded');
+        detailsRow.classList.remove('open');
+        setTimeout(() => {
+          if (!detailsRow.classList.contains('open')) {
+            detailsRow.style.display = 'none';
+          }
+        }, 300);
+      } else {
+        detailsRow.style.display = '';
+        // Force browser reflow to enable CSS transition
+        detailsRow.offsetHeight;
+        row.classList.add('expanded');
+        detailsRow.classList.add('open');
+      }
+    };
+
+    // --- Tab Switcher within Command Details ---
+    window.switchMiniTab = function(event, cmdId, lang) {
+      event.stopPropagation(); // Avoid triggering parent row clicks
+      const detailsRow = document.getElementById('details-' + cmdId);
+      if (!detailsRow) return;
+      
+      // Deactivate all buttons in this accordion's header
+      const btns = detailsRow.querySelectorAll('.mini-tab-btn');
+      btns.forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      
+      // Deactivate all code blocks in this accordion
+      const blocks = detailsRow.querySelectorAll('.mini-code-block');
+      blocks.forEach(block => block.classList.remove('active'));
+      
+      // Activate target code block
+      const targetBlock = detailsRow.querySelector('#code-' + cmdId + '-' + lang);
+      if (targetBlock) {
+        targetBlock.classList.add('active');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       // --- Table Filter Logic ---
       const filterBtns = document.querySelectorAll('.filter-btn');
@@ -427,6 +938,14 @@
               row.style.display = '';
             } else {
               row.style.display = 'none';
+              // Hide corresponding details if the parent row is hidden
+              const cmdId = row.id.replace('row-', '');
+              const detailsRow = document.getElementById('details-' + cmdId);
+              if (detailsRow) {
+                row.classList.remove('expanded');
+                detailsRow.classList.remove('open');
+                detailsRow.style.display = 'none';
+              }
             }
           });
         });

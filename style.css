@@ -1171,3 +1171,106 @@ code {
 .phase-execution { background: #faf5ff; border: 1px solid #f3e8ff; color: #6b21a8; }
 .phase-material { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
 .phase-deliberation { background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; }
+
+/* ================================================================
+   Expandable Command Details Row
+   ================================================================ */
+.cmd-row {
+  cursor: pointer;
+}
+
+.chevron-icon {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  transition: transform 0.25s var(--ease);
+  margin-left: 12px;
+}
+
+.cmd-row.expanded .chevron-icon {
+  transform: rotate(180deg);
+  color: var(--color-green-700);
+}
+
+.cmd-row.expanded {
+  background-color: rgba(13, 148, 98, 0.03) !important;
+}
+
+.cmd-details-row {
+  background: #fbfdfc !important;
+}
+
+.cmd-details-content {
+  overflow: hidden;
+  max-height: 0;
+  padding: 0 20px;
+  transition: all 0.3s var(--ease);
+  border-top: 1px dashed transparent;
+  border-bottom: 1px dashed transparent;
+}
+
+.cmd-details-row.open .cmd-details-content {
+  max-height: 400px;
+  padding: 20px;
+  border-top: 1px dashed var(--color-border);
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.mini-tabs {
+  display: inline-flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.mini-tab-btn {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+
+.mini-tab-btn:hover {
+  color: var(--color-green-700);
+}
+
+.mini-tab-btn.active {
+  background: white;
+  color: var(--color-green-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.mini-code-container {
+  background: #18191c !important;
+  border: 1px solid #2b2d31 !important;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.mini-code-block pre {
+  margin: 0;
+  padding: 14px 18px;
+  overflow-x: auto;
+}
+
+.mini-code-block code {
+  font-family: 'Consolas', 'Fira Code', Monaco, monospace;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+.mini-code-block {
+  display: none;
+}
+
+.mini-code-block.active {
+  display: block;
+}
