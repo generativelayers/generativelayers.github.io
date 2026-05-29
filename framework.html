@@ -775,7 +775,7 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
 
       <section class="info-panel" id="platform-syntax">
         <h2>Platform syntax comparison</h2>
-        <p>Compare how the exact same core flow (configuring, invoking, validating, and adopting candidate material) is written natively across the target agent languages:</p>
+        <p>Compare how the exact same core flow (configuring, invoking, validating, and adopting candidate material) is written natively across the target agent languages (ASTRA, Jason, and the multi-agent framework JaCaMo, which integrates Jason BDI agents, CArtAgO artifact environments, and Moise organizations):</p>
 
         <div class="tabs-container">
           <div class="tabs-header">
@@ -784,7 +784,7 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
               <button class="tab-btn" data-tab="jason-code">Jason</button>
               <button class="tab-btn" data-tab="jacamo-code">JaCaMo</button>
             </div>
-            <div class="tab-badge" id="tab-badge">ASTRA PLATFORM</div>
+            <div class="tab-badge" id="tab-badge">ASTRA</div>
           </div>
           <div class="tab-content active" id="astra-code">
             <pre><code class="language-astra"><span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
@@ -1028,7 +1028,7 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
           // Dynamically update the active platform badge text
           const platformName = btn.textContent.trim();
           if (tabBadge) {
-            tabBadge.textContent = platformName + ' PLATFORM';
+            tabBadge.textContent = platformName;
           }
         });
       });
