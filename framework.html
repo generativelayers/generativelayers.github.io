@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=2.6">
+  <link rel="stylesheet" href="style.css?v=2.7">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -1033,38 +1033,29 @@ rule +!decide_candidate(string cid) : gl.admissible(cid) == false {
         }
       }
 
-      // Check if the row is already fully within the viewport
+      // Calculate the absolute vertical position of the row relative to the document
       const rect = row.getBoundingClientRect();
-      const headerHeight = 90; // sticky header + spacing
-      const isVisible = (
-        rect.top >= headerHeight &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) - 50
-      );
-
-      if (!isVisible) {
-        // Calculate the absolute vertical position of the row
-        const absoluteElementTop = rect.top + window.pageYOffset;
-        
-        // Scroll the target row so it is positioned at 35% of the viewport height from the top
-        // This keeps the table headers/context visible above and below it, preventing disorientation.
-        const targetScrollY = absoluteElementTop - (window.innerHeight * 0.35);
-        
-        window.scrollTo({
-          top: Math.max(0, targetScrollY),
-          behavior: 'smooth'
-        });
-      }
+      const absoluteElementTop = rect.top + window.pageYOffset;
+      
+      // Scroll the target row so it is positioned exactly 120px from the top of the viewport
+      // This is just below the 72px sticky header, providing a perfect, locked reading offset.
+      const targetScrollY = absoluteElementTop - 120;
+      
+      window.scrollTo({
+        top: Math.max(0, targetScrollY),
+        behavior: 'smooth'
+      });
 
       // Remove existing class in case it was triggered recently
       row.classList.remove('flash-highlight');
       // Force a browser reflow to restart the CSS animation cleanly
       row.offsetWidth;
 
-      // Add temporary visual flash-glow highlight
+      // Add temporary visual flash-glow highlight (3-second extended hold)
       row.classList.add('flash-highlight');
       setTimeout(() => {
         row.classList.remove('flash-highlight');
-      }, 1500);
+      }, 3000);
     };
 
     // --- Toggle Core Concept Accordion ---
