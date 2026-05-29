@@ -42,7 +42,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2.0">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -235,9 +235,12 @@
 
         <div class="tabs-container">
           <div class="tabs-header">
-            <button class="tab-btn active" data-tab="astra-code">ASTRA</button>
-            <button class="tab-btn" data-tab="jason-code">Jason</button>
-            <button class="tab-btn" data-tab="jacamo-code">JaCaMo</button>
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="astra-code">ASTRA</button>
+              <button class="tab-btn" data-tab="jason-code">Jason</button>
+              <button class="tab-btn" data-tab="jacamo-code">JaCaMo</button>
+            </div>
+            <div class="tab-badge" id="tab-badge">ASTRA PLATFORM</div>
           </div>
           <div class="tab-content active" id="astra-code">
             <pre><code class="language-astra"><span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
@@ -357,6 +360,7 @@
       // --- Tabs Logic ---
       const tabBtns = document.querySelectorAll('.tab-btn');
       const tabContents = document.querySelectorAll('.tab-content');
+      const tabBadge = document.getElementById('tab-badge');
 
       tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -366,6 +370,12 @@
           btn.classList.add('active');
           const targetTab = btn.getAttribute('data-tab');
           document.getElementById(targetTab).classList.add('active');
+
+          // Dynamically update the active platform badge text
+          const platformName = btn.textContent.trim();
+          if (tabBadge) {
+            tabBadge.textContent = platformName + ' PLATFORM';
+          }
         });
       });
     });
