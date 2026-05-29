@@ -1274,3 +1274,42 @@ code {
 .mini-code-block.active {
   display: block;
 }
+
+/* --- View Example Circular Button --- */
+.view-example-btn {
+  background: white;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s var(--ease);
+}
+
+.view-example-btn:hover {
+  background: rgba(13, 148, 98, 0.08);
+  border-color: var(--color-green-700);
+  color: var(--color-green-700);
+  transform: scale(1.08);
+}
+
+.view-example-btn i {
+  font-size: 13px;
+  transition: transform 0.2s var(--ease);
+}
+
+.cmd-row.expanded .view-example-btn {
+  background: var(--color-green-700);
+  border-color: var(--color-green-700);
+  color: white;
+  box-shadow: 0 3px 8px rgba(13, 148, 98, 0.3);
+}
+
+.cmd-row.expanded .view-example-btn i {
+  transform: scale(1.1);
+}
