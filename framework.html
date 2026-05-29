@@ -202,11 +202,18 @@
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-configure-astra"><pre><code><span class="comment">// ASTRA</span>
-gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
+rule +!main(list args) {
+    gl.configure("model", "gemini-1.5-flash");
+    gl.use_provider("gemini");
+}</code></pre></div>
                       <div class="mini-code-block" id="code-configure-jason"><pre><code><span class="comment">// Jason</span>
-gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
++!main <-
+    gl.configure("model", "gemini-1.5-flash");
+    gl.use_provider("gemini").</code></pre></div>
                       <div class="mini-code-block" id="code-configure-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-flash"</span>);</code></pre></div>
++!main <-
+    configure("model", "gemini-1.5-flash");
+    use_provider("gemini").</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -235,11 +242,18 @@ configure(<span class="string">"model"</span>, <span class="string">"gemini-1.5-
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-use_provider-astra"><pre><code><span class="comment">// ASTRA</span>
-gl.use_provider(<span class="string">"gemini"</span>);</code></pre></div>
+rule +!main(list args) {
+    gl.configure("model", "gemini-1.5-flash");
+    gl.use_provider("gemini");
+}</code></pre></div>
                       <div class="mini-code-block" id="code-use_provider-jason"><pre><code><span class="comment">// Jason</span>
-gl.use_provider(<span class="string">"gemini"</span>);</code></pre></div>
++!main <-
+    gl.configure("model", "gemini-1.5-flash");
+    gl.use_provider("gemini").</code></pre></div>
                       <div class="mini-code-block" id="code-use_provider-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-use_provider(<span class="string">"gemini"</span>);</code></pre></div>
++!main <-
+    configure("model", "gemini-1.5-flash");
+    use_provider("gemini").</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -268,11 +282,18 @@ use_provider(<span class="string">"gemini"</span>);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-providers-astra"><pre><code><span class="comment">// ASTRA</span>
-string list = gl.providers();</code></pre></div>
+rule +!check_providers() {
+    string list = gl.providers();
+    console.println("Available: " + list);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-providers-jason"><pre><code><span class="comment">// Jason</span>
-gl.providers(List);</code></pre></div>
++!check_providers <-
+    gl.providers(List);
+    .print("Available: ", List).</code></pre></div>
                       <div class="mini-code-block" id="code-providers-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-providers(List);</code></pre></div>
++!check_providers <-
+    providers(List);
+    .print("Available: ", List).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -302,11 +323,17 @@ providers(List);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-invoke-astra"><pre><code><span class="comment">// ASTRA</span>
-string rid = gl.invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>);</code></pre></div>
+rule +!request_support(string agent, string goal, string prompt) {
+    string rid = gl.invoke(agent, goal, "llm.answer", "ANSWER", prompt, "label");
+    !deliberate_result(rid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-invoke-jason"><pre><code><span class="comment">// Jason</span>
-gl.invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>, Rid);</code></pre></div>
++!request_support(Agent, Goal, Prompt) <-
+    gl.invoke(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", Rid);
+    !deliberate_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-invoke-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify"</span>, <span class="string">"label"</span>, Rid);</code></pre></div>
++!request_support(Agent, Goal, Prompt) <-
+    invoke(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", Rid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -335,11 +362,17 @@ invoke(<span class="string">"agent_a"</span>, <span class="string">"classify"</s
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-invoke_with_beliefs-astra"><pre><code><span class="comment">// ASTRA</span>
-string rid = gl.invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>);</code></pre></div>
+rule +!request_rag(string agent, string goal, string prompt) {
+    string rid = gl.invoke_with_beliefs(agent, goal, "llm.answer", "ANSWER", prompt, "label", "pref(fruit)");
+    !deliberate_result(rid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-invoke_with_beliefs-jason"><pre><code><span class="comment">// Jason</span>
-gl.invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>, Rid);</code></pre></div>
++!request_rag(Agent, Goal, Prompt) <-
+    gl.invoke_with_beliefs(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", "pref(fruit)", Rid);
+    !deliberate_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-invoke_with_beliefs-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</span>, <span class="string">"body"</span>, <span class="string">"ANSWER"</span>, <span class="string">"prompt"</span>, <span class="string">"label"</span>, <span class="string">"pref(fruit)"</span>, Rid);</code></pre></div>
++!request_rag(Agent, Goal, Prompt) <-
+    invoke_with_beliefs(Agent, Goal, "llm.answer", "ANSWER", Prompt, "label", "pref(fruit)", Rid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -368,11 +401,17 @@ invoke_with_beliefs(<span class="string">"a"</span>, <span class="string">"g"</s
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-ask-astra"><pre><code><span class="comment">// ASTRA</span>
-string rid = gl.ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>);</code></pre></div>
+rule +!request_support(string agent, string goal, string prompt) {
+    string rid = gl.ask(agent, goal, prompt);
+    !deliberate_result(rid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jason"><pre><code><span class="comment">// Jason</span>
-gl.ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>, Rid);</code></pre></div>
++!request_support(Agent, Goal, Prompt) <-
+    gl.ask(Agent, Goal, Prompt, Rid);
+    !deliberate_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span>, <span class="string">"Classify apple"</span>, Rid);</code></pre></div>
++!request_support(Agent, Goal, Prompt) <-
+    ask(Agent, Goal, Prompt, Rid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -401,11 +440,17 @@ ask(<span class="string">"agent_a"</span>, <span class="string">"classify"</span
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-valid-astra"><pre><code><span class="comment">// ASTRA</span>
-boolean isValid = gl.valid(rid);</code></pre></div>
+rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+    string cid = gl.candidate(rid);
+    !deliberate_candidate(cid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-valid-jason"><pre><code><span class="comment">// Jason</span>
-gl.valid(Rid, IsValid);</code></pre></div>
++!deliberate_result(Rid) : gl.valid(Rid, true) <-
+    gl.candidate(Rid, Cid);
+    !deliberate_candidate(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-valid-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-valid(Rid, IsValid);</code></pre></div>
++gl_result(Rid, Outcome, true) <-
+    !deliberate_result(Rid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -434,11 +479,18 @@ valid(Rid, IsValid);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-field-astra"><pre><code><span class="comment">// ASTRA</span>
-string val = gl.field(rid, <span class="string">"label"</span>);</code></pre></div>
+rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+    string val = gl.field(rid, "label");
+    console.println("Extracted: " + val);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-field-jason"><pre><code><span class="comment">// Jason</span>
-gl.field(Rid, <span class="string">"label"</span>, Val);</code></pre></div>
++!deliberate_result(Rid) : gl.valid(Rid, true) <-
+    gl.field(Rid, "label", Val);
+    .print("Extracted: ", Val).</code></pre></div>
                       <div class="mini-code-block" id="code-field-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-field(Rid, <span class="string">"label"</span>, Val);</code></pre></div>
++gl_result(Rid, Outcome, true) <-
+    field(Rid, "label", Val);
+    .print("Extracted: ", Val).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -467,11 +519,18 @@ field(Rid, <span class="string">"label"</span>, Val);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-candidate-astra"><pre><code><span class="comment">// ASTRA</span>
-string cid = gl.candidate(rid);</code></pre></div>
+rule +!deliberate_result(string rid) : gl.valid(rid) == true {
+    string cid = gl.candidate(rid);
+    !deliberate_candidate(cid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-candidate-jason"><pre><code><span class="comment">// Jason</span>
-gl.candidate(Rid, Cid);</code></pre></div>
++!deliberate_result(Rid) : gl.valid(Rid, true) <-
+    gl.candidate(Rid, Cid);
+    !deliberate_candidate(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-candidate-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-candidate(Rid, Cid);</code></pre></div>
++!deliberate_result(Rid) <-
+    candidate(Rid, Cid);
+    !check_admissibility(Cid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -500,11 +559,18 @@ candidate(Rid, Cid);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-trace-astra"><pre><code><span class="comment">// ASTRA</span>
-string tid = gl.trace(rid);</code></pre></div>
+rule +!log_trace(string rid) {
+    string tid = gl.trace(rid);
+    console.println("Audit trace ID: " + tid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-trace-jason"><pre><code><span class="comment">// Jason</span>
-gl.trace(Rid, Tid);</code></pre></div>
++!log_trace(Rid) <-
+    gl.trace(Rid, Tid);
+    .print("Audit trace ID: ", Tid).</code></pre></div>
                       <div class="mini-code-block" id="code-trace-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-trace(Rid, Tid);</code></pre></div>
++!log_trace(Rid) <-
+    trace(Rid, Tid);
+    .print("Audit trace ID: ", Tid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -533,11 +599,16 @@ trace(Rid, Tid);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-outcome-astra"><pre><code><span class="comment">// ASTRA</span>
-string out = gl.outcome(rid);</code></pre></div>
+rule +!deliberate_result(string rid) : gl.valid(rid) == false {
+    console.println("Failed: " + gl.outcome(rid));
+}</code></pre></div>
                       <div class="mini-code-block" id="code-outcome-jason"><pre><code><span class="comment">// Jason</span>
-gl.outcome(Rid, Out);</code></pre></div>
++!deliberate_result(Rid) : gl.valid(Rid, false) <-
+    gl.outcome(Rid, Outcome);
+    .print("Failed: ", Outcome).</code></pre></div>
                       <div class="mini-code-block" id="code-outcome-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-outcome(Rid, Out);</code></pre></div>
++gl_result(Rid, Outcome, false) <-
+    .print("Failed: ", Outcome).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -566,11 +637,18 @@ outcome(Rid, Out);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-knowledge-astra"><pre><code><span class="comment">// ASTRA</span>
-string kn = gl.knowledge(<span class="string">"agent_a"</span>);</code></pre></div>
+rule +!share_context(string targetAgent) {
+    string kn = gl.knowledge("my_agent");
+    send(inform, targetAgent, context_data(kn));
+}</code></pre></div>
                       <div class="mini-code-block" id="code-knowledge-jason"><pre><code><span class="comment">// Jason</span>
-gl.knowledge(<span class="string">"agent_a"</span>, Kn);</code></pre></div>
++!share_context(TargetAgent) <-
+    gl.knowledge("my_agent", Kn);
+    .send(TargetAgent, tell, context_data(Kn)).</code></pre></div>
                       <div class="mini-code-block" id="code-knowledge-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-knowledge(<span class="string">"agent_a"</span>, Kn);</code></pre></div>
++!share_context(TargetAgent) <-
+    knowledge("my_agent", Kn);
+    .send(TargetAgent, tell, context_data(Kn)).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -600,11 +678,15 @@ knowledge(<span class="string">"agent_a"</span>, Kn);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-admissible-astra"><pre><code><span class="comment">// ASTRA</span>
-boolean adm = gl.admissible(cid);</code></pre></div>
+rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
+    gl.accept(cid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-admissible-jason"><pre><code><span class="comment">// Jason</span>
-gl.admissible(Cid, Adm);</code></pre></div>
++!deliberate_candidate(Cid) : gl.admissible(Cid, true) <-
+    gl.accept(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-admissible-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-admissible(Cid, Adm);</code></pre></div>
++!check_admissibility(Cid) : admissible(Cid, true) <-
+    accept(Cid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -633,11 +715,15 @@ admissible(Cid, Adm);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-accept-astra"><pre><code><span class="comment">// ASTRA</span>
-gl.accept(cid);</code></pre></div>
+rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
+    gl.accept(cid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-accept-jason"><pre><code><span class="comment">// Jason</span>
-gl.accept(Cid);</code></pre></div>
++!deliberate_candidate(Cid) : gl.admissible(Cid, true) <-
+    gl.accept(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-accept-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-accept(Cid);</code></pre></div>
++!check_admissibility(Cid) : admissible(Cid, true) <-
+    accept(Cid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -666,11 +752,15 @@ accept(Cid);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-reject-astra"><pre><code><span class="comment">// ASTRA</span>
-gl.reject(cid);</code></pre></div>
+rule +!deliberate_candidate(string cid) : gl.admissible(cid) == false {
+    gl.reject(cid);
+}</code></pre></div>
                       <div class="mini-code-block" id="code-reject-jason"><pre><code><span class="comment">// Jason</span>
-gl.reject(Cid);</code></pre></div>
++!deliberate_candidate(Cid) : gl.admissible(Cid, false) <-
+    gl.reject(Cid).</code></pre></div>
                       <div class="mini-code-block" id="code-reject-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-reject(Cid);</code></pre></div>
++!check_admissibility(Cid) : admissible(Cid, false) <-
+    reject(Cid).</code></pre></div>
                     </div>
                   </div>
                 </td>
@@ -699,11 +789,15 @@ reject(Cid);</code></pre></div>
                     </div>
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-assess-astra"><pre><code><span class="comment">// ASTRA</span>
-gl.assess(<span class="string">"assessor"</span>, cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
+rule +!verify_peer(string cid) {
+    gl.assess("peer_b", cid, "ACCEPT", 0.95, "Adheres to safety");
+}</code></pre></div>
                       <div class="mini-code-block" id="code-assess-jason"><pre><code><span class="comment">// Jason</span>
-gl.assess(<span class="string">"assessor"</span>, Cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
++!verify_peer(Cid) <-
+    gl.assess("peer_b", Cid, "ACCEPT", 0.95, "Adheres to safety").</code></pre></div>
                       <div class="mini-code-block" id="code-assess-jacamo"><pre><code><span class="comment">// JaCaMo</span>
-assess(<span class="string">"assessor"</span>, Cid, <span class="string">"ACCEPT"</span>, 0.9, <span class="string">"Valid structure"</span>);</code></pre></div>
++!verify_peer(Cid) <-
+    assess("peer_b", Cid, "ACCEPT", 0.95, "Adheres to safety").</code></pre></div>
                     </div>
                   </div>
                 </td>
