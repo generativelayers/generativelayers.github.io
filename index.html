@@ -29,7 +29,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=3.2">
+  <link rel="stylesheet" href="style.css?v=3.3">
   <script defer src="js/search.js"></script>
 </head>
 <body>
@@ -128,15 +128,15 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 16px 0 24px 0;">
               <div style="padding: 18px; border-left: 3px solid #1e40af; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #1e40af;">
                 <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em;">ASTRA Module</h4>
-                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a native <strong>ASTRA Module</strong> written in Java. Commands are mapped to inline custom statements prefixed with the module binding <code>gl</code>.</p>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a native <strong>ASTRA Module</strong> written in Java. Commands are mapped to inline custom statements prefixed with the <code>gl</code> module binding prefix.</p>
               </div>
               <div style="padding: 18px; border-left: 3px solid #be185d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #be185d;">
                 <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #be185d; text-transform: uppercase; letter-spacing: 0.05em;">Jason Internal Actions</h4>
-                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as standard <strong>AgentSpeak Internal Actions</strong> in Java. Invoked natively by BDI agents using custom extensions prefixed with <code>gl.</code>.</p>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as standard <strong>AgentSpeak Internal Actions</strong> in Java. Invoked natively by BDI agents using custom namespace extensions prefixed with the <code>gl.</code> library binding.</p>
               </div>
               <div style="padding: 18px; border-left: 3px solid #15803d; background: var(--color-surface); box-shadow: var(--shadow-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border: 1px solid var(--color-border); border-left: 3px solid #15803d;">
                 <h4 style="margin: 0 0 6px 0; font-family: var(--font-heading); font-size: 13.5px; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.05em;">CArtAgO Artifact (JaCaMo)</h4>
-                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a <strong>CArtAgO Environment Artifact</strong> in Java. Commands are operations called once focused on the artifact, receiving updates via observable beliefs.</p>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">Implemented as a <strong>CArtAgO Environment Artifact</strong> in Java. Commands are operations called once focused on the artifact, receiving updates natively via observable belief signals.</p>
               </div>
             </div>
 
