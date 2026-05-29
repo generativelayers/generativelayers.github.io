@@ -113,13 +113,14 @@
       <!-- Pattern 1: Simple Validation -->
       <section class="info-panel" id="pattern-simple">
         <h2><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#22c55e;"></i>Pattern 1 — Simple Validation</h2>
-        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise.</p>
+        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise. This is the baseline — every other pattern builds on top of it.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> Quick prototyping, low-risk tasks, trusted providers.<br>
-            <strong>What it checks:</strong> Schema format only (did the LLM return the right fields?).<br>
-            <strong>What it does NOT check:</strong> Whether the answer is actually correct.
+            <strong>What it checks:</strong> Schema format only — did the LLM return the right key=value fields?<br>
+            <strong>What it does NOT check:</strong> Whether the answer is actually correct or meaningful.<br>
+            <strong>Limitation:</strong> If the LLM returns <code>label=banana</code> when asked about an apple, this pattern still accepts it because the format is valid.
           </div>
         </div>
 
@@ -136,17 +137,39 @@
     gl.reject(Cid);
     .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleDetail('simple')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Step-by-step walkthrough</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('simple')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-simple" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong><code>gl.valid(Rid, true)</code></strong> — The framework already called the LLM and validated the raw output against the expected schema. This guard checks: did the output contain all required fields (e.g. <code>label=...</code>) in the correct format? This is an automated structural check, not a content judgement.</li>
+                <li><strong><code>gl.field(Rid, "label", Label)</code></strong> — Extracts the value of the <code>label</code> field from the validated response. At this point the agent has the LLM's answer as a variable but has <strong>not yet adopted it</strong>.</li>
+                <li><strong><code>gl.candidate(Rid, Cid)</code></strong> — Retrieves the candidate ID associated with this result. Candidates are staged — they exist in a governed buffer, never in the agent's belief base.</li>
+                <li><strong><code>gl.accept(Cid)</code></strong> — The agent <strong>actively chooses</strong> to promote this candidate to adopted knowledge. This is the developer's decision point — you could add any logic before this line.</li>
+                <li><strong><code>gl.reject(Cid)</code></strong> — If validation failed, the agent rejects. The candidate is marked as rejected and never enters the belief base. The trace records what happened and why.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pattern 2: Content Inspection -->
       <section class="info-panel" id="pattern-content">
         <h2><i class="fa-solid fa-magnifying-glass" style="margin-right:8px;color:#3b82f6;"></i>Pattern 2 — Content Inspection</h2>
-        <p>The agent extracts fields and inspects the actual content before deciding. Accept only if the answer meets domain-specific criteria.</p>
+        <p>The agent goes beyond schema validation and inspects the <strong>actual content</strong> of the LLM's answer. The key difference from Pattern 1: the agent applies domain-specific business rules before deciding. The LLM's output might be perfectly formatted but still wrong for the agent's context.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> When you have business rules about valid answers.<br>
-            <strong>Examples:</strong> Must contain a keyword, must be in a known set, must not contain forbidden terms.
+            <strong>When to use:</strong> When you have business rules about valid answers — the LLM doesn't know your domain constraints.<br>
+            <strong>Examples:</strong> Answer must be in a known category set, must not contain sensitive keywords, must match a regex pattern, must be within a numeric range.<br>
+            <strong>Key insight:</strong> This is where BDI reasoning shines — the agent uses its own beliefs and rules, not the LLM, to decide.
           </div>
         </div>
 
@@ -179,17 +202,33 @@
         gl.accept(Cid);
     }.</code></pre>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleDetail('content')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">What's different here</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('content')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-content" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The LLM returned valid output in both examples — <code>gl.valid</code> passes. But the <strong>agent's own logic</strong> adds a second gate. In the first example, the agent checks if the label is one of three known categories ("fruit", "vegetable", "grain"). If the LLM invents a new category like "legume", the agent rejects it — even though the LLM was technically correct. In the second example, the agent scans for sensitive keywords. This is <strong>the developer deciding what's acceptable</strong>, not the LLM. You can combine multiple checks: keyword filtering + category validation + length constraints — all before calling <code>gl.accept</code>.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pattern 3: Confidence Threshold -->
       <section class="info-panel" id="pattern-confidence">
         <h2><i class="fa-solid fa-gauge-high" style="margin-right:8px;color:#f59e0b;"></i>Pattern 3 — Confidence Threshold</h2>
-        <p>Ask the LLM to include a confidence score in its response. The agent accepts only if confidence exceeds a threshold.</p>
+        <p>Instead of blindly accepting any valid answer, the agent asks the LLM to self-assess by including a <strong>confidence score</strong> (0.0–1.0) in its response. The agent then uses this score as a decision threshold — high confidence is accepted, medium triggers further verification, and low is rejected outright.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty.<br>
-            <strong>Schema requires:</strong> A <code>confidence</code> field (0.0–1.0) alongside the answer.
+            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty (classification, fact retrieval, translation).<br>
+            <strong>Schema requires:</strong> Your prompt must ask for a <code>confidence</code> field (0.0–1.0) alongside the answer. The schema validation ensures this field exists.<br>
+            <strong>Important caveat:</strong> LLM self-reported confidence is not always calibrated. This pattern works best as one layer in a multi-layer strategy, not as the sole gate.
           </div>
         </div>
 
@@ -215,6 +254,21 @@
         gl.reject(Cid);
         .print(<span class="string">"Low confidence — rejected: "</span>, Label, <span class="string">" ("</span>, Conf, <span class="string">")"</span>);
     }.</code></pre>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleDetail('confidence')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">How the three-tier decision works</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-confidence" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The prompt explicitly asks the LLM to return a <code>confidence</code> field. The schema ensures this field is present. Then the <strong>agent's BDI logic</strong> applies a three-tier strategy: <strong>above 0.8</strong> — the agent trusts the answer and accepts immediately. <strong>Between 0.5 and 0.8</strong> — the agent is uncertain, so it triggers a sub-goal (<code>!verify</code>) which could ask a second LLM, consult a peer agent, or check a database. <strong>Below 0.5</strong> — the agent considers this too risky and rejects outright. The thresholds are entirely up to you. You could use 0.9 for medical applications or 0.6 for casual chat. The framework doesn't impose any threshold — the agent's reasoning does.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -266,6 +320,21 @@
         .print(<span class="string">"LLMs disagree! Gemini: "</span>, GeminiLabel, <span class="string">" vs OpenAI: "</span>, AltLabel);
     }.</code></pre>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #8b5cf6;cursor:pointer;" onclick="toggleDetail('crossllm')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#8b5cf6;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">How cross-verification works</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-crossllm" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent uses <code>gl.use_provider</code> to switch between different LLM backends at runtime. <strong>Step 1</strong>: Ask Gemini to classify the item. The agent stores the answer as a belief (<code>+gemini_answer</code>) but does <strong>not</strong> accept it yet. <strong>Step 2</strong>: Switch to OpenAI and ask it to verify Gemini's answer. The agent constructs a verification prompt that includes Gemini's label. <strong>Step 3</strong>: When OpenAI responds, the agent checks the <code>agreement</code> field. If both providers agree, the <em>original</em> Gemini candidate is accepted. If they disagree, it's rejected. The key insight: <strong>the agent orchestrates both LLMs</strong> — neither LLM knows about the other. The agent is the decision-maker, using independent opinions as evidence.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pattern 5: Agent-to-Agent Review -->
@@ -314,6 +383,21 @@
         .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>));
     }.</code></pre>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleDetail('agentreview')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">How peer review works</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-agentreview" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">This pattern separates the roles of <strong>generator</strong> and <strong>reviewer</strong> across two autonomous agents. Agent A calls the LLM and gets a candidate, but instead of deciding alone, it sends the extracted label to Agent B via <code>.send(agentB, achieve, review(...))</code> — standard BDI inter-agent messaging. Agent B has its own knowledge base (e.g. <code>known_food("fruit")</code>) and applies <strong>its own reasoning</strong> — no LLM involved in the review. Agent B sends back an <code>approved</code> or <code>disapproved</code> message. Agent A reacts to the verdict and only then calls <code>gl.accept</code> or <code>gl.reject</code>. This means <strong>neither agent blindly trusts the LLM or each other</strong> — each applies its own governance.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pattern 6: Belief Consistency -->
@@ -354,6 +438,21 @@ category(<span class="string">"rice"</span>, <span class="string">"grain"</span>
         gl.accept(Cid);
         .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">" = "</span>, Label);
     }.</code></pre>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('belief')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Why belief consistency matters</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-belief" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">BDI agents reason based on their <strong>beliefs</strong>. If an LLM tells the agent "apple = vegetable" but the agent already believes "apple = fruit", adopting the new belief would create a contradiction — breaking the agent's rational decision-making. This pattern prevents that. The agent checks its belief base <em>before</em> accepting. If the LLM agrees with existing beliefs, the answer is confirmed. If it contradicts, it's rejected. And if the agent has <strong>no prior belief</strong>, the LLM output is treated as new knowledge and adopted. This is the most BDI-native pattern — it uses the agent's existing knowledge as a validation layer, exactly as BDI theory suggests.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -400,6 +499,21 @@ category(<span class="string">"rice"</span>, <span class="string">"grain"</span>
     gl.accept(Cid);
     .print(<span class="string">"Majority agrees: "</span>, Label).</code></pre>
         </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #10b981;cursor:pointer;" onclick="toggleDetail('voting')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#10b981;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">How majority voting reduces bias</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-voting" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Each LLM has different training data and biases. By asking the same question to three independent providers (Gemini, OpenAI, Anthropic), the agent collects three independent opinions. If at least two agree, the agent accepts that answer. If all three disagree, <strong>nobody's answer is accepted</strong> — the agent can escalate, retry, or ask a human. The agent uses <code>gl.use_provider</code> to switch providers between calls. Each call goes through the full governance pipeline independently (validation, candidate creation). The agent only accepts the winning candidate from the majority. This is the most defensive pattern — useful for critical decisions like medical triage, financial classification, or safety assessments.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pattern 8: Iterative Refinement -->
@@ -441,6 +555,21 @@ category(<span class="string">"rice"</span>, <span class="string">"grain"</span>
     gl.accept(Cid);
     gl.field(FinalRid, <span class="string">"text"</span>, FinalText);
     .print(<span class="string">"Final accepted version:\n"</span>, FinalText).</code></pre>
+        </div>
+
+        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f97316;cursor:pointer;" onclick="toggleDetail('refinement')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f97316;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">How iterative refinement improves quality</span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="pattern-detail" id="detail-refinement" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent orchestrates a <strong>three-step pipeline</strong> where each step feeds into the next through the governance boundary. <strong>Step 1 (Draft)</strong>: The LLM generates a first attempt. The agent extracts the text but does NOT accept it. <strong>Step 2 (Critique)</strong>: The agent feeds the draft to the LLM and asks for criticism. Again, the critique is governed — validated and extracted as candidate material. <strong>Step 3 (Refine)</strong>: The agent combines the original draft with the critique and asks for an improved version. Only this final, refined output is accepted as knowledge. Each step goes through the full governance pipeline: schema validation, candidate creation, and traceability. The draft and critique are intermediate artifacts — never adopted. This pattern is especially powerful because <strong>the agent controls the pipeline</strong>, deciding when quality is good enough to stop iterating.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -524,6 +653,24 @@ category(<span class="string">"rice"</span>, <span class="string">"grain"</span>
       document.getElementById('sidebar').classList.remove('open');
       this.classList.remove('open');
     });
+
+    // --- Pattern Detail Toggle (eye icon) ---
+    window.toggleDetail = function(id) {
+      var el = document.getElementById('detail-' + id);
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        el.style.maxHeight = '0';
+        el.style.overflow = 'hidden';
+        el.style.transition = 'max-height 0.3s ease';
+        requestAnimationFrame(function() {
+          el.style.maxHeight = el.scrollHeight + 'px';
+        });
+      } else {
+        el.style.maxHeight = '0';
+        setTimeout(function() { el.style.display = 'none'; }, 300);
+      }
+    };
   </script>
 
 </body>
