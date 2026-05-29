@@ -78,16 +78,16 @@
     <!-- Main -->
     <main class="main">
       <h1>Acceptance Patterns</h1>
-      <p class="lead">Acceptance is up to the developer. The framework gives you the tools — your agent decides what to do with LLM output.</p>
+      <p class="lead">Acceptance is up to the developer. The framework gives you the tools &mdash; your agent decides what to do with LLM output.</p>
 
       <!-- Core Principle -->
       <section class="info-panel" id="core-principle">
         <h2><i class="fa-solid fa-gavel" style="margin-right:8px;color:var(--color-green-700);"></i>The Core Principle</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);">
           <p style="font-size:15px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            The LLM is a <strong>tool</strong>, not a decision-maker. When an agent calls <code>gl.ask</code>, the LLM output becomes 
-            <strong>candidate material</strong> — never adopted beliefs. The agent's own BDI reasoning cycle decides whether to 
-            <code>accept</code> or <code>reject</code> each candidate.
+            The LLM is a <strong>tool</strong>, not a decision-maker. When an agent calls <code>ask</code>, the LLM output becomes
+            <strong>candidate material</strong> &mdash; never adopted beliefs. The agent's own BDI reasoning cycle decides whether to
+            <code>accept</code> or <code>reject</code> each candidate. All examples below use <strong>practical reasoning with context-guarded plans</strong> &mdash; the native BDI decision pattern &mdash; rather than imperative if/else branches.
           </p>
         </div>
 
@@ -110,32 +110,84 @@
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 1: Simple Validation -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-simple">
-        <h2><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#22c55e;"></i>Pattern 1 — Simple Validation</h2>
-        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise. This is the baseline — every other pattern builds on top of it.</p>
+        <h2><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#22c55e;"></i>Pattern 1 &mdash; Simple Validation</h2>
+        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise. This is the baseline &mdash; every other pattern builds on top of it.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> Quick prototyping, low-risk tasks, trusted providers.<br>
-            <strong>What it checks:</strong> Schema format only — did the LLM return the right key=value fields?<br>
-            <strong>What it does NOT check:</strong> Whether the answer is actually correct or meaningful.<br>
+            <strong>What it checks:</strong> Schema format only &mdash; did the LLM return the right key=value fields?<br>
             <strong>Limitation:</strong> If the LLM returns <code>label=banana</code> when asked about an apple, this pattern still accepts it because the format is valid.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — accept if format is valid, reject otherwise</span>
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"label"</span>, Label);
-    gl.candidate(Rid, Cid);
-    gl.accept(Cid);
-    .print(<span class="string">"Accepted: "</span>, Label).
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p1-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p1-jason">Jason</button>
+              <button class="tab-btn" data-tab="p1-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p1-astra">
+            <pre><code><span class="keyword">rule</span> +!classify() {
+    string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+    !decide(rid);
+}
 
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">false</span>) <-
-    gl.candidate(Rid, Cid);
-    gl.reject(Cid);
+<span class="comment">// Context guard: valid output &rarr; accept</span>
+<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+    string cid = gl.candidate(rid);
+    gl.accept(cid);
+    console.println(<span class="string">"Accepted: "</span> + gl.field(rid, <span class="string">"label"</span>));
+}
+
+<span class="comment">// Context guard: invalid output &rarr; reject</span>
+<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">false</span> {
+    string cid = gl.candidate(rid);
+    gl.reject(cid);
+    console.println(<span class="string">"Rejected: invalid format"</span>);
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p1-jason">
+            <pre><code>+!classify <-
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+    !decide(Rid).
+
+<span class="comment">// Context guard: valid output &rarr; accept</span>
++!decide(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
+        gl.candidate(Rid, Cid);
+        gl.accept(Cid);
+        .print(<span class="string">"Accepted: "</span>, Label).
+
+<span class="comment">// Context guard: invalid output &rarr; reject</span>
++!decide(Rid)
+    :   gl.valid(Rid, <span class="keyword">false</span>)
+    <-  gl.candidate(Rid, Cid);
+        gl.reject(Cid);
+        .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
+          </div>
+          <div class="tab-content" id="p1-jacamo">
+            <pre><code>+!classify <-
+    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid).
+
+<span class="comment">// Reacting to CArtAgO observable belief:</span>
++gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    candidate(Rid, Cid);
+    accept(Cid);
+    .print(<span class="string">"Accepted"</span>).
+
++gl_result(Rid, Outcome, <span class="keyword">false</span>) <-
+    candidate(Rid, Cid);
+    reject(Cid);
     .print(<span class="string">"Rejected: invalid format"</span>).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleDetail('simple')">
@@ -149,58 +201,102 @@
           <div class="pattern-detail" id="detail-simple" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <ol style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong><code>gl.valid(Rid, true)</code></strong> — The framework already called the LLM and validated the raw output against the expected schema. This guard checks: did the output contain all required fields (e.g. <code>label=...</code>) in the correct format? This is an automated structural check, not a content judgement.</li>
-                <li><strong><code>gl.field(Rid, "label", Label)</code></strong> — Extracts the value of the <code>label</code> field from the validated response. At this point the agent has the LLM's answer as a variable but has <strong>not yet adopted it</strong>.</li>
-                <li><strong><code>gl.candidate(Rid, Cid)</code></strong> — Retrieves the candidate ID associated with this result. Candidates are staged — they exist in a governed buffer, never in the agent's belief base.</li>
-                <li><strong><code>gl.accept(Cid)</code></strong> — The agent <strong>actively chooses</strong> to promote this candidate to adopted knowledge. This is the developer's decision point — you could add any logic before this line.</li>
-                <li><strong><code>gl.reject(Cid)</code></strong> — If validation failed, the agent rejects. The candidate is marked as rejected and never enters the belief base. The trace records what happened and why.</li>
+                <li><strong>Two competing plans</strong> &mdash; The agent has two plans for <code>!decide(Rid)</code> with different context guards. The BDI engine selects the plan whose guard matches at runtime.</li>
+                <li><strong><code>gl.valid(Rid, true)</code></strong> &mdash; Checks if the raw LLM output matched the expected schema (correct key=value fields). This is an automated structural check, not a content judgement.</li>
+                <li><strong><code>gl.candidate(Rid, Cid)</code></strong> &mdash; Retrieves the candidate ID. Candidates are staged &mdash; they exist in a governed buffer, never in the agent's belief base.</li>
+                <li><strong><code>gl.accept(Cid)</code></strong> &mdash; The agent <strong>actively chooses</strong> to promote the candidate to adopted knowledge. This is the developer's decision point.</li>
+                <li><strong><code>gl.reject(Cid)</code></strong> &mdash; Invalid format &rarr; reject. The candidate is marked as rejected and traced for audit.</li>
               </ol>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 2: Content Inspection -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-content">
-        <h2><i class="fa-solid fa-magnifying-glass" style="margin-right:8px;color:#3b82f6;"></i>Pattern 2 — Content Inspection</h2>
-        <p>The agent goes beyond schema validation and inspects the <strong>actual content</strong> of the LLM's answer. The key difference from Pattern 1: the agent applies domain-specific business rules before deciding. The LLM's output might be perfectly formatted but still wrong for the agent's context.</p>
+        <h2><i class="fa-solid fa-magnifying-glass" style="margin-right:8px;color:#3b82f6;"></i>Pattern 2 &mdash; Content Inspection</h2>
+        <p>The agent goes beyond schema validation and inspects the <strong>actual content</strong> of the LLM's answer. Separate context-guarded plans handle known vs. unknown categories.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> When you have business rules about valid answers — the LLM doesn't know your domain constraints.<br>
-            <strong>Examples:</strong> Answer must be in a known category set, must not contain sensitive keywords, must match a regex pattern, must be within a numeric range.<br>
-            <strong>Key insight:</strong> This is where BDI reasoning shines — the agent uses its own beliefs and rules, not the LLM, to decide.
+            <strong>When to use:</strong> When you have business rules about valid answers &mdash; the LLM doesn't know your domain constraints.<br>
+            <strong>Key insight:</strong> This is where BDI reasoning shines &mdash; the agent uses its own beliefs to decide, not the LLM.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — accept only if the label is a known category</span>
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"label"</span>, Label);
-    gl.candidate(Rid, Cid);
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p2-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p2-jason">Jason</button>
+              <button class="tab-btn" data-tab="p2-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p2-astra">
+            <pre><code><span class="comment">// Agent's known categories</span>
++known(<span class="string">"fruit"</span>). +known(<span class="string">"vegetable"</span>). +known(<span class="string">"grain"</span>).
 
-    <span class="comment">// Check against agent's own knowledge</span>
-    <span class="keyword">if</span> (Label == <span class="string">"fruit"</span> | Label == <span class="string">"vegetable"</span> | Label == <span class="string">"grain"</span>) {
-        gl.accept(Cid);
-        .print(<span class="string">"Accepted known category: "</span>, Label);
-    } <span class="keyword">else</span> {
-        gl.reject(Cid);
-        .print(<span class="string">"Rejected unknown category: "</span>, Label);
-    }.</code></pre>
-        </div>
+<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+    string label = gl.field(rid, <span class="string">"label"</span>);
+    string cid = gl.candidate(rid);
+    !check_content(cid, label);
+}
 
-        <div class="tabs-container" style="margin-top:12px;">
-          <pre><code><span class="comment">// Jason — reject if the response contains forbidden content</span>
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"response"</span>, Response);
-    gl.candidate(Rid, Cid);
+<span class="comment">// Context guard: known category &rarr; accept</span>
+<span class="keyword">rule</span> +!check_content(string cid, string label) : known(label) {
+    gl.accept(cid);
+    console.println(<span class="string">"Accepted known category: "</span> + label);
+}
 
-    <span class="keyword">if</span> (.substring(<span class="string">"password"</span>, Response)) {
-        gl.reject(Cid);
-        .print(<span class="string">"Rejected: contains sensitive content"</span>);
-    } <span class="keyword">else</span> {
-        gl.accept(Cid);
-    }.</code></pre>
+<span class="comment">// Context guard: unknown category &rarr; reject</span>
+<span class="keyword">rule</span> +!check_content(string cid, string label) : ~known(label) {
+    gl.reject(cid);
+    console.println(<span class="string">"Rejected unknown category: "</span> + label);
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p2-jason">
+            <pre><code><span class="comment">// Agent's known categories as beliefs</span>
+known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+
++!decide(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
+        gl.candidate(Rid, Cid);
+        !check_content(Cid, Label).
+
+<span class="comment">// Context guard: known category &rarr; accept</span>
++!check_content(Cid, Label)
+    :   known(Label)
+    <-  gl.accept(Cid);
+        .print(<span class="string">"Accepted known category: "</span>, Label).
+
+<span class="comment">// Context guard: unknown category &rarr; reject</span>
++!check_content(Cid, Label)
+    :   not known(Label)
+    <-  gl.reject(Cid);
+        .print(<span class="string">"Rejected unknown category: "</span>, Label).</code></pre>
+          </div>
+          <div class="tab-content" id="p2-jacamo">
+            <pre><code><span class="comment">// Agent's known categories as beliefs</span>
+known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+
++gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    field(Rid, <span class="string">"label"</span>, Label);
+    candidate(Rid, Cid);
+    !check_content(Cid, Label).
+
++!check_content(Cid, Label)
+    :   known(Label)
+    <-  accept(Cid);
+        .print(<span class="string">"Accepted known category: "</span>, Label).
+
++!check_content(Cid, Label)
+    :   not known(Label)
+    <-  reject(Cid);
+        .print(<span class="string">"Rejected unknown category: "</span>, Label).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleDetail('content')">
@@ -213,428 +309,686 @@
           </div>
           <div class="pattern-detail" id="detail-content" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The LLM returned valid output in both examples — <code>gl.valid</code> passes. But the <strong>agent's own logic</strong> adds a second gate. In the first example, the agent checks if the label is one of three known categories ("fruit", "vegetable", "grain"). If the LLM invents a new category like "legume", the agent rejects it — even though the LLM was technically correct. In the second example, the agent scans for sensitive keywords. This is <strong>the developer deciding what's acceptable</strong>, not the LLM. You can combine multiple checks: keyword filtering + category validation + length constraints — all before calling <code>gl.accept</code>.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The LLM returned valid output &mdash; <code>gl.valid</code> passes. But the agent delegates to a sub-goal <code>!check_content</code> with <strong>two context-guarded plans</strong>. The guard <code>known(Label)</code> checks the agent's own belief base. If the LLM says "legume" but the agent only knows "fruit", "vegetable", and "grain", the second plan fires and rejects. This is <strong>practical reasoning</strong> &mdash; the BDI engine selects the appropriate plan based on the agent's beliefs, exactly as BDI theory intended.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 3: Confidence Threshold -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-confidence">
-        <h2><i class="fa-solid fa-gauge-high" style="margin-right:8px;color:#f59e0b;"></i>Pattern 3 — Confidence Threshold</h2>
-        <p>Instead of blindly accepting any valid answer, the agent asks the LLM to self-assess by including a <strong>confidence score</strong> (0.0–1.0) in its response. The agent then uses this score as a decision threshold — high confidence is accepted, medium triggers further verification, and low is rejected outright.</p>
+        <h2><i class="fa-solid fa-gauge-high" style="margin-right:8px;color:#f59e0b;"></i>Pattern 3 &mdash; Confidence Threshold</h2>
+        <p>The agent asks the LLM to self-assess by including a <strong>confidence score</strong> (0.0&ndash;1.0). Context-guarded plans handle high, medium, and low confidence levels separately.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty (classification, fact retrieval, translation).<br>
-            <strong>Schema requires:</strong> Your prompt must ask for a <code>confidence</code> field (0.0–1.0) alongside the answer. The schema validation ensures this field exists.<br>
-            <strong>Important caveat:</strong> LLM self-reported confidence is not always calibrated. This pattern works best as one layer in a multi-layer strategy, not as the sole gate.
+            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty (classification, fact retrieval).<br>
+            <strong>Important caveat:</strong> LLM self-reported confidence is not always calibrated. Best as one layer in a multi-layer strategy.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — accept only if confidence > 0.8</span>
-+!classify <-
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>,
-        <span class="string">"Classify this item. Return label and confidence (0-1).\nItem: apple"</span>, Rid).
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p3-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p3-jason">Jason</button>
+              <button class="tab-btn" data-tab="p3-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p3-astra">
+            <pre><code><span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+    string cid = gl.candidate(rid);
+    double conf = (double) gl.field(rid, <span class="string">"confidence"</span>);
+    !assess_confidence(cid, conf);
+}
 
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"label"</span>, Label);
-    gl.field(Rid, <span class="string">"confidence"</span>, Conf);
-    gl.candidate(Rid, Cid);
+<span class="comment">// High confidence &rarr; accept</span>
+<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf > 0.8 {
+    gl.accept(cid);
+    console.println(<span class="string">"High confidence &mdash; accepted"</span>);
+}
 
-    <span class="keyword">if</span> (Conf > 0.8) {
-        gl.accept(Cid);
-        .print(<span class="string">"High confidence — accepted: "</span>, Label, <span class="string">" ("</span>, Conf, <span class="string">")"</span>);
-    } <span class="keyword">else</span> <span class="keyword">if</span> (Conf > 0.5) {
-        .print(<span class="string">"Medium confidence — requesting verification: "</span>, Label);
-        !verify(Label, Cid);
-    } <span class="keyword">else</span> {
-        gl.reject(Cid);
-        .print(<span class="string">"Low confidence — rejected: "</span>, Label, <span class="string">" ("</span>, Conf, <span class="string">")"</span>);
-    }.</code></pre>
+<span class="comment">// Medium confidence &rarr; escalate to verification</span>
+<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf > 0.5 {
+    console.println(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
+    !verify(cid);
+}
+
+<span class="comment">// Low confidence &rarr; reject</span>
+<span class="keyword">rule</span> +!assess_confidence(string cid, double conf) : conf &lt;= 0.5 {
+    gl.reject(cid);
+    console.println(<span class="string">"Low confidence &mdash; rejected"</span>);
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p3-jason">
+            <pre><code>+!decide(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.candidate(Rid, Cid);
+        gl.field(Rid, <span class="string">"confidence"</span>, Conf);
+        !assess_confidence(Cid, Conf).
+
+<span class="comment">// High confidence &rarr; accept</span>
++!assess_confidence(Cid, Conf)
+    :   Conf > 0.8
+    <-  gl.accept(Cid);
+        .print(<span class="string">"High confidence &mdash; accepted"</span>).
+
+<span class="comment">// Medium confidence &rarr; escalate to verification</span>
++!assess_confidence(Cid, Conf)
+    :   Conf > 0.5
+    <-  .print(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
+        !verify(Cid).
+
+<span class="comment">// Low confidence &rarr; reject</span>
++!assess_confidence(Cid, Conf)
+    :   Conf &lt;= 0.5
+    <-  gl.reject(Cid);
+        .print(<span class="string">"Low confidence &mdash; rejected"</span>).</code></pre>
+          </div>
+          <div class="tab-content" id="p3-jacamo">
+            <pre><code>+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    candidate(Rid, Cid);
+    field(Rid, <span class="string">"confidence"</span>, Conf);
+    !assess_confidence(Cid, Conf).
+
++!assess_confidence(Cid, Conf)
+    :   Conf > 0.8
+    <-  accept(Cid);
+        .print(<span class="string">"High confidence &mdash; accepted"</span>).
+
++!assess_confidence(Cid, Conf)
+    :   Conf > 0.5
+    <-  .print(<span class="string">"Medium confidence &mdash; requesting verification"</span>);
+        !verify(Cid).
+
++!assess_confidence(Cid, Conf)
+    :   Conf &lt;= 0.5
+    <-  reject(Cid);
+        .print(<span class="string">"Low confidence &mdash; rejected"</span>).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleDetail('confidence')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">How the three-tier decision works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-confidence" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The prompt explicitly asks the LLM to return a <code>confidence</code> field. The schema ensures this field is present. Then the <strong>agent's BDI logic</strong> applies a three-tier strategy: <strong>above 0.8</strong> — the agent trusts the answer and accepts immediately. <strong>Between 0.5 and 0.8</strong> — the agent is uncertain, so it triggers a sub-goal (<code>!verify</code>) which could ask a second LLM, consult a peer agent, or check a database. <strong>Below 0.5</strong> — the agent considers this too risky and rejects outright. The thresholds are entirely up to you. You could use 0.9 for medical applications or 0.6 for casual chat. The framework doesn't impose any threshold — the agent's reasoning does.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Three context-guarded plans for <code>!assess_confidence</code> implement a tiered strategy. The BDI engine evaluates guards <strong>top-to-bottom</strong>: <strong>above 0.8</strong> &mdash; accept immediately. <strong>Between 0.5 and 0.8</strong> &mdash; escalate to a verification sub-goal. <strong>Below 0.5</strong> &mdash; reject outright. The thresholds are up to you &mdash; 0.9 for medical, 0.6 for chat. No if/else needed; the BDI engine's plan selection handles it natively.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 4: Cross-LLM Verification -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-cross-llm">
-        <h2><i class="fa-solid fa-arrows-left-right" style="margin-right:8px;color:#8b5cf6;"></i>Pattern 4 — Cross-LLM Verification</h2>
+        <h2><i class="fa-solid fa-arrows-left-right" style="margin-right:8px;color:#8b5cf6;"></i>Pattern 4 &mdash; Cross-LLM Verification</h2>
         <p>Ask one LLM, then ask a different LLM to verify the answer. Accept only if both providers agree.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> High-stakes decisions, reducing single-provider bias.<br>
-            <strong>How it works:</strong> Switch providers with <code>gl.use_provider</code>, send the first answer to the second LLM for verification.
+            <strong>How it works:</strong> Switch providers with <code>use_provider</code>, send the first answer to the second LLM for verification.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — ask Gemini, then verify with OpenAI</span>
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p4-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p4-jason">Jason</button>
+              <button class="tab-btn" data-tab="p4-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p4-astra">
+            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
+<span class="keyword">rule</span> +!classify() {
+    gl.use_provider(<span class="string">"gemini"</span>);
+    string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
+    !verify_with_second(rid);
+}
 
-<span class="comment">// Step 1: Ask Gemini to classify</span>
+<span class="comment">// Step 2: Send to OpenAI for verification</span>
+<span class="keyword">rule</span> +!verify_with_second(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+    string label = gl.field(rid, <span class="string">"label"</span>);
+    gl.use_provider(<span class="string">"openai"</span>);
+    string vrid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
+        <span class="string">"Is this correct? apple = "</span> + label);
+    !compare_results(rid, vrid);
+}
+
+<span class="comment">// Step 3: Both agree &rarr; accept</span>
+<span class="keyword">rule</span> +!compare_results(string orig, string vrid)
+    : gl.field(vrid, <span class="string">"agreement"</span>) == <span class="string">"yes"</span> {
+    string cid = gl.candidate(orig);
+    gl.accept(cid);
+}
+
+<span class="comment">// Step 3: Disagree &rarr; reject</span>
+<span class="keyword">rule</span> +!compare_results(string orig, string vrid)
+    : gl.field(vrid, <span class="string">"agreement"</span>) == <span class="string">"no"</span> {
+    string cid = gl.candidate(orig);
+    gl.reject(cid);
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p4-jason">
+            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
 +!classify <-
     gl.use_provider(<span class="string">"gemini"</span>);
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, GeminiRid).
+    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+    !verify_with_second(Rid).
 
-<span class="comment">// Step 2: Send Gemini's answer to OpenAI for verification</span>
-+!decide(GeminiRid) : gl.valid(GeminiRid, <span class="keyword">true</span>) <-
-    gl.field(GeminiRid, <span class="string">"label"</span>, GeminiLabel);
-    +gemini_answer(GeminiRid, GeminiLabel);        <span class="comment">// remember it</span>
+<span class="comment">// Step 2: Send to OpenAI for verification</span>
++!verify_with_second(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
+        +gemini_answer(Rid, Label);
+        gl.use_provider(<span class="string">"openai"</span>);
+        gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
+            .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid);
+        !compare_results(Rid, Vrid).
 
-    gl.use_provider(<span class="string">"openai"</span>);
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-4o"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
-        .concat(<span class="string">"Is this classification correct? Item: apple → "</span>, GeminiLabel,
-                <span class="string">". Reply with: agreement=yes or agreement=no, and label=your_answer"</span>),
-        OpenAIRid).
+<span class="comment">// Step 3: Both agree &rarr; accept</span>
++!compare_results(OrigRid, Vrid)
+    :   gl.field(Vrid, <span class="string">"agreement"</span>, <span class="string">"yes"</span>)
+    <-  gl.candidate(OrigRid, Cid);
+        gl.accept(Cid);
+        .print(<span class="string">"Both LLMs agree &mdash; accepted"</span>).
 
-<span class="comment">// Step 3: Compare both answers</span>
-+!decide(OpenAIRid) : gl.valid(OpenAIRid, <span class="keyword">true</span>)
-    & gemini_answer(OrigRid, GeminiLabel) <-
-    gl.field(OpenAIRid, <span class="string">"agreement"</span>, Agreement);
-    gl.candidate(OrigRid, OrigCid);
+<span class="comment">// Step 3: Disagree &rarr; reject</span>
++!compare_results(OrigRid, Vrid)
+    :   gl.field(Vrid, <span class="string">"agreement"</span>, <span class="string">"no"</span>)
+    <-  gl.candidate(OrigRid, Cid);
+        gl.reject(Cid);
+        .print(<span class="string">"LLMs disagree &mdash; rejected"</span>).</code></pre>
+          </div>
+          <div class="tab-content" id="p4-jacamo">
+            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
++!classify <-
+    use_provider(<span class="string">"gemini"</span>);
+    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid).
 
-    <span class="keyword">if</span> (Agreement == <span class="string">"yes"</span>) {
-        gl.accept(OrigCid);
-        .print(<span class="string">"Both LLMs agree: "</span>, GeminiLabel, <span class="string">" ✓"</span>);
-    } <span class="keyword">else</span> {
-        gl.reject(OrigCid);
-        gl.field(OpenAIRid, <span class="string">"label"</span>, AltLabel);
-        .print(<span class="string">"LLMs disagree! Gemini: "</span>, GeminiLabel, <span class="string">" vs OpenAI: "</span>, AltLabel);
-    }.</code></pre>
+<span class="comment">// Step 2: Gemini result received &rarr; verify with OpenAI</span>
++gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    field(Rid, <span class="string">"label"</span>, Label);
+    +gemini_answer(Rid, Label);
+    use_provider(<span class="string">"openai"</span>);
+    ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
+        .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid).
+
+<span class="comment">// Step 3: Both agree &rarr; accept</span>
++!compare_results(OrigRid, Vrid)
+    :   field(Vrid, <span class="string">"agreement"</span>, <span class="string">"yes"</span>)
+    <-  candidate(OrigRid, Cid);
+        accept(Cid).
+
++!compare_results(OrigRid, Vrid)
+    :   field(Vrid, <span class="string">"agreement"</span>, <span class="string">"no"</span>)
+    <-  candidate(OrigRid, Cid);
+        reject(Cid).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #8b5cf6;cursor:pointer;" onclick="toggleDetail('crossllm')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#8b5cf6;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">How cross-verification works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-crossllm" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent uses <code>gl.use_provider</code> to switch between different LLM backends at runtime. <strong>Step 1</strong>: Ask Gemini to classify the item. The agent stores the answer as a belief (<code>+gemini_answer</code>) but does <strong>not</strong> accept it yet. <strong>Step 2</strong>: Switch to OpenAI and ask it to verify Gemini's answer. The agent constructs a verification prompt that includes Gemini's label. <strong>Step 3</strong>: When OpenAI responds, the agent checks the <code>agreement</code> field. If both providers agree, the <em>original</em> Gemini candidate is accepted. If they disagree, it's rejected. The key insight: <strong>the agent orchestrates both LLMs</strong> — neither LLM knows about the other. The agent is the decision-maker, using independent opinions as evidence.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent orchestrates two independent LLMs. <strong>Step 1</strong>: Ask Gemini. <strong>Step 2</strong>: Switch to OpenAI and pass Gemini's answer for verification. <strong>Step 3</strong>: Two context-guarded plans for <code>!compare_results</code> handle agreement vs. disagreement. Neither LLM knows about the other &mdash; the agent is the decision-maker using independent opinions as evidence.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 5: Agent-to-Agent Review -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-agent-review">
-        <h2><i class="fa-solid fa-users" style="margin-right:8px;color:#ec4899;"></i>Pattern 5 — Agent-to-Agent Review</h2>
-        <p>One agent generates content, then sends it to a peer agent for review. The peer uses its own beliefs and reasoning to approve or reject — no LLM involved in the review step.</p>
+        <h2><i class="fa-solid fa-users" style="margin-right:8px;color:#ec4899;"></i>Pattern 5 &mdash; Agent-to-Agent Review</h2>
+        <p>One agent generates content, then sends it to a peer agent for review using standard BDI messaging. The peer uses its own beliefs &mdash; no LLM involved in the review step.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Multi-agent systems where agents have different expertise or knowledge.<br>
+            <strong>When to use:</strong> Multi-agent systems where agents have different expertise.<br>
             <strong>How it works:</strong> Standard BDI messaging (<code>.send</code>) combined with governed candidates.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// ─── Agent A: generates and requests peer review ───</span>
-
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p5-jason">Jason</button>
+              <button class="tab-btn" data-tab="p5-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p5-jason">
+            <pre><code><span class="comment">// ─── Agent A: generates and requests peer review ───</span>
 +!classify <-
-    gl.ask(<span class="string">"agentA"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid).
+    gl.ask(<span class="string">"agentA"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
+    !request_review(Rid).
 
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"label"</span>, Label);
-    <span class="comment">// Don't accept yet — ask Agent B to verify</span>
-    .send(agentB, achieve, review(Label, Rid)).
++!request_review(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
+        .send(agentB, achieve, review(Label, Rid)).
 
-<span class="comment">// Agent B approved</span>
+<span class="comment">// Context guard: peer approved &rarr; accept</span>
 +approved(Rid) <-
     gl.candidate(Rid, Cid);
-    gl.accept(Cid);
-    .print(<span class="string">"Peer-approved and accepted"</span>).
+    gl.accept(Cid).
 
-<span class="comment">// Agent B rejected</span>
+<span class="comment">// Context guard: peer rejected &rarr; reject</span>
 +disapproved(Rid, Reason) <-
     gl.candidate(Rid, Cid);
-    gl.reject(Cid);
-    .print(<span class="string">"Peer rejected: "</span>, Reason).
-
+    gl.reject(Cid).
 
 <span class="comment">// ─── Agent B: reviews using its own beliefs ───</span>
+known_food(<span class="string">"fruit"</span>). known_food(<span class="string">"vegetable"</span>).
 
-+!review(Label, Rid) <-
-    <span class="comment">// Agent B checks against its own knowledge base</span>
-    <span class="keyword">if</span> (known_food(Label)) {
-        .send(agentA, tell, approved(Rid));
-    } <span class="keyword">else</span> {
-        .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>));
-    }.</code></pre>
++!review(Label, Rid)
+    :   known_food(Label)
+    <-  .send(agentA, tell, approved(Rid)).
+
++!review(Label, Rid)
+    :   not known_food(Label)
+    <-  .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>)).</code></pre>
+          </div>
+          <div class="tab-content" id="p5-jacamo">
+            <pre><code><span class="comment">// ─── Agent A (JaCaMo): uses CArtAgO artifact ───</span>
++gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    field(Rid, <span class="string">"label"</span>, Label);
+    .send(agentB, achieve, review(Label, Rid)).
+
++approved(Rid) <-
+    candidate(Rid, Cid);
+    accept(Cid).
+
++disapproved(Rid, Reason) <-
+    candidate(Rid, Cid);
+    reject(Cid).
+
+<span class="comment">// ─── Agent B: same review plans as Jason ───</span>
+known_food(<span class="string">"fruit"</span>). known_food(<span class="string">"vegetable"</span>).
+
++!review(Label, Rid)
+    :   known_food(Label)
+    <-  .send(agentA, tell, approved(Rid)).
+
++!review(Label, Rid)
+    :   not known_food(Label)
+    <-  .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>)).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleDetail('agentreview')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">How peer review works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-agentreview" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">This pattern separates the roles of <strong>generator</strong> and <strong>reviewer</strong> across two autonomous agents. Agent A calls the LLM and gets a candidate, but instead of deciding alone, it sends the extracted label to Agent B via <code>.send(agentB, achieve, review(...))</code> — standard BDI inter-agent messaging. Agent B has its own knowledge base (e.g. <code>known_food("fruit")</code>) and applies <strong>its own reasoning</strong> — no LLM involved in the review. Agent B sends back an <code>approved</code> or <code>disapproved</code> message. Agent A reacts to the verdict and only then calls <code>gl.accept</code> or <code>gl.reject</code>. This means <strong>neither agent blindly trusts the LLM or each other</strong> — each applies its own governance.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Agent A generates a candidate but <strong>does not decide alone</strong>. It sends the label to Agent B via standard BDI messaging. Agent B has two context-guarded plans for <code>!review</code> &mdash; one fires if the label matches a known food belief, the other if it doesn't. Agent A reacts to the verdict via belief triggers (<code>+approved</code> / <code>+disapproved</code>). <strong>Neither agent blindly trusts the LLM or each other</strong> &mdash; each applies its own governance. Note: ASTRA does not natively support inter-agent messaging, so this pattern is shown for Jason and JaCaMo only.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 6: Belief Consistency -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-belief">
-        <h2><i class="fa-solid fa-scale-balanced" style="margin-right:8px;color:#06b6d4;"></i>Pattern 6 — Belief Consistency Check</h2>
-        <p>The agent compares the LLM's answer against its existing beliefs. Contradictions are rejected, consistent answers are accepted.</p>
+        <h2><i class="fa-solid fa-scale-balanced" style="margin-right:8px;color:#06b6d4;"></i>Pattern 6 &mdash; Belief Consistency Check</h2>
+        <p>The agent compares the LLM's answer against its existing beliefs using context guards. Contradictions are rejected, consistent answers confirmed, and new knowledge is adopted.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> When the agent has prior knowledge and must not adopt contradictions.<br>
-            <strong>Key idea:</strong> BDI agents have beliefs — use them as a validation layer.
+            <strong>Key idea:</strong> BDI agents have beliefs &mdash; use them as a validation layer.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — agent has existing beliefs about food categories</span>
-category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>).
-category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
-category(<span class="string">"rice"</span>, <span class="string">"grain"</span>).
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p6-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p6-jason">Jason</button>
+              <button class="tab-btn" data-tab="p6-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p6-astra">
+            <pre><code><span class="comment">// Existing beliefs</span>
++category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). +category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
 
-+!decide(Rid) : gl.valid(Rid, <span class="keyword">true</span>) <-
-    gl.field(Rid, <span class="string">"item"</span>, Item);
-    gl.field(Rid, <span class="string">"label"</span>, Label);
-    gl.candidate(Rid, Cid);
+<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
+    string item = gl.field(rid, <span class="string">"item"</span>);
+    string label = gl.field(rid, <span class="string">"label"</span>);
+    string cid = gl.candidate(rid);
+    !check_belief(cid, item, label);
+}
 
-    <span class="comment">// Check if I already have a belief about this item</span>
-    <span class="keyword">if</span> (category(Item, ExistingLabel)) {
-        <span class="keyword">if</span> (Label == ExistingLabel) {
-            gl.accept(Cid);
-            .print(<span class="string">"Confirmed my belief: "</span>, Item, <span class="string">" = "</span>, Label);
-        } <span class="keyword">else</span> {
-            gl.reject(Cid);
-            .print(<span class="string">"Contradicts my belief! I know "</span>, Item, <span class="string">" = "</span>,
-                   ExistingLabel, <span class="string">", LLM said: "</span>, Label);
-        };
-    } <span class="keyword">else</span> {
-        <span class="comment">// No prior belief — accept as new knowledge</span>
-        gl.accept(Cid);
-        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">" = "</span>, Label);
-    }.</code></pre>
+<span class="comment">// Matches existing belief &rarr; confirmed</span>
+<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
+    : category(item, label) {
+    gl.accept(cid);
+    console.println(<span class="string">"Confirmed: "</span> + item + <span class="string">" = "</span> + label);
+}
+
+<span class="comment">// Contradicts existing belief &rarr; rejected</span>
+<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
+    : category(item, string existing) &amp; existing != label {
+    gl.reject(cid);
+    console.println(<span class="string">"Contradicts belief!"</span>);
+}
+
+<span class="comment">// No prior belief &rarr; new knowledge</span>
+<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
+    : ~category(item, string any) {
+    gl.accept(cid);
+    console.println(<span class="string">"New knowledge adopted: "</span> + item);
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p6-jason">
+            <pre><code><span class="comment">// Existing beliefs</span>
+category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
+
++!decide(Rid)
+    :   gl.valid(Rid, <span class="keyword">true</span>)
+    <-  gl.field(Rid, <span class="string">"item"</span>, Item);
+        gl.field(Rid, <span class="string">"label"</span>, Label);
+        gl.candidate(Rid, Cid);
+        !check_belief(Cid, Item, Label).
+
+<span class="comment">// Matches existing belief &rarr; confirmed</span>
++!check_belief(Cid, Item, Label)
+    :   category(Item, Label)
+    <-  gl.accept(Cid);
+        .print(<span class="string">"Confirmed: "</span>, Item, <span class="string">" = "</span>, Label).
+
+<span class="comment">// Contradicts existing belief &rarr; rejected</span>
++!check_belief(Cid, Item, Label)
+    :   category(Item, Existing) &amp; Label \== Existing
+    <-  gl.reject(Cid);
+        .print(<span class="string">"Contradicts belief! I know "</span>, Item, <span class="string">"="</span>, Existing).
+
+<span class="comment">// No prior belief &rarr; new knowledge</span>
++!check_belief(Cid, Item, Label)
+    :   not category(Item, _)
+    <-  gl.accept(Cid);
+        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">"="</span>, Label).</code></pre>
+          </div>
+          <div class="tab-content" id="p6-jacamo">
+            <pre><code><span class="comment">// Existing beliefs</span>
+category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
+
++gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
+    field(Rid, <span class="string">"item"</span>, Item);
+    field(Rid, <span class="string">"label"</span>, Label);
+    candidate(Rid, Cid);
+    !check_belief(Cid, Item, Label).
+
++!check_belief(Cid, Item, Label)
+    :   category(Item, Label)
+    <-  accept(Cid);
+        .print(<span class="string">"Confirmed: "</span>, Item, <span class="string">" = "</span>, Label).
+
++!check_belief(Cid, Item, Label)
+    :   category(Item, Existing) &amp; Label \== Existing
+    <-  reject(Cid);
+        .print(<span class="string">"Contradicts belief!"</span>).
+
++!check_belief(Cid, Item, Label)
+    :   not category(Item, _)
+    <-  accept(Cid);
+        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">"="</span>, Label).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('belief')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">Why belief consistency matters</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-belief" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">BDI agents reason based on their <strong>beliefs</strong>. If an LLM tells the agent "apple = vegetable" but the agent already believes "apple = fruit", adopting the new belief would create a contradiction — breaking the agent's rational decision-making. This pattern prevents that. The agent checks its belief base <em>before</em> accepting. If the LLM agrees with existing beliefs, the answer is confirmed. If it contradicts, it's rejected. And if the agent has <strong>no prior belief</strong>, the LLM output is treated as new knowledge and adopted. This is the most BDI-native pattern — it uses the agent's existing knowledge as a validation layer, exactly as BDI theory suggests.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Three context-guarded plans for <code>!check_belief</code> handle three scenarios. The BDI engine checks the agent's belief base: <strong>category(Item, Label) matches</strong> &rarr; confirmed. <strong>category(Item, Existing) exists but differs</strong> &rarr; contradiction rejected. <strong>No category belief</strong> &rarr; adopted as new knowledge. This is the most BDI-native pattern &mdash; it uses the agent's existing knowledge exactly as BDI theory intended.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 7: Majority Voting -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-voting">
-        <h2><i class="fa-solid fa-check-double" style="margin-right:8px;color:#10b981;"></i>Pattern 7 — Majority Voting</h2>
+        <h2><i class="fa-solid fa-check-double" style="margin-right:8px;color:#10b981;"></i>Pattern 7 &mdash; Majority Voting</h2>
         <p>Ask multiple LLMs the same question. Accept only the answer that a majority agrees on.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> Critical decisions where no single LLM should be trusted alone.<br>
-            <strong>How it works:</strong> Collect answers from N providers, tally votes, accept the majority winner.
+            <strong>How it works:</strong> Collect answers from N providers, tally votes with context-guarded plans.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — ask 3 providers, accept the majority answer</span>
-
-+!classify <-
-    <span class="comment">// Ask all three providers</span>
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p7-jason">Jason</button>
+              <button class="tab-btn" data-tab="p7-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p7-jason">
+            <pre><code>+!classify <-
+    <span class="comment">// Ask three providers</span>
     gl.use_provider(<span class="string">"gemini"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
     gl.use_provider(<span class="string">"openai"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
     gl.use_provider(<span class="string">"anthropic"</span>);
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
+    gl.field(R1, <span class="string">"label"</span>, L1); gl.field(R2, <span class="string">"label"</span>, L2); gl.field(R3, <span class="string">"label"</span>, L3);
+    !vote(R1, L1, R2, L2, R3, L3).
 
-    <span class="comment">// Collect answers</span>
-    gl.field(R1, <span class="string">"label"</span>, L1);
-    gl.field(R2, <span class="string">"label"</span>, L2);
-    gl.field(R3, <span class="string">"label"</span>, L3);
+<span class="comment">// Majority: first two agree</span>
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 == L2
+    <-  gl.candidate(R1, Cid); gl.accept(Cid);
+        .print(<span class="string">"Majority agrees: "</span>, L1).
 
-    <span class="comment">// Majority vote</span>
-    <span class="keyword">if</span> (L1 == L2 | L1 == L3) {
-        +winner(L1, R1);
-    } <span class="keyword">else</span> <span class="keyword">if</span> (L2 == L3) {
-        +winner(L2, R2);
-    } <span class="keyword">else</span> {
-        .print(<span class="string">"No consensus — all three disagree!"</span>);
-    }.
+<span class="comment">// Majority: first and third agree</span>
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 == L3
+    <-  gl.candidate(R1, Cid); gl.accept(Cid);
+        .print(<span class="string">"Majority agrees: "</span>, L1).
 
-+winner(Label, Rid) <-
-    gl.candidate(Rid, Cid);
-    gl.accept(Cid);
-    .print(<span class="string">"Majority agrees: "</span>, Label).</code></pre>
+<span class="comment">// Majority: second and third agree</span>
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L2 == L3
+    <-  gl.candidate(R2, Cid); gl.accept(Cid);
+        .print(<span class="string">"Majority agrees: "</span>, L2).
+
+<span class="comment">// No consensus</span>
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 \== L2 &amp; L1 \== L3 &amp; L2 \== L3
+    <-  .print(<span class="string">"No consensus &mdash; all disagree"</span>).</code></pre>
+          </div>
+          <div class="tab-content" id="p7-jacamo">
+            <pre><code>+!classify <-
+    use_provider(<span class="string">"gemini"</span>);
+    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
+    use_provider(<span class="string">"openai"</span>);
+    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
+    use_provider(<span class="string">"anthropic"</span>);
+    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
+    field(R1, <span class="string">"label"</span>, L1); field(R2, <span class="string">"label"</span>, L2); field(R3, <span class="string">"label"</span>, L3);
+    !vote(R1, L1, R2, L2, R3, L3).
+
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 == L2
+    <-  candidate(R1, Cid); accept(Cid);
+        .print(<span class="string">"Majority agrees: "</span>, L1).
+
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 == L3
+    <-  candidate(R1, Cid); accept(Cid).
+
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L2 == L3
+    <-  candidate(R2, Cid); accept(Cid).
+
++!vote(R1, L1, R2, L2, R3, L3)
+    :   L1 \== L2 &amp; L1 \== L3 &amp; L2 \== L3
+    <-  .print(<span class="string">"No consensus"</span>).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #10b981;cursor:pointer;" onclick="toggleDetail('voting')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#10b981;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">How majority voting reduces bias</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-voting" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Each LLM has different training data and biases. By asking the same question to three independent providers (Gemini, OpenAI, Anthropic), the agent collects three independent opinions. If at least two agree, the agent accepts that answer. If all three disagree, <strong>nobody's answer is accepted</strong> — the agent can escalate, retry, or ask a human. The agent uses <code>gl.use_provider</code> to switch providers between calls. Each call goes through the full governance pipeline independently (validation, candidate creation). The agent only accepts the winning candidate from the majority. This is the most defensive pattern — useful for critical decisions like medical triage, financial classification, or safety assessments.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Four context-guarded plans for <code>!vote</code> cover all consensus cases. The BDI engine checks pairwise equality: if any two labels match, that pair's answer wins. If all three disagree, the fourth guard fires and nobody's answer is accepted. Each LLM call goes through the full governance pipeline independently. This is the most defensive pattern &mdash; useful for critical decisions.</p>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <!-- Pattern 8: Iterative Refinement -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="pattern-refinement">
-        <h2><i class="fa-solid fa-rotate" style="margin-right:8px;color:#f97316;"></i>Pattern 8 — Iterative Refinement</h2>
+        <h2><i class="fa-solid fa-rotate" style="margin-right:8px;color:#f97316;"></i>Pattern 8 &mdash; Iterative Refinement</h2>
         <p>The agent generates an answer, critiques it, then refines it. Each round goes through governance. Accept only the final refined version.</p>
 
         <div class="card" style="padding:16px;margin-bottom:12px;">
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
             <strong>When to use:</strong> Complex tasks like writing, analysis, or planning where first drafts are rarely good enough.<br>
-            <strong>How it works:</strong> Generate → Critique → Refine → Accept. Each step is governed.
+            <strong>How it works:</strong> Generate &rarr; Critique &rarr; Refine &rarr; Accept. Each step is governed.
           </div>
         </div>
 
-        <div class="tabs-container" style="margin:0;">
-          <pre><code><span class="comment">// Jason — generate, critique, refine, then accept</span>
-
-<span class="comment">// Step 1: Generate a draft</span>
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <div class="tabs-buttons">
+              <button class="tab-btn active" data-tab="p8-jason">Jason</button>
+              <button class="tab-btn" data-tab="p8-jacamo">JaCaMo</button>
+            </div>
+          </div>
+          <div class="tab-content active" id="p8-jason">
+            <pre><code><span class="comment">// Step 1: Generate a draft</span>
 +!write_report <-
     gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>,
-        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid).
+        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid);
+    !critique_draft(DraftRid).
 
-<span class="comment">// Step 2: Critique the draft</span>
-+!decide(DraftRid) : gl.valid(DraftRid, <span class="keyword">true</span>) <-
-    gl.field(DraftRid, <span class="string">"text"</span>, Draft);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
-        .concat(<span class="string">"Critique this summary. List problems:\n"</span>, Draft), CritiqueRid).
+<span class="comment">// Step 2: Critique the draft (valid draft only)</span>
++!critique_draft(DraftRid)
+    :   gl.valid(DraftRid, <span class="keyword">true</span>)
+    <-  gl.field(DraftRid, <span class="string">"text"</span>, Draft);
+        gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
+            .concat(<span class="string">"Critique this:\n"</span>, Draft), CritiqueRid);
+        !refine_draft(DraftRid, CritiqueRid).
 
-<span class="comment">// Step 3: Refine using the critique</span>
-+!decide(CritiqueRid) : gl.valid(CritiqueRid, <span class="keyword">true</span>) <-
-    gl.field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
-    gl.field(DraftRid, <span class="string">"text"</span>, Draft);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
-        .concat(<span class="string">"Improve this:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid).
+<span class="comment">// Step 3: Refine using the critique (valid critique only)</span>
++!refine_draft(DraftRid, CritiqueRid)
+    :   gl.valid(CritiqueRid, <span class="keyword">true</span>)
+    <-  gl.field(DraftRid, <span class="string">"text"</span>, Draft);
+        gl.field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
+        gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
+            .concat(<span class="string">"Improve:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid);
+        !accept_final(FinalRid).
 
-<span class="comment">// Step 4: Accept only the refined version</span>
-+!decide(FinalRid) : gl.valid(FinalRid, <span class="keyword">true</span>) <-
-    gl.candidate(FinalRid, Cid);
-    gl.accept(Cid);
-    gl.field(FinalRid, <span class="string">"text"</span>, FinalText);
-    .print(<span class="string">"Final accepted version:\n"</span>, FinalText).</code></pre>
+<span class="comment">// Step 4: Accept the refined version</span>
++!accept_final(FinalRid)
+    :   gl.valid(FinalRid, <span class="keyword">true</span>)
+    <-  gl.candidate(FinalRid, Cid);
+        gl.accept(Cid);
+        gl.field(FinalRid, <span class="string">"text"</span>, FinalText);
+        .print(<span class="string">"Final accepted:\n"</span>, FinalText).</code></pre>
+          </div>
+          <div class="tab-content" id="p8-jacamo">
+            <pre><code><span class="comment">// Step 1: Generate a draft</span>
++!write_report <-
+    ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>,
+        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid);
+    !critique_draft(DraftRid).
+
++!critique_draft(DraftRid)
+    :   gl.valid(DraftRid, <span class="keyword">true</span>)
+    <-  field(DraftRid, <span class="string">"text"</span>, Draft);
+        ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
+            .concat(<span class="string">"Critique this:\n"</span>, Draft), CritiqueRid);
+        !refine_draft(DraftRid, CritiqueRid).
+
++!refine_draft(DraftRid, CritiqueRid)
+    :   gl.valid(CritiqueRid, <span class="keyword">true</span>)
+    <-  field(DraftRid, <span class="string">"text"</span>, Draft);
+        field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
+        ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
+            .concat(<span class="string">"Improve:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid);
+        !accept_final(FinalRid).
+
++!accept_final(FinalRid)
+    :   gl.valid(FinalRid, <span class="keyword">true</span>)
+    <-  candidate(FinalRid, Cid);
+        accept(Cid);
+        field(FinalRid, <span class="string">"text"</span>, FinalText);
+        .print(<span class="string">"Final accepted:\n"</span>, FinalText).</code></pre>
+          </div>
         </div>
 
         <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f97316;cursor:pointer;" onclick="toggleDetail('refinement')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
             <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f97316;flex-shrink:0;"></i>
             <span style="font-weight:600;font-size:14px;flex:1;">How iterative refinement improves quality</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement')"><i class="fa-solid fa-eye"></i></button>
           </div>
           <div class="pattern-detail" id="detail-refinement" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent orchestrates a <strong>three-step pipeline</strong> where each step feeds into the next through the governance boundary. <strong>Step 1 (Draft)</strong>: The LLM generates a first attempt. The agent extracts the text but does NOT accept it. <strong>Step 2 (Critique)</strong>: The agent feeds the draft to the LLM and asks for criticism. Again, the critique is governed — validated and extracted as candidate material. <strong>Step 3 (Refine)</strong>: The agent combines the original draft with the critique and asks for an improved version. Only this final, refined output is accepted as knowledge. Each step goes through the full governance pipeline: schema validation, candidate creation, and traceability. The draft and critique are intermediate artifacts — never adopted. This pattern is especially powerful because <strong>the agent controls the pipeline</strong>, deciding when quality is good enough to stop iterating.</p>
+              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Each step is a separate sub-goal with its own context guard (<code>gl.valid</code>). The agent chains: <strong>Draft</strong> &rarr; <strong>Critique</strong> &rarr; <strong>Refine</strong> &rarr; <strong>Accept</strong>. Only the final refined output is accepted. The draft and critique are intermediate &mdash; never adopted as beliefs. Each step goes through the full governance pipeline: validation, candidate creation, and traceability.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Summary -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- Summary Table -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <section class="info-panel" id="summary">
         <h2><i class="fa-solid fa-table-list" style="margin-right:8px;color:var(--color-green-700);"></i>Pattern Summary</h2>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
               <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
-                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Pattern</th>
-                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Who Decides</th>
-                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Use Case</th>
-                <th style="padding:10px 12px;font-weight:700;color:var(--color-text);">Risk Level</th>
+                <th style="padding:10px 12px;font-weight:700;">Pattern</th>
+                <th style="padding:10px 12px;font-weight:700;">Who Decides</th>
+                <th style="padding:10px 12px;font-weight:700;">BDI Mechanism</th>
+                <th style="padding:10px 12px;font-weight:700;">Platforms</th>
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-simple" style="color:var(--color-green-700);font-weight:600;">Simple Validation</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Schema validator</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Prototyping, trusted providers</td>
-                <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">Low</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-content" style="color:var(--color-green-700);font-weight:600;">Content Inspection</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent logic</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Business rules, keyword filtering</td>
-                <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">Low</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-confidence" style="color:var(--color-green-700);font-weight:600;">Confidence Threshold</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent + LLM self-report</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Uncertainty-aware decisions</td>
-                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-cross-llm" style="color:var(--color-green-700);font-weight:600;">Cross-LLM Verification</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent comparing two LLMs</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Reducing single-provider bias</td>
-                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-agent-review" style="color:var(--color-green-700);font-weight:600;">Agent-to-Agent Review</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Peer agent</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-agent collaboration</td>
-                <td style="padding:10px 12px;"><span style="color:#f59e0b;font-weight:600;">Medium</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-belief" style="color:var(--color-green-700);font-weight:600;">Belief Consistency</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Agent's existing beliefs</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Preventing contradictions</td>
-                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
-              </tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);">
-                <td style="padding:10px 12px;"><a href="#pattern-voting" style="color:var(--color-green-700);font-weight:600;">Majority Voting</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Consensus of N providers</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Critical decisions</td>
-                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
-              </tr>
-              <tr>
-                <td style="padding:10px 12px;"><a href="#pattern-refinement" style="color:var(--color-green-700);font-weight:600;">Iterative Refinement</a></td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-step pipeline</td>
-                <td style="padding:10px 12px;color:var(--color-text-secondary);">Complex generation tasks</td>
-                <td style="padding:10px 12px;"><span style="color:#ef4444;font-weight:600;">High</span></td>
-              </tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-simple" style="color:var(--color-green-700);font-weight:600;">Simple Validation</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Schema validator</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Context guard on <code>valid</code></td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-content" style="color:var(--color-green-700);font-weight:600;">Content Inspection</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent beliefs</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on <code>known(Label)</code></td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-confidence" style="color:var(--color-green-700);font-weight:600;">Confidence Threshold</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent + LLM score</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Tiered confidence guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-cross-llm" style="color:var(--color-green-700);font-weight:600;">Cross-LLM Verification</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent comparing LLMs</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on agreement field</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-agent-review" style="color:var(--color-green-700);font-weight:600;">Agent-to-Agent Review</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Peer agent</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Belief triggers + guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-belief" style="color:var(--color-green-700);font-weight:600;">Belief Consistency</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent's belief base</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on <code>category</code> belief</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
+              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-voting" style="color:var(--color-green-700);font-weight:600;">Majority Voting</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Consensus of N providers</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Pairwise equality guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
+              <tr><td style="padding:10px 12px;"><a href="#pattern-refinement" style="color:var(--color-green-700);font-weight:600;">Iterative Refinement</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-step pipeline</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Chained sub-goal guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
             </tbody>
           </table>
         </div>
@@ -671,6 +1025,21 @@ category(<span class="string">"rice"</span>, <span class="string">"grain"</span>
         setTimeout(function() { el.style.display = 'none'; }, 300);
       }
     };
+
+    // --- Scoped Tab Switching (multiple tab groups per page) ---
+    document.querySelectorAll('.tabs-container').forEach(function(container) {
+      var btns = container.querySelectorAll('.tab-btn');
+      var contents = container.querySelectorAll('.tab-content');
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          contents.forEach(function(c) { c.classList.remove('active'); });
+          btn.classList.add('active');
+          var target = btn.getAttribute('data-tab');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+    });
   </script>
 
 </body>
