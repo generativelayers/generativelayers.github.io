@@ -494,19 +494,22 @@ known(<span class="string">"fruit"</span>). known(<span class="string">"vegetabl
             .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid);
         !compare_results(Rid, Vrid).
 
-<span class="comment">// Step 3: Both agree &rarr; accept</span>
+<span class="comment">// Step 3: Extract agreement and delegate to sub-goal</span>
 +!compare_results(OrigRid, Vrid)
-    :   gl.field(Vrid, <span class="string">"agreement"</span>, <span class="string">"yes"</span>)
-    <-  gl.candidate(OrigRid, Cid);
-        gl.accept(Cid);
-        .print(<span class="string">"Both LLMs agree &mdash; accepted"</span>).
+    :   gl.valid(Vrid, <span class="keyword">true</span>)
+    <-  gl.field(Vrid, <span class="string">"agreement"</span>, Agreement);
+        gl.candidate(OrigRid, Cid);
+        !decide_agreement(Cid, Agreement).
 
-<span class="comment">// Step 3: Disagree &rarr; reject</span>
-+!compare_results(OrigRid, Vrid)
-    :   gl.field(Vrid, <span class="string">"agreement"</span>, <span class="string">"no"</span>)
-    <-  gl.candidate(OrigRid, Cid);
-        gl.reject(Cid);
-        .print(<span class="string">"LLMs disagree &mdash; rejected"</span>).</code></pre>
+<span class="comment">// Context guard: providers agree &rarr; accept</span>
++!decide_agreement(Cid, <span class="string">"yes"</span>) <-
+    gl.accept(Cid);
+    .print(<span class="string">"Both LLMs agree &mdash; accepted"</span>).
+
+<span class="comment">// Context guard: providers disagree &rarr; reject</span>
++!decide_agreement(Cid, <span class="string">"no"</span>) <-
+    gl.reject(Cid);
+    .print(<span class="string">"LLMs disagree &mdash; rejected"</span>).</code></pre>
           </div>
           <div class="tab-content" id="p4-jacamo">
             <pre><code><span class="comment">// Step 1: Ask Gemini</span>
@@ -522,16 +525,17 @@ known(<span class="string">"fruit"</span>). known(<span class="string">"vegetabl
     ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
         .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid).
 
-<span class="comment">// Step 3: Both agree &rarr; accept</span>
-+!compare_results(OrigRid, Vrid)
-    :   field(Vrid, <span class="string">"agreement"</span>, <span class="string">"yes"</span>)
-    <-  candidate(OrigRid, Cid);
-        accept(Cid).
+<span class="comment">// Step 3: Extract agreement and delegate</span>
++!compare_results(OrigRid, Vrid) <-
+    field(Vrid, <span class="string">"agreement"</span>, Agreement);
+    candidate(OrigRid, Cid);
+    !decide_agreement(Cid, Agreement).
 
-+!compare_results(OrigRid, Vrid)
-    :   field(Vrid, <span class="string">"agreement"</span>, <span class="string">"no"</span>)
-    <-  candidate(OrigRid, Cid);
-        reject(Cid).</code></pre>
++!decide_agreement(Cid, <span class="string">"yes"</span>) <-
+    accept(Cid).
+
++!decide_agreement(Cid, <span class="string">"no"</span>) <-
+    reject(Cid).</code></pre>
           </div>
         </div>
 
