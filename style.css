@@ -787,10 +787,32 @@ p, li {
 
 .commands-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
   font-family: var(--font-sans);
   min-width: 600px;
+}
+
+.commands-table th:nth-child(1),
+.commands-table td:nth-child(1) {
+  width: 28%;
+}
+
+.commands-table th:nth-child(2),
+.commands-table td:nth-child(2) {
+  width: 12%;
+}
+
+.commands-table th:nth-child(3),
+.commands-table td:nth-child(3) {
+  width: 50%;
+}
+
+.commands-table th:nth-child(4),
+.commands-table td:nth-child(4) {
+  width: 10%;
+  text-align: center;
 }
 
 .commands-table th,
