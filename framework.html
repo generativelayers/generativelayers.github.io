@@ -175,22 +175,23 @@
                 <th>Command</th>
                 <th>Return Type</th>
                 <th>Description</th>
+                <th style="text-align: center; width: 80px;">Usage</th>
               </tr>
             </thead>
             <tbody>
               <!-- Lifecycle -->
-              <tr class="cmd-row" id="row-configure" data-group="lifecycle" onclick="toggleRow('configure')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">configure(key, value)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-configure" data-group="lifecycle">
+                <td><code class="cmd-name">configure(key, value)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Set a configuration key-value pair prior to provider activation.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('configure')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-configure" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -219,18 +220,18 @@ rule +!main(list args) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-use_provider" data-group="lifecycle" onclick="toggleRow('use_provider')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span><code class="cmd-name">use_provider()</code> <span class="small-overloads">(+2 overloads)</span></span>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-use_provider" data-group="lifecycle">
+                <td><span><code class="cmd-name">use_provider()</code> <span class="small-overloads">(+2 overloads)</span></span></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Activate a generative provider (by default, or named with optional model).</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('use_provider')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-use_provider" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -259,18 +260,18 @@ rule +!main(list args) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-providers" data-group="lifecycle" onclick="toggleRow('providers')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">providers()</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-providers" data-group="lifecycle">
+                <td><code class="cmd-name">providers()</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Fetch a comma-separated list of all available provider names.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('providers')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-providers" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -300,18 +301,18 @@ rule +!check_providers() {
               </tr>
  
               <!-- Invocation -->
-              <tr class="cmd-row" id="row-invoke" data-group="invocation" onclick="toggleRow('invoke')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">invoke(agent, goal, body, affordance, prompt, requiredCsv)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-invoke" data-group="invocation">
+                <td><code class="cmd-name">invoke(agent, goal, body, affordance, prompt, requiredCsv)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Execute a defined generative body (affordance model interaction). Returns result ID.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('invoke')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-invoke" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -339,18 +340,18 @@ rule +!request_support(string agent, string goal, string prompt) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-invoke_with_beliefs" data-group="invocation" onclick="toggleRow('invoke_with_beliefs')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">invoke_with_beliefs(...)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-invoke_with_beliefs" data-group="invocation">
+                <td><code class="cmd-name">invoke_with_beliefs(...)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Execute a generative body, prepending structured beliefs as RAG context.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('invoke_with_beliefs')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-invoke_with_beliefs" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -378,18 +379,18 @@ rule +!request_rag(string agent, string goal, string prompt) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-ask" data-group="invocation" onclick="toggleRow('ask')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">ask(agentId, goalId, prompt)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-ask" data-group="invocation">
+                <td><code class="cmd-name">ask(agentId, goalId, prompt)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Shorthand LLM invocation using the baseline standard answer affordance.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('ask')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-ask" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -417,18 +418,18 @@ rule +!request_support(string agent, string goal, string prompt) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-valid" data-group="invocation" onclick="toggleRow('valid')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">valid(resultId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-valid" data-group="invocation">
+                <td><code class="cmd-name">valid(resultId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Check whether the generated output passed schema validation constraint checks.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('valid')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-valid" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -456,18 +457,18 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-field" data-group="invocation" onclick="toggleRow('field')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">field(resultId, name)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-field" data-group="invocation">
+                <td><code class="cmd-name">field(resultId, name)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Extract a specific named field's value from a validated response schema.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('field')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-field" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -496,18 +497,18 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-candidate" data-group="invocation" onclick="toggleRow('candidate')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">candidate(resultId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-candidate" data-group="invocation">
+                <td><code class="cmd-name">candidate(resultId)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Retrieve the unique Candidate ID associated with a result.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('candidate')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-candidate" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -536,18 +537,18 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-trace" data-group="invocation" onclick="toggleRow('trace')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">trace(resultId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-trace" data-group="invocation">
+                <td><code class="cmd-name">trace(resultId)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Get the auditability trace ID generated for the invocation lifecycle.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('trace')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-trace" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -576,18 +577,18 @@ rule +!log_trace(string rid) {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-outcome" data-group="invocation" onclick="toggleRow('outcome')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">outcome(resultId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-outcome" data-group="invocation">
+                <td><code class="cmd-name">outcome(resultId)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Get the outcome name (e.g. <code>VALIDATED</code>, <code>INVALID</code>, <code>GOVERNANCE_DENIED</code>).</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('outcome')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-outcome" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -614,18 +615,18 @@ rule +!deliberate_result(string rid) : gl.valid(rid) == false {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-knowledge" data-group="invocation" onclick="toggleRow('knowledge')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">knowledge(agentId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-knowledge" data-group="invocation">
+                <td><code class="cmd-name">knowledge(agentId)</code></td>
                 <td><span class="badge-str">String</span></td>
                 <td>Retrieve all accepted knowledge formatted as semicolon-separated key-value entries.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('knowledge')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-knowledge" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -655,18 +656,18 @@ rule +!share_context(string targetAgent) {
               </tr>
  
               <!-- Deliberation -->
-              <tr class="cmd-row" id="row-admissible" data-group="deliberation" onclick="toggleRow('admissible')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">admissible(candidateId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-admissible" data-group="deliberation">
+                <td><code class="cmd-name">admissible(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Check whether the candidate currently satisfies all active governance policies.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('admissible')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-admissible" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -692,18 +693,18 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-accept" data-group="deliberation" onclick="toggleRow('accept')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">accept(candidateId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-accept" data-group="deliberation">
+                <td><code class="cmd-name">accept(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Explicit adoption of the candidate, incorporating its fields into the agent's beliefs.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('accept')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-accept" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
@@ -729,18 +730,18 @@ rule +!deliberate_candidate(string cid) : gl.admissible(cid) == true {
                 </td>
               </tr>
  
-              <tr class="cmd-row" id="row-reject" data-group="deliberation" onclick="toggleRow('reject')">
-                <td>
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <code class="cmd-name">reject(candidateId)</code>
-                    <span class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></span>
-                  </div>
-                </td>
+              <tr class="cmd-row" id="row-reject" data-group="deliberation">
+                <td><code class="cmd-name">reject(candidateId)</code></td>
                 <td><span class="badge-bool">boolean</span></td>
                 <td>Reject a candidate output, refusing adoption.</td>
+                <td style="text-align: center;">
+                  <button class="view-example-btn" onclick="toggleRow('reject')" title="View Examples">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </td>
               </tr>
               <tr class="cmd-details-row" id="details-reject" style="display: none;">
-                <td colspan="3" style="padding: 0;">
+                <td colspan="4" style="padding: 0;">
                   <div class="cmd-details-content">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                       <span style="font-family: var(--font-heading); font-weight: 700; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Syntax & Usage Examples</span>
