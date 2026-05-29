@@ -232,7 +232,7 @@
           </div>
           <div class="pattern-detail" id="detail-simple-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 1: Simple Validation ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 1: Simple Validation ===
 [GL] Provider (auto-detected): gemini
 Valid output &rarr; ACCEPTED: fruit</code></pre>
               <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM classifies "apple" and returns <code>label=fruit</code>. The schema is valid, so the agent accepts. If the LLM fails or returns malformed output, the agent prints <code>Invalid output &rarr; REJECTED</code>.</p>
@@ -383,7 +383,7 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
           </div>
           <div class="pattern-detail" id="detail-content-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 2: Content Inspection ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 2: Content Inspection ===
 [GL] Provider (auto-detected): gemini
 Known category &rarr; ACCEPTED: fruit</code></pre>
               <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns <code>label=fruit</code>, which matches the agent's known categories (fruit, vegetable, grain). If the LLM returned "legume" instead, the agent would reject it as an unknown category.</p>
@@ -534,7 +534,7 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
           </div>
           <div class="pattern-detail" id="detail-confidence-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 3: Confidence Threshold ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 3: Confidence Threshold ===
 [GL] Provider (auto-detected): gemini
 Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
               <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns a confidence score alongside its classification. Scores above 0.8 are accepted, 0.5&ndash;0.8 escalated, and below 0.5 rejected. Actual thresholds are configurable by the developer.</p>
@@ -679,7 +679,7 @@ Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
           </div>
           <div class="pattern-detail" id="detail-crossllm-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 4: Cross-LLM Verification ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 4: Cross-LLM Verification ===
 [GL] Provider 1 (Gemini): label=fruit
 [GL] Provider 2 (OpenAI): agreement=yes
 Both LLMs agree &mdash; ACCEPTED</code></pre>
@@ -790,7 +790,7 @@ known_food(<span class="string">"fruit"</span>). known_food(<span class="string"
           </div>
           <div class="pattern-detail" id="detail-agentreview-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 5: Agent-to-Agent Review ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 5: Agent-to-Agent Review ===
 [GL] Provider (auto-detected): gemini
 [agentA] Sending to peer for review: fruit
 [agentB] Reviewing &mdash; known_food(fruit) &rarr; APPROVED
@@ -932,7 +932,7 @@ category(<span class="string">"apple"</span>, <span class="string">"fruit"</span
           </div>
           <div class="pattern-detail" id="detail-belief-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 6: Belief Consistency ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 6: Belief Consistency ===
 [GL] Provider (auto-detected): gemini
 Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
               <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The agent already believes <code>category("apple", "fruit")</code>. The LLM confirms this &mdash; so the result is accepted as consistent. If the LLM said "vegetable", it would be rejected as a contradiction. For unknown items, the agent adopts the answer as new knowledge.</p>
@@ -1048,7 +1048,7 @@ Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
           </div>
           <div class="pattern-detail" id="detail-voting-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 7: Majority Voting ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 7: Majority Voting ===
 [GL] Provider (auto-detected): gemini
 Provider 1: vegetable | Provider 2: vegetable | Provider 3: fruit
 Majority agrees on 'vegetable' &rarr; ACCEPTED</code></pre>
@@ -1163,7 +1163,7 @@ Majority agrees on 'vegetable' &rarr; ACCEPTED</code></pre>
           </div>
           <div class="pattern-detail" id="detail-refinement-result" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:var(--color-code-bg);padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 8: Iterative Refinement ===
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 8: Iterative Refinement ===
 [GL] Provider (auto-detected): gemini
 Draft generated (valid) &rarr; requesting critique
 Critique received (valid) &rarr; refining
