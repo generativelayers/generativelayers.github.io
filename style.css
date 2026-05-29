@@ -1473,3 +1473,176 @@ pre code {
 .concept-details li:last-child {
   margin-bottom: 0;
 }
+
+/* ================================================================
+   Mobile-Responsive Commands Table Stacking (Zero Horizontal Scroll)
+   ================================================================ */
+@media (max-width: 768px) {
+  .table-container {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    overflow-x: visible;
+    margin-bottom: 24px;
+  }
+
+  .commands-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important; /* Override desktop min-width */
+  }
+
+  .commands-table thead {
+    display: none; /* Hide column headings on mobile */
+  }
+
+  .commands-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  /* Each row transforms into a clean, standalone card */
+  .commands-table tr.cmd-row {
+    display: grid !important;
+    grid-template-areas:
+      "name usage"
+      "type usage"
+      "desc desc";
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.25s var(--ease);
+  }
+
+  .commands-table tr.cmd-row:hover {
+    border-color: var(--color-green-600);
+    box-shadow: var(--shadow-sm);
+    background: var(--color-surface) !important;
+  }
+
+  .commands-table tr.cmd-row td {
+    display: block !important;
+    padding: 0 !important;
+    border: none !important;
+    width: 100% !important;
+    background: transparent !important;
+  }
+
+  .commands-table tr.cmd-row td:nth-child(1) {
+    grid-area: name;
+    display: flex;
+    align-items: center;
+  }
+
+  .commands-table tr.cmd-row td:nth-child(2) {
+    grid-area: type;
+    display: flex;
+    align-items: center;
+  }
+
+  .commands-table tr.cmd-row td:nth-child(3) {
+    grid-area: desc;
+    font-size: 14.5px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    padding-top: 4px !important;
+  }
+
+  .commands-table tr.cmd-row td:nth-child(4) {
+    grid-area: usage;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    align-self: center;
+  }
+
+  /* When expanded on mobile, merge the card with the details row */
+  .commands-table tr.cmd-row.expanded {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: transparent;
+    margin-bottom: 0;
+    box-shadow: none;
+    background: #fbfdfc !important;
+  }
+
+  .commands-table tr.cmd-details-row {
+    display: block !important;
+    background: transparent !important;
+    margin-bottom: 16px;
+    border: none !important;
+  }
+
+  .commands-table tr.cmd-details-row td {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .cmd-details-content {
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md) !important;
+    background: #fbfdfc;
+    transition: all 0.3s var(--ease);
+  }
+
+  .cmd-details-row.open .cmd-details-content {
+    padding: 16px !important;
+    margin-top: 0;
+    border: 1px solid var(--color-border) !important;
+    border-top: none !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Re-align expanded mini-tab headers to stack nicely on mobile */
+  .cmd-details-content div[style*="display: flex"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px;
+    margin-bottom: 12px !important;
+  }
+
+  .mini-tabs {
+    width: 100%;
+    display: flex;
+  }
+
+  .mini-tab-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* ================================================================
+   Flowchart & Search Bar Layout Adjustments
+   ================================================================ */
+@media (max-width: 600px) {
+  .arch-box {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 14px 16px !important;
+  }
+
+  .arch-phase-badge {
+    align-self: flex-start !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .hotkey-badge {
+    display: none !important;
+  }
+
+  .search {
+    padding-right: 16px !important;
+  }
+}
