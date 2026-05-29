@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting Started | Generative Layers</title>
+  <meta name="description" content="Install Generative Layers from Maven Central and start integrating LLMs into your BDI agents in minutes.">
+  <meta name="keywords" content="getting started, maven central, install, BDI agents, LLM integration, Generative Layers">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/getting-started.html">
+  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Generative Layers">
+  <meta property="og:title" content="Getting Started | Generative Layers">
+  <meta property="og:description" content="Install Generative Layers from Maven Central and start integrating LLMs into your BDI agents in minutes.">
+  <meta property="og:url" content="https://www.generativelayers.com/getting-started.html">
+  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Getting Started | Generative Layers">
+  <meta name="twitter:description" content="Install Generative Layers from Maven Central and start integrating LLMs into your BDI agents in minutes.">
+  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Getting Started with Generative Layers",
+    "description": "Install Generative Layers from Maven Central and start integrating LLMs into your BDI agents in minutes.",
+    "url": "https://www.generativelayers.com/getting-started.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Generative Layers",
+      "url": "https://www.generativelayers.com/"
+    }
+  }
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=3.5">
+  <script defer src="js/search.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="top">
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search…" aria-label="Search">
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="side" id="sidebar">
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a class="active" href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Getting Started</h1>
+      <p class="lead">Install Generative Layers from Maven Central and start integrating LLMs into your BDI agents in minutes.</p>
+
+      <section class="info-panel" id="install">
+        <h2><i class="fa-solid fa-download" style="margin-right:8px;color:var(--color-green-700);"></i>Install</h2>
+        <p>Generative Layers is available on <strong>Maven Central</strong>. Add it to your project with one dependency.</p>
+
+        <!-- Install Tabs -->
+        <div class="command-filters" style="margin-bottom:16px;">
+          <button class="filter-btn active" onclick="switchInstallTab('maven')" id="install-tab-maven">Maven</button>
+          <button class="filter-btn" onclick="switchInstallTab('gradle')" id="install-tab-gradle">Gradle</button>
+        </div>
+
+        <div id="install-maven" class="install-block">
+          <div class="tabs-container" style="position:relative;margin:0;">
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;<span class="string">com.generativelayers</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="string">generative-layers-core</span>&lt;/artifactId&gt;
+    &lt;version&gt;<span class="string">0.1.0</span>&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            <button class="copy-btn" onclick="copySnippet(this, '&lt;dependency&gt;\n    &lt;groupId&gt;com.generativelayers&lt;/groupId&gt;\n    &lt;artifactId&gt;generative-layers-core&lt;/artifactId&gt;\n    &lt;version&gt;0.1.0&lt;/version&gt;\n&lt;/dependency&gt;')" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#8f929d;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="install-gradle" class="install-block" style="display:none;">
+          <div class="tabs-container" style="position:relative;margin:0;">
+            <pre><code>implementation '<span class="string">com.generativelayers</span>:<span class="string">generative-layers-core</span>:<span class="string">0.1.0</span>'</code></pre>
+            <button class="copy-btn" onclick="copySnippet(this, &quot;implementation 'com.generativelayers:generative-layers-core:0.1.0'&quot;)" title="Copy to clipboard" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#8f929d;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;transition:all 0.2s;">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <a href="https://central.sonatype.com/artifact/com.generativelayers/generative-layers-core" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-green-700);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Maven Central
+          </a>
+          <span style="margin:0 12px;color:var(--color-border);">|</span>
+          <a href="https://github.com/generativelayers/framework" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:var(--color-green-700);font-size:14px;text-decoration:none;opacity:0.85;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+            <i class="fa-brands fa-github"></i> Source on GitHub
+          </a>
+        </div>
+      </section>
+
+      <section class="info-panel" id="prerequisites">
+        <h2><i class="fa-solid fa-list-check" style="margin-right:8px;color:var(--color-green-700);"></i>Prerequisites</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+
+          <!-- Java 17+ -->
+          <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('java')">
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-brands fa-java" style="font-size:20px;color:#f89820;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">Java 17+</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">JDK 17 or higher required.</span>
+              </div>
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('java')">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div class="prereq-details" id="prereq-java" style="display:none;" onclick="event.stopPropagation()">
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Verify your Java version:</div>
+                <div class="tabs-container" style="margin:0;">
+                  <pre style="padding:14px 18px;"><code>$ java -version
+openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
+                </div>
+                <div style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">
+                  Download from <a href="https://adoptium.net/" target="_blank" rel="noopener" style="color:var(--color-green-700);">Adoptium</a> or <a href="https://www.oracle.com/java/technologies/downloads/" target="_blank" rel="noopener" style="color:var(--color-green-700);">Oracle JDK</a>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- API Key -->
+          <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('apikey')">
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-solid fa-key" style="font-size:16px;color:#4ade80;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">API Key</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">A Gemini or OpenAI API key.</span>
+              </div>
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('apikey')">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div class="prereq-details" id="prereq-apikey" style="display:none;" onclick="event.stopPropagation()">
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Set your key as an environment variable:</div>
+                <div class="tabs-container" style="margin:0;">
+                  <pre style="padding:14px 18px;"><code><span class="comment"># Gemini</span>
+$ export GEMINI_API_KEY=<span class="string">"AIzaSy...your-key-here"</span>
+
+<span class="comment"># OpenAI</span>
+$ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span></code></pre>
+                </div>
+                <div style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">
+                  Get a key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--color-green-700);">Google AI Studio</a> or <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">OpenAI Platform</a>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Platform -->
+          <div class="card prereq-card" style="padding:0;cursor:pointer;" onclick="togglePrereq('platform')">
+            <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <i class="fa-solid fa-robot" style="font-size:16px;color:#60a5fa;flex-shrink:0;width:24px;text-align:center;"></i>
+              <div style="flex:1;min-width:0;">
+                <span style="font-weight:600;font-size:14px;">Agent Platform</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">ASTRA, Jason, or JaCaMo.</span>
+              </div>
+              <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('platform')">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div class="prereq-details" id="prereq-platform" style="display:none;" onclick="event.stopPropagation()">
+              <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 6px;">Choose your BDI agent platform:</div>
+                <ul style="font-size:13px;color:var(--color-text-secondary);margin:0;padding-left:18px;line-height:1.8;">
+                  <li><a href="https://astralanguage.com/" target="_blank" rel="noopener" style="color:var(--color-green-700);font-weight:600;">ASTRA</a> — Teleo-reactive Java agent language</li>
+                  <li><a href="https://jason-lang.github.io/" target="_blank" rel="noopener" style="color:var(--color-green-700);font-weight:600;">Jason</a> — AgentSpeak(L) interpreter</li>
+                  <li><a href="https://jacamo-lang.github.io/" target="_blank" rel="noopener" style="color:var(--color-green-700);font-weight:600;">JaCaMo</a> — Jason + CArtAgO + Moise</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="info-panel" id="quick-example">
+        <h2><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-green-700);"></i>What it looks like</h2>
+        <p>A one-call invocation with governed validation. See the full lifecycle across all three platforms in the <a href="framework.html#platform-syntax" style="color:var(--color-green-700);font-weight:600;">Platform syntax comparison</a>.</p>
+        <div class="tabs-container" style="margin:12px 0;">
+          <pre><code><span class="comment">// Jason — ask, validate, adopt</span>
+gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);
+gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+
++!decide(Rid) : gl.valid(Rid, true) <-
+    gl.field(Rid, <span class="string">"label"</span>, Label);
+    gl.candidate(Rid, Cid);
+    gl.accept(Cid);
+    .print(<span class="string">"Adopted: "</span>, Label).</code></pre>
+        </div>
+
+        <div class="card" style="padding:16px;margin-top:16px;border-left:3px solid var(--color-green-700);">
+          <div style="font-weight:600;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;color:var(--color-green-700);"></i>What just happened?</div>
+          <ol style="font-size:13px;color:var(--color-text-secondary);margin:0;padding-left:20px;line-height:1.7;">
+            <li><strong>configure + use_provider</strong> — selected Gemini as the active LLM provider.</li>
+            <li><strong>ask</strong> — sent a prompt through the governance pipeline → provider → returned a result ID.</li>
+            <li><strong>valid</strong> — checked if the LLM output passed schema validation.</li>
+            <li><strong>field</strong> — extracted the <code>label</code> value from the validated JSON response.</li>
+            <li><strong>candidate → accept</strong> — promoted the result from <em>candidate</em> to <em>adopted knowledge</em>.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="info-panel" id="next-steps">
+        <h2><i class="fa-solid fa-arrow-right" style="margin-right:8px;color:var(--color-green-700);"></i>Next steps</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+          <a href="framework.html" class="card" style="display:flex;align-items:center;gap:12px;padding:14px 18px;text-decoration:none;color:var(--color-text);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--color-green-700)'" onmouseout="this.style.borderColor=''">
+            <i class="fa-solid fa-layer-group" style="font-size:18px;color:var(--color-green-700);flex-shrink:0;"></i>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:14px;">Framework reference</div>
+              <div style="font-size:12px;color:var(--color-text-secondary);">Architecture, core concepts, the 16-command API, and platform syntax comparison.</div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--color-text-muted);font-size:12px;"></i>
+          </a>
+          <a href="https://github.com/generativelayers/examples" target="_blank" rel="noopener" class="card" style="display:flex;align-items:center;gap:12px;padding:14px 18px;text-decoration:none;color:var(--color-text);transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--color-green-700)'" onmouseout="this.style.borderColor=''">
+            <i class="fa-brands fa-github" style="font-size:18px;flex-shrink:0;"></i>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:14px;">Browse full examples</div>
+              <div style="font-size:12px;color:var(--color-text-secondary);">6 complete projects across ASTRA, Jason, and JaCaMo.</div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--color-text-muted);font-size:12px;"></i>
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // --- Mobile sidebar toggle ---
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarBackdrop').classList.toggle('open');
+    });
+    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.remove('open');
+      this.classList.remove('open');
+    });
+
+    // --- Install Tab Switcher ---
+    window.switchInstallTab = function(tab) {
+      document.getElementById('install-maven').style.display = tab === 'maven' ? '' : 'none';
+      document.getElementById('install-gradle').style.display = tab === 'gradle' ? '' : 'none';
+      document.getElementById('install-tab-maven').classList.toggle('active', tab === 'maven');
+      document.getElementById('install-tab-gradle').classList.toggle('active', tab === 'gradle');
+    };
+
+    // --- Copy Snippet to Clipboard ---
+    window.copySnippet = function(btn, text) {
+      var tmp = document.createElement('textarea');
+      tmp.innerHTML = text;
+      navigator.clipboard.writeText(tmp.value).then(function() {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(function() { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 1500);
+      });
+    };
+
+    // --- Prerequisite Card Toggle ---
+    window.togglePrereq = function(id) {
+      var el = document.getElementById('prereq-' + id);
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        el.style.maxHeight = '0';
+        el.style.overflow = 'hidden';
+        el.style.transition = 'max-height 0.3s ease';
+        requestAnimationFrame(function() {
+          el.style.maxHeight = el.scrollHeight + 'px';
+        });
+      } else {
+        el.style.maxHeight = '0';
+        setTimeout(function() { el.style.display = 'none'; }, 300);
+      }
+    };
+  </script>
+
+</body>
+</html>
