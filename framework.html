@@ -469,9 +469,9 @@ rule +!request_rag(string agent, string goal, string prompt) {
               </tr>
  
               <tr class="cmd-row" id="row-ask" data-group="invocation">
-                <td><code class="cmd-name">ask(agentId, goalId, prompt)</code></td>
+                <td><code class="cmd-name">ask(agentId, goalId, prompt, [conversationId])</code></td>
                 <td><span class="badge-str">String</span></td>
-                <td>Shorthand LLM invocation using the baseline standard answer affordance.</td>
+                <td>Shorthand LLM invocation. Supports an optional <code>conversationId</code> to enable multi-turn conversation memory/context.</td>
                 <td style="text-align: center;">
                   <button class="view-example-btn" onclick="toggleRow('ask')" title="View Examples">
                     <i class="fa-solid fa-eye"></i>
@@ -492,16 +492,28 @@ rule +!request_rag(string agent, string goal, string prompt) {
                     <div class="mini-code-container">
                       <div class="mini-code-block active" id="code-ask-astra"><pre><code><span class="comment">// ASTRA</span>
 rule +!request_support(string agent, string goal, string prompt) {
+    <span class="comment">// Stateless (defaults conversationId to "")</span>
     string rid = gl.ask(agent, goal, prompt);
+    
+    <span class="comment">// Stateful Multi-Turn (retains history under conversation thread ID)</span>
+    string rid_stateful = gl.ask(agent, goal, prompt, "convo-thread-1");
     !decide_result(rid);
 }</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jason"><pre><code><span class="comment">// Jason</span>
 +!request_support(Agent, Goal, Prompt) <-
+    <span class="comment">// Stateless (defaults conversationId to "")</span>
     gl.ask(Agent, Goal, Prompt, Rid);
+    
+    <span class="comment">// Stateful Multi-Turn (retains history under conversation thread ID)</span>
+    gl.ask(Agent, Goal, Prompt, "convo-thread-1", RidStateful);
     !decide_result(Rid).</code></pre></div>
                       <div class="mini-code-block" id="code-ask-jacamo"><pre><code><span class="comment">// JaCaMo</span>
 +!request_support(Agent, Goal, Prompt) <-
-    ask(Agent, Goal, Prompt, Rid).</code></pre></div>
+    <span class="comment">// Stateless (defaults conversationId to "")</span>
+    ask(Agent, Goal, Prompt, Rid);
+    
+    <span class="comment">// Stateful Multi-Turn (retains history under conversation thread ID)</span>
+    ask(Agent, Goal, Prompt, "convo-thread-1", RidStateful).</code></pre></div>
                     </div>
                   </div>
                 </td>
