@@ -160,7 +160,7 @@ openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
               <i class="fa-solid fa-key" style="font-size:16px;color:#4ade80;flex-shrink:0;width:24px;text-align:center;"></i>
               <div style="flex:1;min-width:0;">
                 <span style="font-weight:600;font-size:14px;">API Key</span>
-                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">A Gemini or OpenAI API key.</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">From any supported provider — Cerebras, Groq, Gemini, OpenAI, or DeepSeek.</span>
               </div>
               <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('apikey')">
                 <i class="fa-solid fa-eye"></i>
@@ -170,14 +170,23 @@ openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
               <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
                 <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Set your key as an environment variable:</div>
                 <div class="tabs-container" style="margin:0;">
-                  <pre style="padding:14px 18px;"><code><span class="comment"># Gemini</span>
+                  <pre style="padding:14px 18px;"><code><span class="comment"># Cerebras (free, no credit card)</span>
+$ export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span>
+
+<span class="comment"># Groq (free tier: 30 req/min)</span>
+$ export GROQ_API_KEY=<span class="string">"gsk_...your-key-here"</span>
+
+<span class="comment"># Gemini (free tier: 15 req/min)</span>
 $ export GEMINI_API_KEY=<span class="string">"AIzaSy...your-key-here"</span>
 
 <span class="comment"># OpenAI</span>
-$ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span></code></pre>
+$ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span>
+
+<span class="comment"># DeepSeek</span>
+$ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></code></pre>
                 </div>
                 <div style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">
-                  Get a key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--color-green-700);">Google AI Studio</a> or <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">OpenAI Platform</a>.
+                  Get a free key from <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener" style="color:var(--color-green-700);">Cerebras</a>, <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">Groq</a>, <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--color-green-700);">Google AI Studio</a>, <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">OpenAI</a>, or <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">DeepSeek</a>. See <a href="providers.html" style="color:var(--color-green-700);font-weight:600;">Providers</a> for full details.
                 </div>
               </div>
             </div>
