@@ -8,12 +8,159 @@
 
 const PAGES = [
   'index.html',
+  'getting-started.html',
   'framework.html',
+  'patterns.html',
+  'providers.html',
   'research.html',
   'repositories.html'
 ];
 
 let searchIndex = null; // built lazily on first interaction
+
+/* --- Mobile viewport and tap-target hardening --- */
+function installMobileFixes() {
+  if (document.getElementById('gl-mobile-fixes')) return;
+
+  const style = document.createElement('style');
+  style.id = 'gl-mobile-fixes';
+  style.textContent = `
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .top {
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    .header-inner,
+    .search-wrapper,
+    .main,
+    .info-panel,
+    .card,
+    .repo-grid,
+    .concept-card,
+    .concept-header,
+    .concept-details {
+      min-width: 0;
+    }
+
+    .menu-toggle {
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      z-index: 240;
+    }
+
+    body.sidebar-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 900px) {
+      .top {
+        padding-left: clamp(10px, 3vw, 24px);
+        padding-right: clamp(10px, 3vw, 24px);
+      }
+
+      .header-inner {
+        max-width: none;
+        gap: 12px;
+      }
+
+      .search-wrapper {
+        flex: 1 1 auto;
+        max-width: none;
+      }
+
+      .side {
+        width: min(86vw, 280px);
+        z-index: 220;
+      }
+
+      .sidebar-backdrop {
+        z-index: 210;
+      }
+
+      .search-results {
+        z-index: 260;
+      }
+    }
+
+    @media (max-width: 500px) {
+      :root {
+        --header-height: 68px;
+      }
+
+      .top {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .header-inner {
+        gap: 8px;
+      }
+
+      .header-logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .search {
+        min-width: 0;
+        padding: 10px 14px 10px 38px;
+        font-size: 16px;
+      }
+
+      .search-icon {
+        left: 14px;
+      }
+
+      .search-results {
+        position: fixed;
+        top: calc(var(--header-height) + 8px);
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: min(55vh, 420px);
+        overflow-y: auto;
+      }
+
+      .main {
+        width: 100%;
+        max-width: 100%;
+        padding: 28px 18px 56px;
+      }
+
+      .info-panel {
+        padding: 22px 18px;
+      }
+
+      .card,
+      .concept-card {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+
+      .concept-header {
+        align-items: flex-start;
+      }
+
+      h1 {
+        overflow-wrap: anywhere;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
 
 /* --- Crawl all pages and build search index --- */
 async function buildIndex() {
@@ -213,12 +360,15 @@ function snippet(text, tokens) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  installMobileFixes();
 
   /* ==== Search ==== */
   const input = document.querySelector('.search');
+  let results = null;
+
   if (input) {
     const wrapper = input.closest('.search-wrapper');
-    const results = document.createElement('div');
+    results = document.createElement('div');
     results.className = 'search-results';
     wrapper.appendChild(results);
 
@@ -355,18 +505,56 @@ document.addEventListener('DOMContentLoaded', () => {
   const backdrop = document.getElementById('sidebarBackdrop');
 
   if (toggle && sidebar) {
+    toggle.setAttribute('aria-controls', sidebar.id || 'sidebar');
+    toggle.setAttribute('aria-expanded', 'false');
+
+    function hideSearch() {
+      if (results) {
+        results.innerHTML = '';
+        results.style.display = 'none';
+      }
+      if (input) input.blur();
+    }
+
     function openSidebar() {
+      hideSearch();
       sidebar.classList.add('open');
       if (backdrop) backdrop.classList.add('open');
+      document.body.classList.add('sidebar-open');
+      toggle.setAttribute('aria-expanded', 'true');
     }
+
     function closeSidebar() {
       sidebar.classList.remove('open');
       if (backdrop) backdrop.classList.remove('open');
+      document.body.classList.remove('sidebar-open');
+      toggle.setAttribute('aria-expanded', 'false');
     }
-    toggle.addEventListener('click', () => {
+
+    function toggleSidebar(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-    });
+    }
+
+    toggle.addEventListener('click', toggleSidebar);
+
+    if (window.PointerEvent) {
+      toggle.addEventListener('pointerup', event => {
+        if (event.pointerType === 'touch') toggleSidebar(event);
+      }, { passive: false });
+    } else {
+      toggle.addEventListener('touchend', toggleSidebar, { passive: false });
+    }
+
     if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+    sidebar.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeSidebar);
+    });
+
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeSidebar();
     });
