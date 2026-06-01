@@ -463,6 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const backdrop = document.getElementById('sidebarBackdrop');
 
   if (toggle && sidebar) {
+    let lastMenuTapAt = 0;
+
     toggle.setAttribute('type', 'button');
     toggle.setAttribute('aria-controls', sidebar.id || 'sidebar');
     toggle.setAttribute('aria-expanded', 'false');
@@ -490,19 +492,35 @@ document.addEventListener('DOMContentLoaded', () => {
       toggle.setAttribute('aria-expanded', 'false');
     }
 
-    function toggleSidebar(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
+    function consume(event) {
+      if (!event) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
       }
+    }
+
+    function toggleSidebar(event) {
+      consume(event);
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    }
+
+    function activateMenu(event) {
+      const now = Date.now();
+      if (now - lastMenuTapAt < 700) {
+        consume(event);
+        return;
+      }
+      lastMenuTapAt = now;
+      toggleSidebar(event);
     }
 
     function tapWithinToggle(event) {
       const touch = event.touches ? event.touches[0] : event;
       if (!touch) return false;
       const rect = toggle.getBoundingClientRect();
-      const padding = 12;
+      const padding = 16;
       const x = touch.clientX;
       const y = touch.clientY;
       return x >= rect.left - padding &&
@@ -511,17 +529,15 @@ document.addEventListener('DOMContentLoaded', () => {
              y <= rect.bottom + padding;
     }
 
-    // Chrome mobile sometimes gives the first tap to the focused search input / keyboard.
-    // Capture the physical tap by coordinates before blur/click retargeting can steal it.
     document.addEventListener('pointerdown', event => {
-      if (tapWithinToggle(event)) toggleSidebar(event);
+      if (tapWithinToggle(event)) activateMenu(event);
     }, { capture: true, passive: false });
 
     document.addEventListener('touchstart', event => {
-      if (tapWithinToggle(event)) toggleSidebar(event);
+      if (tapWithinToggle(event)) activateMenu(event);
     }, { capture: true, passive: false });
 
-    toggle.addEventListener('click', toggleSidebar);
+    toggle.addEventListener('click', activateMenu, { capture: true });
 
     if (backdrop) backdrop.addEventListener('click', closeSidebar);
     sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeSidebar));
