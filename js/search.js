@@ -13,6 +13,8 @@ const PAGES = [
 ];
 
 let searchIndex = null;
+let lockedScrollY = 0;
+let isSidebarLocked = false;
 
 function installMobileFixes() {
   if (document.getElementById('gl-mobile-fixes')) return;
@@ -25,6 +27,19 @@ function installMobileFixes() {
       width: 100%;
       max-width: 100%;
       overflow-x: hidden;
+    }
+
+    html.sidebar-open,
+    body.sidebar-open {
+      overflow: hidden !important;
+      overscroll-behavior: none;
+    }
+
+    body.sidebar-open {
+      position: fixed;
+      left: 0;
+      right: 0;
+      width: 100%;
     }
 
     .top {
@@ -78,10 +93,6 @@ function installMobileFixes() {
       z-index: 1;
     }
 
-    body.sidebar-open {
-      overflow: hidden;
-    }
-
     @media (max-width: 900px) {
       .top {
         padding-left: 8px;
@@ -104,13 +115,34 @@ function installMobileFixes() {
       }
 
       .side {
-        width: min(86vw, 280px);
-        max-width: 86vw;
+        position: fixed !important;
+        top: var(--header-height) !important;
+        left: 0 !important;
+        width: min(82vw, 320px) !important;
+        max-width: 320px !important;
+        height: calc(100dvh - var(--header-height)) !important;
+        max-height: calc(100dvh - var(--header-height)) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         z-index: 9998 !important;
+        transform: translate3d(-100%, 0, 0);
+        will-change: transform;
+      }
+
+      .side.open {
+        transform: translate3d(0, 0, 0) !important;
       }
 
       .sidebar-backdrop {
+        position: fixed !important;
+        top: var(--header-height) !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        height: calc(100dvh - var(--header-height)) !important;
         z-index: 9997 !important;
+        overscroll-behavior: none;
       }
 
       .search-results {
@@ -328,6 +360,26 @@ function snippet(text, tokens) {
   return s;
 }
 
+function lockPageScroll() {
+  if (isSidebarLocked) return;
+
+  lockedScrollY = window.scrollY || window.pageYOffset || 0;
+  document.documentElement.classList.add('sidebar-open');
+  document.body.classList.add('sidebar-open');
+  document.body.style.top = `-${lockedScrollY}px`;
+  isSidebarLocked = true;
+}
+
+function unlockPageScroll() {
+  if (!isSidebarLocked) return;
+
+  document.documentElement.classList.remove('sidebar-open');
+  document.body.classList.remove('sidebar-open');
+  document.body.style.top = '';
+  isSidebarLocked = false;
+  window.scrollTo(0, lockedScrollY);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   installMobileFixes();
 
@@ -481,14 +533,14 @@ document.addEventListener('DOMContentLoaded', () => {
       hideSearch();
       sidebar.classList.add('open');
       if (backdrop) backdrop.classList.add('open');
-      document.body.classList.add('sidebar-open');
+      lockPageScroll();
       toggle.setAttribute('aria-expanded', 'true');
     }
 
     function closeSidebar() {
       sidebar.classList.remove('open');
       if (backdrop) backdrop.classList.remove('open');
-      document.body.classList.remove('sidebar-open');
+      unlockPageScroll();
       toggle.setAttribute('aria-expanded', 'false');
     }
 
@@ -537,10 +589,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tapWithinToggle(event)) activateMenu(event);
     }, { capture: true, passive: false });
 
+    document.addEventListener('touchmove', event => {
+      if (!document.body.classList.contains('sidebar-open')) return;
+      if (!event.target.closest('#sidebar')) event.preventDefault();
+    }, { passive: false });
+
     toggle.addEventListener('click', activateMenu, { capture: true });
 
     if (backdrop) backdrop.addEventListener('click', closeSidebar);
     sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeSidebar));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900 && sidebar.classList.contains('open')) closeSidebar();
+    });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeSidebar();
     });
