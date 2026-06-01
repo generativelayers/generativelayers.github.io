@@ -255,6 +255,29 @@ a:hover {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   min-height: calc(100vh - var(--header-height));
+  position: relative;
+}
+
+/* Paint the sidebar background across the full page height,
+   not just the sticky viewport slice */
+.layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--color-sidebar);
+  z-index: 0;
+}
+
+.layout > .side {
+  z-index: 1;
+}
+
+.layout > .main {
+  position: relative;
+  z-index: 1;
 }
 
 /* --- Sidebar --- */
@@ -677,6 +700,10 @@ p, li {
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .layout::before {
+    display: none;
   }
 
   .side {
