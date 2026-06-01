@@ -139,71 +139,154 @@
     <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
     <span class="keyword">module</span> Console console;
 
-    <span class="keyword">rule</span> +!main(list args) {
-        console.println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
-        gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-        gl.use_provider(<span class="string">"cerebras"</span>);
-        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
-        !decide(rid);
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> llm_result(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> validated(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> classified(<span class="keyword">string</span>);
     }
 
-    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        string cid = gl.candidate(rid);
-        gl.accept(cid);
-        console.println(<span class="string">"Valid output &rarr; ACCEPTED: "</span> + gl.field(rid, <span class="string">"label"</span>));
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
+
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> validated(<span class="keyword">string</span> rid) :- accepted(rid);
+
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !validated(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"convo1"</span>));
     }
 
-    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">false</span> {
+    <span class="comment">// ACHIEVEMENT: setup (actions only)</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) : validated(rid) {
+        console.println(<span class="string">"Already validated: "</span> + rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
+    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        gl.accept(gl.candidate(rid));
+        +accepted(rid);
+        +classified(gl.field(rid, <span class="string">"label"</span>));
+        ?validated(rid);
+        console.println(<span class="string">"ACCEPTED: "</span> + gl.field(rid, <span class="string">"label"</span>));
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
+    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) {
         console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!validated(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Validation FAILED for "</span> + rid);
     }
 }</code></pre>
           </div>
           <div class="tab-content" id="p1-jason">
-            <pre><code>!start.
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 
+<span class="comment">// DOMAIN MODEL</span>
+validated(Rid) :- accepted(Rid).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
-      gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      gl.use_provider(<span class="string">"cerebras"</span>);
+   &lt;- !configured(<span class="keyword">true</span>);
       gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !decide(Rid).
+      !validated(Rid).
 
-+!decide(Rid)
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!validated(Rid)
+   :  validated(Rid)
+   &lt;- .println(<span class="string">"Already validated: "</span>, Rid).
+
+<span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
++!validated(Rid)
    :  gl.valid(Rid, <span class="keyword">true</span>)
    &lt;- gl.candidate(Rid, Cid);
       gl.accept(Cid);
+      +accepted(Rid);
       gl.field(Rid, <span class="string">"label"</span>, Label);
-      .println(<span class="string">"Valid output -&gt; ACCEPTED: "</span>, Label);
-      .stopMAS.
+      +classified(Label);
+      ?validated(Rid);
+      .println(<span class="string">"ACCEPTED: "</span>, Label).
 
-+!decide(Rid)
-   :  gl.valid(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
-      .stopMAS.</code></pre>
+<span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
++!validated(Rid)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!validated(Rid)
+   &lt;- .println(<span class="string">"Validation FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p1-jacamo">
-            <pre><code>!start.
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 
+<span class="comment">// DOMAIN MODEL</span>
+validated(Rid) :- accepted(Rid).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 1: Simple Validation ==="</span>);
-      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId);
-      configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      use_provider(<span class="string">"cerebras"</span>);
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
       ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      valid(Rid, IsValid);
-      !decide(Rid, IsValid).
+      !validated(Rid).
 
-+!decide(Rid, <span class="keyword">true</span>)
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!validated(Rid)
+   :  validated(Rid)
+   &lt;- .println(<span class="string">"Already validated: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!validated(Rid)
+   &lt;- valid(Rid, IsValid);
+      !validated_branch(Rid, IsValid).
+
+<span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
++!validated_branch(Rid, <span class="keyword">true</span>)
    &lt;- candidate(Rid, Cid);
       accept(Cid);
+      +accepted(Rid);
       field(Rid, <span class="string">"label"</span>, Label);
-      .println(<span class="string">"Valid output -&gt; ACCEPTED: "</span>, Label);
-      .stopMAS.
+      +classified(Label);
+      ?validated(Rid);
+      .println(<span class="string">"ACCEPTED: "</span>, Label).
 
-+!decide(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
-      .stopMAS.</code></pre>
+<span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
++!validated_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!validated(Rid)
+   &lt;- .println(<span class="string">"Validation FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-1-simple-validation/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-1-simple-validation/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-1-simple-validation/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -273,98 +356,194 @@ Valid output &rarr; ACCEPTED: fruit</code></pre>
     <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
     <span class="keyword">module</span> Console console;
 
-    <span class="keyword">types</span> pattern_types {
-        <span class="keyword">formula</span> known(string);
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> inspected(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> known(<span class="keyword">string</span>);
     }
 
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
     <span class="keyword">initial</span> known(<span class="string">"fruit"</span>), known(<span class="string">"vegetable"</span>), known(<span class="string">"grain"</span>);
 
-    <span class="keyword">rule</span> +!main(list args) {
-        console.println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
-        gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-        gl.use_provider(<span class="string">"cerebras"</span>);
-        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
-        !decide(rid);
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> inspected(<span class="keyword">string</span> rid) :- accepted(rid);
+
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !inspected(gl.invoke_with_beliefs(
+            <span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+            <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
+            <span class="string">"label,confidence"</span>, <span class="string">"category(apple, fruit)"</span>
+        ));
     }
 
-    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        string label = gl.field(rid, <span class="string">"label"</span>);
-        string cid = gl.candidate(rid);
-        !check_content(cid, label);
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
     }
 
-    <span class="keyword">rule</span> +!check_content(string cid, string label) : known(label) {
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) : inspected(rid) {
+        console.println(<span class="string">"Already inspected: "</span> + rid);
+    }
+
+    <span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
+    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        !known_category(gl.candidate(rid), gl.field(rid, <span class="string">"label"</span>));
+        +accepted(rid);
+        ?inspected(rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid</span>
+    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
+    <span class="keyword">rule</span> +!known_category(<span class="keyword">string</span> cid, <span class="keyword">string</span> label) : known(label) {
         gl.accept(cid);
         console.println(<span class="string">"Known category '"</span> + label + <span class="string">"' &rarr; ACCEPTED"</span>);
     }
 
-    <span class="keyword">rule</span> +!check_content(string cid, string label) : ~known(label) {
+    <span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
+    <span class="keyword">rule</span> +!known_category(<span class="keyword">string</span> cid, <span class="keyword">string</span> label) : ~known(label) {
         gl.reject(cid);
         console.println(<span class="string">"Unknown category '"</span> + label + <span class="string">"' &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!inspected(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Inspection FAILED for "</span> + rid);
     }
 }</code></pre>
           </div>
           <div class="tab-content" id="p2-jason">
-            <pre><code>known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+
+<span class="comment">// DOMAIN MODEL</span>
+inspected(Rid) :- accepted(Rid).
 
 !start.
 
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
-      gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      gl.use_provider(<span class="string">"cerebras"</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !decide(Rid).
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+               <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
+               <span class="string">"label,confidence"</span>, Rid);
+      !inspected(Rid).
 
-+!decide(Rid)
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!inspected(Rid)
+   :  inspected(Rid)
+   &lt;- .println(<span class="string">"Already inspected: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
++!inspected(Rid)
    :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
-      gl.candidate(Rid, Cid);
-      !check_content(Cid, Label).
+   &lt;- gl.candidate(Rid, Cid);
+      gl.field(Rid, <span class="string">"label"</span>, Label);
+      !known_category(Cid, Label);
+      +accepted(Rid);
+      ?inspected(Rid).
 
-+!check_content(Cid, Label)
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!inspected(Rid)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
++!known_category(Cid, Label)
    :  known(Label)
    &lt;- gl.accept(Cid);
-      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' -&gt; ACCEPTED"</span>);
-      .stopMAS.
+      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' &rarr; ACCEPTED"</span>).
 
-+!check_content(Cid, Label)
+<span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
++!known_category(Cid, Label)
    :  not known(Label)
    &lt;- gl.reject(Cid);
-      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' -&gt; REJECTED"</span>);
-      .stopMAS.</code></pre>
+      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!inspected(Rid)
+   &lt;- .println(<span class="string">"Inspection FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p2-jacamo">
-            <pre><code>known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
+
+<span class="comment">// DOMAIN MODEL</span>
+inspected(Rid) :- accepted(Rid).
 
 !start.
 
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 2: Content Inspection ==="</span>);
-      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId);
-      configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      use_provider(<span class="string">"cerebras"</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      valid(Rid, IsValid);
-      !decide(Rid, IsValid).
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+             <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
+             <span class="string">"label,confidence"</span>, Rid);
+      !inspected(Rid).
 
-+!decide(Rid, <span class="keyword">true</span>)
-   &lt;- field(Rid, <span class="string">"label"</span>, Label);
-      candidate(Rid, Cid);
-      !check_content(Cid, Label).
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
 
-+!check_content(Cid, Label)
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!inspected(Rid)
+   :  inspected(Rid)
+   &lt;- .println(<span class="string">"Already inspected: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!inspected(Rid)
+   &lt;- valid(Rid, IsValid);
+      !inspected_branch(Rid, IsValid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
++!inspected_branch(Rid, <span class="keyword">true</span>)
+   &lt;- candidate(Rid, Cid);
+      field(Rid, <span class="string">"label"</span>, Label);
+      !known_category(Cid, Label);
+      +accepted(Rid);
+      ?inspected(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!inspected_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
++!known_category(Cid, Label)
    :  known(Label)
    &lt;- accept(Cid);
-      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' -&gt; ACCEPTED"</span>);
-      .stopMAS.
+      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' &rarr; ACCEPTED"</span>).
 
-+!check_content(Cid, Label)
+<span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
++!known_category(Cid, Label)
    :  not known(Label)
    &lt;- reject(Cid);
-      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' -&gt; REJECTED"</span>);
-      .stopMAS.</code></pre>
+      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!inspected(Rid)
+   &lt;- .println(<span class="string">"Inspection FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-2-content-inspection/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-2-content-inspection/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-2-content-inspection/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -427,101 +606,220 @@ Known category &rarr; ACCEPTED: fruit</code></pre>
             <pre><code><span class="keyword">agent</span> PatternRunner {
     <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
     <span class="keyword">module</span> Console console;
+    <span class="keyword">module</span> System S;
 
-    <span class="keyword">rule</span> +!main(list args) {
-        console.println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
-        gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-        gl.use_provider(<span class="string">"cerebras"</span>);
-        string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
-        !decide(rid);
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> threshold(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> assessed(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> confidence_tier(<span class="keyword">string</span>, <span class="keyword">string</span>);
     }
 
-    <span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        string cid = gl.candidate(rid);
-        string conf = gl.field(rid, <span class="string">"confidence"</span>);
-        !assess(cid, conf);
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
+    <span class="keyword">initial</span> threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>), threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>);
+
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> assessed(<span class="keyword">string</span> rid) :- confidence_tier(rid, <span class="keyword">string</span> _);
+
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !assessed(gl.invoke(
+            <span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+            <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>
+        ));
     }
 
-    <span class="keyword">rule</span> +!assess(string cid, string conf) : conf == <span class="string">"1.0"</span> {
-        gl.accept(cid);
-        console.println(<span class="string">"High confidence (1.0) &rarr; ACCEPTED"</span>);
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
     }
 
-    <span class="keyword">rule</span> +!assess(string cid, string conf) : conf == <span class="string">"0.0"</span> {
-        gl.reject(cid);
-        console.println(<span class="string">"Low confidence (0.0) &rarr; REJECTED"</span>);
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : assessed(rid) {
+        console.println(<span class="string">"Already assessed: "</span> + rid);
     }
 
-    <span class="keyword">rule</span> +!assess(string cid, string conf) {
-        console.println(<span class="string">"Medium confidence ("</span> + conf + <span class="string">") &rarr; ESCALATING"</span>);
+    <span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
+    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; threshold(<span class="string">"high"</span>, <span class="keyword">string</span> t) &amp; gl.field(rid, <span class="string">"confidence"</span>) == t {
+        gl.accept(gl.candidate(rid));
+        +accepted(rid);
+        +confidence_tier(rid, <span class="string">"high"</span>);
+        ?assessed(rid);
+        console.println(<span class="string">"High confidence ("</span> + t + <span class="string">") &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
+    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; threshold(<span class="string">"low"</span>, <span class="keyword">string</span> t) &amp; gl.field(rid, <span class="string">"confidence"</span>) == t {
+        gl.reject(gl.candidate(rid));
+        +confidence_tier(rid, <span class="string">"low"</span>);
+        ?assessed(rid);
+        console.println(<span class="string">"Low confidence ("</span> + t + <span class="string">") &rarr; REJECTED"</span>);
+        S.fail();
+    }
+
+    <span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all valid)</span>
+    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        +confidence_tier(rid, <span class="string">"medium"</span>);
+        ?assessed(rid);
+        console.println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid output</span>
+    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!assessed(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Assessment FAILED for "</span> + rid);
     }
 }</code></pre>
           </div>
           <div class="tab-content" id="p3-jason">
-            <pre><code>!start.
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>). threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>).
 
+<span class="comment">// DOMAIN MODEL</span>
+assessed(Rid) :- confidence_tier(Rid, _).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
-      gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      gl.use_provider(<span class="string">"cerebras"</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !decide(Rid).
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+               <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, Rid);
+      !assessed(Rid).
 
-+!decide(Rid)
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!assessed(Rid)
+   :  assessed(Rid)
+   &lt;- .println(<span class="string">"Already assessed: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; extract confidence, delegate to tier assessment</span>
++!assessed(Rid)
    :  gl.valid(Rid, <span class="keyword">true</span>)
    &lt;- gl.candidate(Rid, Cid);
       gl.field(Rid, <span class="string">"confidence"</span>, Conf);
-      !assess(Cid, Conf).
+      !assess_confidence(Rid, Cid, Conf).
 
-+!assess(Cid, <span class="string">"1.0"</span>)
+<span class="comment">// ACHIEVEMENT: invalid output</span>
++!assessed(Rid)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
++!assess_confidence(Rid, Cid, Conf)
+   :  threshold(<span class="string">"high"</span>, Conf)
    &lt;- gl.accept(Cid);
-      .println(<span class="string">"High confidence (1.0) -&gt; ACCEPTED"</span>);
-      .stopMAS.
+      +accepted(Rid);
+      +confidence_tier(Rid, <span class="string">"high"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"High confidence ("</span>, Conf, <span class="string">") &rarr; ACCEPTED"</span>).
 
-+!assess(Cid, <span class="string">"0.0"</span>)
+<span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
++!assess_confidence(Rid, Cid, Conf)
+   :  threshold(<span class="string">"low"</span>, Conf)
    &lt;- gl.reject(Cid);
-      .println(<span class="string">"Low confidence (0.0) -&gt; REJECTED"</span>);
-      .stopMAS.
+      +confidence_tier(Rid, <span class="string">"low"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"Low confidence ("</span>, Conf, <span class="string">") &rarr; REJECTED"</span>);
+      .fail.
 
-+!assess(Cid, Conf)
-   &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
-      .stopMAS.</code></pre>
+<span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all valid)</span>
++!assess_confidence(Rid, Cid, Conf)
+   &lt;- +confidence_tier(Rid, <span class="string">"medium"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!assessed(Rid)
+   &lt;- .println(<span class="string">"Assessment FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p3-jacamo">
-            <pre><code>!start.
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>). threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>).
 
+<span class="comment">// DOMAIN MODEL</span>
+assessed(Rid) :- confidence_tier(Rid, _).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
 +!start
-   &lt;- .println(<span class="string">"=== Pattern 3: Confidence Threshold ==="</span>);
-      makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId);
-      configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-      use_provider(<span class="string">"cerebras"</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      valid(Rid, IsValid);
-      !decide(Rid, IsValid).
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
+             <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, Rid);
+      !assessed(Rid).
 
-+!decide(Rid, <span class="keyword">true</span>)
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!assessed(Rid)
+   :  assessed(Rid)
+   &lt;- .println(<span class="string">"Already assessed: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!assessed(Rid)
+   &lt;- valid(Rid, IsValid);
+      !assessed_branch(Rid, IsValid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; extract confidence, delegate to tier assessment</span>
++!assessed_branch(Rid, <span class="keyword">true</span>)
    &lt;- candidate(Rid, Cid);
       field(Rid, <span class="string">"confidence"</span>, Conf);
-      !assess(Cid, Conf).
+      !assess_confidence(Rid, Cid, Conf).
 
-+!decide(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output -&gt; REJECTED"</span>);
-      .stopMAS.
+<span class="comment">// ACHIEVEMENT: invalid output</span>
++!assessed_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
 
-+!assess(Cid, <span class="string">"1.0"</span>)
+<span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
++!assess_confidence(Rid, Cid, Conf)
+   :  threshold(<span class="string">"high"</span>, Conf)
    &lt;- accept(Cid);
-      .println(<span class="string">"High confidence (1.0) -&gt; ACCEPTED"</span>);
-      .stopMAS.
+      +accepted(Rid);
+      +confidence_tier(Rid, <span class="string">"high"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"High confidence ("</span>, Conf, <span class="string">") &rarr; ACCEPTED"</span>).
 
-+!assess(Cid, <span class="string">"0.0"</span>)
+<span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
++!assess_confidence(Rid, Cid, Conf)
+   :  threshold(<span class="string">"low"</span>, Conf)
    &lt;- reject(Cid);
-      .println(<span class="string">"Low confidence (0.0) -&gt; REJECTED"</span>);
-      .stopMAS.
+      +confidence_tier(Rid, <span class="string">"low"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"Low confidence ("</span>, Conf, <span class="string">") &rarr; REJECTED"</span>);
+      .fail.
 
-+!assess(Cid, Conf)
-   &lt;- .println(<span class="string">"Medium confidence ("</span>, Conf, <span class="string">") -&gt; ESCALATING"</span>);
-      .stopMAS.</code></pre>
+<span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all)</span>
++!assess_confidence(Rid, Cid, Conf)
+   &lt;- +confidence_tier(Rid, <span class="string">"medium"</span>);
+      ?assessed(Rid);
+      .println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!assessed(Rid)
+   &lt;- .println(<span class="string">"Assessment FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-3-confidence-threshold/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-3-confidence-threshold/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-3-confidence-threshold/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -579,101 +877,239 @@ Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
             </div>
           </div>
           <div class="tab-content active" id="p4-astra">
-            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
-<span class="keyword">rule</span> +!classify() {
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    gl.use_provider(<span class="string">"gemini"</span>);
-    string rid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>);
-    !verify_with_second(rid);
-}
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
+    <span class="keyword">module</span> System S;
 
-<span class="comment">// Step 2: Send to Cerebras for verification</span>
-<span class="keyword">rule</span> +!verify_with_second(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-    string label = gl.field(rid, <span class="string">"label"</span>);
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    gl.use_provider(<span class="string">"cerebras"</span>);
-    string vrid = gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
-        <span class="string">"Is this correct? apple = "</span> + label);
-    !compare_results(rid, vrid);
-}
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> verified(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> cross_checked(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> attempt_count(<span class="keyword">int</span>);
+    }
 
-<span class="comment">// Step 3: Both agree &rarr; accept</span>
-<span class="keyword">rule</span> +!compare_results(string orig, string vrid)
-    : gl.field(vrid, <span class="string">"agreement"</span>) == <span class="string">"yes"</span> {
-    string cid = gl.candidate(orig);
-    gl.accept(cid);
-}
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
+    <span class="keyword">initial</span> attempt_count(0);
 
-<span class="comment">// Step 3: Disagree &rarr; reject</span>
-<span class="keyword">rule</span> +!compare_results(string orig, string vrid)
-    : gl.field(vrid, <span class="string">"agreement"</span>) == <span class="string">"no"</span> {
-    string cid = gl.candidate(orig);
-    gl.reject(cid);
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> verified(<span class="keyword">string</span> rid) :- cross_checked(rid);
+
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !verified(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>));
+    }
+
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) : verified(rid) {
+        console.println(<span class="string">"Already verified: "</span> + rid);
+    }
+
+    <span class="comment">// DECOMPOSITION: valid &rarr; cross-check</span>
+    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        <span class="keyword">query</span>(attempt_count(<span class="keyword">int</span> count));
+        -+attempt_count(count + 1);
+        !cross_checked(rid);
+        ?verified(rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid</span>
+    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Invalid output &rarr; ABORTED"</span>);
+    }
+
+    <span class="comment">// DECOMPOSITION: cross-check with second LLM</span>
+    <span class="keyword">rule</span> +!cross_checked(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        <span class="keyword">try</span> {
+            !labels_match(rid, gl.field(rid, <span class="string">"label"</span>),
+                gl.field(gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
+                    <span class="string">"Is this correct? apple = "</span> + gl.field(rid, <span class="string">"label"</span>)), <span class="string">"label"</span>));
+        } <span class="keyword">recover</span> {
+            console.println(<span class="string">"Second LLM call failed"</span>);
+            S.fail();
+        }
+    }
+
+    <span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
+    <span class="keyword">rule</span> +!labels_match(<span class="keyword">string</span> rid, <span class="keyword">string</span> l1, <span class="keyword">string</span> l2) : l1 == l2 {
+        gl.accept(gl.candidate(rid));
+        +accepted(rid);
+        +cross_checked(rid);
+        console.println(<span class="string">"Labels match ('"</span> + l1 + <span class="string">"') &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject (~= inequality)</span>
+    <span class="keyword">rule</span> +!labels_match(<span class="keyword">string</span> rid, <span class="keyword">string</span> l1, <span class="keyword">string</span> l2) : l1 ~= l2 {
+        gl.reject(gl.candidate(rid));
+        console.println(<span class="string">"Labels DISAGREE ('"</span> + l1 + <span class="string">"' ~= '"</span> + l2 + <span class="string">"') &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!verified(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Verification FAILED for "</span> + rid);
+    }
+
+    <span class="keyword">rule</span> -!cross_checked(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Cross-check FAILED for "</span> + rid);
+    }
 }</code></pre>
           </div>
           <div class="tab-content" id="p4-jason">
-            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
-+!classify <-
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    gl.use_provider(<span class="string">"gemini"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-    !verify_with_second(Rid).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+attempt_count(0).
 
-<span class="comment">// Step 2: Send to Cerebras for verification</span>
-+!verify_with_second(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
-        +gemini_answer(Rid, Label);
-        gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-        gl.use_provider(<span class="string">"cerebras"</span>);
-        gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
-            .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid);
-        !compare_results(Rid, Vrid).
+<span class="comment">// DOMAIN MODEL</span>
+verified(Rid) :- cross_checked(Rid).
 
-<span class="comment">// Step 3: Extract agreement and delegate to sub-goal</span>
-+!compare_results(OrigRid, Vrid)
-    :   gl.valid(Vrid, <span class="keyword">true</span>)
-    <-  gl.field(Vrid, <span class="string">"agreement"</span>, Agreement);
-        gl.candidate(OrigRid, Cid);
-        !decide_agreement(Cid, Agreement).
+!start.
 
-<span class="comment">// Context guard: providers agree &rarr; accept</span>
-+!decide_agreement(Cid, <span class="string">"yes"</span>) <-
-    gl.accept(Cid);
-    .print(<span class="string">"Both LLMs agree &mdash; accepted"</span>).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !verified(Rid).
 
-<span class="comment">// Context guard: providers disagree &rarr; reject</span>
-+!decide_agreement(Cid, <span class="string">"no"</span>) <-
-    gl.reject(Cid);
-    .print(<span class="string">"LLMs disagree &mdash; rejected"</span>).</code></pre>
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!verified(Rid)
+   :  verified(Rid)
+   &lt;- .println(<span class="string">"Already verified: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; cross-check</span>
++!verified(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- ?attempt_count(Count);
+      -+attempt_count(Count + 1);
+      !cross_checked(Rid);
+      ?verified(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!verified(Rid)
+   &lt;- .println(<span class="string">"Invalid output &rarr; ABORTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: cross-check with second LLM</span>
++!cross_checked(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- gl.field(Rid, <span class="string">"label"</span>, L1);
+      .concat(<span class="string">"Is this correct? apple = "</span>, L1, Prompt);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>, Prompt, Vrid);
+      gl.field(Vrid, <span class="string">"label"</span>, L2);
+      !labels_match(Rid, L1, L2).
+
+<span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
++!labels_match(Rid, L1, L2)
+   :  L1 == L2
+   &lt;- gl.candidate(Rid, Cid);
+      gl.accept(Cid);
+      +accepted(Rid);
+      +cross_checked(Rid);
+      .println(<span class="string">"Labels match ('"</span>, L1, <span class="string">"') &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject</span>
++!labels_match(Rid, L1, L2)
+   :  L1 \== L2
+   &lt;- gl.candidate(Rid, Cid);
+      gl.reject(Cid);
+      .println(<span class="string">"Labels DISAGREE ('"</span>, L1, <span class="string">"' \== '"</span>, L2, <span class="string">"') &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!verified(Rid)
+   &lt;- .println(<span class="string">"Verification FAILED for "</span>, Rid).
+
+-!cross_checked(Rid)
+   &lt;- .println(<span class="string">"Cross-check FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p4-jacamo">
-            <pre><code><span class="comment">// Step 1: Ask Gemini</span>
-+!classify <-
-    configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    use_provider(<span class="string">"gemini"</span>);
-    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+attempt_count(0).
 
-<span class="comment">// Step 2: Gemini result received &rarr; verify with Cerebras</span>
-+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    field(Rid, <span class="string">"label"</span>, Label);
-    +gemini_answer(Rid, Label);
-    configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    use_provider(<span class="string">"cerebras"</span>);
-    ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
-        .concat(<span class="string">"Is this correct? apple = "</span>, Label), Vrid).
+<span class="comment">// DOMAIN MODEL</span>
+verified(Rid) :- cross_checked(Rid).
 
-<span class="comment">// Step 3: Extract agreement and delegate</span>
-+!compare_results(OrigRid, Vrid) <-
-    field(Vrid, <span class="string">"agreement"</span>, Agreement);
-    candidate(OrigRid, Cid);
-    !decide_agreement(Cid, Agreement).
+!start.
 
-+!decide_agreement(Cid, <span class="string">"yes"</span>) <-
-    accept(Cid).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !verified(Rid).
 
-+!decide_agreement(Cid, <span class="string">"no"</span>) <-
-    reject(Cid).</code></pre>
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!verified(Rid)
+   :  verified(Rid)
+   &lt;- .println(<span class="string">"Already verified: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; cross-check</span>
++!verified(Rid)
+   &lt;- valid(Rid, IsValid);
+      !verified_branch(Rid, IsValid).
+
++!verified_branch(Rid, <span class="keyword">true</span>)
+   &lt;- ?attempt_count(Count);
+      -+attempt_count(Count + 1);
+      !cross_checked(Rid);
+      ?verified(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!verified_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output &rarr; ABORTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: cross-check with second LLM</span>
++!cross_checked(Rid)
+   &lt;- field(Rid, <span class="string">"label"</span>, L1);
+      .concat(<span class="string">"Is this correct? apple = "</span>, L1, Prompt);
+      ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>, Prompt, Vrid);
+      field(Vrid, <span class="string">"label"</span>, L2);
+      !labels_match(Rid, L1, L2).
+
+<span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
++!labels_match(Rid, L1, L2)
+   :  L1 == L2
+   &lt;- candidate(Rid, Cid);
+      accept(Cid);
+      +accepted(Rid);
+      +cross_checked(Rid);
+      .println(<span class="string">"Labels match ('"</span>, L1, <span class="string">"') &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject</span>
++!labels_match(Rid, L1, L2)
+   :  L1 \== L2
+   &lt;- candidate(Rid, Cid);
+      reject(Cid);
+      .println(<span class="string">"Labels DISAGREE ('"</span>, L1, <span class="string">"' \== '"</span>, L2, <span class="string">"') &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!verified(Rid)
+   &lt;- .println(<span class="string">"Verification FAILED for "</span>, Rid).
+
+-!cross_checked(Rid)
+   &lt;- .println(<span class="string">"Cross-check FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-4-cross-llm-verification/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-4-cross-llm-verification/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-4-cross-llm-verification/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -726,66 +1162,215 @@ Both LLMs agree &mdash; ACCEPTED</code></pre>
         <div class="tabs-container">
           <div class="tabs-header">
             <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p5-jason">Jason</button>
+              <button class="tab-btn active" data-tab="p5-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p5-jason">Jason</button>
               <button class="tab-btn" data-tab="p5-jacamo">JaCaMo</button>
             </div>
           </div>
-          <div class="tab-content active" id="p5-jason">
-            <pre><code><span class="comment">// ─── Agent A: generates and requests peer review ───</span>
-+!classify <-
-    gl.ask(<span class="string">"agentA"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
-    !request_review(Rid).
+          <div class="tab-content active" id="p5-astra">
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
+    <span class="keyword">module</span> System S;
 
-+!request_review(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.field(Rid, <span class="string">"label"</span>, Label);
-        .send(agentB, achieve, review(Label, Rid)).
+    <span class="keyword">types</span> review_types {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> review_timeout(<span class="keyword">int</span>);
+        <span class="keyword">formula</span> reviewed(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> peer_approved(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> review_request(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> review_approved(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> review_rejected(<span class="keyword">string</span>, <span class="keyword">string</span>);
+    }
 
-<span class="comment">// Context guard: peer approved &rarr; accept</span>
-+approved(Rid) <-
-    gl.candidate(Rid, Cid);
-    gl.accept(Cid).
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
+    <span class="keyword">initial</span> review_timeout(30000);
 
-<span class="comment">// Context guard: peer rejected &rarr; reject</span>
-+disapproved(Rid, Reason) <-
-    gl.candidate(Rid, Cid);
-    gl.reject(Cid).
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> reviewed(<span class="keyword">string</span> cid) :- peer_approved(cid);
 
-<span class="comment">// ─── Agent B: reviews using its own beliefs ───</span>
-known_food(<span class="string">"fruit"</span>). known_food(<span class="string">"vegetable"</span>).
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !reviewed(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>));
+    }
 
-+!review(Label, Rid)
-    :   known_food(Label)
-    <-  .send(agentA, tell, approved(Rid)).
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
 
-+!review(Label, Rid)
-    :   not known_food(Label)
-    <-  .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>)).</code></pre>
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) : reviewed(rid) {
+        console.println(<span class="string">"[Runner] Already reviewed: "</span> + rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
+    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; review_timeout(<span class="keyword">int</span> timeout) {
+        console.println(<span class="string">"[Runner] Sending '"</span> + gl.field(rid, <span class="string">"label"</span>) + <span class="string">"' to reviewer..."</span>);
+        send(request, <span class="string">"reviewer"</span>, review_request(gl.field(rid, <span class="string">"label"</span>), gl.candidate(rid)));
+        wait(review_approved(gl.candidate(rid)), timeout);
+        <span class="keyword">if</span> (~review_approved(gl.candidate(rid))) {
+            console.println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
+            gl.reject(gl.candidate(rid));
+        }
+        ?reviewed(gl.candidate(rid));
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid</span>
+    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>);
+    }
+
+    <span class="comment">// REACTIVE: peer approved</span>
+    <span class="keyword">rule</span> @message(inform, <span class="keyword">string</span> sender, review_approved(<span class="keyword">string</span> cid)) {
+        +peer_approved(cid);
+        gl.accept(cid);
+        console.println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// REACTIVE: peer rejected</span>
+    <span class="keyword">rule</span> @message(inform, <span class="keyword">string</span> sender, review_rejected(<span class="keyword">string</span> cid, <span class="keyword">string</span> reason)) {
+        gl.reject(cid);
+        console.println(<span class="string">"[Runner] Peer rejected: "</span> + reason + <span class="string">" &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!reviewed(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"[Runner] Review FAILED for "</span> + rid);
+    }
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p5-jason">
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+review_timeout(30000).
+
+<span class="comment">// DOMAIN MODEL</span>
+reviewed(Cid) :- peer_approved(Cid).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
+      !reviewed(Rid).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!reviewed(Rid)
+   :  reviewed(Rid)
+   &lt;- .println(<span class="string">"[Runner] Already reviewed: "</span>, Rid).
+
+<span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
++!reviewed(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>) &amp; review_timeout(Timeout)
+   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
+      gl.candidate(Rid, Cid);
+      .println(<span class="string">"[Runner] Sending '"</span>, Label, <span class="string">"' to reviewer..."</span>);
+      .send(reviewer, achieve, review_request(Label, Cid));
+      .wait({+peer_approved(Cid)}, Timeout);
+      if (not peer_approved(Cid)) {
+          .println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
+          gl.reject(Cid);
+      };
+      ?reviewed(Cid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!reviewed(Rid)
+   &lt;- .println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>).
+
+<span class="comment">// REACTIVE: peer approved</span>
++review_approved(Cid)
+   &lt;- +peer_approved(Cid);
+      gl.accept(Cid);
+      .println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>).
+
+<span class="comment">// REACTIVE: peer rejected</span>
++review_rejected(Cid, Reason)
+   &lt;- gl.reject(Cid);
+      .println(<span class="string">"[Runner] Peer rejected: "</span>, Reason, <span class="string">" &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!reviewed(Rid)
+   &lt;- .println(<span class="string">"[Runner] Review FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p5-jacamo">
-            <pre><code><span class="comment">// ─── Agent A (JaCaMo): uses CArtAgO artifact ───</span>
-+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    field(Rid, <span class="string">"label"</span>, Label);
-    .send(agentB, achieve, review(Label, Rid)).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+review_timeout(30000).
 
-+approved(Rid) <-
-    candidate(Rid, Cid);
-    accept(Cid).
+<span class="comment">// DOMAIN MODEL</span>
+reviewed(Cid) :- peer_approved(Cid).
 
-+disapproved(Rid, Reason) <-
-    candidate(Rid, Cid);
-    reject(Cid).
+!start.
 
-<span class="comment">// ─── Agent B: same review plans as Jason ───</span>
-known_food(<span class="string">"fruit"</span>). known_food(<span class="string">"vegetable"</span>).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
+      !reviewed(Rid).
 
-+!review(Label, Rid)
-    :   known_food(Label)
-    <-  .send(agentA, tell, approved(Rid)).
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
 
-+!review(Label, Rid)
-    :   not known_food(Label)
-    <-  .send(agentA, tell, disapproved(Rid, <span class="string">"not in my knowledge base"</span>)).</code></pre>
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!reviewed(Rid)
+   :  reviewed(Rid)
+   &lt;- .println(<span class="string">"[Runner] Already reviewed: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!reviewed(Rid)
+   &lt;- valid(Rid, IsValid);
+      !reviewed_branch(Rid, IsValid).
+
+<span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
++!reviewed_branch(Rid, <span class="keyword">true</span>)
+   :  review_timeout(Timeout)
+   &lt;- field(Rid, <span class="string">"label"</span>, Label);
+      candidate(Rid, Cid);
+      .println(<span class="string">"[Runner] Sending '"</span>, Label, <span class="string">"' to reviewer..."</span>);
+      .send(reviewer, achieve, review_request(Label, Cid));
+      .wait({+peer_approved(Cid)}, Timeout);
+      if (not peer_approved(Cid)) {
+          .println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
+          reject(Cid);
+      };
+      ?reviewed(Cid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!reviewed_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>).
+
+<span class="comment">// REACTIVE: peer approved</span>
++review_approved(Cid)
+   &lt;- +peer_approved(Cid);
+      accept(Cid);
+      .println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>).
+
+<span class="comment">// REACTIVE: peer rejected</span>
++review_rejected(Cid, Reason)
+   &lt;- reject(Cid);
+      .println(<span class="string">"[Runner] Peer rejected: "</span>, Reason, <span class="string">" &rarr; REJECTED"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!reviewed(Rid)
+   &lt;- .println(<span class="string">"[Runner] Review FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -845,90 +1430,211 @@ known_food(<span class="string">"fruit"</span>). known_food(<span class="string"
             </div>
           </div>
           <div class="tab-content active" id="p6-astra">
-            <pre><code><span class="comment">// Existing beliefs</span>
-+category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). +category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
 
-<span class="keyword">rule</span> +!decide(string rid) : gl.valid(rid) == <span class="keyword">true</span> {
-    string item = gl.field(rid, <span class="string">"item"</span>);
-    string label = gl.field(rid, <span class="string">"label"</span>);
-    string cid = gl.candidate(rid);
-    !check_belief(cid, item, label);
-}
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> consistent(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> belief_checked(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> category(<span class="keyword">string</span>, <span class="keyword">string</span>);
+    }
 
-<span class="comment">// Matches existing belief &rarr; confirmed</span>
-<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
-    : category(item, label) {
-    gl.accept(cid);
-    console.println(<span class="string">"Confirmed: "</span> + item + <span class="string">" = "</span> + label);
-}
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
+    <span class="keyword">initial</span> category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>), category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>);
 
-<span class="comment">// Contradicts existing belief &rarr; rejected</span>
-<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
-    : category(item, string existing) &amp; existing != label {
-    gl.reject(cid);
-    console.println(<span class="string">"Contradicts belief!"</span>);
-}
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> consistent(<span class="keyword">string</span> rid) :- belief_checked(rid);
 
-<span class="comment">// No prior belief &rarr; new knowledge</span>
-<span class="keyword">rule</span> +!check_belief(string cid, string item, string label)
-    : ~category(item, string any) {
-    gl.accept(cid);
-    console.println(<span class="string">"New knowledge adopted: "</span> + item);
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !consistent(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>));
+    }
+
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) : consistent(rid) {
+        console.println(<span class="string">"Already checked: "</span> + rid);
+    }
+
+    <span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
+    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        !belief_checked(<span class="string">"apple"</span>, gl.field(rid, <span class="string">"label"</span>), gl.candidate(rid));
+        +belief_checked(rid);
+        ?consistent(rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid</span>
+    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
+    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : category(item, label) {
+        gl.accept(cid);
+        console.println(<span class="string">"Matches belief: "</span> + item + <span class="string">" = "</span> + label + <span class="string">" &rarr; CONFIRMED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
+    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : category(item, <span class="keyword">string</span> existing) &amp; ~category(item, label) {
+        gl.reject(cid);
+        console.println(<span class="string">"Contradicts belief! Expected "</span> + existing + <span class="string">" got "</span> + label + <span class="string">" &rarr; REJECTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
+    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : ~category(item, <span class="keyword">string</span> any) {
+        gl.accept(cid);
+        +category(item, label);
+        console.println(<span class="string">"No prior belief for "</span> + item + <span class="string">" &rarr; NEW KNOWLEDGE: "</span> + label);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!consistent(<span class="keyword">string</span> rid) {
+        console.println(<span class="string">"Consistency check FAILED for "</span> + rid);
+    }
 }</code></pre>
           </div>
           <div class="tab-content" id="p6-jason">
-            <pre><code><span class="comment">// Existing beliefs</span>
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
 
-+!decide(Rid)
-    :   gl.valid(Rid, <span class="keyword">true</span>)
-    <-  gl.field(Rid, <span class="string">"item"</span>, Item);
-        gl.field(Rid, <span class="string">"label"</span>, Label);
-        gl.candidate(Rid, Cid);
-        !check_belief(Cid, Item, Label).
+<span class="comment">// DOMAIN MODEL</span>
+consistent(Rid) :- belief_checked(Rid).
 
-<span class="comment">// Matches existing belief &rarr; confirmed</span>
-+!check_belief(Cid, Item, Label)
-    :   category(Item, Label)
-    <-  gl.accept(Cid);
-        .print(<span class="string">"Confirmed: "</span>, Item, <span class="string">" = "</span>, Label).
+!start.
 
-<span class="comment">// Contradicts existing belief &rarr; rejected</span>
-+!check_belief(Cid, Item, Label)
-    :   category(Item, Existing) &amp; Label \== Existing
-    <-  gl.reject(Cid);
-        .print(<span class="string">"Contradicts belief! I know "</span>, Item, <span class="string">"="</span>, Existing).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !consistent(Rid).
 
-<span class="comment">// No prior belief &rarr; new knowledge</span>
-+!check_belief(Cid, Item, Label)
-    :   not category(Item, _)
-    <-  gl.accept(Cid);
-        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">"="</span>, Label).</code></pre>
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!consistent(Rid)
+   :  consistent(Rid)
+   &lt;- .println(<span class="string">"Already checked: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
++!consistent(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
+      gl.candidate(Rid, Cid);
+      !belief_checked(<span class="string">"apple"</span>, Label, Cid);
+      +belief_checked(Rid);
+      ?consistent(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!consistent(Rid)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
++!belief_checked(Item, Label, Cid)
+   :  category(Item, Label)
+   &lt;- gl.accept(Cid);
+      .println(<span class="string">"Matches belief: "</span>, Item, <span class="string">" = "</span>, Label, <span class="string">" &rarr; CONFIRMED"</span>).
+
+<span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
++!belief_checked(Item, Label, Cid)
+   :  category(Item, Existing) &amp; Label \== Existing
+   &lt;- gl.reject(Cid);
+      .println(<span class="string">"Contradicts belief! Expected "</span>, Existing, <span class="string">" got "</span>, Label, <span class="string">" &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
++!belief_checked(Item, Label, Cid)
+   :  not category(Item, _)
+   &lt;- gl.accept(Cid);
+      +category(Item, Label);
+      .println(<span class="string">"No prior belief for "</span>, Item, <span class="string">" &rarr; NEW KNOWLEDGE: "</span>, Label).
+
+<span class="comment">// RECOVERY</span>
+-!consistent(Rid)
+   &lt;- .println(<span class="string">"Consistency check FAILED for "</span>, Rid).</code></pre>
           </div>
           <div class="tab-content" id="p6-jacamo">
-            <pre><code><span class="comment">// Existing beliefs</span>
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
 
-+gl_result(Rid, Outcome, <span class="keyword">true</span>) <-
-    field(Rid, <span class="string">"item"</span>, Item);
-    field(Rid, <span class="string">"label"</span>, Label);
-    candidate(Rid, Cid);
-    !check_belief(Cid, Item, Label).
+<span class="comment">// DOMAIN MODEL</span>
+consistent(Rid) :- belief_checked(Rid).
 
-+!check_belief(Cid, Item, Label)
-    :   category(Item, Label)
-    <-  accept(Cid);
-        .print(<span class="string">"Confirmed: "</span>, Item, <span class="string">" = "</span>, Label).
+!start.
 
-+!check_belief(Cid, Item, Label)
-    :   category(Item, Existing) &amp; Label \== Existing
-    <-  reject(Cid);
-        .print(<span class="string">"Contradicts belief!"</span>).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
+      !consistent(Rid).
 
-+!check_belief(Cid, Item, Label)
-    :   not category(Item, _)
-    <-  accept(Cid);
-        .print(<span class="string">"New knowledge adopted: "</span>, Item, <span class="string">"="</span>, Label).</code></pre>
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!consistent(Rid)
+   :  consistent(Rid)
+   &lt;- .println(<span class="string">"Already checked: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!consistent(Rid)
+   &lt;- valid(Rid, IsValid);
+      !consistent_branch(Rid, IsValid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
++!consistent_branch(Rid, <span class="keyword">true</span>)
+   &lt;- field(Rid, <span class="string">"label"</span>, Label);
+      candidate(Rid, Cid);
+      !belief_checked(<span class="string">"apple"</span>, Label, Cid);
+      +belief_checked(Rid);
+      ?consistent(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid</span>
++!consistent_branch(Rid, <span class="keyword">false</span>)
+   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
++!belief_checked(Item, Label, Cid)
+   :  category(Item, Label)
+   &lt;- accept(Cid);
+      .println(<span class="string">"Matches belief: "</span>, Item, <span class="string">" = "</span>, Label, <span class="string">" &rarr; CONFIRMED"</span>).
+
+<span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
++!belief_checked(Item, Label, Cid)
+   :  category(Item, Existing) &amp; Label \== Existing
+   &lt;- reject(Cid);
+      .println(<span class="string">"Contradicts belief! Expected "</span>, Existing, <span class="string">" got "</span>, Label, <span class="string">" &rarr; REJECTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
++!belief_checked(Item, Label, Cid)
+   :  not category(Item, _)
+   &lt;- accept(Cid);
+      +category(Item, Label);
+      .println(<span class="string">"No prior belief for "</span>, Item, <span class="string">" &rarr; NEW KNOWLEDGE: "</span>, Label).
+
+<span class="comment">// RECOVERY</span>
+-!consistent(Rid)
+   &lt;- .println(<span class="string">"Consistency check FAILED for "</span>, Rid).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-6-belief-consistency/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-6-belief-consistency/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-6-belief-consistency/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -980,78 +1686,263 @@ Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
         <div class="tabs-container">
           <div class="tabs-header">
             <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p7-jason">Jason</button>
+              <button class="tab-btn active" data-tab="p7-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p7-jason">Jason</button>
               <button class="tab-btn" data-tab="p7-jacamo">JaCaMo</button>
             </div>
           </div>
-          <div class="tab-content active" id="p7-jason">
-            <pre><code>+!classify <-
-    <span class="comment">// Ask three providers</span>
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    gl.use_provider(<span class="string">"gemini"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    gl.use_provider(<span class="string">"cerebras"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
-    gl.configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    gl.use_provider(<span class="string">"cerebras"</span>);
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
-    gl.field(R1, <span class="string">"label"</span>, L1); gl.field(R2, <span class="string">"label"</span>, L2); gl.field(R3, <span class="string">"label"</span>, L3);
-    !vote(R1, L1, R2, L2, R3, L3).
+          <div class="tab-content active" id="p7-astra">
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
 
-<span class="comment">// Majority: first two agree</span>
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 == L2
-    <-  gl.candidate(R1, Cid); gl.accept(Cid);
-        .print(<span class="string">"Majority agrees: "</span>, L1).
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> vote(<span class="keyword">int</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> votes_collected(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> consensus_label(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> consensus_reached(<span class="keyword">boolean</span>);
+    }
 
-<span class="comment">// Majority: first and third agree</span>
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 == L3
-    <-  gl.candidate(R1, Cid); gl.accept(Cid);
-        .print(<span class="string">"Majority agrees: "</span>, L1).
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
 
-<span class="comment">// Majority: second and third agree</span>
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L2 == L3
-    <-  gl.candidate(R2, Cid); gl.accept(Cid);
-        .print(<span class="string">"Majority agrees: "</span>, L2).
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> consensus_reached(<span class="keyword">true</span>) :- consensus_label(<span class="keyword">string</span> _);
 
-<span class="comment">// No consensus</span>
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 \== L2 &amp; L1 \== L3 &amp; L2 \== L3
-    <-  .print(<span class="string">"No consensus &mdash; all disagree"</span>).</code></pre>
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !votes_collected(<span class="keyword">true</span>);
+        !consensus_reached(<span class="keyword">true</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
+
+    <span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
+    <span class="keyword">rule</span> +!votes_collected(<span class="keyword">boolean</span> x) {
+        !vote_cast(1);
+        !vote_cast(2);
+        !vote_cast(3);
+        !print_vote_summary();
+    }
+
+    <span class="comment">// ACHIEVEMENT: cast a single vote (one action)</span>
+    <span class="keyword">rule</span> +!vote_cast(<span class="keyword">int</span> id) {
+        +vote(id, gl.field(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>), <span class="string">"label"</span>));
+    }
+
+    <span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
+    <span class="keyword">rule</span> +!print_vote_summary() {
+        <span class="keyword">foreach</span>(vote(<span class="keyword">int</span> id, <span class="keyword">string</span> label)) {
+            console.println(<span class="string">"  Vote "</span> + id + <span class="string">": "</span> + label);
+        }
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!consensus_reached(<span class="keyword">boolean</span> x) : consensus_reached(<span class="keyword">true</span>) {
+        <span class="keyword">query</span>(consensus_label(<span class="keyword">string</span> winner));
+        console.println(<span class="string">"Already have consensus: "</span> + winner);
+    }
+
+    <span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
+    <span class="keyword">rule</span> +!consensus_reached(<span class="keyword">boolean</span> x) : vote(1, <span class="keyword">string</span> l1) &amp; vote(2, <span class="keyword">string</span> l2) &amp; vote(3, <span class="keyword">string</span> l3) {
+        !tallied(l1, l2, l3);
+        ?consensus_reached(<span class="keyword">true</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
+    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l1 == l2 {
+        +consensus_label(l1);
+        console.println(<span class="string">"Majority agrees on '"</span> + l1 + <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
+    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l1 == l3 {
+        +consensus_label(l1);
+        console.println(<span class="string">"Majority agrees on '"</span> + l1 + <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees (~=)</span>
+    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l2 == l3 &amp; l1 ~= l2 {
+        +consensus_label(l2);
+        console.println(<span class="string">"Majority agrees on '"</span> + l2 + <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: no consensus</span>
+    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) {
+        console.println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>);
+    }
+
+    <span class="comment">// RECOVERY</span>
+    <span class="keyword">rule</span> -!consensus_reached(<span class="keyword">boolean</span> x) {
+        console.println(<span class="string">"Consensus determination FAILED"</span>);
+    }
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p7-jason">
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+
+<span class="comment">// DOMAIN MODEL</span>
+consensus_reached(<span class="keyword">true</span>) :- consensus_label(_).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !configured(<span class="keyword">true</span>);
+      !votes_collected(<span class="keyword">true</span>);
+      !consensus_reached(<span class="keyword">true</span>).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
++!votes_collected(<span class="keyword">true</span>)
+   &lt;- !vote_cast(1);
+      !vote_cast(2);
+      !vote_cast(3);
+      !print_vote_summary.
+
+<span class="comment">// ACHIEVEMENT: cast a single vote (actions only)</span>
++!vote_cast(N)
+   &lt;- gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
+      gl.field(Rid, <span class="string">"label"</span>, Label);
+      +vote(N, Label).
+
+<span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
++!print_vote_summary
+   &lt;- for (vote(Id, Label)) {
+          .println(<span class="string">"  Vote "</span>, Id, <span class="string">": "</span>, Label);
+      }.
+
+<span class="comment">// SERENDIPITY</span>
++!consensus_reached(<span class="keyword">true</span>)
+   :  consensus_reached(<span class="keyword">true</span>)
+   &lt;- ?consensus_label(Winner);
+      .println(<span class="string">"Already have consensus: "</span>, Winner).
+
+<span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
++!consensus_reached(<span class="keyword">true</span>)
+   :  vote(1, L1) &amp; vote(2, L2) &amp; vote(3, L3)
+   &lt;- !tallied(L1, L2, L3);
+      ?consensus_reached(<span class="keyword">true</span>).
+
+<span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
++!tallied(L1, L2, L3)
+   :  L1 == L2
+   &lt;- +consensus_label(L1);
+      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
++!tallied(L1, L2, L3)
+   :  L1 == L3
+   &lt;- +consensus_label(L1);
+      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees</span>
++!tallied(L1, L2, L3)
+   :  L2 == L3 &amp; L1 \== L2
+   &lt;- +consensus_label(L2);
+      .println(<span class="string">"Majority agrees on '"</span>, L2, <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: no consensus</span>
++!tallied(L1, L2, L3)
+   &lt;- .println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!consensus_reached(<span class="keyword">true</span>)
+   &lt;- .println(<span class="string">"Consensus determination FAILED"</span>).</code></pre>
           </div>
           <div class="tab-content" id="p7-jacamo">
-            <pre><code>+!classify <-
-    configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-    use_provider(<span class="string">"gemini"</span>);
-    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R1);
-    configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    use_provider(<span class="string">"cerebras"</span>);
-    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R2);
-    configure(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>);
-    use_provider(<span class="string">"cerebras"</span>);
-    ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, R3);
-    field(R1, <span class="string">"label"</span>, L1); field(R2, <span class="string">"label"</span>, L2); field(R3, <span class="string">"label"</span>, L3);
-    !vote(R1, L1, R2, L2, R3, L3).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 == L2
-    <-  candidate(R1, Cid); accept(Cid);
-        .print(<span class="string">"Majority agrees: "</span>, L1).
+<span class="comment">// DOMAIN MODEL</span>
+consensus_reached(<span class="keyword">true</span>) :- consensus_label(_).
 
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 == L3
-    <-  candidate(R1, Cid); accept(Cid).
+!start.
 
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L2 == L3
-    <-  candidate(R2, Cid); accept(Cid).
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      !votes_collected(<span class="keyword">true</span>);
+      !consensus_reached(<span class="keyword">true</span>).
 
-+!vote(R1, L1, R2, L2, R3, L3)
-    :   L1 \== L2 &amp; L1 \== L3 &amp; L2 \== L3
-    <-  .print(<span class="string">"No consensus"</span>).</code></pre>
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
++!votes_collected(<span class="keyword">true</span>)
+   &lt;- !vote_cast(1);
+      !vote_cast(2);
+      !vote_cast(3);
+      !print_vote_summary.
+
+<span class="comment">// ACHIEVEMENT: cast a single vote (actions only)</span>
++!vote_cast(N)
+   &lt;- ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
+      field(Rid, <span class="string">"label"</span>, Label);
+      +vote(N, Label).
+
+<span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
++!print_vote_summary
+   &lt;- for (vote(Id, Label)) {
+          .println(<span class="string">"  Vote "</span>, Id, <span class="string">": "</span>, Label);
+      }.
+
+<span class="comment">// SERENDIPITY</span>
++!consensus_reached(<span class="keyword">true</span>)
+   :  consensus_reached(<span class="keyword">true</span>)
+   &lt;- ?consensus_label(Winner);
+      .println(<span class="string">"Already have consensus: "</span>, Winner).
+
+<span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
++!consensus_reached(<span class="keyword">true</span>)
+   :  vote(1, L1) &amp; vote(2, L2) &amp; vote(3, L3)
+   &lt;- !tallied(L1, L2, L3);
+      ?consensus_reached(<span class="keyword">true</span>).
+
+<span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
++!tallied(L1, L2, L3)
+   :  L1 == L2
+   &lt;- +consensus_label(L1);
+      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
++!tallied(L1, L2, L3)
+   :  L1 == L3
+   &lt;- +consensus_label(L1);
+      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees</span>
++!tallied(L1, L2, L3)
+   :  L2 == L3 &amp; L1 \== L2
+   &lt;- +consensus_label(L2);
+      .println(<span class="string">"Majority agrees on '"</span>, L2, <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: no consensus</span>
++!tallied(L1, L2, L3)
+   &lt;- .println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>).
+
+<span class="comment">// RECOVERY</span>
+-!consensus_reached(<span class="keyword">true</span>)
+   &lt;- .println(<span class="string">"Consensus determination FAILED"</span>).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-7-majority-voting/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-7-majority-voting/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-7-majority-voting/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
@@ -1104,70 +1995,303 @@ Majority agrees on 'vegetable' &rarr; ACCEPTED</code></pre>
         <div class="tabs-container">
           <div class="tabs-header">
             <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p8-jason">Jason</button>
+              <button class="tab-btn active" data-tab="p8-astra">ASTRA</button>
+              <button class="tab-btn" data-tab="p8-jason">Jason</button>
               <button class="tab-btn" data-tab="p8-jacamo">JaCaMo</button>
             </div>
           </div>
-          <div class="tab-content active" id="p8-jason">
-            <pre><code><span class="comment">// Step 1: Generate a draft</span>
-+!write_report <-
-    gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>,
-        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid);
-    !critique_draft(DraftRid).
+          <div class="tab-content active" id="p8-astra">
+            <pre><code><span class="keyword">agent</span> PatternRunner {
+    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+    <span class="keyword">module</span> Console console;
 
-<span class="comment">// Step 2: Critique the draft (valid draft only)</span>
-+!critique_draft(DraftRid)
-    :   gl.valid(DraftRid, <span class="keyword">true</span>)
-    <-  gl.field(DraftRid, <span class="string">"text"</span>, Draft);
-        gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
-            .concat(<span class="string">"Critique this:\n"</span>, Draft), CritiqueRid);
-        !refine_draft(DraftRid, CritiqueRid).
+    <span class="keyword">types</span> governance {
+        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
+        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> refined(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> critiqued(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> improved(<span class="keyword">string</span>);
+        <span class="keyword">formula</span> accepted_final(<span class="keyword">boolean</span>);
+        <span class="keyword">formula</span> pipeline_step(<span class="keyword">string</span>);
+    }
 
-<span class="comment">// Step 3: Refine using the critique (valid critique only)</span>
-+!refine_draft(DraftRid, CritiqueRid)
-    :   gl.valid(CritiqueRid, <span class="keyword">true</span>)
-    <-  gl.field(DraftRid, <span class="string">"text"</span>, Draft);
-        gl.field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
-        gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
-            .concat(<span class="string">"Improve:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid);
-        !accept_final(FinalRid).
+    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
 
-<span class="comment">// Step 4: Accept the refined version</span>
-+!accept_final(FinalRid)
-    :   gl.valid(FinalRid, <span class="keyword">true</span>)
-    <-  gl.candidate(FinalRid, Cid);
-        gl.accept(Cid);
-        gl.field(FinalRid, <span class="string">"text"</span>, FinalText);
-        .print(<span class="string">"Final accepted:\n"</span>, FinalText).</code></pre>
+    <span class="comment">// DOMAIN MODEL</span>
+    <span class="keyword">inference</span> refined(<span class="keyword">string</span> rid) :- accepted_final(<span class="keyword">true</span>);
+
+    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
+    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
+        !configured(<span class="keyword">true</span>);
+        !refined(gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>));
+    }
+
+    <span class="comment">// ACHIEVEMENT: setup</span>
+    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
+        gl.configure(<span class="string">"model"</span>, m);
+        gl.use_provider(p);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) : refined(rid) {
+        console.println(<span class="string">"Already refined: "</span> + rid);
+    }
+
+    <span class="comment">// DECOMPOSITION: refine = critique + improve + accept</span>
+    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
+        !critiqued(rid);
+        !improved(rid);
+        !accepted_final(rid);
+        ?refined(rid);
+    }
+
+    <span class="comment">// ACHIEVEMENT: invalid draft</span>
+    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) {
+        -+pipeline_step(<span class="string">"draft_failed"</span>);
+        console.println(<span class="string">"Draft invalid &rarr; ABORTED"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: critique</span>
+    <span class="keyword">rule</span> +!critiqued(<span class="keyword">string</span> draftRid) : gl.valid(draftRid) == <span class="keyword">true</span> {
+        -+pipeline_step(<span class="string">"critiquing"</span>);
+        +critiqued(gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>));
+        console.println(<span class="string">"Draft &rarr; critique requested"</span>);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!critiqued(<span class="keyword">string</span> rid) : critiqued(rid) {
+        console.println(<span class="string">"Already critiqued"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: improve</span>
+    <span class="keyword">rule</span> +!improved(<span class="keyword">string</span> rid) : critiqued(<span class="keyword">string</span> critiqueRid) &amp; gl.valid(critiqueRid) == <span class="keyword">true</span> {
+        -+pipeline_step(<span class="string">"refining"</span>);
+        +improved(gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>));
+        console.println(<span class="string">"Critique &rarr; refinement requested"</span>);
+    }
+
+    <span class="comment">// SERENDIPITY</span>
+    <span class="keyword">rule</span> +!improved(<span class="keyword">string</span> rid) : improved(rid) {
+        console.println(<span class="string">"Already improved"</span>);
+    }
+
+    <span class="comment">// ACHIEVEMENT: accept final</span>
+    <span class="keyword">rule</span> +!accepted_final(<span class="keyword">string</span> rid) : improved(<span class="keyword">string</span> finalRid) &amp; gl.valid(finalRid) == <span class="keyword">true</span> {
+        gl.accept(gl.candidate(finalRid));
+        +accepted_final(<span class="keyword">true</span>);
+        -+pipeline_step(<span class="string">"accepted"</span>);
+        console.println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>);
+    }
+
+    <span class="comment">// RECOVERY at each level</span>
+    <span class="keyword">rule</span> -!refined(<span class="keyword">string</span> rid) {
+        -+pipeline_step(<span class="string">"failed"</span>);
+        console.println(<span class="string">"Refinement pipeline FAILED for "</span> + rid);
+    }
+
+    <span class="keyword">rule</span> -!critiqued(<span class="keyword">string</span> rid) {
+        -+pipeline_step(<span class="string">"critique_failed"</span>);
+        console.println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>);
+    }
+
+    <span class="keyword">rule</span> -!improved(<span class="keyword">string</span> rid) {
+        -+pipeline_step(<span class="string">"refine_failed"</span>);
+        console.println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>);
+    }
+}</code></pre>
+          </div>
+          <div class="tab-content" id="p8-jason">
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
+
+<span class="comment">// DOMAIN MODEL</span>
+refined(Rid) :- accepted_final(<span class="keyword">true</span>).
+
+!start.
+
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !configured(<span class="keyword">true</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, Rid);
+      !refined(Rid).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- gl.configure(<span class="string">"model"</span>, M);
+      gl.use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!refined(Rid)
+   :  refined(Rid)
+   &lt;- .println(<span class="string">"Already refined: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: refine = critique + improve + accept</span>
++!refined(Rid)
+   :  gl.valid(Rid, <span class="keyword">true</span>)
+   &lt;- !critiqued(Rid);
+      !improved(Rid);
+      !accepted_final(Rid);
+      ?refined(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid draft</span>
++!refined(Rid)
+   &lt;- -+pipeline_step(<span class="string">"draft_failed"</span>);
+      .println(<span class="string">"Draft invalid &rarr; ABORTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: critique</span>
++!critiqued(DraftRid)
+   :  gl.valid(DraftRid, <span class="keyword">true</span>)
+   &lt;- -+pipeline_step(<span class="string">"critiquing"</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>, CritiqueRid);
+      +critiqued(CritiqueRid);
+      .println(<span class="string">"Draft &rarr; critique requested"</span>).
+
+<span class="comment">// SERENDIPITY</span>
++!critiqued(Rid)
+   :  critiqued(Rid)
+   &lt;- .println(<span class="string">"Already critiqued"</span>).
+
+<span class="comment">// ACHIEVEMENT: improve</span>
++!improved(Rid)
+   :  critiqued(CritiqueRid) &amp; gl.valid(CritiqueRid, <span class="keyword">true</span>)
+   &lt;- -+pipeline_step(<span class="string">"refining"</span>);
+      gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>, FinalRid);
+      +improved(FinalRid);
+      .println(<span class="string">"Critique &rarr; refinement requested"</span>).
+
+<span class="comment">// SERENDIPITY</span>
++!improved(Rid)
+   :  improved(Rid)
+   &lt;- .println(<span class="string">"Already improved"</span>).
+
+<span class="comment">// ACHIEVEMENT: accept final</span>
++!accepted_final(Rid)
+   :  improved(FinalRid) &amp; gl.valid(FinalRid, <span class="keyword">true</span>)
+   &lt;- gl.candidate(FinalRid, Cid);
+      gl.accept(Cid);
+      +accepted_final(<span class="keyword">true</span>);
+      -+pipeline_step(<span class="string">"accepted"</span>);
+      .println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>).
+
+<span class="comment">// RECOVERY at each level</span>
+-!refined(Rid)
+   &lt;- -+pipeline_step(<span class="string">"failed"</span>);
+      .println(<span class="string">"Refinement pipeline FAILED for "</span>, Rid).
+
+-!critiqued(Rid)
+   &lt;- -+pipeline_step(<span class="string">"critique_failed"</span>);
+      .println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>).
+
+-!improved(Rid)
+   &lt;- -+pipeline_step(<span class="string">"refine_failed"</span>);
+      .println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>).</code></pre>
           </div>
           <div class="tab-content" id="p8-jacamo">
-            <pre><code><span class="comment">// Step 1: Generate a draft</span>
-+!write_report <-
-    ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>,
-        <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, DraftRid);
-    !critique_draft(DraftRid).
+            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
 
-+!critique_draft(DraftRid)
-    :   gl.valid(DraftRid, <span class="keyword">true</span>)
-    <-  field(DraftRid, <span class="string">"text"</span>, Draft);
-        ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>,
-            .concat(<span class="string">"Critique this:\n"</span>, Draft), CritiqueRid);
-        !refine_draft(DraftRid, CritiqueRid).
+<span class="comment">// DOMAIN MODEL</span>
+refined(Rid) :- accepted_final(<span class="keyword">true</span>).
 
-+!refine_draft(DraftRid, CritiqueRid)
-    :   gl.valid(CritiqueRid, <span class="keyword">true</span>)
-    <-  field(DraftRid, <span class="string">"text"</span>, Draft);
-        field(CritiqueRid, <span class="string">"feedback"</span>, Feedback);
-        ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>,
-            .concat(<span class="string">"Improve:\n"</span>, Draft, <span class="string">"\nBased on:\n"</span>, Feedback), FinalRid);
-        !accept_final(FinalRid).
+!start.
 
-+!accept_final(FinalRid)
-    :   gl.valid(FinalRid, <span class="keyword">true</span>)
-    <-  candidate(FinalRid, Cid);
-        accept(Cid);
-        field(FinalRid, <span class="string">"text"</span>, FinalText);
-        .print(<span class="string">"Final accepted:\n"</span>, FinalText).</code></pre>
+<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
++!start
+   &lt;- !artifact_ready;
+      !configured(<span class="keyword">true</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, Rid);
+      !refined(Rid).
+
+<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
++!artifact_ready
+   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
+      focus(GlId).
+
+<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
++!configured(<span class="keyword">true</span>)
+   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
+   &lt;- configure(<span class="string">"model"</span>, M);
+      use_provider(P).
+
+<span class="comment">// SERENDIPITY</span>
++!refined(Rid)
+   :  refined(Rid)
+   &lt;- .println(<span class="string">"Already refined: "</span>, Rid).
+
+<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
++!refined(Rid)
+   &lt;- valid(Rid, IsValid);
+      !refined_branch(Rid, IsValid).
+
+<span class="comment">// DECOMPOSITION: valid &rarr; critique + improve + accept</span>
++!refined_branch(Rid, <span class="keyword">true</span>)
+   &lt;- !critiqued(Rid);
+      !improved(Rid);
+      !accepted_final(Rid);
+      ?refined(Rid).
+
+<span class="comment">// ACHIEVEMENT: invalid draft</span>
++!refined_branch(Rid, <span class="keyword">false</span>)
+   &lt;- -+pipeline_step(<span class="string">"draft_failed"</span>);
+      .println(<span class="string">"Draft invalid &rarr; ABORTED"</span>).
+
+<span class="comment">// ACHIEVEMENT: critique</span>
++!critiqued(DraftRid)
+   &lt;- -+pipeline_step(<span class="string">"critiquing"</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>, CritiqueRid);
+      valid(CritiqueRid, CValid);
+      if (CValid) {
+          +critiqued(CritiqueRid);
+          .println(<span class="string">"Draft &rarr; critique requested"</span>);
+      } else {
+          .println(<span class="string">"Critique invalid &rarr; ABORTED"</span>);
+          .fail;
+      }.
+
+<span class="comment">// SERENDIPITY</span>
++!critiqued(Rid)
+   :  critiqued(Rid)
+   &lt;- .println(<span class="string">"Already critiqued"</span>).
+
+<span class="comment">// ACHIEVEMENT: improve</span>
++!improved(Rid)
+   :  critiqued(CritiqueRid)
+   &lt;- -+pipeline_step(<span class="string">"refining"</span>);
+      ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>, FinalRid);
+      valid(FinalRid, FValid);
+      if (FValid) {
+          +improved(FinalRid);
+          .println(<span class="string">"Critique &rarr; refinement requested"</span>);
+      } else {
+          .println(<span class="string">"Refinement invalid &rarr; ABORTED"</span>);
+          .fail;
+      }.
+
+<span class="comment">// SERENDIPITY</span>
++!improved(Rid)
+   :  improved(Rid)
+   &lt;- .println(<span class="string">"Already improved"</span>).
+
+<span class="comment">// ACHIEVEMENT: accept final</span>
++!accepted_final(Rid)
+   :  improved(FinalRid)
+   &lt;- candidate(FinalRid, Cid);
+      accept(Cid);
+      +accepted_final(<span class="keyword">true</span>);
+      -+pipeline_step(<span class="string">"accepted"</span>);
+      .println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>).
+
+<span class="comment">// RECOVERY at each level</span>
+-!refined(Rid)
+   &lt;- -+pipeline_step(<span class="string">"failed"</span>);
+      .println(<span class="string">"Refinement pipeline FAILED for "</span>, Rid).
+
+-!critiqued(Rid)
+   &lt;- -+pipeline_step(<span class="string">"critique_failed"</span>);
+      .println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>).
+
+-!improved(Rid)
+   &lt;- -+pipeline_step(<span class="string">"refine_failed"</span>);
+      .println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>).</code></pre>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-8-iterative-refinement/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-8-iterative-refinement/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-8-iterative-refinement/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
