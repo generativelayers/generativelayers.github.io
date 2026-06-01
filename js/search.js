@@ -20,7 +20,8 @@ function installMobileFixes() {
   const style = document.createElement('style');
   style.id = 'gl-mobile-fixes';
   style.textContent = `
-    html, body {
+    html,
+    body {
       width: 100%;
       max-width: 100%;
       overflow-x: hidden;
@@ -32,6 +33,12 @@ function installMobileFixes() {
       width: 100vw;
       max-width: 100vw;
       box-sizing: border-box;
+      overflow: visible;
+    }
+
+    .header-inner {
+      position: relative;
+      z-index: 1;
     }
 
     .header-inner,
@@ -47,17 +54,28 @@ function installMobileFixes() {
     }
 
     .menu-toggle {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
-      min-height: 44px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      min-height: 48px;
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       position: relative;
-      z-index: 240;
-      pointer-events: auto;
+      z-index: 10000 !important;
+      pointer-events: auto !important;
+      isolation: isolate;
+    }
+
+    .menu-toggle,
+    .menu-toggle * {
+      pointer-events: auto !important;
+    }
+
+    .search-wrapper {
+      position: relative;
+      z-index: 1;
     }
 
     body.sidebar-open {
@@ -66,18 +84,18 @@ function installMobileFixes() {
 
     @media (max-width: 900px) {
       .top {
-        padding-left: clamp(10px, 3vw, 24px);
-        padding-right: clamp(10px, 3vw, 24px);
+        padding-left: 8px;
+        padding-right: 10px;
       }
 
       .header-inner {
         max-width: none;
-        gap: 12px;
+        gap: 8px;
       }
 
       .menu-toggle {
         display: flex !important;
-        flex: 0 0 44px;
+        flex: 0 0 48px;
       }
 
       .search-wrapper {
@@ -88,15 +106,15 @@ function installMobileFixes() {
       .side {
         width: min(86vw, 280px);
         max-width: 86vw;
-        z-index: 220;
+        z-index: 9998 !important;
       }
 
       .sidebar-backdrop {
-        z-index: 210;
+        z-index: 9997 !important;
       }
 
       .search-results {
-        z-index: 260;
+        z-index: 9999 !important;
       }
     }
 
@@ -106,12 +124,12 @@ function installMobileFixes() {
       }
 
       .top {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 6px;
+        padding-right: 8px;
       }
 
       .header-inner {
-        gap: 8px;
+        gap: 6px;
       }
 
       .header-logo {
@@ -472,11 +490,38 @@ document.addEventListener('DOMContentLoaded', () => {
       toggle.setAttribute('aria-expanded', 'false');
     }
 
-    toggle.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
+    function toggleSidebar(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-    });
+    }
+
+    function tapWithinToggle(event) {
+      const touch = event.touches ? event.touches[0] : event;
+      if (!touch) return false;
+      const rect = toggle.getBoundingClientRect();
+      const padding = 12;
+      const x = touch.clientX;
+      const y = touch.clientY;
+      return x >= rect.left - padding &&
+             x <= rect.right + padding &&
+             y >= rect.top - padding &&
+             y <= rect.bottom + padding;
+    }
+
+    // Chrome mobile sometimes gives the first tap to the focused search input / keyboard.
+    // Capture the physical tap by coordinates before blur/click retargeting can steal it.
+    document.addEventListener('pointerdown', event => {
+      if (tapWithinToggle(event)) toggleSidebar(event);
+    }, { capture: true, passive: false });
+
+    document.addEventListener('touchstart', event => {
+      if (tapWithinToggle(event)) toggleSidebar(event);
+    }, { capture: true, passive: false });
+
+    toggle.addEventListener('click', toggleSidebar);
 
     if (backdrop) backdrop.addEventListener('click', closeSidebar);
     sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeSidebar));
