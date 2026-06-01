@@ -494,8 +494,9 @@ p, li {
 
 .repo-card h3 {
   margin: 0 0 6px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
+  font-family: var(--font-heading);
   color: var(--color-green-700);
   transition: color 0.2s var(--ease);
 }
@@ -506,8 +507,9 @@ p, li {
 
 .repo-card p {
   margin: 0;
-  font-size: 15px;
-  color: var(--color-text-muted);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
 }
 
 /* --- Architecture Flow --- */
