@@ -1157,6 +1157,12 @@ pre code {
   color: #0369a1;
 }
 
+.badge-vscode {
+  background: #fef3ec;
+  border: 1px solid #fcd5b8;
+  color: #c24914;
+}
+
 .repo-card-footer {
   display: flex;
   justify-content: space-between;
