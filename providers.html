@@ -106,111 +106,102 @@
                   <th style="padding:10px 12px;font-weight:700;">Free Tier</th>
                   <th style="padding:10px 12px;font-weight:700;">Tested Models</th>
                   <th style="padding:10px 12px;font-weight:700;">Status</th>
+                  <th style="padding:10px 12px;font-weight:700;text-align:center;">Setup</th>
                 </tr>
               </thead>
               <tbody>
-                <tr style="border-bottom:1px solid var(--color-border-light);">
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://aistudio.google.com/apikey" target="_blank" style="color:#22c55e;">Gemini</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">15 req/min, 1,500/day</td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gemini-2.0-flash</code>, <code>gemini-2.5-flash</code></td>
-                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--color-border-light);">
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://cloud.cerebras.ai" target="_blank" style="color:#ef4444;">Cerebras</a></td>
+                <!-- Cerebras -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('cerebras')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://cloud.cerebras.ai" target="_blank" style="color:#ef4444;" onclick="event.stopPropagation();">Cerebras</a></td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-oss-120b</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('cerebras')"><i class="fa-solid fa-eye"></i></button></td>
                 </tr>
-                <tr style="border-bottom:1px solid var(--color-border-light);">
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://console.groq.com/keys" target="_blank" style="color:#f97316;">Groq</a></td>
+                <tr id="setup-cerebras" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#ef4444;">Cerebras</strong> &mdash; <a href="https://cloud.cerebras.ai" target="_blank" style="color:var(--color-green-700);">cloud.cerebras.ai</a><br>
+                      Sign up (no credit card) &rarr; API Keys &rarr; Export as <code>CEREBRAS_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Groq -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('groq')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://console.groq.com/keys" target="_blank" style="color:#f97316;" onclick="event.stopPropagation();">Groq</a></td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);">30 req/min, 14,400/day</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>llama-3.3-70b-versatile</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('groq')"><i class="fa-solid fa-eye"></i></button></td>
                 </tr>
-                <tr style="border-bottom:1px solid var(--color-border-light);">
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.openai.com/api-keys" target="_blank" style="color:#3b82f6;">OpenAI</a></td>
+                <tr id="setup-groq" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#f97316;">Groq</strong> &mdash; <a href="https://console.groq.com/keys" target="_blank" style="color:var(--color-green-700);">console.groq.com/keys</a><br>
+                      Sign up (free) &rarr; Create API Key &rarr; Export as <code>GROQ_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export GROQ_API_KEY=<span class="string">"gsk_...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Gemini -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('gemini')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://aistudio.google.com/apikey" target="_blank" style="color:#22c55e;" onclick="event.stopPropagation();">Gemini</a></td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">15 req/min, 1,500/day</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gemini-2.0-flash</code>, <code>gemini-2.5-flash</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('gemini')"><i class="fa-solid fa-eye"></i></button></td>
+                </tr>
+                <tr id="setup-gemini" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#22c55e;">Gemini</strong> &mdash; <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--color-green-700);">aistudio.google.com/apikey</a><br>
+                      Sign in with Google &rarr; Create API Key &rarr; Export as <code>GEMINI_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export GEMINI_API_KEY=<span class="string">"AIzaSy...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
+                <!-- OpenAI -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('openai')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.openai.com/api-keys" target="_blank" style="color:#3b82f6;" onclick="event.stopPropagation();">OpenAI</a></td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);">Paid only</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-4o</code>, <code>gpt-4o-mini</code></td>
                   <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('openai')"><i class="fa-solid fa-eye"></i></button></td>
                 </tr>
-                <tr>
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#8b5cf6;">DeepSeek</a></td>
+                <tr id="setup-openai" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#3b82f6;">OpenAI</strong> &mdash; <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--color-green-700);">platform.openai.com/api-keys</a><br>
+                      Sign up &rarr; Create API Key &rarr; Export as <code>OPENAI_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
+                <!-- DeepSeek -->
+                <tr style="cursor:pointer;" onclick="toggleProviderSetup('deepseek')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#8b5cf6;" onclick="event.stopPropagation();">DeepSeek</a></td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);">Small initial credit</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>deepseek-chat</code></td>
                   <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('deepseek')"><i class="fa-solid fa-eye"></i></button></td>
+                </tr>
+                <tr id="setup-deepseek" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#8b5cf6;">DeepSeek</strong> &mdash; <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:var(--color-green-700);">platform.deepseek.com/api_keys</a><br>
+                      Sign up &rarr; Create API Key &rarr; Export as <code>DEEPSEEK_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Getting API Keys -->
-        <div class="card" style="padding:0;margin-bottom:16px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('provider-keys')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-key" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Getting API Keys</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('provider-keys')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-provider-keys" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-top:12px;">
-                <strong style="color:#22c55e;">Gemini</strong> &mdash; <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--color-green-700);">aistudio.google.com/apikey</a><br>
-                Sign in with Google &rarr; Create API Key &rarr; Export as <code>GEMINI_API_KEY</code><br><br>
-
-                <strong style="color:#ef4444;">Cerebras</strong> &mdash; <a href="https://cloud.cerebras.ai" target="_blank" style="color:var(--color-green-700);">cloud.cerebras.ai</a><br>
-                Sign up (no credit card) &rarr; API Keys &rarr; Export as <code>CEREBRAS_API_KEY</code><br><br>
-
-                <strong style="color:#f97316;">Groq</strong> &mdash; <a href="https://console.groq.com/keys" target="_blank" style="color:var(--color-green-700);">console.groq.com/keys</a><br>
-                Sign up (free) &rarr; Create API Key &rarr; Export as <code>GROQ_API_KEY</code><br><br>
-
-                <strong style="color:#3b82f6;">OpenAI</strong> &mdash; <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--color-green-700);">platform.openai.com/api-keys</a><br>
-                Sign up &rarr; Create API Key &rarr; Export as <code>OPENAI_API_KEY</code><br><br>
-
-                <strong style="color:#8b5cf6;">DeepSeek</strong> &mdash; <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:var(--color-green-700);">platform.deepseek.com/api_keys</a><br>
-                Sign up &rarr; Create API Key &rarr; Export as <code>DEEPSEEK_API_KEY</code>
-              </div>
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:14px 0 0;overflow-x:auto;"><code><span class="comment"># Set your API key as an environment variable</span>
-<span class="comment"># Linux / macOS:</span>
-export CEREBRAS_API_KEY="csk_your_key_here"
-
-<span class="comment"># Windows (PowerShell):</span>
-$env:CEREBRAS_API_KEY = "csk_your_key_here"
-
-<span class="comment"># Windows (CMD):</span>
-set CEREBRAS_API_KEY=csk_your_key_here</code></pre>
-            </div>
-          </div>
-        </div>
-
         <!-- Usage Examples -->
         <div style="font-size:15px;font-weight:700;margin:20px 0 12px;"><i class="fa-solid fa-code" style="margin-right:6px;color:#06b6d4;"></i>Usage Examples</div>
-
-        <!-- Gemini (different protocol) -->
-        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #22c55e;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#22c55e;"><i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Native Google API)</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's own API protocol &mdash; <strong>not</strong> the Chat Completions format. It has its own dedicated provider class.</div>
-          <div class="tabs-container">
-            <div class="tabs-header">
-              <div class="tabs-buttons">
-                <button class="tab-btn active" data-tab="prov-gemini-astra">ASTRA</button>
-                <button class="tab-btn" data-tab="prov-gemini-jason">Jason</button>
-                <button class="tab-btn" data-tab="prov-gemini-jacamo">JaCaMo</button>
-              </div>
-            </div>
-            <div class="tab-content active" id="prov-gemini-astra">
-              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
-            </div>
-            <div class="tab-content" id="prov-gemini-jason">
-              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
-            </div>
-            <div class="tab-content" id="prov-gemini-jacamo">
-              <pre><code>configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
-use_provider(<span class="string">"gemini"</span>);</code></pre>
-            </div>
-          </div>
-        </div>
 
         <!-- Cerebras -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
@@ -262,6 +253,33 @@ gl.use_provider(<span class="string">"groq"</span>);</code></pre>
             <div class="tab-content" id="prov-groq-jacamo">
               <pre><code>configure(<span class="string">"model"</span>, <span class="string">"llama-3.3-70b-versatile"</span>);
 use_provider(<span class="string">"groq"</span>);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gemini (different protocol) -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #22c55e;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#22c55e;"><i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Native Google API)</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's own API protocol &mdash; <strong>not</strong> the Chat Completions format. It has its own dedicated provider class.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-gemini-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-gemini-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-gemini-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-gemini-astra">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-gemini-jason">
+              <pre><code>gl.configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+gl.use_provider(<span class="string">"gemini"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-gemini-jacamo">
+              <pre><code>configure(<span class="string">"model"</span>, <span class="string">"gemini-2.0-flash"</span>);
+use_provider(<span class="string">"gemini"</span>);</code></pre>
             </div>
           </div>
         </div>
@@ -380,6 +398,17 @@ string vrid = gl.ask(<span class="string">"agent1"</span>, <span class="string">
       } else {
         el.style.maxHeight = '0';
         setTimeout(function() { el.style.display = 'none'; }, 300);
+      }
+    };
+
+    // --- Provider Setup Toggle (inline table rows) ---
+    window.toggleProviderSetup = function(id) {
+      var el = document.getElementById('setup-' + id);
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'table-row';
+      } else {
+        el.style.display = 'none';
       }
     };
 
