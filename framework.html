@@ -1,177 +1,161 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
   <title>Framework | Generative Layers</title>
-  <meta name="description" content="Framework architecture, concepts, and design rules for Generative Layers.">
-  <meta name="keywords" content="governance architecture, BDI adapter, generative resource layers, autonomous agents, LLM safety boundary">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://www.generativelayers.com/framework.html">
-  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+  <meta name='description' content='Framework architecture, concepts, and design rules for Generative Layers.'>
+  <meta name='keywords' content='governance architecture, BDI adapter, generative resource layers, autonomous agents, LLM safety boundary'>
+  <meta name='robots' content='index, follow'>
+  <link rel='canonical' href='https://www.generativelayers.com/framework.html'>
+  <link rel='icon' href='/icon/icon.ico' type='image/x-icon'>
 
   <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Generative Layers">
-  <meta property="og:title" content="Framework | Generative Layers">
-  <meta property="og:description" content="Framework architecture, concepts, and design rules for Generative Layers.">
-  <meta property="og:url" content="https://www.generativelayers.com/framework.html">
-  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+  <meta property='og:type' content='website'>
+  <meta property='og:site_name' content='Generative Layers'>
+  <meta property='og:title' content='Framework | Generative Layers'>
+  <meta property='og:description' content='Framework architecture, concepts, and design rules for Generative Layers.'>
+  <meta property='og:url' content='https://www.generativelayers.com/framework.html'>
+  <meta property='og:image' content='https://www.generativelayers.com/icon/logo.png'>
 
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Framework | Generative Layers">
-  <meta name="twitter:description" content="Framework architecture, concepts, and design rules for Generative Layers.">
-  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "headline": "Generative Layers Framework Architecture",
-    "description": "Framework architecture, concepts, and design rules for integrating BDI agents with generative models securely.",
-    "url": "https://www.generativelayers.com/framework.html",
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Generative Layers",
-      "url": "https://www.generativelayers.com/"
-    }
-  }
-  </script>
+  <meta name='twitter:card' content='summary_large_image'>
+  <meta name='twitter:title' content='Framework | Generative Layers'>
+  <meta name='twitter:description' content='Framework architecture, concepts, and design rules for Generative Layers.'>
+  <meta name='twitter:image' content='https://www.generativelayers.com/icon/logo.png'>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=3.6">
-  <script defer src="js/search.js"></script>
-  <script defer src="js/run-code-links.js?v=1"></script>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'>
+  <link rel='stylesheet' href='style.css?v=3.6'>
+  <script defer src='js/search.js'></script>
+  <script defer src='js/run-code-links.js?v=1'></script>
 </head>
 <body>
 
   <!-- Header -->
-  <header class="top">
-    <div class="header-inner">
-      <button class="menu-toggle" aria-label="Toggle menu">
-        <i class="fa-solid fa-bars"></i>
+  <header class='top'>
+    <div class='header-inner'>
+      <button class='menu-toggle' aria-label='Toggle menu'>
+        <i class='fa-solid fa-bars'></i>
       </button>
-      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
-      <div class="search-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input class="search" placeholder="Search…" aria-label="Search">
+      <img class='header-logo' src='/icon/logo.png' alt='Generative Layers' width='36' height='36'>
+      <div class='search-wrapper'>
+        <i class='fa-solid fa-magnifying-glass search-icon'></i>
+        <input class='search' placeholder='Search…' aria-label='Search'>
       </div>
     </div>
   </header>
 
-  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class='sidebar-backdrop' id='sidebarBackdrop'></div>
 
-  <div class="layout">
+  <div class='layout'>
     <!-- Sidebar -->
-    <aside class="side" id="sidebar">
-      <div class="side-label">Documentation</div>
-      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
-      <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
-      <a class="active" href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
-      <a href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
-      <a href="providers.html"><i class="fa-solid fa-plug"></i><span>Providers</span></a>
-      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
-      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    <aside class='side' id='sidebar'>
+      <div class='side-label'>Documentation</div>
+      <a href='index.html'><i class='fa-solid fa-house'></i><span>Introduction</span></a>
+      <a href='getting-started.html'><i class='fa-solid fa-rocket'></i><span>Getting Started</span></a>
+      <a class='active' href='framework.html'><i class='fa-solid fa-layer-group'></i><span>Framework</span></a>
+      <a href='patterns.html'><i class='fa-solid fa-shield-halved'></i><span>Patterns</span></a>
+      <a href='providers.html'><i class='fa-solid fa-plug'></i><span>Providers</span></a>
+      <a href='research.html'><i class='fa-solid fa-microscope'></i><span>Research</span></a>
+      <a href='repositories.html'><i class='fa-brands fa-github'></i><span>Repositories</span></a>
     </aside>
 
     <!-- Main -->
-    <main class="main">
+    <main class='main'>
       <h1>Framework</h1>
-      <p class="lead">The framework boundary between agent programs and external generative resources.</p>
+      <p class='lead'>The framework boundary between agent programs and external generative resources.</p>
 
-      <section class="info-panel" id="request-path">
+      <section class='info-panel' id='request-path'>
         <h2>Request path</h2>
-        <div class="architecture">
-          <div class="arch-box" onclick="scrollToCommand('row-ask')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-user-gear arch-icon-indicator"></i>
+        <div class='architecture'>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-ask&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-user-gear arch-icon-indicator'></i>
               <span>1. Agent asks for external support.</span>
             </div>
-            <span class="arch-phase-badge phase-initiation">Initiation</span>
+            <span class='arch-phase-badge phase-initiation'>Initiation</span>
           </div>
-          <div class="arch-arrow">↓</div>
-          <div class="arch-box" onclick="scrollToCommand('row-use_provider')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-diagram-project arch-icon-indicator"></i>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-use_provider&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-diagram-project arch-icon-indicator'></i>
               <span>2. Adapter creates a Generative Layers request.</span>
             </div>
-            <span class="arch-phase-badge phase-step-two">Adapter</span>
+            <span class='arch-phase-badge phase-step-two'>Adapter</span>
           </div>
-          <div class="arch-arrow">↓</div>
-          <div class="arch-box" onclick="scrollToCommand('row-admissible')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-shield-halved arch-icon-indicator"></i>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-admissible&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-shield-halved arch-icon-indicator'></i>
               <span>3. Governance checks policy, limits, context, and audit requirements.</span>
             </div>
-            <span class="arch-phase-badge phase-governance">Governance</span>
+            <span class='arch-phase-badge phase-governance'>Governance</span>
           </div>
-          <div class="arch-arrow">↓</div>
-          <div class="arch-box" onclick="scrollToCommand('row-invoke')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-server arch-icon-indicator"></i>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-invoke&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-server arch-icon-indicator'></i>
               <span>4. Provider calls an LLM, tool, API, service, or module.</span>
             </div>
-            <span class="arch-phase-badge phase-execution">Provider</span>
+            <span class='arch-phase-badge phase-execution'>Provider</span>
           </div>
-          <div class="arch-arrow">↓</div>
-          <div class="arch-box" onclick="scrollToCommand('row-candidate')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-cube arch-icon-indicator"></i>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-candidate&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-cube arch-icon-indicator'></i>
               <span>5. Result returns as candidate material.</span>
             </div>
-            <span class="arch-phase-badge phase-material">Material</span>
+            <span class='arch-phase-badge phase-material'>Material</span>
           </div>
-          <div class="arch-arrow">↓</div>
-          <div class="arch-box" onclick="scrollToCommand('row-accept')" title="Click to view matching API command">
-            <div class="arch-text-wrapper">
-              <i class="fa-solid fa-scale-balanced arch-icon-indicator"></i>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand(&quot;row-accept&quot;)' title='Click to view matching API command'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-scale-balanced arch-icon-indicator'></i>
               <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
             </div>
-            <span class="arch-phase-badge phase-decision">Decision</span>
+            <span class='arch-phase-badge phase-decision'>Decision</span>
           </div>
         </div>
       </section>
 
-      <section class="info-panel" id="core-concepts">
+      <section class='info-panel' id='core-concepts'>
         <h2>Core concepts</h2>
-        
+
         <!-- Agent Layer -->
-        <div class="concept-card card" id="concept-agent-layer" onclick="toggleConcept('agent-layer')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-user-gear"></i> Agent Layer</h3>
-              <p class="concept-desc">The host agent platform and its execution semantics.</p>
+        <div class='concept-card card' id='concept-agent-layer' onclick='toggleConcept(&quot;agent-layer&quot;)'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-user-gear'></i> Agent Layer</h3>
+              <p class='concept-desc'>The host agent platform and its execution semantics.</p>
             </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
+            <button class='concept-toggle-btn' aria-label='Expand Details'>
+              <i class='fa-solid fa-eye'></i>
             </button>
           </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
+          <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Autonomous Control</strong>: Maintains the main BDI (Belief-Desire-Intention) reasoning loop, managing the agent's internal state.</li>
+              <li><strong>Autonomous Control</strong>: Maintains the main BDI (Belief-Desire-Intention) reasoning loop, managing the agent internal state.</li>
               <li><strong>Asynchronous Triggers</strong>: Inquires external support asynchronously, maintaining internal stability while waiting for generative responses.</li>
               <li><strong>Context-Guarded Decision</strong>: Employs native agent guard conditions to decide whether to adopt, verify, ignore, or reject the candidate material.</li>
             </ul>
           </div>
         </div>
-        
+
         <!-- Adapter -->
-        <div class="concept-card card" id="concept-adapter" onclick="toggleConcept('adapter')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-diagram-project"></i> Adapter</h3>
-              <p class="concept-desc">The bridge between an agent framework and Generative Layers.</p>
+        <div class='concept-card card' id='concept-adapter' onclick='toggleConcept(&quot;adapter&quot;)'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-diagram-project'></i> Adapter</h3>
+              <p class='concept-desc'>The bridge between an agent framework and Generative Layers.</p>
             </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
+            <button class='concept-toggle-btn' aria-label='Expand Details'>
+              <i class='fa-solid fa-eye'></i>
             </button>
           </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
+          <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Datatype Translation</strong>: Maps native agent datatypes (like AgentSpeak terms, structures, and lists) to standard Java parameters and vice versa.</li>
+              <li><strong>Datatype Translation</strong>: Maps native agent datatypes, such as AgentSpeak terms, structures, and lists, to standard Java parameters and vice versa.</li>
               <li><strong>Syntactic Integration</strong>: Realizes the canonical API as native extensions, such as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts.</li>
               <li><strong>Asynchronous Lifecycle Binding</strong>: Manages request session tracking, binding asynchronous responses to the initiating agent context.</li>
             </ul>
@@ -179,84 +163,81 @@
         </div>
 
         <!-- Governance Boundary -->
-        <div class="concept-card card" id="concept-governance" onclick="toggleConcept('governance')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-shield-halved"></i> Governance Boundary</h3>
-              <p class="concept-desc">Policy, limits, audit, and admissibility checks.</p>
+        <div class='concept-card card' id='concept-governance' onclick='toggleConcept(&quot;governance&quot;)'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-shield-halved'></i> Governance Boundary</h3>
+              <p class='concept-desc'>Policy, limits, audit, and admissibility checks.</p>
             </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
+            <button class='concept-toggle-btn' aria-label='Expand Details'>
+              <i class='fa-solid fa-eye'></i>
             </button>
           </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
+          <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Decoupled Safety Policies</strong>: Enforces budget rules, token limits, rate caps, and content boundaries completely outside of agent logic.</li>
-              <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log all request contexts, policies checked, and outbound results.</li>
+              <li><strong>Decoupled Safety Policies</strong>: Enforces budget rules, token limits, rate caps, and content boundaries completely outside agent logic.</li>
+              <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log request contexts, checked policies, and outbound results.</li>
               <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
             </ul>
           </div>
         </div>
 
         <!-- Provider -->
-        <div class="concept-card card" id="concept-provider" onclick="toggleConcept('provider')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-server"></i> Provider</h3>
-              <p class="concept-desc">The abstract connector to an LLM, tool, API, service, or module.</p>
+        <div class='concept-card card' id='concept-provider' onclick='toggleConcept(&quot;provider&quot;)'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-server'></i> Provider</h3>
+              <p class='concept-desc'>The abstract connector to an LLM, tool, API, service, or module.</p>
             </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
+            <button class='concept-toggle-btn' aria-label='Expand Details'>
+              <i class='fa-solid fa-eye'></i>
             </button>
           </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
+          <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
               <li><strong>Resource Abstraction</strong>: Encapsulates model-specific API calls, tool setups, or service connections under a unified invocation contract.</li>
-              <li><strong>Resilience & Networking</strong>: Isolates HTTP requests, handles rate limits, and manages retries/backoffs without blocking agent threads.</li>
-              <li><strong>Unified Interface</strong>: Simplifies provider switching (e.g. swapping model endpoints or mock providers) with zero changes to agent logic.</li>
+              <li><strong>Resilience & Networking</strong>: Isolates HTTP requests, handles rate limits, and manages retries or backoff without blocking agent threads.</li>
+              <li><strong>Unified Interface</strong>: Simplifies provider switching, such as swapping model endpoints or mock providers, with zero changes to agent logic.</li>
             </ul>
           </div>
         </div>
 
         <!-- Candidate Material -->
-        <div class="concept-card card" id="concept-material" onclick="toggleConcept('material')">
-          <div class="concept-header">
-            <div class="concept-title-group">
-              <h3 class="concept-title"><i class="fa-solid fa-cube"></i> Candidate Material</h3>
-              <p class="concept-desc">External output that may be adopted, verified, ignored, or rejected.</p>
+        <div class='concept-card card' id='concept-material' onclick='toggleConcept(&quot;material&quot;)'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-cube'></i> Candidate Material</h3>
+              <p class='concept-desc'>External output that may be adopted, verified, ignored, or rejected.</p>
             </div>
-            <button class="concept-toggle-btn" aria-label="Expand Details">
-              <i class="fa-solid fa-eye"></i>
+            <button class='concept-toggle-btn' aria-label='Expand Details'>
+              <i class='fa-solid fa-eye'></i>
             </button>
           </div>
-          <div class="concept-details" onclick="event.stopPropagation()">
+          <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Isolated State Container</strong>: Exposes the generated values to the agent without automatically modifying any internal beliefs or plans.</li>
-              <li><strong>Structured Inspections</strong>: Provides safe query boundaries (via <code>valid()</code> and <code>field()</code>) so agents can inspect the data before adoption.</li>
-              <li><strong>Deliberated Incorporation</strong>: Merges fields into the agent's belief base only when the agent explicitly adopts the candidate (via <code>accept()</code>).</li>
+              <li><strong>Isolated State Container</strong>: Exposes generated values to the agent without automatically modifying internal beliefs or plans.</li>
+              <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>valid()</code> and <code>field()</code> so agents can inspect data before adoption.</li>
+              <li><strong>Deliberated Incorporation</strong>: Merges fields into the agent belief base only when the agent explicitly adopts the candidate through <code>accept()</code>.</li>
             </ul>
           </div>
         </div>
       </section>
 
-
-      <section class="info-panel" id="canonical-commands">
+      <section class='info-panel' id='canonical-commands'>
         <h2>Canonical commands</h2>
         <p>The framework establishes a strict canonical contract of 16 core commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
 
         <!-- Command Filters -->
-        <div class="command-filters">
-          <button class="filter-btn active" data-group="all">All</button>
-          <button class="filter-btn" data-group="lifecycle">Lifecycle</button>
-          <button class="filter-btn" data-group="invocation">Invocation</button>
-          <button class="filter-btn" data-group="decision">Decision</button>
+        <div class='command-filters'>
+          <button class='filter-btn active' data-group='all'>All</button>
+          <button class='filter-btn' data-group='lifecycle'>Lifecycle</button>
+          <button class='filter-btn' data-group='invocation'>Invocation</button>
+          <button class='filter-btn' data-group='decision'>Decision</button>
         </div>
-
-        <p class="note">Run buttons are enabled for ASTRA examples on this page. Other platform tabs are shown for syntax comparison.</p>
       </section>
     </main>
   </div>
 
-  <script src="js/framework.js"></script>
+  <script src='js/framework.js'></script>
 </body>
 </html>
