@@ -1,0 +1,60 @@
+.framework-main {
+  max-width: 1180px;
+}
+
+.framework-main #canonical-commands .table-container {
+  overflow-x: visible;
+}
+
+.framework-main #canonical-commands .commands-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.framework-main #canonical-commands .commands-table col:nth-child(1) {
+  width: 24% !important;
+}
+
+.framework-main #canonical-commands .commands-table col:nth-child(2) {
+  width: 13% !important;
+}
+
+.framework-main #canonical-commands .commands-table col:nth-child(3) {
+  width: 50% !important;
+}
+
+.framework-main #canonical-commands .commands-table col:nth-child(4) {
+  width: 13% !important;
+}
+
+.framework-main #canonical-commands .commands-table th,
+.framework-main #canonical-commands .commands-table td {
+  padding: 14px 14px;
+}
+
+.framework-main #canonical-commands .commands-table th:nth-child(4),
+.framework-main #canonical-commands .commands-table td:nth-child(4) {
+  min-width: 96px;
+  text-align: center;
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.framework-main #canonical-commands .view-example-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .framework-main #canonical-commands .table-container {
+    overflow-x: auto;
+  }
+
+  .framework-main #canonical-commands .commands-table {
+    min-width: 860px;
+  }
+}
