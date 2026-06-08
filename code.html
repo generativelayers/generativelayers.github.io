@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run Code | Generative Layers</title>
+  <meta name="description" content="Run controlled ASTRA examples for Generative Layers through the hosted code server.">
+  <meta name="keywords" content="Generative Layers, ASTRA, run code, BDI agents, Java, agent programming">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/code.html">
+  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Generative Layers">
+  <meta property="og:title" content="Run Code | Generative Layers">
+  <meta property="og:description" content="Run controlled ASTRA examples through the hosted Generative Layers code server.">
+  <meta property="og:url" content="https://www.generativelayers.com/code.html">
+  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Run Code | Generative Layers">
+  <meta name="twitter:description" content="Run controlled ASTRA examples through the hosted Generative Layers code server.">
+  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=3.6">
+  <script defer src="js/search.js"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search…" aria-label="Search">
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="layout">
+    <aside class="side" id="sidebar">
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
+      <a href="providers.html"><i class="fa-solid fa-plug"></i><span>Providers</span></a>
+      <a class="active" href="code.html"><i class="fa-solid fa-code"></i><span>Run Code</span></a>
+      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    </aside>
+
+    <main class="main">
+      <h1>Run Code</h1>
+      <p class="lead">Run controlled ASTRA examples through the hosted Generative Layers code server.</p>
+
+      <section class="info-panel" id="run-code">
+        <h2><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-green-700);"></i>ASTRA Code Runner</h2>
+        <p>
+          This page connects to the hosted execution environment at
+          <a href="https://code.generativelayers.com" target="_blank" rel="noopener noreferrer">code.generativelayers.com</a>.
+          The current runner starts a controlled ASTRA program on demand, executes it with server-side limits, and returns the execution trace.
+        </p>
+
+        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin:18px 0;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Hosted runner</div>
+          <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 14px;">
+            Use the external runner page to execute the current ASTRA demonstration. Arbitrary user-submitted code should only be enabled after sandboxing, queue limits, timeouts, and abuse protection are fully hardened.
+          </p>
+          <a href="https://code.generativelayers.com" target="_blank" rel="noopener noreferrer" class="card" style="display:inline-flex;align-items:center;gap:10px;padding:12px 16px;text-decoration:none;color:var(--color-text);border-left:3px solid var(--color-green-700);">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--color-green-700);"></i>
+            <span style="font-weight:700;">Open Code Runner</span>
+          </a>
+        </div>
+
+        <div class="card" style="padding:20px;margin-top:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Execution model</div>
+          <pre><code>Website
+  → code.generativelayers.com
+  → Nginx
+  → local controller
+  → Java 17 / Maven / ASTRA
+  → controlled result</code></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarBackdrop').classList.toggle('open');
+    });
+    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.remove('open');
+      this.classList.remove('open');
+    });
+  </script>
+
+</body>
+</html>
