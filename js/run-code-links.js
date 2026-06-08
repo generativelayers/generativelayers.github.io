@@ -10,6 +10,10 @@
       .tabs-container pre, .mini-code-block pre, .gl-run-shell pre, pre.gl-code-normalized { overflow-x:hidden !important; white-space:pre-wrap !important; overflow-wrap:anywhere !important; background:#0b1220 !important; }
       .tabs-container pre code, .mini-code-block pre code, .gl-run-shell pre code, pre.gl-code-normalized code { white-space:pre-wrap !important; overflow-wrap:anywhere !important; }
       .tabs-header, .gl-run-bar { background:#111827 !important; border-bottom:1px solid #1f2937 !important; }
+      .tabs-header { gap:10px !important; }
+      .tabs-header .tabs-buttons { margin-right:auto !important; }
+      .tabs-header .gl-run-btn { margin-left:8px !important; }
+      .mini-tabs .gl-run-btn { margin-left:8px !important; }
       .gl-run-shell { border:1px solid #1f2937; border-radius:10px; overflow:hidden; margin:0; }
       .tabs-container .gl-run-shell, .mini-code-container .gl-run-shell { border:0; border-radius:0; }
       .gl-run-bar { display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:8px 12px; }
@@ -69,12 +73,7 @@
     window.location.href = new URL('code.html#load=' + encoded, window.location.href).toString();
   }
 
-  function addButton(pre) {
-    if (!isAstra(pre)) return;
-    const shell = document.createElement('div');
-    shell.className = 'gl-run-shell';
-    const bar = document.createElement('div');
-    bar.className = 'gl-run-bar';
+  function makeRunButton(pre) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'gl-run-btn';
@@ -84,12 +83,51 @@
       event.stopPropagation();
       openRunner(makeRunnable(textOf(pre)), titleFor(pre));
     });
-    bar.appendChild(button);
+    return button;
+  }
+
+  function addButtonToTabsHeader(pre) {
+    const tabs = pre.closest('.tabs-container');
+    const header = tabs ? tabs.querySelector(':scope > .tabs-header') : null;
+    if (!header || header.dataset.glRunReady === '1') return false;
+
+    header.appendChild(makeRunButton(pre));
+    header.dataset.glRunReady = '1';
+    pre.classList.add('gl-code-normalized');
+    pre.dataset.glRunReady = '1';
+    return true;
+  }
+
+  function addButtonToMiniTabs(pre) {
+    const details = pre.closest('.cmd-details-content');
+    const miniTabs = details ? details.querySelector('.mini-tabs') : null;
+    if (!miniTabs || miniTabs.dataset.glRunReady === '1') return false;
+
+    miniTabs.appendChild(makeRunButton(pre));
+    miniTabs.dataset.glRunReady = '1';
+    pre.classList.add('gl-code-normalized');
+    pre.dataset.glRunReady = '1';
+    return true;
+  }
+
+  function addFallbackButton(pre) {
+    const shell = document.createElement('div');
+    shell.className = 'gl-run-shell';
+    const bar = document.createElement('div');
+    bar.className = 'gl-run-bar';
+    bar.appendChild(makeRunButton(pre));
     pre.parentNode.insertBefore(shell, pre);
     shell.appendChild(bar);
     shell.appendChild(pre);
     pre.classList.add('gl-code-normalized');
     pre.dataset.glRunReady = '1';
+  }
+
+  function addButton(pre) {
+    if (!isAstra(pre)) return;
+    if (addButtonToTabsHeader(pre)) return;
+    if (addButtonToMiniTabs(pre)) return;
+    addFallbackButton(pre);
   }
 
   function scan() {
