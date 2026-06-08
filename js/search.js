@@ -8,6 +8,7 @@ const PAGES = [
   'framework.html',
   'patterns.html',
   'providers.html',
+  'code.html',
   'research.html',
   'repositories.html'
 ];
@@ -15,6 +16,30 @@ const PAGES = [
 let searchIndex = null;
 let lockedScrollY = 0;
 let isSidebarLocked = false;
+
+function installRunCodeNavigation() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar || sidebar.querySelector('a[href="code.html"]')) return;
+
+  const providersLink = sidebar.querySelector('a[href="providers.html"]');
+  const runCodeLink = document.createElement('a');
+  runCodeLink.href = 'code.html';
+  runCodeLink.innerHTML = '<i class="fa-solid fa-code"></i><span>Run Code</span>';
+
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPage === 'code.html') {
+    runCodeLink.classList.add('active');
+    sidebar.querySelectorAll('a.active').forEach(link => {
+      if (link !== runCodeLink) link.classList.remove('active');
+    });
+  }
+
+  if (providersLink) {
+    providersLink.insertAdjacentElement('afterend', runCodeLink);
+  } else {
+    sidebar.appendChild(runCodeLink);
+  }
+}
 
 function installMobileFixes() {
   if (document.getElementById('gl-mobile-fixes')) return;
@@ -218,391 +243,12 @@ function installMobileFixes() {
   document.head.appendChild(style);
 }
 
-async function buildIndex() {
-  const entries = [];
-
-  for (const pageUrl of PAGES) {
-    try {
-      const resp = await fetch(pageUrl, { cache: 'no-cache' });
-      if (!resp.ok) continue;
-      const html = await resp.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const main = doc.querySelector('.main') || doc.querySelector('#page-content') || doc.body;
-      if (!main) continue;
-
-      const h1 = main.querySelector('h1');
-      const pageTitle = h1 ? h1.textContent.trim() : (doc.title || pageUrl);
-      const sections = [];
-      let currentSection = { heading: pageTitle, id: '', texts: [] };
-
-      for (const node of main.children) {
-        if (node.tagName === 'FOOTER' || node.tagName === 'NAV') continue;
-        if (node.classList && node.classList.contains('footer')) continue;
-        if (node.classList && node.classList.contains('site-logo')) continue;
-
-        const heading = (node.tagName === 'H2') ? node
-          : (node.tagName === 'SECTION' || node.classList?.contains('info-panel'))
-            ? node.querySelector('h2')
-            : null;
-
-        if (heading && currentSection.texts.length > 0) {
-          sections.push({ ...currentSection });
-          currentSection = {
-            heading: heading.textContent.trim(),
-            id: heading.id || node.id || '',
-            texts: []
-          };
-        } else if (heading && currentSection.texts.length === 0) {
-          currentSection.heading = heading.textContent.trim();
-          currentSection.id = heading.id || node.id || '';
-        }
-
-        const text = node.textContent.trim();
-        if (text && text.length > 1) currentSection.texts.push(text);
-      }
-
-      if (currentSection.texts.length > 0) sections.push(currentSection);
-
-      for (const sec of sections) {
-        entries.push({
-          page: pageTitle,
-          section: sec.heading,
-          text: sec.texts.join(' '),
-          url: pageUrl + (sec.id ? `#${sec.id}` : '')
-        });
-      }
-    } catch (e) {
-      // Skip pages that fail to load.
-    }
-  }
-
-  return entries;
-}
-
-function tokenise(str) {
-  return str.toLowerCase().replace(/[^a-z0-9\s\-]/g, '').split(/\s+/).filter(Boolean);
-}
-
-function stemWord(word) {
-  if (word.length <= 3) return word;
-  if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
-  if (word.endsWith('es') && !word.endsWith('aes') && !word.endsWith('ees')) return word.slice(0, -2);
-  if (word.endsWith('s') && !word.endsWith('ss') && !word.endsWith('us') && !word.endsWith('is')) return word.slice(0, -1);
-  if (word.endsWith('ing')) return word.slice(0, -3);
-  if (word.endsWith('ed')) return word.slice(0, -2);
-  if (word.endsWith('tional')) return word.slice(0, -5) + 'tion';
-  if (word.endsWith('ation')) return word.slice(0, -5);
-  if (word.endsWith('ness')) return word.slice(0, -4);
-  if (word.endsWith('ment')) return word.slice(0, -4);
-  return word;
-}
-
-function scoreEntry(entry, tokens) {
-  const pageLower = entry.page.toLowerCase();
-  const sectionLower = entry.section.toLowerCase();
-  const textLower = entry.text.toLowerCase();
-  const hay = `${pageLower} ${sectionLower} ${textLower}`;
-  let score = 0;
-  let matchesCount = 0;
-
-  for (const t of tokens) {
-    const stemmed = stemWord(t);
-    let matched = false;
-
-    if (hay.includes(t)) {
-      matched = true;
-      if (pageLower.includes(t)) score += 15;
-      if (sectionLower.includes(t)) score += 10;
-      if (textLower.includes(t)) score += 3;
-    } else if (stemmed !== t && hay.includes(stemmed)) {
-      matched = true;
-      if (pageLower.includes(stemmed)) score += 10;
-      if (sectionLower.includes(stemmed)) score += 6;
-      if (textLower.includes(stemmed)) score += 2;
-    }
-
-    if (matched) matchesCount++;
-  }
-
-  if (matchesCount === 0) return 0;
-  return matchesCount === tokens.length
-    ? score * 2
-    : score * (matchesCount / tokens.length) * 0.7;
-}
-
-function snippet(text, tokens) {
-  const lower = text.toLowerCase();
-  let bestPos = -1;
-
-  for (const t of tokens) {
-    let pos = lower.indexOf(t);
-    if (pos === -1) pos = lower.indexOf(stemWord(t));
-    if (pos !== -1) {
-      bestPos = pos;
-      break;
-    }
-  }
-
-  if (bestPos === -1) return '';
-
-  const start = Math.max(0, text.lastIndexOf(' ', bestPos - 45) + 1);
-  const end = Math.min(text.length, text.indexOf(' ', bestPos + 55));
-  let s = text.slice(start, end === -1 ? undefined : end).trim();
-  if (start > 0) s = '…' + s;
-  if ((end !== -1) && end < text.length) s += '…';
-
-  const highlightTerms = new Set([...tokens, ...tokens.map(stemWord)]);
-  for (const t of highlightTerms) {
-    if (t.length < 3) continue;
-    const re = new RegExp(`(${t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
-    s = s.replace(re, '<mark>$1</mark>');
-  }
-  return s;
-}
-
-function lockPageScroll() {
-  if (isSidebarLocked) return;
-
-  lockedScrollY = window.scrollY || window.pageYOffset || 0;
-  document.documentElement.classList.add('sidebar-open');
-  document.body.classList.add('sidebar-open');
-  document.body.style.top = `-${lockedScrollY}px`;
-  isSidebarLocked = true;
-}
-
-function unlockPageScroll() {
-  if (!isSidebarLocked) return;
-
-  document.documentElement.classList.remove('sidebar-open');
-  document.body.classList.remove('sidebar-open');
-  document.body.style.top = '';
-  isSidebarLocked = false;
-  window.scrollTo(0, lockedScrollY);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    installRunCodeNavigation();
+    installMobileFixes();
+  });
+} else {
+  installRunCodeNavigation();
   installMobileFixes();
-
-  const input = document.querySelector('.search');
-  let results = null;
-
-  if (input) {
-    const wrapper = input.closest('.search-wrapper');
-    results = document.createElement('div');
-    results.className = 'search-results';
-    wrapper.appendChild(results);
-
-    let activeIdx = -1;
-
-    async function ensureIndex() {
-      if (!searchIndex) searchIndex = await buildIndex();
-      return searchIndex;
-    }
-
-    ensureIndex();
-
-    async function render(query) {
-      activeIdx = -1;
-      const tokens = tokenise(query);
-      if (tokens.length === 0) {
-        results.innerHTML = '';
-        results.style.display = 'none';
-        return [];
-      }
-
-      const index = await ensureIndex();
-      const matches = index
-        .map(entry => ({ ...entry, _score: scoreEntry(entry, tokens) }))
-        .filter(e => e._score > 0)
-        .sort((a, b) => b._score - a._score);
-
-      const seen = new Set();
-      const unique = [];
-      for (const m of matches) {
-        if (!seen.has(m.url)) {
-          seen.add(m.url);
-          unique.push(m);
-        }
-      }
-
-      if (unique.length === 0) {
-        results.innerHTML = '<div class="search-empty">No results found. Try alternative keywords.</div>';
-        results.style.display = 'block';
-        return [];
-      }
-
-      results.innerHTML = unique.slice(0, 8).map((item, i) => {
-        const ctx = snippet(item.text, tokens);
-        return `<a href="${item.url}" class="search-hit" data-idx="${i}">
-          <span class="search-hit-page">${item.page}</span>
-          <span class="search-hit-section">${item.section}</span>
-          ${ctx ? `<span class="search-hit-ctx">${ctx}</span>` : ''}
-        </a>`;
-      }).join('');
-      results.style.display = 'block';
-      return unique;
-    }
-
-    function setActive(idx) {
-      const items = results.querySelectorAll('.search-hit');
-      items.forEach(el => el.classList.remove('search-hit-active'));
-      if (idx >= 0 && idx < items.length) {
-        items[idx].classList.add('search-hit-active');
-        items[idx].scrollIntoView({ block: 'nearest' });
-      }
-      activeIdx = idx;
-    }
-
-    let debounceTimer;
-    input.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => render(input.value), 80);
-    });
-
-    input.addEventListener('keydown', event => {
-      const items = results.querySelectorAll('.search-hit');
-      const count = items.length;
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setActive(activeIdx < count - 1 ? activeIdx + 1 : 0);
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setActive(activeIdx > 0 ? activeIdx - 1 : count - 1);
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-        if (activeIdx >= 0 && items[activeIdx]) {
-          window.location.href = items[activeIdx].getAttribute('href');
-        } else {
-          render(input.value).then(matches => {
-            if (matches.length > 0) window.location.href = matches[0].url;
-          });
-        }
-      } else if (event.key === 'Escape') {
-        input.value = '';
-        results.innerHTML = '';
-        results.style.display = 'none';
-        input.blur();
-      }
-    });
-
-    document.addEventListener('click', event => {
-      if (!event.target.closest('.search-wrapper')) results.style.display = 'none';
-    });
-
-    input.addEventListener('focus', () => {
-      if (input.value.trim()) render(input.value);
-    });
-
-    document.addEventListener('keydown', event => {
-      const activeEl = document.activeElement;
-      if (activeEl && (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.isContentEditable
-      )) return;
-
-      if (event.key === '/' || event.key === 's') {
-        event.preventDefault();
-        input.focus();
-        input.select();
-      }
-    });
-  }
-
-  const toggle = document.querySelector('.menu-toggle');
-  const sidebar = document.getElementById('sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-
-  if (toggle && sidebar) {
-    let lastMenuTapAt = 0;
-
-    toggle.setAttribute('type', 'button');
-    toggle.setAttribute('aria-controls', sidebar.id || 'sidebar');
-    toggle.setAttribute('aria-expanded', 'false');
-
-    function hideSearch() {
-      if (results) {
-        results.innerHTML = '';
-        results.style.display = 'none';
-      }
-      if (input) input.blur();
-    }
-
-    function openSidebar() {
-      hideSearch();
-      sidebar.classList.add('open');
-      if (backdrop) backdrop.classList.add('open');
-      lockPageScroll();
-      toggle.setAttribute('aria-expanded', 'true');
-    }
-
-    function closeSidebar() {
-      sidebar.classList.remove('open');
-      if (backdrop) backdrop.classList.remove('open');
-      unlockPageScroll();
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-
-    function consume(event) {
-      if (!event) return;
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') {
-        event.stopImmediatePropagation();
-      }
-    }
-
-    function toggleSidebar(event) {
-      consume(event);
-      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-    }
-
-    function activateMenu(event) {
-      const now = Date.now();
-      if (now - lastMenuTapAt < 700) {
-        consume(event);
-        return;
-      }
-      lastMenuTapAt = now;
-      toggleSidebar(event);
-    }
-
-    function tapWithinToggle(event) {
-      const touch = event.touches ? event.touches[0] : event;
-      if (!touch) return false;
-      const rect = toggle.getBoundingClientRect();
-      const padding = 16;
-      const x = touch.clientX;
-      const y = touch.clientY;
-      return x >= rect.left - padding &&
-             x <= rect.right + padding &&
-             y >= rect.top - padding &&
-             y <= rect.bottom + padding;
-    }
-
-    document.addEventListener('pointerdown', event => {
-      if (tapWithinToggle(event)) activateMenu(event);
-    }, { capture: true, passive: false });
-
-    document.addEventListener('touchstart', event => {
-      if (tapWithinToggle(event)) activateMenu(event);
-    }, { capture: true, passive: false });
-
-    document.addEventListener('touchmove', event => {
-      if (!document.body.classList.contains('sidebar-open')) return;
-      if (!event.target.closest('#sidebar')) event.preventDefault();
-    }, { passive: false });
-
-    toggle.addEventListener('click', activateMenu, { capture: true });
-
-    if (backdrop) backdrop.addEventListener('click', closeSidebar);
-    sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeSidebar));
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 900 && sidebar.classList.contains('open')) closeSidebar();
-    });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') closeSidebar();
-    });
-  }
-});
+}
