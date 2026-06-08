@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script defer src="js/search.js"></script>
+  <script defer src="js/run-code-links.js?v=1"></script>
   <style>
     .pattern-summary { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0; }
     .pattern-summary .card { padding:14px; }
@@ -132,6 +133,7 @@
         try { block.textContent = (await loadSource(block.dataset.source)).trim(); }
         catch (error) { block.textContent = 'Unable to load current source from examples repository.\n' + block.dataset.source; }
       }));
+      if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) window.GLRunCodeLinks.scan();
     }
     document.addEventListener('DOMContentLoaded', hydratePatterns);
   </script>
