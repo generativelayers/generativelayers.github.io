@@ -38,7 +38,6 @@
     .pattern-status { font-size:12px; color:var(--color-text-secondary); margin-top:6px; line-height:1.5; }
     .repo-link { display:inline-flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; font-weight:700; }
     .load-state { padding:18px; color:var(--color-text-secondary); }
-    .source-path { font-size:12px; color:#8f929d; padding:10px 20px 0; overflow-wrap:anywhere; background:#1e1e24; }
     .tabs-container pre { max-height:520px; overflow:auto; }
     @media (max-width: 600px) { .tabs-header { overflow-x:auto; padding:0 10px; } .tab-btn { padding:12px 16px; } .tabs-container pre { padding:18px; font-size:13px; } }
   </style>
@@ -110,8 +109,8 @@
     function renderPatternShell(pattern) {
       const checks = pattern.checks.map(item => `<li>${escapeHtml(item)}</li>`).join('');
       const buttons = Object.keys(pattern.files).map((name, i) => `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-pattern="${pattern.id}" data-platform="${name}">${name}</button>`).join('');
-      const panels = Object.entries(pattern.files).map(([name, path], i) => `<div class="tab-content ${i === 0 ? 'active' : ''}" id="${pattern.id}-${name}"><div class="source-path">${escapeHtml(path)}</div><pre><code data-source="${escapeHtml(path)}">Loading ${name}...</code></pre></div>`).join('');
-      return `<section class="info-panel" id="pattern-${pattern.id}"><h2><i class="fa-solid ${pattern.icon}" style="margin-right:8px;color:var(--color-green-700);"></i>${escapeHtml(pattern.title)}</h2><p>${escapeHtml(pattern.description)}</p><div class="card" style="padding:16px;margin-bottom:12px;"><strong>Checks</strong><ul style="margin:8px 0 0 20px;color:var(--color-text-secondary);line-height:1.7;">${checks}</ul></div><div class="tabs-container"><div class="tabs-header"><div class="tabs-buttons">${buttons}</div><span class="tab-badge">Current source</span></div>${panels}</div></section>`;
+      const panels = Object.entries(pattern.files).map(([name, path], i) => `<div class="tab-content ${i === 0 ? 'active' : ''}" id="${pattern.id}-${name}"><pre><code data-source="${escapeHtml(path)}">Loading ${name}...</code></pre></div>`).join('');
+      return `<section class="info-panel" id="pattern-${pattern.id}"><h2><i class="fa-solid ${pattern.icon}" style="margin-right:8px;color:var(--color-green-700);"></i>${escapeHtml(pattern.title)}</h2><p>${escapeHtml(pattern.description)}</p><div class="card" style="padding:16px;margin-bottom:12px;"><strong>Checks</strong><ul style="margin:8px 0 0 20px;color:var(--color-text-secondary);line-height:1.7;">${checks}</ul></div><div class="tabs-container"><div class="tabs-header"><div class="tabs-buttons">${buttons}</div></div>${panels}</div></section>`;
     }
 
     async function hydratePatterns() {
