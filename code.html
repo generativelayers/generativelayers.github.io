@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script defer src="js/search.js"></script>
-  <script defer src="js/run-code-links.js?v=1"></script>
+  <script defer src="js/run-code-links.js?v=2"></script>
   <style>
     .runner-card{background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:14px;padding:22px;box-shadow:0 10px 30px rgba(15,23,42,.06);max-width:1100px;margin-bottom:18px}
     .runner-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 16px}
@@ -23,7 +23,23 @@
     .runner-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 0}
     .runner-meta div{border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:10px;font-size:13px;color:var(--color-text-secondary,#4b5563)}
     .runner-meta strong{display:block;color:var(--color-text,#111827);font-size:14px;margin-top:3px}
-    @media(max-width:720px){.runner-meta{grid-template-columns:1fr}}
+    .runner-key-panel{border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:16px;margin:14px 0 0}
+    .runner-key-panel[hidden]{display:none!important}
+    .runner-key-panel h3{margin:0 0 8px;font-size:16px}
+    .runner-key-intro{margin:0 0 12px;color:var(--color-text-secondary,#4b5563);font-size:14px;line-height:1.55}
+    .runner-key-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .runner-key-row{display:flex;flex-direction:column;gap:6px}
+    .runner-key-row[hidden]{display:none!important}
+    .runner-key-row label{font-size:13px;font-weight:800;color:var(--color-text,#111827)}
+    .runner-key-row input{box-sizing:border-box;width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:10px 12px;font-size:14px;background:#fff;color:#111827}
+    .runner-key-row input:focus{outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.14)}
+    .runner-key-help{font-size:12px;color:#64748b}
+    .runner-key-warning{display:flex;gap:10px;align-items:flex-start;margin:12px 0 0;padding:12px 14px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;background:#fffbeb;color:#92400e;font-size:14px;line-height:1.55}
+    .runner-key-warning[hidden]{display:none!important}
+    .runner-key-warning i{color:#d97706;margin-top:3px}
+    .runner-key-warning strong{color:#78350f}
+    .runner-key-warning a{font-weight:800;color:#0a7a50;text-decoration:underline;text-underline-offset:2px}
+    @media(max-width:720px){.runner-meta{grid-template-columns:1fr}.runner-key-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -71,6 +87,43 @@
         system.exit();
     }
 }</textarea>
+
+          <div class="runner-key-panel" id="apiKeyPanel" hidden>
+            <h3><i class="fa-solid fa-key" style="margin-right:8px;color:#d97706;"></i>API key required</h3>
+            <p class="runner-key-intro" id="apiKeyIntro">This source uses an LLM provider. Fill the required key before running it.</p>
+            <div class="runner-key-grid">
+              <div class="runner-key-row" data-provider-row="cerebras" hidden>
+                <label for="apiKeyCerebras">CEREBRAS_API_KEY</label>
+                <input id="apiKeyCerebras" data-provider-key="cerebras" type="password" autocomplete="off" placeholder="Paste Cerebras key for this run">
+                <span class="runner-key-help">Used by Cerebras examples.</span>
+              </div>
+              <div class="runner-key-row" data-provider-row="groq" hidden>
+                <label for="apiKeyGroq">GROQ_API_KEY</label>
+                <input id="apiKeyGroq" data-provider-key="groq" type="password" autocomplete="off" placeholder="Paste Groq key for this run">
+                <span class="runner-key-help">Used by Groq examples.</span>
+              </div>
+              <div class="runner-key-row" data-provider-row="gemini" hidden>
+                <label for="apiKeyGemini">GEMINI_API_KEY</label>
+                <input id="apiKeyGemini" data-provider-key="gemini" type="password" autocomplete="off" placeholder="Paste Gemini key for this run">
+                <span class="runner-key-help">Used by Gemini examples.</span>
+              </div>
+              <div class="runner-key-row" data-provider-row="openai" hidden>
+                <label for="apiKeyOpenai">OPENAI_API_KEY</label>
+                <input id="apiKeyOpenai" data-provider-key="openai" type="password" autocomplete="off" placeholder="Paste OpenAI key for this run">
+                <span class="runner-key-help">Used by OpenAI examples.</span>
+              </div>
+              <div class="runner-key-row" data-provider-row="deepseek" hidden>
+                <label for="apiKeyDeepseek">DEEPSEEK_API_KEY</label>
+                <input id="apiKeyDeepseek" data-provider-key="deepseek" type="password" autocomplete="off" placeholder="Paste DeepSeek key for this run">
+                <span class="runner-key-help">Used by DeepSeek examples.</span>
+              </div>
+            </div>
+            <div class="runner-key-warning" id="apiKeyWarning" hidden>
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div><strong>Provider example blocked.</strong> <span id="apiKeyWarningText"></span> Check <a href="providers.html#providers">Built-in Providers and API key setup</a>.</div>
+            </div>
+          </div>
+
           <div class="runner-toolbar">
             <button class="runner-button" id="runAstraButton" type="button"><i class="fa-solid fa-play"></i><span>Run Source</span></button>
             <button class="runner-button runner-secondary" id="loadExampleButton" type="button"><i class="fa-solid fa-rotate-left"></i><span>Load Example</span></button>
@@ -92,13 +145,27 @@
   </div>
 
   <script>
-    const sidebar=document.getElementById('sidebar');
-    const sidebarBackdrop=document.getElementById('sidebarBackdrop');
-    document.querySelector('.menu-toggle').addEventListener('click',function(){sidebar.classList.toggle('open');sidebarBackdrop.classList.toggle('open')});
-    sidebarBackdrop.addEventListener('click',function(){sidebar.classList.remove('open');this.classList.remove('open')});
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    document.querySelector('.menu-toggle').addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      sidebarBackdrop.classList.toggle('open');
+    });
+    sidebarBackdrop.addEventListener('click', function () {
+      sidebar.classList.remove('open');
+      this.classList.remove('open');
+    });
 
-    const ASTRA_RUN_URL='https://code.generativelayers.com/api/run-astra';
-    const DEFAULT_SOURCE=[
+    const ASTRA_RUN_URL = 'https://code.generativelayers.com/api/run-astra';
+    const PROVIDERS = {
+      cerebras: { label: 'Cerebras', env: 'CEREBRAS_API_KEY' },
+      groq: { label: 'Groq', env: 'GROQ_API_KEY' },
+      gemini: { label: 'Gemini', env: 'GEMINI_API_KEY' },
+      openai: { label: 'OpenAI', env: 'OPENAI_API_KEY' },
+      deepseek: { label: 'DeepSeek', env: 'DEEPSEEK_API_KEY' }
+    };
+
+    const DEFAULT_SOURCE = [
       'agent Main {',
       '    module Console C;',
       '    module System system;',
@@ -117,50 +184,207 @@
       '}'
     ].join('\n');
 
-    const sourceInput=document.getElementById('astraSource');
-    const runButton=document.getElementById('runAstraButton');
-    const loadExampleButton=document.getElementById('loadExampleButton');
-    const clearButton=document.getElementById('clearOutputButton');
-    const runnerStatus=document.getElementById('runnerStatus');
-    const runnerOutput=document.getElementById('runnerOutput');
-    const metaStatus=document.getElementById('metaStatus');
-    const metaReturnCode=document.getElementById('metaReturnCode');
-    const metaElapsed=document.getElementById('metaElapsed');
+    const sourceInput = document.getElementById('astraSource');
+    const runButton = document.getElementById('runAstraButton');
+    const loadExampleButton = document.getElementById('loadExampleButton');
+    const clearButton = document.getElementById('clearOutputButton');
+    const runnerStatus = document.getElementById('runnerStatus');
+    const runnerOutput = document.getElementById('runnerOutput');
+    const metaStatus = document.getElementById('metaStatus');
+    const metaReturnCode = document.getElementById('metaReturnCode');
+    const metaElapsed = document.getElementById('metaElapsed');
+    const apiKeyPanel = document.getElementById('apiKeyPanel');
+    const apiKeyIntro = document.getElementById('apiKeyIntro');
+    const apiKeyWarning = document.getElementById('apiKeyWarning');
+    const apiKeyWarningText = document.getElementById('apiKeyWarningText');
 
-    sourceInput.value=DEFAULT_SOURCE;
-    sourceInput.addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();const s=this.selectionStart;const end=this.selectionEnd;this.value=this.value.substring(0,s)+'    '+this.value.substring(end);this.selectionStart=this.selectionEnd=s+4}});
+    sourceInput.value = DEFAULT_SOURCE;
 
-    function setRunning(v){runButton.disabled=v;loadExampleButton.disabled=v;runnerStatus.textContent=v?'Running…':'Ready'}
-    function resetOutput(){metaStatus.textContent='Idle';metaReturnCode.textContent='—';metaElapsed.textContent='—';runnerOutput.textContent='Write or paste ASTRA source, then press “Run Source”.'}
-    function norm(o){return o?String(o).replace(/\\n/g,'\n'):''}
-    function render(d){metaStatus.textContent=d.status||'unknown';metaReturnCode.textContent=d.return_code??'—';metaElapsed.textContent=d.elapsed_seconds?`${d.elapsed_seconds}s`:'—';runnerOutput.textContent=norm(d.output)||JSON.stringify(d,null,2);runnerStatus.textContent=d.status==='completed'?'Completed':'Finished with problem'}
+    function stripLineComments(source) {
+      return String(source || '').replace(/\/\/.*$/gm, '');
+    }
 
-    runButton.addEventListener('click',async function(){
-      const source=sourceInput.value.trim();
-      if(!source){runnerStatus.textContent='No source';runnerOutput.textContent='Paste or write ASTRA source first.';return}
-      setRunning(true);
-      metaStatus.textContent='Running';
-      metaReturnCode.textContent='—';
-      metaElapsed.textContent='—';
-      runnerOutput.textContent='Sending ASTRA source to the hosted runner…';
-      try{
-        const response=await fetch(ASTRA_RUN_URL,{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({source})});
-        const text=await response.text();
-        let data;
-        try{data=JSON.parse(text)}catch{data={status:response.ok?'completed':'failed',return_code:response.status,elapsed_seconds:null,output:text}}
-        if(!response.ok){data.status=data.status||'failed';data.return_code=data.return_code||response.status}
-        render(data)
-      }catch(error){
-        metaStatus.textContent='Request failed';
-        metaReturnCode.textContent='—';
-        metaElapsed.textContent='—';
-        runnerStatus.textContent='Failed';
-        runnerOutput.textContent='The browser could not reach the hosted runner.\n\n'+error
-      }finally{setRunning(false)}
+    function detectRequiredProviders(source) {
+      const clean = stripLineComments(source).toLowerCase();
+      const found = [];
+
+      Object.keys(PROVIDERS).forEach(provider => {
+        const exactProvider = new RegExp(`(?:use_provider|provider|set_provider|configure)\\s*\\(?.{0,80}["']${provider}["']`, 'i');
+        const providerSetting = new RegExp(`["']provider["']\\s*,\\s*["']${provider}["']`, 'i');
+        const envName = PROVIDERS[provider].env.toLowerCase();
+
+        if (exactProvider.test(clean) || providerSetting.test(clean) || clean.includes(envName.toLowerCase())) {
+          found.push(provider);
+        }
+      });
+
+      if (!found.includes('gemini') && /gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
+      if (!found.includes('openai') && /gpt-(?:3|4|4o|5|o)/i.test(clean)) found.push('openai');
+      if (!found.includes('deepseek') && /deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
+      if (!found.includes('groq') && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
+      if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
+
+      return [...new Set(found)];
+    }
+
+    function getProviderInput(provider) {
+      return document.querySelector(`[data-provider-key="${provider}"]`);
+    }
+
+    function getApiKeyState() {
+      const required = detectRequiredProviders(sourceInput.value);
+      const apiKeys = {};
+      const missing = [];
+
+      required.forEach(provider => {
+        const input = getProviderInput(provider);
+        const value = input ? input.value.trim() : '';
+        if (value) apiKeys[PROVIDERS[provider].env] = value;
+        else missing.push(provider);
+      });
+
+      return { required, apiKeys, missing };
+    }
+
+    function providerList(providers) {
+      return providers.map(provider => `${PROVIDERS[provider].label} (${PROVIDERS[provider].env})`).join(', ');
+    }
+
+    function updateApiKeyUI() {
+      const state = getApiKeyState();
+      const needsKeys = state.required.length > 0;
+
+      apiKeyPanel.hidden = !needsKeys;
+      document.querySelectorAll('[data-provider-row]').forEach(row => {
+        row.hidden = !state.required.includes(row.dataset.providerRow);
+      });
+
+      if (!needsKeys) {
+        apiKeyWarning.hidden = true;
+        return state;
+      }
+
+      apiKeyIntro.textContent = `This source uses ${providerList(state.required)}. Fill the required key before running it.`;
+
+      if (state.missing.length > 0) {
+        apiKeyWarning.hidden = false;
+        apiKeyWarningText.textContent = `Missing: ${providerList(state.missing)}.`;
+      } else {
+        apiKeyWarning.hidden = true;
+      }
+
+      return state;
+    }
+
+    sourceInput.addEventListener('input', updateApiKeyUI);
+    document.querySelectorAll('[data-provider-key]').forEach(input => input.addEventListener('input', updateApiKeyUI));
+
+    sourceInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+        updateApiKeyUI();
+      }
     });
 
-    loadExampleButton.addEventListener('click',function(){sourceInput.value=DEFAULT_SOURCE;sourceInput.focus();sourceInput.setSelectionRange(0,0);resetOutput();runnerStatus.textContent='Example loaded'});
-    clearButton.addEventListener('click',resetOutput);
+    function setRunning(value) {
+      runButton.disabled = value;
+      loadExampleButton.disabled = value;
+      runnerStatus.textContent = value ? 'Running…' : 'Ready';
+    }
+
+    function resetOutput() {
+      metaStatus.textContent = 'Idle';
+      metaReturnCode.textContent = '—';
+      metaElapsed.textContent = '—';
+      runnerOutput.textContent = 'Write or paste ASTRA source, then press “Run Source”.';
+    }
+
+    function norm(output) {
+      return output ? String(output).replace(/\\n/g, '\n') : '';
+    }
+
+    function render(data) {
+      metaStatus.textContent = data.status || 'unknown';
+      metaReturnCode.textContent = data.return_code ?? '—';
+      metaElapsed.textContent = data.elapsed_seconds ? `${data.elapsed_seconds}s` : '—';
+      runnerOutput.textContent = norm(data.output) || JSON.stringify(data, null, 2);
+      runnerStatus.textContent = data.status === 'completed' ? 'Completed' : 'Finished with problem';
+    }
+
+    runButton.addEventListener('click', async function () {
+      const source = sourceInput.value.trim();
+      if (!source) {
+        runnerStatus.textContent = 'No source';
+        runnerOutput.textContent = 'Paste or write ASTRA source first.';
+        return;
+      }
+
+      const keyState = updateApiKeyUI();
+      if (keyState.missing.length > 0) {
+        metaStatus.textContent = 'API key missing';
+        metaReturnCode.textContent = '—';
+        metaElapsed.textContent = '—';
+        runnerStatus.textContent = 'API key missing';
+        runnerOutput.textContent = `This ASTRA source uses ${providerList(keyState.required)}. Fill the missing key first: ${providerList(keyState.missing)}.`;
+        apiKeyPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      setRunning(true);
+      metaStatus.textContent = 'Running';
+      metaReturnCode.textContent = '—';
+      metaElapsed.textContent = '—';
+      runnerOutput.textContent = 'Sending ASTRA source to the hosted runner…';
+
+      try {
+        const body = { source };
+        if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
+
+        const response = await fetch(ASTRA_RUN_URL, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const text = await response.text();
+        let data;
+        try { data = JSON.parse(text); }
+        catch { data = { status: response.ok ? 'completed' : 'failed', return_code: response.status, elapsed_seconds: null, output: text }; }
+
+        if (!response.ok) {
+          data.status = data.status || 'failed';
+          data.return_code = data.return_code || response.status;
+        }
+
+        render(data);
+      } catch (error) {
+        metaStatus.textContent = 'Request failed';
+        metaReturnCode.textContent = '—';
+        metaElapsed.textContent = '—';
+        runnerStatus.textContent = 'Failed';
+        runnerOutput.textContent = 'The browser could not reach the hosted runner.\n\n' + error;
+      } finally {
+        setRunning(false);
+      }
+    });
+
+    loadExampleButton.addEventListener('click', function () {
+      sourceInput.value = DEFAULT_SOURCE;
+      sourceInput.focus();
+      sourceInput.setSelectionRange(0, 0);
+      resetOutput();
+      updateApiKeyUI();
+      runnerStatus.textContent = 'Example loaded';
+    });
+
+    clearButton.addEventListener('click', resetOutput);
+    updateApiKeyUI();
   </script>
 </body>
 </html>
