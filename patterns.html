@@ -4,27 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acceptance Patterns | Generative Layers</title>
-  <meta name="description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents. Cross-LLM verification, confidence thresholds, agent-to-agent review, and more.">
-  <meta name="keywords" content="acceptance patterns, governance, BDI agents, LLM verification, candidate material, Generative Layers">
+  <meta name="description" content="Governance patterns for accepting, rejecting, reviewing, and refining LLM candidate output in BDI agents using ASTRA, Jason, and JaCaMo.">
+  <meta name="keywords" content="acceptance patterns, governance, BDI agents, LLM verification, candidate material, Generative Layers, ASTRA, Jason, JaCaMo">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.generativelayers.com/patterns.html">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
-
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Generative Layers">
   <meta property="og:title" content="Acceptance Patterns | Generative Layers">
-  <meta property="og:description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents.">
+  <meta property="og:description" content="Practical BDI patterns for governing LLM candidate output.">
   <meta property="og:url" content="https://www.generativelayers.com/patterns.html">
   <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Acceptance Patterns | Generative Layers">
-  <meta name="twitter:description" content="Explore governance patterns for accepting or rejecting LLM output in BDI agents.">
+  <meta name="twitter:description" content="Practical BDI patterns for governing LLM candidate output.">
   <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
-
-  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -32,39 +26,39 @@
     "headline": "Acceptance Patterns for Governed LLM Integration",
     "description": "Patterns for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
     "url": "https://www.generativelayers.com/patterns.html",
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Generative Layers",
-      "url": "https://www.generativelayers.com/"
-    }
+    "isPartOf": { "@type": "WebSite", "name": "Generative Layers", "url": "https://www.generativelayers.com/" }
   }
   </script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script defer src="js/search.js"></script>
+  <style>
+    .pattern-summary { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0; }
+    .pattern-summary .card { padding:14px; }
+    .pattern-status { font-size:12px; color:var(--color-text-secondary); margin-top:6px; line-height:1.5; }
+    .repo-link { display:inline-flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; font-weight:700; }
+    .code-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 10px; }
+    .code-tab { border:1px solid var(--color-border); background:var(--color-surface); color:var(--color-text); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .code-tab.active { background:var(--color-green-700); color:white; border-color:var(--color-green-700); }
+    .code-panel { display:none; }
+    .code-panel.active { display:block; }
+    .code-panel pre { max-height:520px; overflow:auto; }
+    .load-state { padding:18px; color:var(--color-text-secondary); }
+    .source-path { font-size:12px; color:var(--color-text-secondary); margin:8px 0 0; overflow-wrap:anywhere; }
+  </style>
 </head>
 <body>
-
-  <!-- Header -->
   <header class="top">
     <div class="header-inner">
-      <button class="menu-toggle" aria-label="Toggle menu">
-        <i class="fa-solid fa-bars"></i>
-      </button>
+      <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
       <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
-      <div class="search-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input class="search" placeholder="Search…" aria-label="Search">
-      </div>
+      <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search" placeholder="Search…" aria-label="Search"></div>
     </div>
   </header>
 
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <div class="layout">
-    <!-- Sidebar -->
     <aside class="side" id="sidebar">
       <div class="side-label">Documentation</div>
       <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
@@ -76,2334 +70,204 @@
       <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <h1>Acceptance Patterns</h1>
-      <p class="lead">Acceptance is up to the developer. The framework gives you the tools &mdash; your agent decides what to do with LLM output.</p>
+      <p class="lead">Acceptance is up to the developer. The framework gives the agent governed candidate material; the agent decides whether to accept, reject, review, or refine it.</p>
 
-      <!-- Core Principle -->
       <section class="info-panel" id="core-principle">
         <h2><i class="fa-solid fa-gavel" style="margin-right:8px;color:var(--color-green-700);"></i>The Core Principle</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);">
           <p style="font-size:15px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            The LLM is a <strong>tool</strong>, not a decision-maker. When an agent calls <code>ask</code>, the LLM output becomes
-            <strong>candidate material</strong> &mdash; never adopted beliefs. The agent's own BDI reasoning cycle decides whether to
-            <code>accept</code> or <code>reject</code> each candidate. All examples below use <strong>practical reasoning with context-guarded plans</strong> &mdash; the native BDI decision pattern &mdash; rather than imperative if/else branches.
+            The LLM is a tool, not a decision-maker. Output becomes <strong>candidate material</strong>, never automatically adopted belief. These examples demonstrate practical BDI-style governance: the agent validates, inspects, reviews, compares, or refines candidates before adoption.
           </p>
+          <a class="repo-link" href="https://github.com/generativelayers/examples/tree/main" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View current examples repository</a>
         </div>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px;">
-          <div class="card" style="padding:16px;text-align:center;">
-            <i class="fa-solid fa-brain" style="font-size:24px;color:var(--color-green-700);"></i>
-            <div style="font-weight:700;font-size:14px;margin-top:8px;">Agent Decides</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">BDI reasoning, not the LLM</div>
-          </div>
-          <div class="card" style="padding:16px;text-align:center;">
-            <i class="fa-solid fa-code" style="font-size:24px;color:var(--color-green-700);"></i>
-            <div style="font-weight:700;font-size:14px;margin-top:8px;">Developer Controls</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">You write the acceptance logic</div>
-          </div>
-          <div class="card" style="padding:16px;text-align:center;">
-            <i class="fa-solid fa-shield-halved" style="font-size:24px;color:var(--color-green-700);"></i>
-            <div style="font-weight:700;font-size:14px;margin-top:8px;">Governed Boundary</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Nothing enters beliefs unchecked</div>
-          </div>
+        <div class="pattern-summary">
+          <div class="card"><strong>Candidate lifecycle</strong><div class="pattern-status">LLM result → candidate → explicit accept/reject.</div></div>
+          <div class="card"><strong>Cross-platform parity</strong><div class="pattern-status">ASTRA, Jason, and JaCaMo use the same conceptual pipeline.</div></div>
+          <div class="card"><strong>Live code snippets</strong><div class="pattern-status">Snippets below are loaded from the current examples repository.</div></div>
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 1: Simple Validation -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-simple">
-        <h2><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#22c55e;"></i>Pattern 1 &mdash; Simple Validation</h2>
-        <p>The simplest pattern: accept if the LLM output matches the expected schema format, reject otherwise. This is the baseline &mdash; every other pattern builds on top of it.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Quick prototyping, low-risk tasks, trusted providers.<br>
-            <strong>What it checks:</strong> Schema format only &mdash; did the LLM return the right key=value fields?<br>
-            <strong>Limitation:</strong> If the LLM returns <code>label=banana</code> when asked about an apple, this pattern still accepts it because the format is valid.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p1-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p1-jason">Jason</button>
-              <button class="tab-btn" data-tab="p1-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p1-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> llm_result(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> validated(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> classified(<span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> validated(<span class="keyword">string</span> rid) :- accepted(rid);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !validated(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"convo1"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) : validated(rid) {
-        console.println(<span class="string">"Already validated: "</span> + rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
-    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        gl.accept(gl.candidate(rid));
-        +accepted(rid);
-        +classified(gl.field(rid, <span class="string">"label"</span>));
-        ?validated(rid);
-        console.println(<span class="string">"ACCEPTED: "</span> + gl.field(rid, <span class="string">"label"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
-    <span class="keyword">rule</span> +!validated(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!validated(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Validation FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p1-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-validated(Rid) :- accepted(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !validated(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!validated(Rid)
-   :  validated(Rid)
-   &lt;- .println(<span class="string">"Already validated: "</span>, Rid).
-
-<span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
-+!validated(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.candidate(Rid, Cid);
-      gl.accept(Cid);
-      +accepted(Rid);
-      gl.field(Rid, <span class="string">"label"</span>, Label);
-      +classified(Label);
-      ?validated(Rid);
-      .println(<span class="string">"ACCEPTED: "</span>, Label).
-
-<span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
-+!validated(Rid)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!validated(Rid)
-   &lt;- .println(<span class="string">"Validation FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p1-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-validated(Rid) :- accepted(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !validated(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!validated(Rid)
-   :  validated(Rid)
-   &lt;- .println(<span class="string">"Already validated: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!validated(Rid)
-   &lt;- valid(Rid, IsValid);
-      !validated_branch(Rid, IsValid).
-
-<span class="comment">// ACHIEVEMENT: valid &rarr; accept, verify</span>
-+!validated_branch(Rid, <span class="keyword">true</span>)
-   &lt;- candidate(Rid, Cid);
-      accept(Cid);
-      +accepted(Rid);
-      field(Rid, <span class="string">"label"</span>, Label);
-      +classified(Label);
-      ?validated(Rid);
-      .println(<span class="string">"ACCEPTED: "</span>, Label).
-
-<span class="comment">// ACHIEVEMENT: invalid &rarr; reject</span>
-+!validated_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!validated(Rid)
-   &lt;- .println(<span class="string">"Validation FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-1-simple-validation/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-1-simple-validation/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-1-simple-validation/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleDetail('simple')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Step-by-step walkthrough</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('simple')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="pattern-detail" id="detail-simple" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Two competing plans</strong> &mdash; The agent has two plans for <code>!decide(Rid)</code> with different context guards. The BDI engine selects the plan whose guard matches at runtime.</li>
-                <li><strong><code>gl.valid(Rid, true)</code></strong> &mdash; Checks if the raw LLM output matched the expected schema (correct key=value fields). This is an automated structural check, not a content judgement.</li>
-                <li><strong><code>gl.candidate(Rid, Cid)</code></strong> &mdash; Retrieves the candidate ID. Candidates are staged &mdash; they exist in a governed buffer, never in the agent's belief base.</li>
-                <li><strong><code>gl.accept(Cid)</code></strong> &mdash; The agent <strong>actively chooses</strong> to promote the candidate to adopted knowledge. This is the developer's decision point.</li>
-                <li><strong><code>gl.reject(Cid)</code></strong> &mdash; Invalid format &rarr; reject. The candidate is marked as rejected and traced for audit.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleDetail('simple-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('simple-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-simple-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 1: Simple Validation ===
-[GL] Provider (auto-detected): gemini
-Valid output &rarr; ACCEPTED: fruit</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM classifies "apple" and returns <code>label=fruit</code>. The schema is valid, so the agent accepts. If the LLM fails or returns malformed output, the agent prints <code>Invalid output &rarr; REJECTED</code>.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 2: Content Inspection -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-content">
-        <h2><i class="fa-solid fa-magnifying-glass" style="margin-right:8px;color:#3b82f6;"></i>Pattern 2 &mdash; Content Inspection</h2>
-        <p>The agent goes beyond schema validation and inspects the <strong>actual content</strong> of the LLM's answer. Separate context-guarded plans handle known vs. unknown categories.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> When you have business rules about valid answers &mdash; the LLM doesn't know your domain constraints.<br>
-            <strong>Key insight:</strong> This is where BDI reasoning shines &mdash; the agent uses its own beliefs to decide, not the LLM.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p2-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p2-jason">Jason</button>
-              <button class="tab-btn" data-tab="p2-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p2-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> inspected(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> known(<span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-    <span class="keyword">initial</span> known(<span class="string">"fruit"</span>), known(<span class="string">"vegetable"</span>), known(<span class="string">"grain"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> inspected(<span class="keyword">string</span> rid) :- accepted(rid);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !inspected(gl.invoke_with_beliefs(
-            <span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-            <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
-            <span class="string">"label,confidence"</span>, <span class="string">"category(apple, fruit)"</span>
-        ));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) : inspected(rid) {
-        console.println(<span class="string">"Already inspected: "</span> + rid);
-    }
-
-    <span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
-    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        !known_category(gl.candidate(rid), gl.field(rid, <span class="string">"label"</span>));
-        +accepted(rid);
-        ?inspected(rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid</span>
-    <span class="keyword">rule</span> +!inspected(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
-    <span class="keyword">rule</span> +!known_category(<span class="keyword">string</span> cid, <span class="keyword">string</span> label) : known(label) {
-        gl.accept(cid);
-        console.println(<span class="string">"Known category '"</span> + label + <span class="string">"' &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
-    <span class="keyword">rule</span> +!known_category(<span class="keyword">string</span> cid, <span class="keyword">string</span> label) : ~known(label) {
-        gl.reject(cid);
-        console.println(<span class="string">"Unknown category '"</span> + label + <span class="string">"' &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!inspected(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Inspection FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p2-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-inspected(Rid) :- accepted(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-               <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
-               <span class="string">"label,confidence"</span>, Rid);
-      !inspected(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!inspected(Rid)
-   :  inspected(Rid)
-   &lt;- .println(<span class="string">"Already inspected: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
-+!inspected(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.candidate(Rid, Cid);
-      gl.field(Rid, <span class="string">"label"</span>, Label);
-      !known_category(Cid, Label);
-      +accepted(Rid);
-      ?inspected(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!inspected(Rid)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
-+!known_category(Cid, Label)
-   :  known(Label)
-   &lt;- gl.accept(Cid);
-      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
-+!known_category(Cid, Label)
-   :  not known(Label)
-   &lt;- gl.reject(Cid);
-      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!inspected(Rid)
-   &lt;- .println(<span class="string">"Inspection FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p2-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-known(<span class="string">"fruit"</span>). known(<span class="string">"vegetable"</span>). known(<span class="string">"grain"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-inspected(Rid) :- accepted(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-             <span class="string">"Based on the Agent beliefs, classify: apple"</span>,
-             <span class="string">"label,confidence"</span>, Rid);
-      !inspected(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!inspected(Rid)
-   :  inspected(Rid)
-   &lt;- .println(<span class="string">"Already inspected: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!inspected(Rid)
-   &lt;- valid(Rid, IsValid);
-      !inspected_branch(Rid, IsValid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; check content</span>
-+!inspected_branch(Rid, <span class="keyword">true</span>)
-   &lt;- candidate(Rid, Cid);
-      field(Rid, <span class="string">"label"</span>, Label);
-      !known_category(Cid, Label);
-      +accepted(Rid);
-      ?inspected(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!inspected_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: known &rarr; accept</span>
-+!known_category(Cid, Label)
-   :  known(Label)
-   &lt;- accept(Cid);
-      .println(<span class="string">"Known category '"</span>, Label, <span class="string">"' &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: unknown &rarr; reject</span>
-+!known_category(Cid, Label)
-   :  not known(Label)
-   &lt;- reject(Cid);
-      .println(<span class="string">"Unknown category '"</span>, Label, <span class="string">"' &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!inspected(Rid)
-   &lt;- .println(<span class="string">"Inspection FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-2-content-inspection/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-2-content-inspection/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-2-content-inspection/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleDetail('content')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">What's different here</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('content')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="pattern-detail" id="detail-content" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The LLM returned valid output &mdash; <code>gl.valid</code> passes. But the agent delegates to a sub-goal <code>!check_content</code> with <strong>two context-guarded plans</strong>. The guard <code>known(Label)</code> checks the agent's own belief base. If the LLM says "legume" but the agent only knows "fruit", "vegetable", and "grain", the second plan fires and rejects. This is <strong>practical reasoning</strong> &mdash; the BDI engine selects the appropriate plan based on the agent's beliefs, exactly as BDI theory intended.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleDetail('content-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('content-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-content-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 2: Content Inspection ===
-[GL] Provider (auto-detected): gemini
-Known category &rarr; ACCEPTED: fruit</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns <code>label=fruit</code>, which matches the agent's known categories (fruit, vegetable, grain). If the LLM returned "legume" instead, the agent would reject it as an unknown category.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 3: Confidence Threshold -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-confidence">
-        <h2><i class="fa-solid fa-gauge-high" style="margin-right:8px;color:#f59e0b;"></i>Pattern 3 &mdash; Confidence Threshold</h2>
-        <p>The agent asks the LLM to self-assess by including a <strong>confidence score</strong> (0.0&ndash;1.0). Context-guarded plans handle high, medium, and low confidence levels separately.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Tasks where the LLM can self-assess its certainty (classification, fact retrieval).<br>
-            <strong>Important caveat:</strong> LLM self-reported confidence is not always calibrated. Best as one layer in a multi-layer strategy.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p3-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p3-jason">Jason</button>
-              <button class="tab-btn" data-tab="p3-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p3-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-    <span class="keyword">module</span> System S;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> threshold(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> assessed(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> confidence_tier(<span class="keyword">string</span>, <span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-    <span class="keyword">initial</span> threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>), threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> assessed(<span class="keyword">string</span> rid) :- confidence_tier(rid, <span class="keyword">string</span> _);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !assessed(gl.invoke(
-            <span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-            <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>
-        ));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : assessed(rid) {
-        console.println(<span class="string">"Already assessed: "</span> + rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
-    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; threshold(<span class="string">"high"</span>, <span class="keyword">string</span> t) &amp; gl.field(rid, <span class="string">"confidence"</span>) == t {
-        gl.accept(gl.candidate(rid));
-        +accepted(rid);
-        +confidence_tier(rid, <span class="string">"high"</span>);
-        ?assessed(rid);
-        console.println(<span class="string">"High confidence ("</span> + t + <span class="string">") &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
-    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; threshold(<span class="string">"low"</span>, <span class="keyword">string</span> t) &amp; gl.field(rid, <span class="string">"confidence"</span>) == t {
-        gl.reject(gl.candidate(rid));
-        +confidence_tier(rid, <span class="string">"low"</span>);
-        ?assessed(rid);
-        console.println(<span class="string">"Low confidence ("</span> + t + <span class="string">") &rarr; REJECTED"</span>);
-        S.fail();
-    }
-
-    <span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all valid)</span>
-    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        +confidence_tier(rid, <span class="string">"medium"</span>);
-        ?assessed(rid);
-        console.println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid output</span>
-    <span class="keyword">rule</span> +!assessed(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!assessed(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Assessment FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p3-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>). threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-assessed(Rid) :- confidence_tier(Rid, _).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-               <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, Rid);
-      !assessed(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!assessed(Rid)
-   :  assessed(Rid)
-   &lt;- .println(<span class="string">"Already assessed: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; extract confidence, delegate to tier assessment</span>
-+!assessed(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.candidate(Rid, Cid);
-      gl.field(Rid, <span class="string">"confidence"</span>, Conf);
-      !assess_confidence(Rid, Cid, Conf).
-
-<span class="comment">// ACHIEVEMENT: invalid output</span>
-+!assessed(Rid)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
-+!assess_confidence(Rid, Cid, Conf)
-   :  threshold(<span class="string">"high"</span>, Conf)
-   &lt;- gl.accept(Cid);
-      +accepted(Rid);
-      +confidence_tier(Rid, <span class="string">"high"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"High confidence ("</span>, Conf, <span class="string">") &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
-+!assess_confidence(Rid, Cid, Conf)
-   :  threshold(<span class="string">"low"</span>, Conf)
-   &lt;- gl.reject(Cid);
-      +confidence_tier(Rid, <span class="string">"low"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"Low confidence ("</span>, Conf, <span class="string">") &rarr; REJECTED"</span>);
-      .fail.
-
-<span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all valid)</span>
-+!assess_confidence(Rid, Cid, Conf)
-   &lt;- +confidence_tier(Rid, <span class="string">"medium"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>).
-
-<span class="comment">// RECOVERY</span>
--!assessed(Rid)
-   &lt;- .println(<span class="string">"Assessment FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p3-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-threshold(<span class="string">"high"</span>, <span class="string">"1.0"</span>). threshold(<span class="string">"low"</span>, <span class="string">"0.0"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-assessed(Rid) :- confidence_tier(Rid, _).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      invoke(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>,
-             <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, Rid);
-      !assessed(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!assessed(Rid)
-   :  assessed(Rid)
-   &lt;- .println(<span class="string">"Already assessed: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!assessed(Rid)
-   &lt;- valid(Rid, IsValid);
-      !assessed_branch(Rid, IsValid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; extract confidence, delegate to tier assessment</span>
-+!assessed_branch(Rid, <span class="keyword">true</span>)
-   &lt;- candidate(Rid, Cid);
-      field(Rid, <span class="string">"confidence"</span>, Conf);
-      !assess_confidence(Rid, Cid, Conf).
-
-<span class="comment">// ACHIEVEMENT: invalid output</span>
-+!assessed_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: high confidence &rarr; accept</span>
-+!assess_confidence(Rid, Cid, Conf)
-   :  threshold(<span class="string">"high"</span>, Conf)
-   &lt;- accept(Cid);
-      +accepted(Rid);
-      +confidence_tier(Rid, <span class="string">"high"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"High confidence ("</span>, Conf, <span class="string">") &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: low confidence &rarr; reject, fail</span>
-+!assess_confidence(Rid, Cid, Conf)
-   :  threshold(<span class="string">"low"</span>, Conf)
-   &lt;- reject(Cid);
-      +confidence_tier(Rid, <span class="string">"low"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"Low confidence ("</span>, Conf, <span class="string">") &rarr; REJECTED"</span>);
-      .fail.
-
-<span class="comment">// ACHIEVEMENT: medium confidence &rarr; escalate (catch-all)</span>
-+!assess_confidence(Rid, Cid, Conf)
-   &lt;- +confidence_tier(Rid, <span class="string">"medium"</span>);
-      ?assessed(Rid);
-      .println(<span class="string">"Medium confidence &rarr; ESCALATING"</span>).
-
-<span class="comment">// RECOVERY</span>
--!assessed(Rid)
-   &lt;- .println(<span class="string">"Assessment FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-3-confidence-threshold/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-3-confidence-threshold/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-3-confidence-threshold/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleDetail('confidence')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">How the three-tier decision works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-confidence" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Three context-guarded plans for <code>!assess_confidence</code> implement a tiered strategy. The BDI engine evaluates guards <strong>top-to-bottom</strong>: <strong>above 0.8</strong> &mdash; accept immediately. <strong>Between 0.5 and 0.8</strong> &mdash; escalate to a verification sub-goal. <strong>Below 0.5</strong> &mdash; reject outright. The thresholds are up to you &mdash; 0.9 for medical, 0.6 for chat. No if/else needed; the BDI engine's plan selection handles it natively.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleDetail('confidence-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('confidence-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-confidence-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 3: Confidence Threshold ===
-[GL] Provider (auto-detected): gemini
-Confidence: 0.92 &rarr; High confidence &mdash; ACCEPTED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The LLM returns a confidence score alongside its classification. Scores above 0.8 are accepted, 0.5&ndash;0.8 escalated, and below 0.5 rejected. Actual thresholds are configurable by the developer.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 4: Cross-LLM Verification -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-cross-llm">
-        <h2><i class="fa-solid fa-arrows-left-right" style="margin-right:8px;color:#8b5cf6;"></i>Pattern 4 &mdash; Cross-LLM Verification</h2>
-        <p>Ask one LLM, then ask a different LLM to verify the answer. Accept only if both providers agree.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> High-stakes decisions, reducing single-provider bias.<br>
-            <strong>How it works:</strong> Switch providers with <code>use_provider</code>, send the first answer to the second LLM for verification.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p4-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p4-jason">Jason</button>
-              <button class="tab-btn" data-tab="p4-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p4-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-    <span class="keyword">module</span> System S;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> verified(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> cross_checked(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> accepted(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> attempt_count(<span class="keyword">int</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-    <span class="keyword">initial</span> attempt_count(0);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> verified(<span class="keyword">string</span> rid) :- cross_checked(rid);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !verified(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) : verified(rid) {
-        console.println(<span class="string">"Already verified: "</span> + rid);
-    }
-
-    <span class="comment">// DECOMPOSITION: valid &rarr; cross-check</span>
-    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        <span class="keyword">query</span>(attempt_count(<span class="keyword">int</span> count));
-        -+attempt_count(count + 1);
-        !cross_checked(rid);
-        ?verified(rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid</span>
-    <span class="keyword">rule</span> +!verified(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Invalid output &rarr; ABORTED"</span>);
-    }
-
-    <span class="comment">// DECOMPOSITION: cross-check with second LLM</span>
-    <span class="keyword">rule</span> +!cross_checked(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        <span class="keyword">try</span> {
-            !labels_match(rid, gl.field(rid, <span class="string">"label"</span>),
-                gl.field(gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>,
-                    <span class="string">"Is this correct? apple = "</span> + gl.field(rid, <span class="string">"label"</span>)), <span class="string">"label"</span>));
-        } <span class="keyword">recover</span> {
-            console.println(<span class="string">"Second LLM call failed"</span>);
-            S.fail();
-        }
-    }
-
-    <span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
-    <span class="keyword">rule</span> +!labels_match(<span class="keyword">string</span> rid, <span class="keyword">string</span> l1, <span class="keyword">string</span> l2) : l1 == l2 {
-        gl.accept(gl.candidate(rid));
-        +accepted(rid);
-        +cross_checked(rid);
-        console.println(<span class="string">"Labels match ('"</span> + l1 + <span class="string">"') &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject (~= inequality)</span>
-    <span class="keyword">rule</span> +!labels_match(<span class="keyword">string</span> rid, <span class="keyword">string</span> l1, <span class="keyword">string</span> l2) : l1 ~= l2 {
-        gl.reject(gl.candidate(rid));
-        console.println(<span class="string">"Labels DISAGREE ('"</span> + l1 + <span class="string">"' ~= '"</span> + l2 + <span class="string">"') &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!verified(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Verification FAILED for "</span> + rid);
-    }
-
-    <span class="keyword">rule</span> -!cross_checked(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Cross-check FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p4-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-attempt_count(0).
-
-<span class="comment">// DOMAIN MODEL</span>
-verified(Rid) :- cross_checked(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !verified(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!verified(Rid)
-   :  verified(Rid)
-   &lt;- .println(<span class="string">"Already verified: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; cross-check</span>
-+!verified(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- ?attempt_count(Count);
-      -+attempt_count(Count + 1);
-      !cross_checked(Rid);
-      ?verified(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!verified(Rid)
-   &lt;- .println(<span class="string">"Invalid output &rarr; ABORTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: cross-check with second LLM</span>
-+!cross_checked(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.field(Rid, <span class="string">"label"</span>, L1);
-      .concat(<span class="string">"Is this correct? apple = "</span>, L1, Prompt);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>, Prompt, Vrid);
-      gl.field(Vrid, <span class="string">"label"</span>, L2);
-      !labels_match(Rid, L1, L2).
-
-<span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
-+!labels_match(Rid, L1, L2)
-   :  L1 == L2
-   &lt;- gl.candidate(Rid, Cid);
-      gl.accept(Cid);
-      +accepted(Rid);
-      +cross_checked(Rid);
-      .println(<span class="string">"Labels match ('"</span>, L1, <span class="string">"') &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject</span>
-+!labels_match(Rid, L1, L2)
-   :  L1 \== L2
-   &lt;- gl.candidate(Rid, Cid);
-      gl.reject(Cid);
-      .println(<span class="string">"Labels DISAGREE ('"</span>, L1, <span class="string">"' \== '"</span>, L2, <span class="string">"') &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!verified(Rid)
-   &lt;- .println(<span class="string">"Verification FAILED for "</span>, Rid).
-
--!cross_checked(Rid)
-   &lt;- .println(<span class="string">"Cross-check FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p4-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-attempt_count(0).
-
-<span class="comment">// DOMAIN MODEL</span>
-verified(Rid) :- cross_checked(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !verified(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!verified(Rid)
-   :  verified(Rid)
-   &lt;- .println(<span class="string">"Already verified: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; cross-check</span>
-+!verified(Rid)
-   &lt;- valid(Rid, IsValid);
-      !verified_branch(Rid, IsValid).
-
-+!verified_branch(Rid, <span class="keyword">true</span>)
-   &lt;- ?attempt_count(Count);
-      -+attempt_count(Count + 1);
-      !cross_checked(Rid);
-      ?verified(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!verified_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output &rarr; ABORTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: cross-check with second LLM</span>
-+!cross_checked(Rid)
-   &lt;- field(Rid, <span class="string">"label"</span>, L1);
-      .concat(<span class="string">"Is this correct? apple = "</span>, L1, Prompt);
-      ask(<span class="string">"agent1"</span>, <span class="string">"verify"</span>, Prompt, Vrid);
-      field(Vrid, <span class="string">"label"</span>, L2);
-      !labels_match(Rid, L1, L2).
-
-<span class="comment">// ACHIEVEMENT: labels match &rarr; accept</span>
-+!labels_match(Rid, L1, L2)
-   :  L1 == L2
-   &lt;- candidate(Rid, Cid);
-      accept(Cid);
-      +accepted(Rid);
-      +cross_checked(Rid);
-      .println(<span class="string">"Labels match ('"</span>, L1, <span class="string">"') &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: labels disagree &rarr; reject</span>
-+!labels_match(Rid, L1, L2)
-   :  L1 \== L2
-   &lt;- candidate(Rid, Cid);
-      reject(Cid);
-      .println(<span class="string">"Labels DISAGREE ('"</span>, L1, <span class="string">"' \== '"</span>, L2, <span class="string">"') &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!verified(Rid)
-   &lt;- .println(<span class="string">"Verification FAILED for "</span>, Rid).
-
--!cross_checked(Rid)
-   &lt;- .println(<span class="string">"Cross-check FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-4-cross-llm-verification/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-4-cross-llm-verification/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-4-cross-llm-verification/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #8b5cf6;cursor:pointer;" onclick="toggleDetail('crossllm')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#8b5cf6;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">How cross-verification works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-crossllm" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">The agent orchestrates two independent LLMs. <strong>Step 1</strong>: Ask Gemini. <strong>Step 2</strong>: Switch to OpenAI and pass Gemini's answer for verification. <strong>Step 3</strong>: Two context-guarded plans for <code>!compare_results</code> handle agreement vs. disagreement. Neither LLM knows about the other &mdash; the agent is the decision-maker using independent opinions as evidence.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #8b5cf6;cursor:pointer;" onclick="toggleDetail('crossllm-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#8b5cf6;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('crossllm-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-crossllm-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 4: Cross-LLM Verification ===
-[GL] Provider 1 (Gemini): label=fruit
-[GL] Provider 2 (OpenAI): agreement=yes
-Both LLMs agree &mdash; ACCEPTED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Gemini classifies "apple" as "fruit", then OpenAI verifies the answer. If both agree, the agent accepts. If they disagree, the agent rejects. Requires two provider API keys.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 5: Agent-to-Agent Review -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-agent-review">
-        <h2><i class="fa-solid fa-users" style="margin-right:8px;color:#ec4899;"></i>Pattern 5 &mdash; Agent-to-Agent Review</h2>
-        <p>One agent generates content, then sends it to a peer agent for review using standard BDI messaging. The peer uses its own beliefs &mdash; no LLM involved in the review step.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Multi-agent systems where agents have different expertise.<br>
-            <strong>How it works:</strong> Standard BDI messaging (<code>.send</code>) combined with governed candidates.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p5-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p5-jason">Jason</button>
-              <button class="tab-btn" data-tab="p5-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p5-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-    <span class="keyword">module</span> System S;
-
-    <span class="keyword">types</span> review_types {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> review_timeout(<span class="keyword">int</span>);
-        <span class="keyword">formula</span> reviewed(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> peer_approved(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> review_request(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> review_approved(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> review_rejected(<span class="keyword">string</span>, <span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-    <span class="keyword">initial</span> review_timeout(30000);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> reviewed(<span class="keyword">string</span> cid) :- peer_approved(cid);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !reviewed(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) : reviewed(rid) {
-        console.println(<span class="string">"[Runner] Already reviewed: "</span> + rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
-    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> &amp; review_timeout(<span class="keyword">int</span> timeout) {
-        console.println(<span class="string">"[Runner] Sending '"</span> + gl.field(rid, <span class="string">"label"</span>) + <span class="string">"' to reviewer..."</span>);
-        send(request, <span class="string">"reviewer"</span>, review_request(gl.field(rid, <span class="string">"label"</span>), gl.candidate(rid)));
-        wait(review_approved(gl.candidate(rid)), timeout);
-        <span class="keyword">if</span> (~review_approved(gl.candidate(rid))) {
-            console.println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
-            gl.reject(gl.candidate(rid));
-        }
-        ?reviewed(gl.candidate(rid));
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid</span>
-    <span class="keyword">rule</span> +!reviewed(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>);
-    }
-
-    <span class="comment">// REACTIVE: peer approved</span>
-    <span class="keyword">rule</span> @message(inform, <span class="keyword">string</span> sender, review_approved(<span class="keyword">string</span> cid)) {
-        +peer_approved(cid);
-        gl.accept(cid);
-        console.println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// REACTIVE: peer rejected</span>
-    <span class="keyword">rule</span> @message(inform, <span class="keyword">string</span> sender, review_rejected(<span class="keyword">string</span> cid, <span class="keyword">string</span> reason)) {
-        gl.reject(cid);
-        console.println(<span class="string">"[Runner] Peer rejected: "</span> + reason + <span class="string">" &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!reviewed(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"[Runner] Review FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p5-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-review_timeout(30000).
-
-<span class="comment">// DOMAIN MODEL</span>
-reviewed(Cid) :- peer_approved(Cid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
-      !reviewed(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!reviewed(Rid)
-   :  reviewed(Rid)
-   &lt;- .println(<span class="string">"[Runner] Already reviewed: "</span>, Rid).
-
-<span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
-+!reviewed(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>) &amp; review_timeout(Timeout)
-   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
-      gl.candidate(Rid, Cid);
-      .println(<span class="string">"[Runner] Sending '"</span>, Label, <span class="string">"' to reviewer..."</span>);
-      .send(reviewer, achieve, review_request(Label, Cid));
-      .wait({+peer_approved(Cid)}, Timeout);
-      if (not peer_approved(Cid)) {
-          .println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
-          gl.reject(Cid);
-      };
-      ?reviewed(Cid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!reviewed(Rid)
-   &lt;- .println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>).
-
-<span class="comment">// REACTIVE: peer approved</span>
-+review_approved(Cid)
-   &lt;- +peer_approved(Cid);
-      gl.accept(Cid);
-      .println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>).
-
-<span class="comment">// REACTIVE: peer rejected</span>
-+review_rejected(Cid, Reason)
-   &lt;- gl.reject(Cid);
-      .println(<span class="string">"[Runner] Peer rejected: "</span>, Reason, <span class="string">" &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!reviewed(Rid)
-   &lt;- .println(<span class="string">"[Runner] Review FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p5-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-review_timeout(30000).
-
-<span class="comment">// DOMAIN MODEL</span>
-reviewed(Cid) :- peer_approved(Cid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
-      !reviewed(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!reviewed(Rid)
-   :  reviewed(Rid)
-   &lt;- .println(<span class="string">"[Runner] Already reviewed: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!reviewed(Rid)
-   &lt;- valid(Rid, IsValid);
-      !reviewed_branch(Rid, IsValid).
-
-<span class="comment">// ACHIEVEMENT: valid &rarr; send to reviewer, wait with timeout</span>
-+!reviewed_branch(Rid, <span class="keyword">true</span>)
-   :  review_timeout(Timeout)
-   &lt;- field(Rid, <span class="string">"label"</span>, Label);
-      candidate(Rid, Cid);
-      .println(<span class="string">"[Runner] Sending '"</span>, Label, <span class="string">"' to reviewer..."</span>);
-      .send(reviewer, achieve, review_request(Label, Cid));
-      .wait({+peer_approved(Cid)}, Timeout);
-      if (not peer_approved(Cid)) {
-          .println(<span class="string">"[Runner] Review TIMED OUT &rarr; REJECTED"</span>);
-          reject(Cid);
-      };
-      ?reviewed(Cid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!reviewed_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"[Runner] Invalid output &rarr; SKIPPED"</span>).
-
-<span class="comment">// REACTIVE: peer approved</span>
-+review_approved(Cid)
-   &lt;- +peer_approved(Cid);
-      accept(Cid);
-      .println(<span class="string">"[Runner] Peer approved &rarr; ACCEPTED"</span>).
-
-<span class="comment">// REACTIVE: peer rejected</span>
-+review_rejected(Cid, Reason)
-   &lt;- reject(Cid);
-      .println(<span class="string">"[Runner] Peer rejected: "</span>, Reason, <span class="string">" &rarr; REJECTED"</span>).
-
-<span class="comment">// RECOVERY</span>
--!reviewed(Rid)
-   &lt;- .println(<span class="string">"[Runner] Review FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleDetail('agentreview')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">How peer review works</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-agentreview" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Agent A generates a candidate but <strong>does not decide alone</strong>. It sends the label to Agent B via standard BDI messaging. Agent B has two context-guarded plans for <code>!review</code> &mdash; one fires if the label matches a known food belief, the other if it doesn't. Agent A reacts to the verdict via belief triggers (<code>+approved</code> / <code>+disapproved</code>). <strong>Neither agent blindly trusts the LLM or each other</strong> &mdash; each applies its own governance. Note: ASTRA does not natively support inter-agent messaging, so this pattern is shown for Jason and JaCaMo only.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleDetail('agentreview-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('agentreview-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-agentreview-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 5: Agent-to-Agent Review ===
-[GL] Provider (auto-detected): gemini
-[agentA] Sending to peer for review: fruit
-[agentB] Reviewing &mdash; known_food(fruit) &rarr; APPROVED
-[agentA] Peer approved &rarr; ACCEPTED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Agent A asks the LLM to classify "tomato", then sends the result to Agent B for review. Agent B checks against its own beliefs (<code>known_food</code>). If verified, it sends <code>approved</code> back to Agent A, which then accepts the candidate.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 6: Belief Consistency -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-belief">
-        <h2><i class="fa-solid fa-scale-balanced" style="margin-right:8px;color:#06b6d4;"></i>Pattern 6 &mdash; Belief Consistency Check</h2>
-        <p>The agent compares the LLM's answer against its existing beliefs using context guards. Contradictions are rejected, consistent answers confirmed, and new knowledge is adopted.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> When the agent has prior knowledge and must not adopt contradictions.<br>
-            <strong>Key idea:</strong> BDI agents have beliefs &mdash; use them as a validation layer.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p6-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p6-jason">Jason</button>
-              <button class="tab-btn" data-tab="p6-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p6-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> consistent(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> belief_checked(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> category(<span class="keyword">string</span>, <span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-    <span class="keyword">initial</span> category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>), category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> consistent(<span class="keyword">string</span> rid) :- belief_checked(rid);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !consistent(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) : consistent(rid) {
-        console.println(<span class="string">"Already checked: "</span> + rid);
-    }
-
-    <span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
-    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        !belief_checked(<span class="string">"apple"</span>, gl.field(rid, <span class="string">"label"</span>), gl.candidate(rid));
-        +belief_checked(rid);
-        ?consistent(rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid</span>
-    <span class="keyword">rule</span> +!consistent(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Invalid output &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
-    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : category(item, label) {
-        gl.accept(cid);
-        console.println(<span class="string">"Matches belief: "</span> + item + <span class="string">" = "</span> + label + <span class="string">" &rarr; CONFIRMED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
-    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : category(item, <span class="keyword">string</span> existing) &amp; ~category(item, label) {
-        gl.reject(cid);
-        console.println(<span class="string">"Contradicts belief! Expected "</span> + existing + <span class="string">" got "</span> + label + <span class="string">" &rarr; REJECTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
-    <span class="keyword">rule</span> +!belief_checked(<span class="keyword">string</span> item, <span class="keyword">string</span> label, <span class="keyword">string</span> cid) : ~category(item, <span class="keyword">string</span> any) {
-        gl.accept(cid);
-        +category(item, label);
-        console.println(<span class="string">"No prior belief for "</span> + item + <span class="string">" &rarr; NEW KNOWLEDGE: "</span> + label);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!consistent(<span class="keyword">string</span> rid) {
-        console.println(<span class="string">"Consistency check FAILED for "</span> + rid);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p6-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-consistent(Rid) :- belief_checked(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !consistent(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!consistent(Rid)
-   :  consistent(Rid)
-   &lt;- .println(<span class="string">"Already checked: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
-+!consistent(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- gl.field(Rid, <span class="string">"label"</span>, Label);
-      gl.candidate(Rid, Cid);
-      !belief_checked(<span class="string">"apple"</span>, Label, Cid);
-      +belief_checked(Rid);
-      ?consistent(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!consistent(Rid)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
-+!belief_checked(Item, Label, Cid)
-   :  category(Item, Label)
-   &lt;- gl.accept(Cid);
-      .println(<span class="string">"Matches belief: "</span>, Item, <span class="string">" = "</span>, Label, <span class="string">" &rarr; CONFIRMED"</span>).
-
-<span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
-+!belief_checked(Item, Label, Cid)
-   :  category(Item, Existing) &amp; Label \== Existing
-   &lt;- gl.reject(Cid);
-      .println(<span class="string">"Contradicts belief! Expected "</span>, Existing, <span class="string">" got "</span>, Label, <span class="string">" &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
-+!belief_checked(Item, Label, Cid)
-   :  not category(Item, _)
-   &lt;- gl.accept(Cid);
-      +category(Item, Label);
-      .println(<span class="string">"No prior belief for "</span>, Item, <span class="string">" &rarr; NEW KNOWLEDGE: "</span>, Label).
-
-<span class="comment">// RECOVERY</span>
--!consistent(Rid)
-   &lt;- .println(<span class="string">"Consistency check FAILED for "</span>, Rid).</code></pre>
-          </div>
-          <div class="tab-content" id="p6-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-category(<span class="string">"apple"</span>, <span class="string">"fruit"</span>). category(<span class="string">"carrot"</span>, <span class="string">"vegetable"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-consistent(Rid) :- belief_checked(Rid).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: apple"</span>, Rid);
-      !consistent(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!consistent(Rid)
-   :  consistent(Rid)
-   &lt;- .println(<span class="string">"Already checked: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!consistent(Rid)
-   &lt;- valid(Rid, IsValid);
-      !consistent_branch(Rid, IsValid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; check belief</span>
-+!consistent_branch(Rid, <span class="keyword">true</span>)
-   &lt;- field(Rid, <span class="string">"label"</span>, Label);
-      candidate(Rid, Cid);
-      !belief_checked(<span class="string">"apple"</span>, Label, Cid);
-      +belief_checked(Rid);
-      ?consistent(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid</span>
-+!consistent_branch(Rid, <span class="keyword">false</span>)
-   &lt;- .println(<span class="string">"Invalid output &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: matches existing belief &rarr; confirm</span>
-+!belief_checked(Item, Label, Cid)
-   :  category(Item, Label)
-   &lt;- accept(Cid);
-      .println(<span class="string">"Matches belief: "</span>, Item, <span class="string">" = "</span>, Label, <span class="string">" &rarr; CONFIRMED"</span>).
-
-<span class="comment">// ACHIEVEMENT: contradicts existing belief &rarr; reject</span>
-+!belief_checked(Item, Label, Cid)
-   :  category(Item, Existing) &amp; Label \== Existing
-   &lt;- reject(Cid);
-      .println(<span class="string">"Contradicts belief! Expected "</span>, Existing, <span class="string">" got "</span>, Label, <span class="string">" &rarr; REJECTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: no prior belief &rarr; adopt new knowledge</span>
-+!belief_checked(Item, Label, Cid)
-   :  not category(Item, _)
-   &lt;- accept(Cid);
-      +category(Item, Label);
-      .println(<span class="string">"No prior belief for "</span>, Item, <span class="string">" &rarr; NEW KNOWLEDGE: "</span>, Label).
-
-<span class="comment">// RECOVERY</span>
--!consistent(Rid)
-   &lt;- .println(<span class="string">"Consistency check FAILED for "</span>, Rid).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-6-belief-consistency/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-6-belief-consistency/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-6-belief-consistency/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('belief')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Why belief consistency matters</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-belief" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Three context-guarded plans for <code>!check_belief</code> handle three scenarios. The BDI engine checks the agent's belief base: <strong>category(Item, Label) matches</strong> &rarr; confirmed. <strong>category(Item, Existing) exists but differs</strong> &rarr; contradiction rejected. <strong>No category belief</strong> &rarr; adopted as new knowledge. This is the most BDI-native pattern &mdash; it uses the agent's existing knowledge exactly as BDI theory intended.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('belief-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('belief-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-belief-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 6: Belief Consistency ===
-[GL] Provider (auto-detected): gemini
-Matches belief: apple = fruit &rarr; CONFIRMED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">The agent already believes <code>category("apple", "fruit")</code>. The LLM confirms this &mdash; so the result is accepted as consistent. If the LLM said "vegetable", it would be rejected as a contradiction. For unknown items, the agent adopts the answer as new knowledge.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 7: Majority Voting -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-voting">
-        <h2><i class="fa-solid fa-check-double" style="margin-right:8px;color:#10b981;"></i>Pattern 7 &mdash; Majority Voting</h2>
-        <p>Ask multiple LLMs the same question. Accept only the answer that a majority agrees on.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Critical decisions where no single LLM should be trusted alone.<br>
-            <strong>How it works:</strong> Collect answers from N providers, tally votes with context-guarded plans.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p7-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p7-jason">Jason</button>
-              <button class="tab-btn" data-tab="p7-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p7-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> vote(<span class="keyword">int</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> votes_collected(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> consensus_label(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> consensus_reached(<span class="keyword">boolean</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> consensus_reached(<span class="keyword">true</span>) :- consensus_label(<span class="keyword">string</span> _);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !votes_collected(<span class="keyword">true</span>);
-        !consensus_reached(<span class="keyword">true</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
-    <span class="keyword">rule</span> +!votes_collected(<span class="keyword">boolean</span> x) {
-        !vote_cast(1);
-        !vote_cast(2);
-        !vote_cast(3);
-        !print_vote_summary();
-    }
-
-    <span class="comment">// ACHIEVEMENT: cast a single vote (one action)</span>
-    <span class="keyword">rule</span> +!vote_cast(<span class="keyword">int</span> id) {
-        +vote(id, gl.field(gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>), <span class="string">"label"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
-    <span class="keyword">rule</span> +!print_vote_summary() {
-        <span class="keyword">foreach</span>(vote(<span class="keyword">int</span> id, <span class="keyword">string</span> label)) {
-            console.println(<span class="string">"  Vote "</span> + id + <span class="string">": "</span> + label);
-        }
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!consensus_reached(<span class="keyword">boolean</span> x) : consensus_reached(<span class="keyword">true</span>) {
-        <span class="keyword">query</span>(consensus_label(<span class="keyword">string</span> winner));
-        console.println(<span class="string">"Already have consensus: "</span> + winner);
-    }
-
-    <span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
-    <span class="keyword">rule</span> +!consensus_reached(<span class="keyword">boolean</span> x) : vote(1, <span class="keyword">string</span> l1) &amp; vote(2, <span class="keyword">string</span> l2) &amp; vote(3, <span class="keyword">string</span> l3) {
-        !tallied(l1, l2, l3);
-        ?consensus_reached(<span class="keyword">true</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
-    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l1 == l2 {
-        +consensus_label(l1);
-        console.println(<span class="string">"Majority agrees on '"</span> + l1 + <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
-    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l1 == l3 {
-        +consensus_label(l1);
-        console.println(<span class="string">"Majority agrees on '"</span> + l1 + <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees (~=)</span>
-    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) : l2 == l3 &amp; l1 ~= l2 {
-        +consensus_label(l2);
-        console.println(<span class="string">"Majority agrees on '"</span> + l2 + <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: no consensus</span>
-    <span class="keyword">rule</span> +!tallied(<span class="keyword">string</span> l1, <span class="keyword">string</span> l2, <span class="keyword">string</span> l3) {
-        console.println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>);
-    }
-
-    <span class="comment">// RECOVERY</span>
-    <span class="keyword">rule</span> -!consensus_reached(<span class="keyword">boolean</span> x) {
-        console.println(<span class="string">"Consensus determination FAILED"</span>);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p7-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-consensus_reached(<span class="keyword">true</span>) :- consensus_label(_).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      !votes_collected(<span class="keyword">true</span>);
-      !consensus_reached(<span class="keyword">true</span>).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
-+!votes_collected(<span class="keyword">true</span>)
-   &lt;- !vote_cast(1);
-      !vote_cast(2);
-      !vote_cast(3);
-      !print_vote_summary.
-
-<span class="comment">// ACHIEVEMENT: cast a single vote (actions only)</span>
-+!vote_cast(N)
-   &lt;- gl.ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
-      gl.field(Rid, <span class="string">"label"</span>, Label);
-      +vote(N, Label).
-
-<span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
-+!print_vote_summary
-   &lt;- for (vote(Id, Label)) {
-          .println(<span class="string">"  Vote "</span>, Id, <span class="string">": "</span>, Label);
-      }.
-
-<span class="comment">// SERENDIPITY</span>
-+!consensus_reached(<span class="keyword">true</span>)
-   :  consensus_reached(<span class="keyword">true</span>)
-   &lt;- ?consensus_label(Winner);
-      .println(<span class="string">"Already have consensus: "</span>, Winner).
-
-<span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
-+!consensus_reached(<span class="keyword">true</span>)
-   :  vote(1, L1) &amp; vote(2, L2) &amp; vote(3, L3)
-   &lt;- !tallied(L1, L2, L3);
-      ?consensus_reached(<span class="keyword">true</span>).
-
-<span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
-+!tallied(L1, L2, L3)
-   :  L1 == L2
-   &lt;- +consensus_label(L1);
-      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
-+!tallied(L1, L2, L3)
-   :  L1 == L3
-   &lt;- +consensus_label(L1);
-      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees</span>
-+!tallied(L1, L2, L3)
-   :  L2 == L3 &amp; L1 \== L2
-   &lt;- +consensus_label(L2);
-      .println(<span class="string">"Majority agrees on '"</span>, L2, <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: no consensus</span>
-+!tallied(L1, L2, L3)
-   &lt;- .println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>).
-
-<span class="comment">// RECOVERY</span>
--!consensus_reached(<span class="keyword">true</span>)
-   &lt;- .println(<span class="string">"Consensus determination FAILED"</span>).</code></pre>
-          </div>
-          <div class="tab-content" id="p7-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-consensus_reached(<span class="keyword">true</span>) :- consensus_label(_).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      !votes_collected(<span class="keyword">true</span>);
-      !consensus_reached(<span class="keyword">true</span>).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// DECOMPOSITION: collect = cast 3 votes &rarr; print summary</span>
-+!votes_collected(<span class="keyword">true</span>)
-   &lt;- !vote_cast(1);
-      !vote_cast(2);
-      !vote_cast(3);
-      !print_vote_summary.
-
-<span class="comment">// ACHIEVEMENT: cast a single vote (actions only)</span>
-+!vote_cast(N)
-   &lt;- ask(<span class="string">"agent1"</span>, <span class="string">"classify"</span>, <span class="string">"Classify: tomato"</span>, Rid);
-      field(Rid, <span class="string">"label"</span>, Label);
-      +vote(N, Label).
-
-<span class="comment">// ACHIEVEMENT: print summary of collected votes</span>
-+!print_vote_summary
-   &lt;- for (vote(Id, Label)) {
-          .println(<span class="string">"  Vote "</span>, Id, <span class="string">": "</span>, Label);
-      }.
-
-<span class="comment">// SERENDIPITY</span>
-+!consensus_reached(<span class="keyword">true</span>)
-   :  consensus_reached(<span class="keyword">true</span>)
-   &lt;- ?consensus_label(Winner);
-      .println(<span class="string">"Already have consensus: "</span>, Winner).
-
-<span class="comment">// DECOMPOSITION: tally the votes &rarr; verify</span>
-+!consensus_reached(<span class="keyword">true</span>)
-   :  vote(1, L1) &amp; vote(2, L2) &amp; vote(3, L3)
-   &lt;- !tallied(L1, L2, L3);
-      ?consensus_reached(<span class="keyword">true</span>).
-
-<span class="comment">// ACHIEVEMENT: 1 &amp; 2 agree</span>
-+!tallied(L1, L2, L3)
-   :  L1 == L2
-   &lt;- +consensus_label(L1);
-      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;2) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: 1 &amp; 3 agree</span>
-+!tallied(L1, L2, L3)
-   :  L1 == L3
-   &lt;- +consensus_label(L1);
-      .println(<span class="string">"Majority agrees on '"</span>, L1, <span class="string">"' (1&amp;3) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: 2 &amp; 3 agree, 1 disagrees</span>
-+!tallied(L1, L2, L3)
-   :  L2 == L3 &amp; L1 \== L2
-   &lt;- +consensus_label(L2);
-      .println(<span class="string">"Majority agrees on '"</span>, L2, <span class="string">"' (2&amp;3) &rarr; ACCEPTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: no consensus</span>
-+!tallied(L1, L2, L3)
-   &lt;- .println(<span class="string">"No consensus — all disagree &rarr; NO DECISION"</span>).
-
-<span class="comment">// RECOVERY</span>
--!consensus_reached(<span class="keyword">true</span>)
-   &lt;- .println(<span class="string">"Consensus determination FAILED"</span>).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-7-majority-voting/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-7-majority-voting/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-7-majority-voting/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #10b981;cursor:pointer;" onclick="toggleDetail('voting')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#10b981;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">How majority voting reduces bias</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-voting" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Four context-guarded plans for <code>!vote</code> cover all consensus cases. The BDI engine checks pairwise equality: if any two labels match, that pair's answer wins. If all three disagree, the fourth guard fires and nobody's answer is accepted. Each LLM call goes through the full governance pipeline independently. This is the most defensive pattern &mdash; useful for critical decisions.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #10b981;cursor:pointer;" onclick="toggleDetail('voting-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#10b981;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('voting-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-voting-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 7: Majority Voting ===
-[GL] Provider (auto-detected): gemini
-Provider 1: vegetable | Provider 2: vegetable | Provider 3: fruit
-Majority agrees on 'vegetable' &rarr; ACCEPTED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">Three LLM calls are made (can use different providers). Labels are compared pairwise. If any two agree, the majority answer is accepted. If all three disagree, no decision is made. This is the most defensive pattern.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern 8: Iterative Refinement -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="pattern-refinement">
-        <h2><i class="fa-solid fa-rotate" style="margin-right:8px;color:#f97316;"></i>Pattern 8 &mdash; Iterative Refinement</h2>
-        <p>The agent generates an answer, critiques it, then refines it. Each round goes through governance. Accept only the final refined version.</p>
-
-        <div class="card" style="padding:16px;margin-bottom:12px;">
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
-            <strong>When to use:</strong> Complex tasks like writing, analysis, or planning where first drafts are rarely good enough.<br>
-            <strong>How it works:</strong> Generate &rarr; Critique &rarr; Refine &rarr; Accept. Each step is governed.
-          </div>
-        </div>
-
-        <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tabs-buttons">
-              <button class="tab-btn active" data-tab="p8-astra">ASTRA</button>
-              <button class="tab-btn" data-tab="p8-jason">Jason</button>
-              <button class="tab-btn" data-tab="p8-jacamo">JaCaMo</button>
-            </div>
-          </div>
-          <div class="tab-content active" id="p8-astra">
-            <pre><code><span class="keyword">agent</span> PatternRunner {
-    <span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
-    <span class="keyword">module</span> Console console;
-
-    <span class="keyword">types</span> governance {
-        <span class="keyword">formula</span> setting(<span class="keyword">string</span>, <span class="keyword">string</span>);
-        <span class="keyword">formula</span> configured(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> refined(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> critiqued(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> improved(<span class="keyword">string</span>);
-        <span class="keyword">formula</span> accepted_final(<span class="keyword">boolean</span>);
-        <span class="keyword">formula</span> pipeline_step(<span class="keyword">string</span>);
-    }
-
-    <span class="keyword">initial</span> setting(<span class="string">"model"</span>, <span class="string">"gpt-oss-120b"</span>), setting(<span class="string">"provider"</span>, <span class="string">"cerebras"</span>);
-
-    <span class="comment">// DOMAIN MODEL</span>
-    <span class="keyword">inference</span> refined(<span class="keyword">string</span> rid) :- accepted_final(<span class="keyword">true</span>);
-
-    <span class="comment">// DECOMPOSITION: main only adopts subgoals</span>
-    <span class="keyword">rule</span> +!main(<span class="keyword">list</span> args) {
-        !configured(<span class="keyword">true</span>);
-        !refined(gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>));
-    }
-
-    <span class="comment">// ACHIEVEMENT: setup</span>
-    <span class="keyword">rule</span> +!configured(<span class="keyword">boolean</span> x) : setting(<span class="string">"model"</span>, <span class="keyword">string</span> m) &amp; setting(<span class="string">"provider"</span>, <span class="keyword">string</span> p) {
-        gl.configure(<span class="string">"model"</span>, m);
-        gl.use_provider(p);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) : refined(rid) {
-        console.println(<span class="string">"Already refined: "</span> + rid);
-    }
-
-    <span class="comment">// DECOMPOSITION: refine = critique + improve + accept</span>
-    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) : gl.valid(rid) == <span class="keyword">true</span> {
-        !critiqued(rid);
-        !improved(rid);
-        !accepted_final(rid);
-        ?refined(rid);
-    }
-
-    <span class="comment">// ACHIEVEMENT: invalid draft</span>
-    <span class="keyword">rule</span> +!refined(<span class="keyword">string</span> rid) {
-        -+pipeline_step(<span class="string">"draft_failed"</span>);
-        console.println(<span class="string">"Draft invalid &rarr; ABORTED"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: critique</span>
-    <span class="keyword">rule</span> +!critiqued(<span class="keyword">string</span> draftRid) : gl.valid(draftRid) == <span class="keyword">true</span> {
-        -+pipeline_step(<span class="string">"critiquing"</span>);
-        +critiqued(gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>));
-        console.println(<span class="string">"Draft &rarr; critique requested"</span>);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!critiqued(<span class="keyword">string</span> rid) : critiqued(rid) {
-        console.println(<span class="string">"Already critiqued"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: improve</span>
-    <span class="keyword">rule</span> +!improved(<span class="keyword">string</span> rid) : critiqued(<span class="keyword">string</span> critiqueRid) &amp; gl.valid(critiqueRid) == <span class="keyword">true</span> {
-        -+pipeline_step(<span class="string">"refining"</span>);
-        +improved(gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>));
-        console.println(<span class="string">"Critique &rarr; refinement requested"</span>);
-    }
-
-    <span class="comment">// SERENDIPITY</span>
-    <span class="keyword">rule</span> +!improved(<span class="keyword">string</span> rid) : improved(rid) {
-        console.println(<span class="string">"Already improved"</span>);
-    }
-
-    <span class="comment">// ACHIEVEMENT: accept final</span>
-    <span class="keyword">rule</span> +!accepted_final(<span class="keyword">string</span> rid) : improved(<span class="keyword">string</span> finalRid) &amp; gl.valid(finalRid) == <span class="keyword">true</span> {
-        gl.accept(gl.candidate(finalRid));
-        +accepted_final(<span class="keyword">true</span>);
-        -+pipeline_step(<span class="string">"accepted"</span>);
-        console.println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>);
-    }
-
-    <span class="comment">// RECOVERY at each level</span>
-    <span class="keyword">rule</span> -!refined(<span class="keyword">string</span> rid) {
-        -+pipeline_step(<span class="string">"failed"</span>);
-        console.println(<span class="string">"Refinement pipeline FAILED for "</span> + rid);
-    }
-
-    <span class="keyword">rule</span> -!critiqued(<span class="keyword">string</span> rid) {
-        -+pipeline_step(<span class="string">"critique_failed"</span>);
-        console.println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>);
-    }
-
-    <span class="keyword">rule</span> -!improved(<span class="keyword">string</span> rid) {
-        -+pipeline_step(<span class="string">"refine_failed"</span>);
-        console.println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>);
-    }
-}</code></pre>
-          </div>
-          <div class="tab-content" id="p8-jason">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-refined(Rid) :- accepted_final(<span class="keyword">true</span>).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !configured(<span class="keyword">true</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, Rid);
-      !refined(Rid).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- gl.configure(<span class="string">"model"</span>, M);
-      gl.use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!refined(Rid)
-   :  refined(Rid)
-   &lt;- .println(<span class="string">"Already refined: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: refine = critique + improve + accept</span>
-+!refined(Rid)
-   :  gl.valid(Rid, <span class="keyword">true</span>)
-   &lt;- !critiqued(Rid);
-      !improved(Rid);
-      !accepted_final(Rid);
-      ?refined(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid draft</span>
-+!refined(Rid)
-   &lt;- -+pipeline_step(<span class="string">"draft_failed"</span>);
-      .println(<span class="string">"Draft invalid &rarr; ABORTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: critique</span>
-+!critiqued(DraftRid)
-   :  gl.valid(DraftRid, <span class="keyword">true</span>)
-   &lt;- -+pipeline_step(<span class="string">"critiquing"</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>, CritiqueRid);
-      +critiqued(CritiqueRid);
-      .println(<span class="string">"Draft &rarr; critique requested"</span>).
-
-<span class="comment">// SERENDIPITY</span>
-+!critiqued(Rid)
-   :  critiqued(Rid)
-   &lt;- .println(<span class="string">"Already critiqued"</span>).
-
-<span class="comment">// ACHIEVEMENT: improve</span>
-+!improved(Rid)
-   :  critiqued(CritiqueRid) &amp; gl.valid(CritiqueRid, <span class="keyword">true</span>)
-   &lt;- -+pipeline_step(<span class="string">"refining"</span>);
-      gl.ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>, FinalRid);
-      +improved(FinalRid);
-      .println(<span class="string">"Critique &rarr; refinement requested"</span>).
-
-<span class="comment">// SERENDIPITY</span>
-+!improved(Rid)
-   :  improved(Rid)
-   &lt;- .println(<span class="string">"Already improved"</span>).
-
-<span class="comment">// ACHIEVEMENT: accept final</span>
-+!accepted_final(Rid)
-   :  improved(FinalRid) &amp; gl.valid(FinalRid, <span class="keyword">true</span>)
-   &lt;- gl.candidate(FinalRid, Cid);
-      gl.accept(Cid);
-      +accepted_final(<span class="keyword">true</span>);
-      -+pipeline_step(<span class="string">"accepted"</span>);
-      .println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>).
-
-<span class="comment">// RECOVERY at each level</span>
--!refined(Rid)
-   &lt;- -+pipeline_step(<span class="string">"failed"</span>);
-      .println(<span class="string">"Refinement pipeline FAILED for "</span>, Rid).
-
--!critiqued(Rid)
-   &lt;- -+pipeline_step(<span class="string">"critique_failed"</span>);
-      .println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>).
-
--!improved(Rid)
-   &lt;- -+pipeline_step(<span class="string">"refine_failed"</span>);
-      .println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>).</code></pre>
-          </div>
-          <div class="tab-content" id="p8-jacamo">
-            <pre><code>setting(<span class="string">"model"</span>, <span class="string">"gemini-2.5-flash"</span>). setting(<span class="string">"provider"</span>, <span class="string">"gemini"</span>).
-
-<span class="comment">// DOMAIN MODEL</span>
-refined(Rid) :- accepted_final(<span class="keyword">true</span>).
-
-!start.
-
-<span class="comment">// DECOMPOSITION: start only adopts subgoals</span>
-+!start
-   &lt;- !artifact_ready;
-      !configured(<span class="keyword">true</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"draft"</span>, <span class="string">"Write a 3-sentence summary of photosynthesis"</span>, Rid);
-      !refined(Rid).
-
-<span class="comment">// ACHIEVEMENT: create and focus the GL artifact</span>
-+!artifact_ready
-   &lt;- makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], GlId);
-      focus(GlId).
-
-<span class="comment">// ACHIEVEMENT: setup (actions only)</span>
-+!configured(<span class="keyword">true</span>)
-   :  setting(<span class="string">"model"</span>, M) &amp; setting(<span class="string">"provider"</span>, P)
-   &lt;- configure(<span class="string">"model"</span>, M);
-      use_provider(P).
-
-<span class="comment">// SERENDIPITY</span>
-+!refined(Rid)
-   :  refined(Rid)
-   &lt;- .println(<span class="string">"Already refined: "</span>, Rid).
-
-<span class="comment">// DECOMPOSITION: bind validity &rarr; branch</span>
-+!refined(Rid)
-   &lt;- valid(Rid, IsValid);
-      !refined_branch(Rid, IsValid).
-
-<span class="comment">// DECOMPOSITION: valid &rarr; critique + improve + accept</span>
-+!refined_branch(Rid, <span class="keyword">true</span>)
-   &lt;- !critiqued(Rid);
-      !improved(Rid);
-      !accepted_final(Rid);
-      ?refined(Rid).
-
-<span class="comment">// ACHIEVEMENT: invalid draft</span>
-+!refined_branch(Rid, <span class="keyword">false</span>)
-   &lt;- -+pipeline_step(<span class="string">"draft_failed"</span>);
-      .println(<span class="string">"Draft invalid &rarr; ABORTED"</span>).
-
-<span class="comment">// ACHIEVEMENT: critique</span>
-+!critiqued(DraftRid)
-   &lt;- -+pipeline_step(<span class="string">"critiquing"</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"critique"</span>, <span class="string">"Critique the summary of photosynthesis"</span>, CritiqueRid);
-      valid(CritiqueRid, CValid);
-      if (CValid) {
-          +critiqued(CritiqueRid);
-          .println(<span class="string">"Draft &rarr; critique requested"</span>);
-      } else {
-          .println(<span class="string">"Critique invalid &rarr; ABORTED"</span>);
-          .fail;
-      }.
-
-<span class="comment">// SERENDIPITY</span>
-+!critiqued(Rid)
-   :  critiqued(Rid)
-   &lt;- .println(<span class="string">"Already critiqued"</span>).
-
-<span class="comment">// ACHIEVEMENT: improve</span>
-+!improved(Rid)
-   :  critiqued(CritiqueRid)
-   &lt;- -+pipeline_step(<span class="string">"refining"</span>);
-      ask(<span class="string">"agent1"</span>, <span class="string">"refine"</span>, <span class="string">"Improve the summary based on feedback"</span>, FinalRid);
-      valid(FinalRid, FValid);
-      if (FValid) {
-          +improved(FinalRid);
-          .println(<span class="string">"Critique &rarr; refinement requested"</span>);
-      } else {
-          .println(<span class="string">"Refinement invalid &rarr; ABORTED"</span>);
-          .fail;
-      }.
-
-<span class="comment">// SERENDIPITY</span>
-+!improved(Rid)
-   :  improved(Rid)
-   &lt;- .println(<span class="string">"Already improved"</span>).
-
-<span class="comment">// ACHIEVEMENT: accept final</span>
-+!accepted_final(Rid)
-   :  improved(FinalRid)
-   &lt;- candidate(FinalRid, Cid);
-      accept(Cid);
-      +accepted_final(<span class="keyword">true</span>);
-      -+pipeline_step(<span class="string">"accepted"</span>);
-      .println(<span class="string">"Draft &rarr; Critique &rarr; Refine &rarr; ACCEPTED"</span>).
-
-<span class="comment">// RECOVERY at each level</span>
--!refined(Rid)
-   &lt;- -+pipeline_step(<span class="string">"failed"</span>);
-      .println(<span class="string">"Refinement pipeline FAILED for "</span>, Rid).
-
--!critiqued(Rid)
-   &lt;- -+pipeline_step(<span class="string">"critique_failed"</span>);
-      .println(<span class="string">"Critique FAILED &rarr; pipeline aborted"</span>).
-
--!improved(Rid)
-   &lt;- -+pipeline_step(<span class="string">"refine_failed"</span>);
-      .println(<span class="string">"Refinement FAILED &rarr; pipeline aborted"</span>).</code></pre>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;"><a href="https://github.com/generativelayers/examples/tree/main/astra/acceptance-patterns/pattern-8-iterative-refinement/src/main/astra/PatternRunner.astra" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>ASTRA</a> <a href="https://github.com/generativelayers/examples/tree/main/jason/acceptance-patterns/pattern-8-iterative-refinement/src/main/asl/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>Jason</a> <a href="https://github.com/generativelayers/examples/tree/main/jacamo/acceptance-patterns/pattern-8-iterative-refinement/src/agt/main.asl" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-secondary);text-decoration:none;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:10px;"></i>JaCaMo</a></div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f97316;cursor:pointer;" onclick="toggleDetail('refinement')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-shoe-prints" style="font-size:14px;color:#f97316;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">How iterative refinement improves quality</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-refinement" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0 0;">Each step is a separate sub-goal with its own context guard (<code>gl.valid</code>). The agent chains: <strong>Draft</strong> &rarr; <strong>Critique</strong> &rarr; <strong>Refine</strong> &rarr; <strong>Accept</strong>. Only the final refined output is accepted. The draft and critique are intermediate &mdash; never adopted as beliefs. Each step goes through the full governance pipeline: validation, candidate creation, and traceability.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:0;margin-top:12px;border-left:3px solid #f97316;cursor:pointer;" onclick="toggleDetail('refinement-result')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-terminal" style="font-size:14px;color:#f97316;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Expected Result</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('refinement-result')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-refinement-result" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:12px 0 0;overflow-x:auto;"><code>=== Pattern 8: Iterative Refinement ===
-[GL] Provider (auto-detected): gemini
-Draft generated (valid) &rarr; requesting critique
-Critique received (valid) &rarr; refining
-Draft &rarr; Critique &rarr; Refine pipeline complete &rarr; ACCEPTED</code></pre>
-              <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;">A three-step pipeline: generate a draft, critique it, refine it. Each step is validated independently. Only the final refined version is accepted. If any step fails validation, the pipeline aborts.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <!-- Pattern Summary -->
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      <section class="info-panel" id="summary">
-        <h2><i class="fa-solid fa-table-list" style="margin-right:8px;color:var(--color-green-700);"></i>Pattern Summary</h2>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">
-            <thead>
-              <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
-                <th style="padding:10px 12px;font-weight:700;">Pattern</th>
-                <th style="padding:10px 12px;font-weight:700;">Who Decides</th>
-                <th style="padding:10px 12px;font-weight:700;">BDI Mechanism</th>
-                <th style="padding:10px 12px;font-weight:700;">Platforms</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-simple" style="color:var(--color-green-700);font-weight:600;">Simple Validation</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Schema validator</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Context guard on <code>valid</code></td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-content" style="color:var(--color-green-700);font-weight:600;">Content Inspection</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent beliefs</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on <code>known(Label)</code></td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-confidence" style="color:var(--color-green-700);font-weight:600;">Confidence Threshold</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent + LLM score</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Tiered confidence guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-cross-llm" style="color:var(--color-green-700);font-weight:600;">Cross-LLM Verification</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent comparing LLMs</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on agreement field</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-agent-review" style="color:var(--color-green-700);font-weight:600;">Agent-to-Agent Review</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Peer agent</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Belief triggers + guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-belief" style="color:var(--color-green-700);font-weight:600;">Belief Consistency</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Agent's belief base</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Guard on <code>category</code> belief</td><td style="padding:10px 12px;color:var(--color-text-secondary);">All</td></tr>
-              <tr style="border-bottom:1px solid var(--color-border-light);"><td style="padding:10px 12px;"><a href="#pattern-voting" style="color:var(--color-green-700);font-weight:600;">Majority Voting</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Consensus of N providers</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Pairwise equality guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
-              <tr><td style="padding:10px 12px;"><a href="#pattern-refinement" style="color:var(--color-green-700);font-weight:600;">Iterative Refinement</a></td><td style="padding:10px 12px;color:var(--color-text-secondary);">Multi-step pipeline</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Chained sub-goal guards</td><td style="padding:10px 12px;color:var(--color-text-secondary);">Jason, JaCaMo</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
+      <div id="patterns-root" class="patterns-root">
+        <div class="load-state">Loading current pattern examples from GitHub…</div>
+      </div>
     </main>
   </div>
 
   <script>
-    // --- Mobile sidebar toggle ---
-    document.querySelector('.menu-toggle').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('sidebarBackdrop').classList.toggle('open');
-    });
-    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.remove('open');
-      this.classList.remove('open');
-    });
+    const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/examples/main/';
 
-    // --- Pattern Detail Toggle (eye icon) ---
-    window.toggleDetail = function(id) {
-      var el = document.getElementById('detail-' + id);
-      if (!el) return;
-      if (el.style.display === 'none') {
-        el.style.display = 'block';
-        el.style.maxHeight = '0';
-        el.style.overflow = 'hidden';
-        el.style.transition = 'max-height 0.3s ease';
-        requestAnimationFrame(function() {
-          el.style.maxHeight = el.scrollHeight + 'px';
-        });
-      } else {
-        el.style.maxHeight = '0';
-        setTimeout(function() { el.style.display = 'none'; }, 300);
+    const PATTERNS = [
+      {
+        id: 'simple-validation',
+        title: 'Pattern 1 — Simple Validation',
+        icon: 'fa-check-circle',
+        description: 'Accept valid schema-compliant output; reject invalid output. Baseline candidate lifecycle pattern.',
+        checks: ['Schema format', 'Candidate validity', 'Explicit accept/reject'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-1-simple-validation/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-1-simple-validation/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-1-simple-validation/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'content-inspection',
+        title: 'Pattern 2 — Content Inspection',
+        icon: 'fa-magnifying-glass',
+        description: 'Validate the output and then inspect the label against the agent\'s own known categories before adoption.',
+        checks: ['Schema validity', 'Known category', 'Reject unknown content'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-2-content-inspection/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-2-content-inspection/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-2-content-inspection/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'confidence-threshold',
+        title: 'Pattern 3 — Confidence Tier',
+        icon: 'fa-gauge-high',
+        description: 'Use a categorical confidence tier: high accepts, low rejects, and medium/unknown escalates.',
+        checks: ['confidence_tier field', 'High → accept', 'Low → reject', 'Other → escalate'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-3-confidence-threshold/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-3-confidence-threshold/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-3-confidence-threshold/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'cross-llm',
+        title: 'Pattern 4 — Cross-LLM Verification',
+        icon: 'fa-code-compare',
+        description: 'Use a primary provider and a verifier provider; accept only when both candidates agree.',
+        checks: ['Primary provider', 'Verifier provider', 'Agreement required', 'Both candidates deliberated'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-4-cross-llm-verification/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-4-cross-llm-verification/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-4-cross-llm-verification/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'agent-review',
+        title: 'Pattern 5 — Agent-to-Agent Review',
+        icon: 'fa-user-check',
+        description: 'A generating agent asks a reviewer agent before accepting the candidate.',
+        checks: ['Peer approval', 'Peer rejection', 'Timeout rejection'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'belief-consistency',
+        title: 'Pattern 6 — Belief Consistency',
+        icon: 'fa-database',
+        description: 'Compare the LLM candidate with existing beliefs. Confirm matches, reject contradictions, adopt new facts only when no prior belief exists.',
+        checks: ['Existing belief match', 'Contradiction rejection', 'New fact adoption'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-6-belief-consistency/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-6-belief-consistency/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-6-belief-consistency/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'majority-voting',
+        title: 'Pattern 7 — Majority Voting',
+        icon: 'fa-scale-balanced',
+        description: 'Collect multiple candidate votes and accept the concrete candidates that form a majority.',
+        checks: ['Multiple votes', 'Candidate IDs retained', 'Majority winners accepted'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-7-majority-voting/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-7-majority-voting/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-7-majority-voting/src/agt/main.asl'
+        }
+      },
+      {
+        id: 'iterative-refinement',
+        title: 'Pattern 8 — Iterative Refinement',
+        icon: 'fa-arrows-rotate',
+        description: 'Generate, check, refine, and accept only the final validated candidate. Free-text outputs use the framework\'s text field.',
+        checks: ['Draft text passed forward', 'Check text passed forward', 'Final candidate accepted'],
+        files: {
+          ASTRA: 'astra/acceptance-patterns/pattern-8-iterative-refinement/src/main/astra/PatternRunner.astra',
+          Jason: 'jason/acceptance-patterns/pattern-8-iterative-refinement/src/main/asl/main.asl',
+          JaCaMo: 'jacamo/acceptance-patterns/pattern-8-iterative-refinement/src/agt/main.asl'
+        }
       }
-    };
+    ];
 
-    // --- Scoped Tab Switching (multiple tab groups per page) ---
-    document.querySelectorAll('.tabs-container').forEach(function(container) {
-      var btns = container.querySelectorAll('.tab-btn');
-      var contents = container.querySelectorAll('.tab-content');
-      btns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          btns.forEach(function(b) { b.classList.remove('active'); });
-          contents.forEach(function(c) { c.classList.remove('active'); });
-          btn.classList.add('active');
-          var target = btn.getAttribute('data-tab');
-          document.getElementById(target).classList.add('active');
-        });
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function loadSource(path) {
+      const url = RAW_BASE + path;
+      const response = await fetch(url, { cache: 'no-cache' });
+      if (!response.ok) throw new Error('Could not load ' + path);
+      return response.text();
+    }
+
+    function renderPatternShell(pattern, index) {
+      const checks = pattern.checks.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+      const buttons = Object.keys(pattern.files).map((name, i) =>
+        `<button class="code-tab ${i === 0 ? 'active' : ''}" data-pattern="${pattern.id}" data-platform="${name}">${name}</button>`
+      ).join('');
+      const panels = Object.entries(pattern.files).map(([name, path], i) => `
+        <div class="code-panel ${i === 0 ? 'active' : ''}" id="${pattern.id}-${name}">
+          <div class="source-path">${escapeHtml(path)}</div>
+          <pre><code data-source="${escapeHtml(path)}">Loading ${name}…</code></pre>
+        </div>
+      `).join('');
+      return `
+        <section class="info-panel" id="pattern-${pattern.id}">
+          <h2><i class="fa-solid ${pattern.icon}" style="margin-right:8px;color:var(--color-green-700);"></i>${escapeHtml(pattern.title)}</h2>
+          <p>${escapeHtml(pattern.description)}</p>
+          <div class="card" style="padding:16px;margin-bottom:12px;">
+            <strong>Governance checks</strong>
+            <ul style="margin:8px 0 0 20px;color:var(--color-text-secondary);line-height:1.7;">${checks}</ul>
+          </div>
+          <div class="code-toolbar">${buttons}</div>
+          ${panels}
+        </section>
+      `;
+    }
+
+    async function hydratePatterns() {
+      const root = document.getElementById('patterns-root');
+      if (!root) return;
+      root.innerHTML = PATTERNS.map(renderPatternShell).join('');
+
+      root.addEventListener('click', event => {
+        const button = event.target.closest('.code-tab');
+        if (!button) return;
+        const patternId = button.dataset.pattern;
+        const platform = button.dataset.platform;
+        root.querySelectorAll(`.code-tab[data-pattern="${patternId}"]`).forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        root.querySelectorAll(`[id^="${patternId}-"]`).forEach(panel => panel.classList.remove('active'));
+        const panel = document.getElementById(`${patternId}-${platform}`);
+        if (panel) panel.classList.add('active');
       });
-    });
-  </script>
 
+      const codeBlocks = Array.from(root.querySelectorAll('code[data-source]'));
+      await Promise.all(codeBlocks.map(async block => {
+        const path = block.dataset.source;
+        try {
+          const source = await loadSource(path);
+          block.textContent = source.trim();
+        } catch (error) {
+          block.textContent = 'Unable to load current source from examples repository.\n' + path;
+        }
+      }));
+    }
+
+    document.addEventListener('DOMContentLoaded', hydratePatterns);
+  </script>
 </body>
 </html>
