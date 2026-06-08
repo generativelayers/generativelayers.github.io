@@ -923,7 +923,7 @@ rule +!peer_review(string cid) {
             <div class="tab-badge" id="tab-badge">ASTRA</div>
           </div>
           <div class="tab-content active" id="astra-code">
-            <pre><code class="language-astra"><span class="keyword">module</span> gl.adapter.astra.AstraAdapter gl;
+            <pre><code class="language-astra"><span class="keyword">module</span> gl.astra.GL gl;
  
  rule +!main(list args) {
      <span class="comment">// 1. Setup provider</span>
@@ -999,7 +999,7 @@ rule +!peer_review(string cid) {
  
  +!main <-
      <span class="comment">// 1. Focus on the CArtAgO environment artifact</span>
-     makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.adapter.jacamo.JaCaMoAdapter"</span>, [], Id);
+     makeArtifact(<span class="string">"gl"</span>, <span class="string">"gl.jacamo.GL"</span>, [], Id);
      focus(Id);
      
      <span class="comment">// 2. Configure and invoke standard operations</span>
