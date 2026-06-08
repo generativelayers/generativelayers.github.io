@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Run Code | Generative Layers</title>
-  <meta name="description" content="Run controlled ASTRA examples for Generative Layers through the hosted code server.">
+  <meta name="description" content="Run the hosted Generative Layers ASTRA demonstration from the website.">
   <meta name="keywords" content="Generative Layers, ASTRA, run code, BDI agents, Java, agent programming">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.generativelayers.com/code.html">
@@ -13,18 +13,120 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Generative Layers">
   <meta property="og:title" content="Run Code | Generative Layers">
-  <meta property="og:description" content="Run controlled ASTRA examples through the hosted Generative Layers code server.">
+  <meta property="og:description" content="Run the hosted Generative Layers ASTRA demonstration from the website.">
   <meta property="og:url" content="https://www.generativelayers.com/code.html">
   <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Run Code | Generative Layers">
-  <meta name="twitter:description" content="Run controlled ASTRA examples through the hosted Generative Layers code server.">
+  <meta name="twitter:description" content="Run the hosted Generative Layers ASTRA demonstration from the website.">
   <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script defer src="js/search.js"></script>
+
+  <style>
+    .runner-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+      max-width: 980px;
+    }
+
+    .runner-card {
+      background: var(--color-surface, #fff);
+      border: 1px solid var(--color-border, #e5e7eb);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .runner-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 14px 0 16px;
+    }
+
+    .runner-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #fff;
+      background: var(--color-green-700, #059669);
+    }
+
+    .runner-button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    .runner-secondary {
+      color: var(--color-text, #111827);
+      background: transparent;
+      border: 1px solid var(--color-border, #e5e7eb);
+    }
+
+    .runner-status {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-text-secondary, #4b5563);
+    }
+
+    .runner-output,
+    .runner-source {
+      min-height: 190px;
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      white-space: pre-wrap;
+      border-radius: 12px;
+      background: #0b1220;
+      color: #d1fae5;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .runner-source {
+      min-height: 150px;
+      color: #e5e7eb;
+    }
+
+    .runner-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 0;
+    }
+
+    .runner-meta div {
+      border: 1px solid var(--color-border, #e5e7eb);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      color: var(--color-text-secondary, #4b5563);
+    }
+
+    .runner-meta strong {
+      display: block;
+      color: var(--color-text, #111827);
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    @media (max-width: 720px) {
+      .runner-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -58,49 +160,151 @@
 
     <main class="main">
       <h1>Run Code</h1>
-      <p class="lead">Run controlled ASTRA examples through the hosted Generative Layers code server.</p>
+      <p class="lead">Execute the hosted ASTRA job and return the real server trace.</p>
 
-      <section class="info-panel" id="run-code">
-        <h2><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-green-700);"></i>ASTRA Code Runner</h2>
-        <p>
-          This page connects to the hosted execution environment at
-          <a href="https://code.generativelayers.com" target="_blank" rel="noopener noreferrer">code.generativelayers.com</a>.
-          The current runner starts a controlled ASTRA program on demand, executes it with server-side limits, and returns the execution trace.
-        </p>
+      <section class="runner-grid" id="run-code">
+        <div class="runner-card">
+          <h2><i class="fa-solid fa-code" style="margin-right:8px;color:var(--color-green-700);"></i>ASTRA Runner</h2>
 
-        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin:18px 0;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Hosted runner</div>
-          <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 14px;">
-            Use the external runner page to execute the current ASTRA demonstration. Arbitrary user-submitted code should only be enabled after sandboxing, queue limits, timeouts, and abuse protection are fully hardened.
-          </p>
-          <a href="https://code.generativelayers.com" target="_blank" rel="noopener noreferrer" class="card" style="display:inline-flex;align-items:center;gap:10px;padding:12px 16px;text-decoration:none;color:var(--color-text);border-left:3px solid var(--color-green-700);">
-            <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--color-green-700);"></i>
-            <span style="font-weight:700;">Open Code Runner</span>
-          </a>
+          <div class="runner-toolbar">
+            <button class="runner-button" id="runAstraButton" type="button">
+              <i class="fa-solid fa-play"></i>
+              <span>Run ASTRA on Server</span>
+            </button>
+            <button class="runner-button runner-secondary" id="clearOutputButton" type="button">
+              <i class="fa-solid fa-eraser"></i>
+              <span>Clear</span>
+            </button>
+            <span class="runner-status" id="runnerStatus">Ready</span>
+          </div>
+
+          <div class="runner-meta" aria-live="polite">
+            <div>Status<strong id="metaStatus">Idle</strong></div>
+            <div>Return code<strong id="metaReturnCode">—</strong></div>
+            <div>Elapsed<strong id="metaElapsed">—</strong></div>
+          </div>
         </div>
 
-        <div class="card" style="padding:20px;margin-top:16px;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Execution model</div>
-          <pre><code>Website
-  → code.generativelayers.com
-  → Nginx
-  → local controller
-  → Java 17 / Maven / ASTRA
-  → controlled result</code></pre>
+        <div class="runner-card">
+          <h2>Server output</h2>
+          <pre class="runner-output" id="runnerOutput">Press “Run ASTRA on Server”.</pre>
+        </div>
+
+        <div class="runner-card">
+          <h2>Current ASTRA program</h2>
+          <pre class="runner-source"><code>agent Main {
+    module Console C;
+    module System system;
+
+    rule +!main(list args) {
+        C.println("Hello from ASTRA on code.generativelayers.com");
+        C.println("Generative Layers Maven dependency is present in this project.");
+        system.exit();
+    }
+}</code></pre>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    document.querySelector('.menu-toggle').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('sidebarBackdrop').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const menuToggle = document.querySelector('.menu-toggle');
+
+    menuToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      sidebarBackdrop.classList.toggle('open');
     });
-    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.remove('open');
+
+    sidebarBackdrop.addEventListener('click', function() {
+      sidebar.classList.remove('open');
       this.classList.remove('open');
     });
+
+    const ASTRA_RUN_URL = 'https://code.generativelayers.com/api/run-astra';
+
+    const runButton = document.getElementById('runAstraButton');
+    const clearButton = document.getElementById('clearOutputButton');
+    const runnerStatus = document.getElementById('runnerStatus');
+    const runnerOutput = document.getElementById('runnerOutput');
+    const metaStatus = document.getElementById('metaStatus');
+    const metaReturnCode = document.getElementById('metaReturnCode');
+    const metaElapsed = document.getElementById('metaElapsed');
+
+    function setRunning(isRunning) {
+      runButton.disabled = isRunning;
+      runnerStatus.textContent = isRunning ? 'Running on server…' : 'Ready';
+    }
+
+    function resetOutput() {
+      metaStatus.textContent = 'Idle';
+      metaReturnCode.textContent = '—';
+      metaElapsed.textContent = '—';
+      runnerOutput.textContent = 'Press “Run ASTRA on Server”.';
+    }
+
+    function normaliseOutput(output) {
+      if (!output) return '';
+      return String(output).replace(/\\n/g, '\n');
+    }
+
+    function renderResult(data) {
+      metaStatus.textContent = data.status || 'unknown';
+      metaReturnCode.textContent = data.return_code ?? '—';
+      metaElapsed.textContent = data.elapsed_seconds ? `${data.elapsed_seconds}s` : '—';
+
+      const trace = normaliseOutput(data.output);
+      runnerOutput.textContent = trace || JSON.stringify(data, null, 2);
+      runnerStatus.textContent = data.status === 'completed' ? 'Completed' : 'Finished with problem';
+    }
+
+    runButton.addEventListener('click', async function() {
+      setRunning(true);
+      metaStatus.textContent = 'Running';
+      metaReturnCode.textContent = '—';
+      metaElapsed.textContent = '—';
+      runnerOutput.textContent = 'Connecting to code.generativelayers.com…';
+
+      try {
+        const response = await fetch(ASTRA_RUN_URL, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-store'
+        });
+
+        const text = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          data = {
+            status: response.ok ? 'completed' : 'failed',
+            return_code: response.status,
+            elapsed_seconds: null,
+            output: text
+          };
+        }
+
+        if (!response.ok) {
+          data.status = data.status || 'failed';
+          data.return_code = data.return_code || response.status;
+        }
+
+        renderResult(data);
+      } catch (error) {
+        metaStatus.textContent = 'Request failed';
+        metaReturnCode.textContent = '—';
+        metaElapsed.textContent = '—';
+        runnerStatus.textContent = 'Failed';
+        runnerOutput.textContent = 'The browser could not reach the ASTRA server. The server must allow this website origin in Nginx CORS/origin rules.\n\n' + error;
+      } finally {
+        setRunning(false);
+      }
+    });
+
+    clearButton.addEventListener('click', resetOutput);
   </script>
 
 </body>
