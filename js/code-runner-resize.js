@@ -33,7 +33,7 @@
         position: relative;
         flex: 1 1 0;
         min-width: 0;
-        overflow: hidden;
+        overflow: visible;
       }
       .runner-project.resizable .hl-editor-wrap,
       .runner-project.resizable .runner-editor {
