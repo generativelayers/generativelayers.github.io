@@ -35,8 +35,9 @@
 
   // ── Platform detection ──────────────────────────────────────
 
-  function detectPlatform(pre) {
-    if (!pre || pre.dataset.glRunReady === '1' || pre.closest('.runner-card')) return null;
+  /** Detect platform from a pre block. Used both during scan and at click-time. */
+  function detectPlatformFor(pre) {
+    if (!pre) return null;
     const code = pre.querySelector('code');
     if (!code) return null;
 
@@ -76,6 +77,12 @@
     }
 
     return null;
+  }
+
+  /** Initial-scan wrapper: skips already-processed blocks and runner cards. */
+  function detectPlatform(pre) {
+    if (!pre || pre.dataset.glRunReady === '1' || pre.closest('.runner-card')) return null;
+    return detectPlatformFor(pre);
   }
 
   // ── Source wrapping ──────────────────────────────────────────
@@ -158,7 +165,7 @@
       event.preventDefault();
       event.stopPropagation();
       const activePre = getActivePreInScope(pre, scope);
-      const activePlatform = activePre ? (detectPlatform(activePre) || platform) : platform;
+      const activePlatform = activePre ? (detectPlatformFor(activePre) || platform) : platform;
       openRunner(makeRunnable(textOf(activePre || pre), activePlatform), titleFor(activePre || pre), activePlatform);
     });
     return button;
@@ -240,8 +247,29 @@
   function addButton(pre) {
     const platform = detectPlatform(pre);
     if (!platform) return;
-    if (addButtonToTabsHeader(pre, platform)) return;
-    if (addButtonToMiniTabs(pre, platform)) return;
+    // For tabbed containers, one Run button per header is enough.
+    // Mark this pre as processed even if the header already has a button,
+    // so it doesn't fall through to addFallbackButton().
+    const tabs = pre.closest('.tabs-container');
+    const header = tabs ? tabs.querySelector(':scope > .tabs-header') : null;
+    if (header) {
+      if (header.dataset.glRunReady !== '1') {
+        addButtonToTabsHeader(pre, platform);
+      }
+      pre.classList.add('gl-code-normalized');
+      pre.dataset.glRunReady = '1';
+      return;
+    }
+    const details = pre.closest('.cmd-details-content');
+    const miniTabs = details ? details.querySelector('.mini-tabs') : null;
+    if (miniTabs) {
+      if (miniTabs.dataset.glRunReady !== '1') {
+        addButtonToMiniTabs(pre, platform);
+      }
+      pre.classList.add('gl-code-normalized');
+      pre.dataset.glRunReady = '1';
+      return;
+    }
     addFallbackButton(pre, platform);
   }
 
