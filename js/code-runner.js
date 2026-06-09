@@ -1,6 +1,59 @@
 (() => {
   const ASTRA_RUN_URL = 'https://code.generativelayers.com/api/run-astra';
 
+  // ── Toast notification utility ─────────────────────────
+  function showRunnerToast(message, type = 'info') {
+    // Ensure styles exist
+    if (!document.getElementById('gl-toast-style')) {
+      const s = document.createElement('style');
+      s.id = 'gl-toast-style';
+      s.textContent = `
+        .gl-toast-container {
+          position: fixed; top: 16px; right: 16px; z-index: 10000;
+          display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+        }
+        .gl-toast {
+          pointer-events: auto;
+          display: flex; align-items: center; gap: 10px;
+          padding: 12px 18px; border-radius: 10px;
+          font-size: 14px; font-weight: 600;
+          color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+          animation: glToastIn 0.35s ease-out, glToastOut 0.35s ease-in forwards;
+          animation-delay: 0s, 3.5s;
+          max-width: 380px;
+        }
+        .gl-toast.info { background: #1e40af; }
+        .gl-toast.warning { background: #b45309; }
+        .gl-toast.error { background: #dc2626; }
+        .gl-toast.success { background: #059669; }
+        .gl-toast i { font-size: 16px; }
+        @keyframes glToastIn {
+          from { opacity: 0; transform: translateX(40px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes glToastOut {
+          from { opacity: 1; transform: translateX(0); }
+          to { opacity: 0; transform: translateX(40px); }
+        }
+      `;
+      document.head.appendChild(s);
+    }
+    // Ensure container
+    let container = document.querySelector('.gl-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'gl-toast-container';
+      document.body.appendChild(container);
+    }
+    const icons = { info: 'fa-circle-info', warning: 'fa-triangle-exclamation', error: 'fa-circle-xmark', success: 'fa-circle-check' };
+    const toast = document.createElement('div');
+    toast.className = `gl-toast ${type}`;
+    toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+  window.showRunnerToast = showRunnerToast;
+
   const PROVIDERS = {
     cerebras: { label: 'Cerebras', env: 'CEREBRAS_API_KEY' },
     groq: { label: 'Groq', env: 'GROQ_API_KEY' },
@@ -687,6 +740,9 @@
                 // GUI port available — show the button
                 const guiBtn = document.getElementById('showGuiButton');
                 if (guiBtn) guiBtn.hidden = false;
+              }
+              if (meta.killed_previous) {
+                showRunnerToast('Previous execution terminated', 'info');
               }
             } catch {}
             buffer = buffer.slice(nlIdx + 1);
