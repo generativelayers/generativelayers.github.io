@@ -399,9 +399,144 @@
       overlay.innerHTML = '\n';
       return;
     }
-    const tokens = tokenize(source);
-    overlay.innerHTML = renderTokens(tokens) + '\n';
+
+    // Detect file type from the current file label
+    const fileLabel = document.getElementById('currentFile');
+    const filePath = fileLabel ? (fileLabel.textContent || '') : '';
+    const isXml = filePath.endsWith('.xml') || filePath.endsWith('.pom');
+
+    if (isXml) {
+      overlay.innerHTML = tokenizeXml(source) + '\n';
+    } else {
+      const tokens = tokenize(source);
+      overlay.innerHTML = renderTokens(tokens) + '\n';
+    }
     syncScroll();
+  }
+
+  /* ── XML tokenizer (for pom.xml) ─────────────────────────── */
+  const XML_COLORS = {
+    tag:       '#569CD6',   // < > </ />
+    tagName:   '#4EC9B0',   // element names
+    attr:      '#9CDCFE',   // attribute names
+    attrValue: '#CE9178',   // "attribute values"
+    comment:   '#6A9955',   // <!-- ... -->
+    text:      '#D4D4D4',   // text content
+    entity:    '#B5CEA8',   // &amp; etc
+  };
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function spanXml(color, text) {
+    return `<span style="color:${color}">${esc(text)}</span>`;
+  }
+
+  function tokenizeXml(source) {
+    let result = '';
+    let i = 0;
+    const len = source.length;
+
+    while (i < len) {
+      // XML comment
+      if (source.startsWith('<!--', i)) {
+        const end = source.indexOf('-->', i + 4);
+        const commentEnd = end >= 0 ? end + 3 : len;
+        result += spanXml(XML_COLORS.comment, source.slice(i, commentEnd));
+        i = commentEnd;
+        continue;
+      }
+
+      // Tag
+      if (source[i] === '<') {
+        const closeTag = source.indexOf('>', i);
+        if (closeTag < 0) {
+          result += spanXml(XML_COLORS.text, source.slice(i));
+          break;
+        }
+        const tagContent = source.slice(i, closeTag + 1);
+        result += colorizeTag(tagContent);
+        i = closeTag + 1;
+        continue;
+      }
+
+      // Text content between tags
+      const nextTag = source.indexOf('<', i);
+      const textEnd = nextTag >= 0 ? nextTag : len;
+      const text = source.slice(i, textEnd);
+      result += spanXml(XML_COLORS.text, text);
+      i = textEnd;
+      continue;
+    }
+
+    return result;
+  }
+
+  function colorizeTag(tag) {
+    let result = '';
+    // Match: < or </ at start
+    const openMatch = tag.match(/^(<\/?)/);
+    if (openMatch) {
+      result += spanXml(XML_COLORS.tag, openMatch[1]);
+      let rest = tag.slice(openMatch[1].length);
+
+      // Tag name
+      const nameMatch = rest.match(/^([a-zA-Z0-9_.:-]+)/);
+      if (nameMatch) {
+        result += spanXml(XML_COLORS.tagName, nameMatch[1]);
+        rest = rest.slice(nameMatch[1].length);
+      }
+
+      // Attributes and closing
+      let j = 0;
+      while (j < rest.length) {
+        // Whitespace
+        if (/\s/.test(rest[j])) {
+          let wsEnd = j;
+          while (wsEnd < rest.length && /\s/.test(rest[wsEnd])) wsEnd++;
+          result += esc(rest.slice(j, wsEnd));
+          j = wsEnd;
+          continue;
+        }
+        // /> or >
+        if (rest.startsWith('/>', j)) {
+          result += spanXml(XML_COLORS.tag, '/>');
+          j += 2;
+          continue;
+        }
+        if (rest[j] === '>') {
+          result += spanXml(XML_COLORS.tag, '>');
+          j++;
+          continue;
+        }
+        // Attribute name
+        const attrMatch = rest.slice(j).match(/^([a-zA-Z0-9_.:-]+)/);
+        if (attrMatch) {
+          result += spanXml(XML_COLORS.attr, attrMatch[1]);
+          j += attrMatch[1].length;
+          // = sign
+          if (rest[j] === '=') {
+            result += spanXml(XML_COLORS.tag, '=');
+            j++;
+            // Attribute value "..."
+            if (rest[j] === '"') {
+              const qEnd = rest.indexOf('"', j + 1);
+              const valEnd = qEnd >= 0 ? qEnd + 1 : rest.length;
+              result += spanXml(XML_COLORS.attrValue, rest.slice(j, valEnd));
+              j = valEnd;
+            }
+          }
+          continue;
+        }
+        // Fallback
+        result += esc(rest[j]);
+        j++;
+      }
+    } else {
+      result += spanXml(XML_COLORS.text, tag);
+    }
+    return result;
   }
 
   // Expose for other scripts to call manually
