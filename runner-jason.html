@@ -45,6 +45,7 @@
     /* Strip header/sidebar chrome when inside an iframe */
     .top, .side, .sidebar-backdrop { display: none !important; }
     .layout { display: block !important; }
+    .layout::before, .layout::after { display: none !important; }
     body { background: transparent !important; }
     body .main {
       max-width: 100% !important;
