@@ -1,6 +1,9 @@
 (() => {
-  const RUN_URL = 'https://code.generativelayers.com/api/run-astra';
-  const CANCEL_URL = 'https://code.generativelayers.com/api/cancel-astra';
+  /* ── Platform-aware run/cancel URLs ─────────────────────── */
+  const BASE = 'https://code.generativelayers.com/api';
+  const PLATFORM = window.GL_PLATFORM || 'astra';
+  const RUN_URL = BASE + '/run-' + PLATFORM;
+  const CANCEL_URL = BASE + '/cancel-' + PLATFORM;
 
   let activeController = null;
   let activeRunId = null;
@@ -28,7 +31,7 @@
 
   function isRunRequest(resource) {
     const url = typeof resource === 'string' ? resource : (resource && resource.url) || '';
-    return url === RUN_URL || url.endsWith('/api/run-astra');
+    return url === RUN_URL || url.endsWith('/api/run-' + PLATFORM);
   }
 
   function addStyle() {
@@ -78,7 +81,7 @@
         body: JSON.stringify({ run_id: runId })
       });
     } catch (_) {
-      // Older backend may not implement /api/cancel-astra yet.
+      // Backend may not implement cancel yet.
     }
   }
 
