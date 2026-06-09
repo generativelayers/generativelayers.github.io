@@ -1,12 +1,16 @@
 (() => {
-  const RUN_URL = 'https://code.generativelayers.com/api/run-astra';
+  /* ── Platform-aware run URL ─────────────────────────────── */
+  const BASE = 'https://code.generativelayers.com/api';
+  const PLATFORM = window.GL_PLATFORM || 'astra';
+  const PLATFORM_LABEL = (window.GL_PLATFORM_CONFIG && window.GL_PLATFORM_CONFIG.label) || 'ASTRA';
+  const RUN_URL = BASE + '/run-' + PLATFORM;
   const originalFetch = window.fetch.bind(window);
   let intervalId = null;
   let startTime = 0;
 
   function isRunnerRequest(resource) {
     const url = typeof resource === 'string' ? resource : (resource && resource.url) || '';
-    return url === RUN_URL || url.endsWith('/api/run-astra');
+    return url === RUN_URL || url.endsWith('/api/run-' + PLATFORM);
   }
 
   function text(id, value) {
@@ -42,7 +46,7 @@
       '',
       'Expected stages:',
       '- prepare temporary project',
-      '- compile ASTRA and Java files',
+      '- compile ' + PLATFORM_LABEL + ' files',
       '- run agent',
       '- return final output'
     ].join('\n');
@@ -61,7 +65,7 @@
       text('metaElapsed', elapsed);
       text('runnerStatus', `Running... ${elapsed}`);
       const current = getOutput();
-      if (!current || current.startsWith('Request sent to hosted runner') || current.startsWith('Sending ASTRA project')) {
+      if (!current || current.startsWith('Request sent to hosted runner') || current.startsWith('Sending')) {
         setOutput(message(elapsed));
       }
     }, 1000);
