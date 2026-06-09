@@ -229,6 +229,16 @@
       const initialH = hlWrap.getBoundingClientRect().height || 460;
       project.style.setProperty('--editor-h', initialH + 'px');
 
+      // Sync file-tree height to editor-wrap
+      const filesPanel = project.querySelector('.runner-files');
+      function syncFilesHeight() {
+        if (!filesPanel) return;
+        const ewH = editorWrap.getBoundingClientRect().height;
+        filesPanel.style.maxHeight = ewH + 'px';
+        filesPanel.style.overflowY = 'auto';
+      }
+      syncFilesHeight();
+
       // ── Vertical splitter (height) ──
       const vSplit = makeSplitter('v', 'Drag to resize editor height');
       const insertAfter = () => editorWrap.querySelector('.gl-diag-panel') || hlWrap;
@@ -238,6 +248,7 @@
       makeDrag(vSplit, 'v', (v) => {
         if (v === null) return hlWrap.getBoundingClientRect().height;
         project.style.setProperty('--editor-h', clamp(v, MIN_EDITOR_H, MAX_EDITOR_H) + 'px');
+        syncFilesHeight();
       });
 
       // Watch for gl-diag-panel appearing and reposition
