@@ -107,8 +107,11 @@
    * ═══════════════════════════════════════════════════════════════ */
 
   function stripComments(src) {
+    // Strip block comments, line comments, and string literal contents
+    // (preserving newlines so line numbers stay correct)
     return src.replace(/\/\*[\s\S]*?\*\//g, function (m) { return m.replace(/[^\n]/g, ' '); })
-              .replace(/\/\/.*$/gm, function (m) { return ' '.repeat(m.length); });
+              .replace(/\/\/.*$/gm, function (m) { return ' '.repeat(m.length); })
+              .replace(/"[^"]*"/g, function (m) { return '"' + ' '.repeat(Math.max(0, m.length - 2)) + '"'; });
   }
 
   function lineOfOffset(text, offset) {
