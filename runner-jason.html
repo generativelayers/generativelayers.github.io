@@ -7,84 +7,475 @@
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, system-ui, -apple-system, sans-serif; background: transparent; color: #111827; }
 
-    .coming-soon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 420px;
-      gap: 20px;
-      padding: 40px;
-      text-align: center;
-    }
-    .coming-soon-icon {
-      font-size: 64px;
-      color: #34d399;
-      opacity: 0.5;
-    }
-    .coming-soon h2 {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--color-text, #111827);
-      margin: 0;
-    }
-    .coming-soon p {
-      font-size: 15px;
-      color: var(--color-text-secondary, #4b5563);
-      max-width: 500px;
-      line-height: 1.7;
-      margin: 0;
-    }
-    .coming-soon .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: rgba(52, 211, 153, .12);
-      border: 1px solid rgba(52, 211, 153, .35);
-      color: #059669;
-      font-size: 13px;
-      font-weight: 800;
-    }
-    .coming-soon a {
-      color: #059669;
-      font-weight: 700;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
     .runner-card {
-      background: var(--color-surface, #fff);
-      border: 1px solid var(--color-border, #e5e7eb);
-      border-radius: 14px;
-      padding: 14px 22px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
-      max-width: none;
-      width: 100%;
-      margin-bottom: 2px;
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
+      padding: 14px 22px; box-shadow: 0 10px 30px rgba(15,23,42,.06);
+      max-width: none; width: 100%; margin-bottom: 8px;
+    }
+    .runner-card h2 { margin: 0 0 8px; font-size: 18px; }
+
+    .runner-project {
+      display: grid; grid-template-columns: 195px minmax(0,1fr);
+      column-gap: 4px; row-gap: 14px; align-items: stretch;
+    }
+
+    /* File tree */
+    .runner-files {
+      border: 1px solid #1f2937; border-radius: 12px; overflow: hidden;
+      background: #0b1220; color: #d1fae5; align-self: stretch;
+    }
+    .runner-files-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; background: #111827;
+      border-bottom: 1px solid #1f2937; font-size: 12px; font-weight: 800; color: #e5e7eb;
+    }
+    .runner-file-actions {
+      display: flex; gap: 6px; flex-wrap: wrap; padding: 10px;
+      border-bottom: 1px solid #1f2937; background: #0f172a;
+    }
+    .runner-mini-button {
+      border: 1px solid rgba(52,211,153,.35); border-radius: 999px;
+      background: rgba(52,211,153,.12); color: #34d399;
+      font-size: 11px; font-weight: 800; padding: 5px 9px; cursor: pointer;
+    }
+    .runner-mini-button:hover { background: #059669; color: #fff; border-color: #059669; }
+
+    .runner-root { padding: 8px 6px; border-bottom: 1px solid #1f2937; }
+    .runner-root-title {
+      display: flex; align-items: center; gap: 8px;
+      padding: 3px 4px 7px; color: #34d399; font-size: 13px; font-weight: 900;
+    }
+    .runner-file {
+      display: flex; align-items: center; gap: 6px; width: 100%; border: 0;
+      border-radius: 7px; background: transparent; color: #d1fae5;
+      text-align: left; padding: 5px 6px; margin: 1px 0; cursor: pointer;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px; line-height: 1.25;
+    }
+    .runner-file:hover, .runner-file.active { background: #1f2937; color: #fff; }
+    .runner-empty-folder {
+      padding: 4px 8px 8px; color: #64748b; font-size: 11px; font-style: italic;
+    }
+
+    /* Editor */
+    .runner-editor-wrap { min-width: 0; display: flex; flex-direction: column; align-self: stretch; height: 100%; }
+    .runner-current-file {
+      display: flex; align-items: center; gap: 8px;
+      background: #111827; color: #e5e7eb; border: 1px solid #1f2937;
+      border-bottom: 0; border-radius: 12px 12px 0 0; padding: 9px 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px; font-weight: 800;
+    }
+    .runner-editor {
+      flex: 1; min-height: 0; resize: vertical; width: 100%;
+      margin: 0; padding: 16px; overflow: auto;
+      background: #0b1220; color: #d1fae5; font-size: 13px; line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      border: 1px solid #1f2937; border-radius: 0 0 12px 12px;
+      outline: none; white-space: pre; tab-size: 4;
+    }
+    .runner-editor:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.18); }
+
+    /* Output */
+    .runner-output {
+      width: 100%; margin: 0; padding: 16px; overflow: auto;
+      background: #0b1220; color: #d1fae5; font-size: 13px; line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      min-height: 230px; white-space: pre-wrap; border-radius: 12px;
+      border: 1px solid #1f2937; resize: both;
+    }
+
+    /* Toolbar */
+    .runner-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0 4px; }
+    .runner-button {
+      display: inline-flex; align-items: center; gap: 9px; border: 0;
+      border-radius: 10px; padding: 10px 14px; font-weight: 800; cursor: pointer;
+      color: #fff; background: #059669; font-size: 13px;
+    }
+    .runner-button:disabled { cursor: wait; opacity: .65; }
+    .runner-secondary { color: #111827; background: transparent; border: 1px solid #e5e7eb; }
+    .runner-status { font-size: 13px; font-weight: 800; color: #4b5563; }
+
+    /* Meta */
+    .runner-meta { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; margin: 4px 0 0; }
+    .runner-meta div { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; font-size: 11px; color: #4b5563; }
+    .runner-meta strong { display: block; color: #111827; font-size: 12px; margin-top: 2px; }
+
+    /* API Key panel */
+    .runner-key-panel { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; padding: 16px; margin: 14px 0 0; }
+    .runner-key-panel[hidden] { display: none !important; }
+    .runner-key-panel h3 { margin: 0 0 8px; font-size: 16px; }
+    .runner-key-intro { margin: 0 0 12px; color: #4b5563; font-size: 14px; line-height: 1.55; }
+    .runner-key-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+    .runner-key-row { display: flex; flex-direction: column; gap: 6px; }
+    .runner-key-row[hidden] { display: none !important; }
+    .runner-key-row label { font-size: 13px; font-weight: 800; color: #111827; }
+    .runner-key-row input { width: 100%; border: 1px solid #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 14px; background: #fff; color: #111827; }
+
+    @media(max-width:900px) {
+      .runner-project { grid-template-columns: 1fr; }
+      .runner-meta { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <section id="run-code" style="padding: 16px;">
+  <div style="padding: 4px;">
     <div class="runner-card">
-      <div class="coming-soon">
-        <i class="fa-solid fa-flask coming-soon-icon"></i>
-        <h2>Jason Runner</h2>
-        <div class="badge"><i class="fa-solid fa-clock"></i> Coming Soon</div>
-        <p>
-          The Jason online runner is under development. Jason uses Gradle-based builds which require
-          a different backend pipeline.
-        </p>
-        <p>
-          In the meantime, you can run Jason examples locally.
-          See the <a href="https://github.com/generativelayers/examples/tree/main/jason" target="_blank" rel="noopener">Jason examples on GitHub</a>.
-        </p>
+      <div class="runner-project">
+        <div class="runner-files">
+          <div class="runner-files-head"><span>Project files</span></div>
+          <div class="runner-file-actions">
+            <button class="runner-mini-button" id="newAslButton" type="button"><i class="fa-solid fa-plus"></i> ASL</button>
+            <button class="runner-mini-button" id="deleteFileButton" type="button"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+          <div id="fileTree"></div>
+        </div>
+        <div class="runner-editor-wrap">
+          <div class="runner-current-file"><i class="fa-regular fa-file-code"></i><span id="currentFile">/asl/main.asl</span></div>
+          <textarea class="runner-editor" id="fileEditor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+      <!-- API Key panel -->
+      <div class="runner-key-panel" id="apiKeyPanel" hidden>
+        <h3><i class="fa-solid fa-key" style="margin-right:8px;color:#d97706;"></i>API key required</h3>
+        <p class="runner-key-intro">This project uses an LLM provider. Fill the required key before running.</p>
+        <div class="runner-key-grid">
+          <div class="runner-key-row" id="rowCerebras" hidden><label>CEREBRAS_API_KEY</label><input id="keyCerebras" type="password" placeholder="Paste Cerebras key"></div>
+          <div class="runner-key-row" id="rowGroq" hidden><label>GROQ_API_KEY</label><input id="keyGroq" type="password" placeholder="Paste Groq key"></div>
+          <div class="runner-key-row" id="rowGemini" hidden><label>GEMINI_API_KEY</label><input id="keyGemini" type="password" placeholder="Paste Gemini key"></div>
+          <div class="runner-key-row" id="rowOpenai" hidden><label>OPENAI_API_KEY</label><input id="keyOpenai" type="password" placeholder="Paste OpenAI key"></div>
+          <div class="runner-key-row" id="rowDeepseek" hidden><label>DEEPSEEK_API_KEY</label><input id="keyDeepseek" type="password" placeholder="Paste DeepSeek key"></div>
+        </div>
+      </div>
+      <div class="runner-toolbar">
+        <button class="runner-button" id="runButton" type="button"><i class="fa-solid fa-play"></i><span>Run Project</span></button>
+        <button class="runner-button runner-secondary" id="clearButton" type="button"><i class="fa-solid fa-eraser"></i><span>Clear Output</span></button>
+        <span class="runner-status" id="statusText">Ready</span>
+      </div>
+      <div class="runner-meta">
+        <div>Status<strong id="metaStatus">Idle</strong></div>
+        <div>Return code<strong id="metaCode">&mdash;</strong></div>
+        <div>Elapsed<strong id="metaElapsed">&mdash;</strong></div>
       </div>
     </div>
-  </section>
+    <div class="runner-card">
+      <h2>Server output</h2>
+      <pre class="runner-output" id="output">Create or edit .asl files, then press "Run Project".</pre>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    const RUN_URL = 'https://code.generativelayers.com/api/run-jason';
+    const CANCEL_URL = 'https://code.generativelayers.com/api/cancel-jason';
+    const STORAGE_KEY = 'gl-jason-project';
+
+    const DEFAULT_SOURCE = [
+      '// Jason Hello World with Generative Layers',
+      '',
+      '!start.',
+      '',
+      '+!start',
+      '   <- .println("Hello from Jason on code.generativelayers.com");',
+      '      .println("Generative Layers Jason adapter loaded.");',
+      '      .stopMAS.'
+    ].join('\n');
+
+    const PROVIDERS = {
+      cerebras: { env: 'CEREBRAS_API_KEY', el: null },
+      groq: { env: 'GROQ_API_KEY', el: null },
+      gemini: { env: 'GEMINI_API_KEY', el: null },
+      openai: { env: 'OPENAI_API_KEY', el: null },
+      deepseek: { env: 'DEEPSEEK_API_KEY', el: null },
+    };
+
+    let files = { '/asl/main.asl': DEFAULT_SOURCE };
+    let currentPath = '/asl/main.asl';
+    let runAbort = null;
+
+    const $ = id => document.getElementById(id);
+
+    const els = {
+      tree: $('fileTree'), editor: $('fileEditor'), curFile: $('currentFile'),
+      run: $('runButton'), clear: $('clearButton'), status: $('statusText'),
+      output: $('output'), metaStatus: $('metaStatus'), metaCode: $('metaCode'),
+      metaElapsed: $('metaElapsed'), apiPanel: $('apiKeyPanel'),
+    };
+
+    // ── Provider key UI ──
+    const PROVIDER_RE = /gl\.use_provider\(\s*"?(cerebras|groq|gemini|openai|deepseek)"?\s*\)/gi;
+    function updateKeyUI() {
+      const all = Object.values(files).join('\n');
+      const needed = new Set();
+      let m; while ((m = PROVIDER_RE.exec(all)) !== null) needed.add(m[1].toLowerCase());
+      PROVIDER_RE.lastIndex = 0;
+      let anyVisible = false;
+      for (const [p, cfg] of Object.entries(PROVIDERS)) {
+        const row = $('row' + p[0].toUpperCase() + p.slice(1));
+        const input = $('key' + p[0].toUpperCase() + p.slice(1));
+        cfg.el = input;
+        if (needed.has(p)) { row.hidden = false; anyVisible = true; }
+        else { row.hidden = true; }
+      }
+      els.apiPanel.hidden = !anyVisible;
+    }
+
+    // ── File tree ──
+    function saveFile() {
+      if (currentPath && files.hasOwnProperty(currentPath)) files[currentPath] = els.editor.value;
+    }
+
+    function openFile(path) {
+      saveFile();
+      currentPath = path;
+      els.editor.value = files[path] || '';
+      els.curFile.textContent = path;
+      renderTree();
+    }
+
+    function renderTree() {
+      saveFile();
+      const aslFiles = Object.keys(files).filter(p => p.startsWith('/asl/')).sort();
+      let html = '<div class="runner-root">';
+      html += '<div class="runner-root-title"><i class="fa-solid fa-folder-open"></i> asl</div>';
+      if (aslFiles.length === 0) html += '<div class="runner-empty-folder">empty</div>';
+      for (const p of aslFiles) {
+        const name = p.replace('/asl/', '');
+        const active = p === currentPath ? ' active' : '';
+        html += `<button type="button" class="runner-file${active}" data-path="${p}"><i class="fa-solid fa-file-code" style="color:#34d399"></i><span>${name}</span></button>`;
+      }
+      html += '</div>';
+      els.tree.innerHTML = html;
+      els.tree.querySelectorAll('[data-path]').forEach(btn => {
+        btn.addEventListener('click', () => openFile(btn.dataset.path));
+      });
+    }
+
+    // ── New file ──
+    $('newAslButton').addEventListener('click', () => {
+      saveFile();
+      const raw = prompt('New ASL file inside /asl', 'agent.asl');
+      if (!raw) return;
+      let name = raw.trim();
+      if (!name.endsWith('.asl')) name += '.asl';
+      if (!/^[A-Za-z0-9_.-]+$/.test(name)) { alert('Invalid filename'); return; }
+      const path = '/asl/' + name;
+      if (files.hasOwnProperty(path)) { alert('File already exists'); return; }
+      const agentName = name.replace('.asl', '');
+      files[path] = `// Agent: ${agentName}\n\n!start.\n\n+!start\n   <- .println("${agentName} started");\n      .stopMAS.\n`;
+      currentPath = path;
+      els.editor.value = files[path];
+      els.curFile.textContent = path;
+      renderTree();
+      updateKeyUI();
+    });
+
+    // ── Delete file ──
+    $('deleteFileButton').addEventListener('click', () => {
+      saveFile();
+      if (!currentPath || currentPath === '/asl/main.asl') { alert('Cannot delete main.asl'); return; }
+      if (!confirm(`Delete ${currentPath}?`)) return;
+      delete files[currentPath];
+      currentPath = Object.keys(files)[0] || '/asl/main.asl';
+      if (!files[currentPath]) files[currentPath] = DEFAULT_SOURCE;
+      els.editor.value = files[currentPath];
+      els.curFile.textContent = currentPath;
+      renderTree();
+      updateKeyUI();
+    });
+
+    // ── Build payload ──
+    function buildPayload() {
+      saveFile();
+      const source = files['/asl/main.asl'] || DEFAULT_SOURCE;
+      const payload = { source, files: {}, api_keys: {} };
+
+      // Additional .asl files
+      for (const [path, content] of Object.entries(files)) {
+        if (path === '/asl/main.asl') continue;
+        if (path.startsWith('/asl/')) {
+          payload.files['src/main/asl/' + path.slice('/asl/'.length)] = content;
+        }
+      }
+
+      // Auto-generate mas2j
+      const agents = Object.keys(files)
+        .filter(p => p.startsWith('/asl/') && p.endsWith('.asl'))
+        .map(p => p.replace('/asl/', '').replace('.asl', ''));
+      if (agents.length > 0) {
+        const agentLines = agents.map(a => `        ${a};`).join('\n');
+        payload.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "src/main/asl";\n}\n`;
+      }
+
+      // API keys
+      for (const [p, cfg] of Object.entries(PROVIDERS)) {
+        if (cfg.el && cfg.el.value.trim()) {
+          payload.api_keys[cfg.env] = cfg.el.value.trim();
+        }
+      }
+
+      return payload;
+    }
+
+    // ── Run ──
+    async function runProject() {
+      if (runAbort) { runAbort.abort(); runAbort = null; }
+
+      els.run.disabled = true;
+      els.status.textContent = 'Running...';
+      els.metaStatus.textContent = 'Running';
+      els.metaCode.textContent = '\u2014';
+      els.metaElapsed.textContent = '\u2014';
+      els.output.textContent = '';
+
+      const payload = buildPayload();
+      const controller = new AbortController();
+      runAbort = controller;
+      const startTime = Date.now();
+
+      try {
+        const resp = await fetch(RUN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          els.output.textContent = `Error ${resp.status}: ${text}`;
+          els.metaStatus.textContent = 'Error';
+          return;
+        }
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse lines (handle meta JSON lines)
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (line.startsWith('{"type":"meta"')) continue; // skip meta
+            els.output.textContent += line + '\n';
+            els.output.scrollTop = els.output.scrollHeight;
+          }
+        }
+        if (buffer) els.output.textContent += buffer;
+
+        // Parse footer for status
+        const text = els.output.textContent;
+        const footerMatch = text.match(/--- (.+) ---\s*$/);
+        if (footerMatch) {
+          const footer = footerMatch[1];
+          if (footer.startsWith('Completed')) {
+            els.metaStatus.textContent = 'Completed';
+            els.metaCode.textContent = '0';
+          } else if (footer.startsWith('Exited with code')) {
+            const code = footer.match(/code (\S+)/);
+            els.metaStatus.textContent = 'Failed';
+            els.metaCode.textContent = code ? code[1] : '?';
+          } else if (footer.startsWith('Timed out')) {
+            els.metaStatus.textContent = 'Timed out';
+          }
+          const elapsed = footer.match(/([\d.]+)s/);
+          if (elapsed) els.metaElapsed.textContent = elapsed[1] + 's';
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          els.output.textContent += '\n--- Cancelled ---\n';
+          els.metaStatus.textContent = 'Cancelled';
+        } else {
+          els.output.textContent += '\nNetwork error: ' + err.message + '\n';
+          els.metaStatus.textContent = 'Error';
+        }
+      } finally {
+        els.run.disabled = false;
+        els.status.textContent = 'Ready';
+        runAbort = null;
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+        if (els.metaElapsed.textContent === '\u2014') els.metaElapsed.textContent = elapsed + 's';
+      }
+    }
+
+    els.run.addEventListener('click', runProject);
+    els.clear.addEventListener('click', () => {
+      els.output.textContent = 'Create or edit .asl files, then press "Run Project".';
+      els.metaStatus.textContent = 'Idle';
+      els.metaCode.textContent = '\u2014';
+      els.metaElapsed.textContent = '\u2014';
+    });
+
+    // ── Persistence ──
+    function saveState() {
+      saveFile();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath }));
+      } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data.files && Object.keys(data.files).length) {
+            files = data.files;
+            currentPath = data.currentPath || Object.keys(files)[0];
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Auto-save on changes
+    els.editor.addEventListener('input', () => { saveState(); updateKeyUI(); });
+    setInterval(saveState, 5000);
+
+    // ── Parent message handling ──
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'gl-api-keys') {
+        const keys = e.data.keys || {};
+        for (const [provider, value] of Object.entries(keys)) {
+          const input = $('key' + provider[0].toUpperCase() + provider.slice(1));
+          if (input) input.value = value;
+        }
+      }
+      if (e.data && e.data.type === 'gl-load-code') {
+        const payload = e.data.payload;
+        if (payload && payload.source) {
+          files = { '/asl/main.asl': payload.source };
+          if (payload.files) {
+            for (const [rel, content] of Object.entries(payload.files)) {
+              const m = rel.match(/src\/main\/asl\/(.+\.asl)$/);
+              if (m) files['/asl/' + m[1]] = content;
+            }
+          }
+          currentPath = '/asl/main.asl';
+          els.editor.value = files[currentPath];
+          els.curFile.textContent = currentPath;
+          renderTree();
+          updateKeyUI();
+          saveState();
+        }
+      }
+    });
+
+    // ── Init ──
+    loadState();
+    els.editor.value = files[currentPath] || DEFAULT_SOURCE;
+    els.curFile.textContent = currentPath;
+    renderTree();
+    updateKeyUI();
+  })();
+  </script>
 </body>
 </html>
