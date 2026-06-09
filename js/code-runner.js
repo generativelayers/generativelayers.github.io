@@ -873,6 +873,8 @@
     try {
       const payload = JSON.parse(decodeURIComponent(window.location.hash.slice(6)));
       if (!payload.source) return;
+      // Stop any running execution before loading
+      if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
       files = { '/astra/Main.astra': payload.source };
       currentPath = '/astra/Main.astra';
       els.editor.value = payload.source;
@@ -935,6 +937,8 @@
           window.alert('No ASTRA/Java/pom.xml files found in this folder.\nExpected structure: src/main/astra/*.astra and src/main/java/**/*.java');
           return;
         }
+        // Stop any running execution before loading new project
+        if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
         if (!pomFound) newFiles['/pom.xml'] = DEFAULT_POM;
         files = newFiles;
         currentPath = Object.keys(files).find(p => p.endsWith('.astra')) || Object.keys(files)[0];
@@ -982,6 +986,8 @@
 
   function resetProject() {
     if (!window.confirm('Start a new project? This will erase all current files and restore the default template.')) return;
+    // Stop any running execution before resetting
+    if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
     files = {
       '/astra/Main.astra': DEFAULT_ASTRA_SOURCE,
       '/pom.xml': DEFAULT_POM

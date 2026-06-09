@@ -47,6 +47,9 @@
   function loadIntoRunner(payload) {
     if (!payload || !payload.source) return false;
 
+    // Stop any running execution before loading new content
+    if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+
     const editor = document.getElementById('fileEditor');
     const currentFile = document.getElementById('currentFile');
     const output = document.getElementById('runnerOutput');
