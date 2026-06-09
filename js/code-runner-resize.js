@@ -1,8 +1,11 @@
 /**
- * code-runner-resize.js  v6
+ * code-runner-resize.js  v7
  *
- * Horizontal splitter: resize file tree width.
- * Vertical splitter: resize editor height (never shorter than file tree).
+ * Horizontal splitter: resize file tree width (column-gap in the grid).
+ * Vertical splitter: resize editor height (both columns grow together).
+ *
+ * IMPORTANT: Works WITH the existing CSS grid layout, not against it.
+ * The grid already has align-items:stretch so both columns match height.
  */
 (() => {
   'use strict';
@@ -18,33 +21,32 @@
     const s = document.createElement('style');
     s.id = 'gl-resize-style';
     s.textContent = `
+      /* Keep the original grid but make columns resizable */
       .runner-project.resizable {
-        display: flex !important;
-        align-items: flex-start !important;
-        gap: 0 !important;
-        max-width: 100%;
-        overflow: hidden;
+        grid-template-columns: var(--files-w, 195px) 6px minmax(0, 1fr) !important;
+        column-gap: 0 !important;
       }
-      .runner-project.resizable .runner-files {
-        flex-shrink: 0;
-        overflow-y: auto;
-      }
+
+      /* Editor fills its grid cell vertically */
       .runner-project.resizable .runner-editor-wrap {
-        position: relative;
-        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
         min-width: 0;
-        overflow: visible;
       }
-      .runner-project.resizable .hl-editor-wrap,
       .runner-project.resizable .runner-editor {
-        width: 100%;
-        box-sizing: border-box;
+        flex: 1;
+        min-height: 0 !important;
+        resize: none !important;
       }
 
       .runner-hsplitter {
-        width: 6px; cursor: col-resize; background: transparent;
-        position: relative; z-index: 12; flex-shrink: 0;
-        border-radius: 4px; transition: background 0.15s;
+        cursor: col-resize;
+        background: transparent;
+        position: relative;
+        z-index: 12;
+        border-radius: 4px;
+        transition: background 0.15s;
+        align-self: stretch;
       }
       .runner-hsplitter:hover, .runner-hsplitter.dragging {
         background: rgba(52,211,153,0.4);
@@ -60,10 +62,10 @@
       }
 
       .runner-vsplitter {
+        grid-column: 1 / -1;
         height: 6px; cursor: row-resize; background: transparent;
-        position: relative; z-index: 12; flex-shrink: 0;
+        position: relative; z-index: 12;
         border-radius: 4px; transition: background 0.15s;
-        margin-top: -1px;
       }
       .runner-vsplitter:hover, .runner-vsplitter.dragging {
         background: rgba(52,211,153,0.4);
@@ -92,16 +94,6 @@
     ov.style.height = r.height + 'px';
   }
 
-  /** Set editor height to at least match the file tree */
-  function matchHeight(editor, filesPanel) {
-    const filesH = filesPanel.getBoundingClientRect().height;
-    const editorH = editor.getBoundingClientRect().height;
-    if (filesH > editorH) {
-      editor.style.height = filesH + 'px';
-      syncOverlay(editor);
-    }
-  }
-
   function init() {
     const project = document.querySelector('.runner-project');
     const filesPanel = project && project.querySelector('.runner-files');
@@ -111,16 +103,19 @@
     project.dataset.resizeReady = '1';
     addStyles();
 
+    // Set initial width via CSS custom property
     const currentW = filesPanel.getBoundingClientRect().width || 195;
-    filesPanel.style.width = currentW + 'px';
-    project.classList.add('resizable');
+    project.style.setProperty('--files-w', currentW + 'px');
 
-    // ── Horizontal splitter ───────────────────────────────
+    // Insert splitter element into the grid (between files and editor)
     const hSplit = document.createElement('div');
     hSplit.className = 'runner-hsplitter';
     hSplit.title = 'Drag to resize file tree';
     project.insertBefore(hSplit, editorWrap);
 
+    project.classList.add('resizable');
+
+    // ── Horizontal splitter (file tree width) ─────────────
     let hDragging = false, hStartX = 0, hStartW = 0;
 
     hSplit.addEventListener('mousedown', (e) => {
@@ -133,7 +128,8 @@
     });
     document.addEventListener('mousemove', (e) => {
       if (!hDragging) return;
-      filesPanel.style.width = clamp(hStartW + (e.clientX - hStartX), MIN_FILES_W, MAX_FILES_W) + 'px';
+      const w = clamp(hStartW + (e.clientX - hStartX), MIN_FILES_W, MAX_FILES_W);
+      project.style.setProperty('--files-w', w + 'px');
     });
     document.addEventListener('mouseup', () => {
       if (!hDragging) return;
@@ -142,19 +138,15 @@
       document.body.classList.remove('gl-resizing-h');
     });
 
-    // ── Vertical splitter ─────────────────────────────────
+    // ── Vertical splitter (row height) ────────────────────
     const editor = editorWrap.querySelector('.runner-editor');
     if (!editor) return;
 
-    // Match editor height to file tree on load (multiple attempts for deferred rendering)
-    setTimeout(() => matchHeight(editor, filesPanel), 100);
-    setTimeout(() => matchHeight(editor, filesPanel), 500);
-    setTimeout(() => matchHeight(editor, filesPanel), 2000);
-
+    // Append vertical splitter as a full-width grid row at the bottom
     const vSplit = document.createElement('div');
     vSplit.className = 'runner-vsplitter';
     vSplit.title = 'Drag to resize editor height';
-    editorWrap.appendChild(vSplit);
+    project.appendChild(vSplit);
 
     let vDragging = false, vStartY = 0, vStartH = 0;
 
@@ -162,17 +154,17 @@
       e.preventDefault();
       vDragging = true;
       vStartY = e.clientY;
-      vStartH = editor.getBoundingClientRect().height;
+      // Measure current height of the files panel (which equals editor-wrap due to stretch)
+      vStartH = filesPanel.getBoundingClientRect().height;
       vSplit.classList.add('dragging');
       document.body.classList.add('gl-resizing-v');
     });
 
     document.addEventListener('mousemove', (e) => {
       if (!vDragging) return;
-      const filesH = filesPanel.getBoundingClientRect().height;
-      const minH = Math.max(MIN_EDITOR_H, filesH);
-      const nextH = Math.max(minH, vStartH + (e.clientY - vStartY));
-      editor.style.height = nextH + 'px';
+      const nextH = Math.max(MIN_EDITOR_H, vStartH + (e.clientY - vStartY));
+      // Set min-height on the files panel; grid stretch will make editor-wrap match
+      filesPanel.style.minHeight = nextH + 'px';
       syncOverlay(editor);
     });
 
