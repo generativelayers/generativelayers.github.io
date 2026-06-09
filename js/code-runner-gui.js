@@ -85,17 +85,23 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: relative;
         transition: width 0.3s ease, height 0.3s ease;
         /* Default size before we know the GUI dimensions */
         width: 90vw;
         max-width: 700px;
         height: 70vh;
         max-height: 820px;
+        min-width: 220px;
+        min-height: 150px;
       }
       .gui-modal.gui-modal--sized {
-        /* When we have exact dimensions, remove defaults */
         max-width: none;
         max-height: none;
+      }
+      .gui-modal.gui-modal--dragged {
+        position: absolute;
+        transition: none;
       }
       .gui-modal-header {
         display: flex;
@@ -108,6 +114,8 @@
         font-weight: 800;
         font-size: 14px;
         flex-shrink: 0;
+        cursor: move;
+        user-select: none;
       }
       .gui-modal-close {
         border: 0;
@@ -136,6 +144,23 @@
         text-align: center;
         flex-shrink: 0;
       }
+
+      /* ── Resize handles ── */
+      .gui-resize-handle {
+        position: absolute;
+        z-index: 10;
+      }
+      .gui-resize-handle--n  { top:-4px; left:8px; right:8px; height:8px; cursor:n-resize; }
+      .gui-resize-handle--s  { bottom:-4px; left:8px; right:8px; height:8px; cursor:s-resize; }
+      .gui-resize-handle--e  { right:-4px; top:8px; bottom:8px; width:8px; cursor:e-resize; }
+      .gui-resize-handle--w  { left:-4px; top:8px; bottom:8px; width:8px; cursor:w-resize; }
+      .gui-resize-handle--ne { top:-4px; right:-4px; width:14px; height:14px; cursor:ne-resize; }
+      .gui-resize-handle--nw { top:-4px; left:-4px; width:14px; height:14px; cursor:nw-resize; }
+      .gui-resize-handle--se { bottom:-4px; right:-4px; width:14px; height:14px; cursor:se-resize; }
+      .gui-resize-handle--sw { bottom:-4px; left:-4px; width:14px; height:14px; cursor:sw-resize; }
+
+      body.gui-dragging, body.gui-dragging * { user-select: none !important; }
+      body.gui-dragging iframe { pointer-events: none !important; }
     `;
     document.head.appendChild(s);
   }
@@ -161,9 +186,13 @@
     modalEl = document.createElement('div');
     modalEl.className = 'gui-modal-backdrop';
     modalEl.hidden = true;
+    const HANDLES = ['n','s','e','w','ne','nw','se','sw'];
+    const handleHtml = HANDLES.map(d => `<div class="gui-resize-handle gui-resize-handle--${d}" data-dir="${d}"></div>`).join('');
+
     modalEl.innerHTML = `
       <div class="gui-modal" id="guiModal">
-        <div class="gui-modal-header">
+        ${handleHtml}
+        <div class="gui-modal-header" id="guiModalHeader">
           <span><i class="fa-solid fa-display" style="margin-right:8px"></i>ASTRA GUI Viewer</span>
           <button class="gui-modal-close" id="guiModalClose">&times;</button>
         </div>
@@ -183,6 +212,12 @@
     });
 
     iframeEl = document.getElementById('guiFrame');
+
+    // ── Drag to move ──
+    setupDragToMove();
+
+    // ── Resize handles ──
+    setupResizeHandles();
   }
 
   /** Resize the modal to fit the GUI window dimensions. */
@@ -237,6 +272,13 @@
     isOpen = false;
     modalEl.hidden = true;
     iframeEl.src = 'about:blank';
+    // Reset position so it re-centers on next open
+    const modal = document.getElementById('guiModal');
+    if (modal) {
+      modal.classList.remove('gui-modal--dragged');
+      modal.style.left = '';
+      modal.style.top = '';
+    }
   }
 
   /* ── Scan for GUI usage (internal only, does NOT show button) ── */
@@ -288,6 +330,110 @@
       resizeModal(guiWidth, guiHeight);
     }
   });
+
+  /* ── Drag to move ───────────────────────────────────────── */
+  function setupDragToMove() {
+    const header = document.getElementById('guiModalHeader');
+    const modal = document.getElementById('guiModal');
+    if (!header || !modal) return;
+
+    let dragging = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
+
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.gui-modal-close')) return;
+      e.preventDefault();
+      dragging = true;
+      document.body.classList.add('gui-dragging');
+
+      // Switch from flex-centered to absolute positioning on first drag
+      if (!modal.classList.contains('gui-modal--dragged')) {
+        const rect = modal.getBoundingClientRect();
+        modal.classList.add('gui-modal--dragged');
+        modal.style.left = rect.left + 'px';
+        modal.style.top = rect.top + 'px';
+      }
+
+      startX = e.clientX;
+      startY = e.clientY;
+      origLeft = parseInt(modal.style.left, 10) || 0;
+      origTop = parseInt(modal.style.top, 10) || 0;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      modal.style.left = (origLeft + e.clientX - startX) + 'px';
+      modal.style.top = (origTop + e.clientY - startY) + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      document.body.classList.remove('gui-dragging');
+    });
+  }
+
+  /* ── Resize handles ────────────────────────────────────── */
+  function setupResizeHandles() {
+    const modal = document.getElementById('guiModal');
+    if (!modal) return;
+    const handles = modal.querySelectorAll('.gui-resize-handle');
+
+    handles.forEach(handle => {
+      const dir = handle.dataset.dir;
+      let active = false, startX, startY, origRect;
+
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        active = true;
+        document.body.classList.add('gui-dragging');
+
+        // Ensure absolute positioning
+        if (!modal.classList.contains('gui-modal--dragged')) {
+          const rect = modal.getBoundingClientRect();
+          modal.classList.add('gui-modal--dragged');
+          modal.style.left = rect.left + 'px';
+          modal.style.top = rect.top + 'px';
+        }
+        // Remove size transition while resizing
+        modal.style.transition = 'none';
+
+        startX = e.clientX;
+        startY = e.clientY;
+        origRect = {
+          left: parseInt(modal.style.left, 10),
+          top: parseInt(modal.style.top, 10),
+          width: modal.offsetWidth,
+          height: modal.offsetHeight
+        };
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!active) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        let { left, top, width, height } = origRect;
+
+        if (dir.includes('e')) width = Math.max(220, width + dx);
+        if (dir.includes('w')) { width = Math.max(220, width - dx); left = origRect.left + origRect.width - width; }
+        if (dir.includes('s')) height = Math.max(150, height + dy);
+        if (dir.includes('n')) { height = Math.max(150, height - dy); top = origRect.top + origRect.height - height; }
+
+        modal.style.left = left + 'px';
+        modal.style.top = top + 'px';
+        modal.style.width = width + 'px';
+        modal.style.height = height + 'px';
+        modal.classList.add('gui-modal--sized');
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!active) return;
+        active = false;
+        document.body.classList.remove('gui-dragging');
+        modal.style.transition = '';
+      });
+    });
+  }
 
   /* ── Boot ────────────────────────────────────────────────── */
   function init() {
