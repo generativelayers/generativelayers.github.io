@@ -628,15 +628,18 @@
     setRunning(true);
     els.metaStatus.textContent = 'Running';
     els.metaReturnCode.textContent = '—';
-    els.metaElapsed.textContent = '—';
+    els.metaElapsed.textContent = '0.0s';
     els.output.textContent = '';
     els.status.textContent = 'Compiling…';
 
+    // Live stopwatch — exposed globally so Stop button can freeze it
+    if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
     const startTime = Date.now();
-    const elapsedTimer = setInterval(() => {
+    window.__glRunStartTime = startTime;
+    window.__glElapsedTimer = setInterval(() => {
       const secs = ((Date.now() - startTime) / 1000).toFixed(1);
       els.metaElapsed.textContent = `${secs}s`;
-    }, 500);
+    }, 100);
 
     try {
       const body = {
@@ -729,7 +732,7 @@
         els.output.textContent = 'The browser could not reach the hosted runner.\n\n' + error;
       }
     } finally {
-      clearInterval(elapsedTimer);
+      if (window.__glElapsedTimer) { clearInterval(window.__glElapsedTimer); window.__glElapsedTimer = null; }
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
       els.metaElapsed.textContent = `${elapsed}s`;
       setRunning(false);
