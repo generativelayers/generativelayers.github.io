@@ -69,9 +69,8 @@
       }
 
       .runner-vsplitter {
-        grid-column: 1 / -1;
         height: 6px; cursor: row-resize; background: transparent;
-        position: relative; z-index: 12;
+        position: relative; z-index: 12; flex-shrink: 0;
         border-radius: 4px; transition: background 0.15s;
       }
       .runner-vsplitter:hover, .runner-vsplitter.dragging {
@@ -145,15 +144,16 @@
       document.body.classList.remove('gl-resizing-h');
     });
 
-    // ── Vertical splitter (row height) ────────────────────
+    // ── Vertical splitter (editor height) ────────────────
     const editor = editorWrap.querySelector('.runner-editor');
-    if (!editor) return;
+    const hlWrap = editorWrap.querySelector('.hl-editor-wrap');
+    if (!editor || !hlWrap) return;
 
-    // Append vertical splitter as a full-width grid row at the bottom
+    // Place splitter inside editorWrap, after the diag panel (last child)
     const vSplit = document.createElement('div');
     vSplit.className = 'runner-vsplitter';
     vSplit.title = 'Drag to resize editor height';
-    project.appendChild(vSplit);
+    editorWrap.appendChild(vSplit);
 
     let vDragging = false, vStartY = 0, vStartH = 0;
 
@@ -161,8 +161,7 @@
       e.preventDefault();
       vDragging = true;
       vStartY = e.clientY;
-      // Measure current height of the files panel (which equals editor-wrap due to stretch)
-      vStartH = filesPanel.getBoundingClientRect().height;
+      vStartH = hlWrap.getBoundingClientRect().height;
       vSplit.classList.add('dragging');
       document.body.classList.add('gl-resizing-v');
     });
@@ -170,8 +169,8 @@
     document.addEventListener('mousemove', (e) => {
       if (!vDragging) return;
       const nextH = Math.max(MIN_EDITOR_H, vStartH + (e.clientY - vStartY));
-      // Set min-height on the files panel; grid stretch will make editor-wrap match
-      filesPanel.style.minHeight = nextH + 'px';
+      hlWrap.style.flex = 'none';
+      hlWrap.style.height = nextH + 'px';
       syncOverlay(editor);
     });
 
