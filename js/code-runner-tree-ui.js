@@ -95,6 +95,41 @@
         border-color: #dc2626;
         color: #fff;
       }
+
+      .runner-tree-toolbar {
+        display: flex;
+        gap: 6px;
+        padding: 10px 8px;
+        border-top: 1px solid #1f2937;
+        background: #0f172a;
+      }
+
+      .runner-tree-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex: 1;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        border-radius: 8px;
+        background: rgba(52, 211, 153, 0.08);
+        color: #34d399;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 7px 6px;
+        transition: all 0.15s;
+      }
+
+      .runner-tree-btn:hover {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+      }
+
+      .runner-tree-btn i {
+        font-size: 12px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -147,40 +182,79 @@
       const path = openButton.dataset.path || '';
       const name = path.split('/').pop() || path;
       const active = openButton.classList.contains('active');
+      const isPom = path === '/pom.xml';
 
       const row = document.createElement('div');
       row.className = `runner-file-row${active ? ' active' : ''}`;
 
-      const del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'runner-file-delete';
-      del.title = `Delete ${name}`;
-      del.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-      del.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        openButton.click();
-        window.setTimeout(() => clickHidden('deleteFileButton'), 0);
-      });
-
-      const rename = document.createElement('button');
-      rename.type = 'button';
-      rename.className = 'runner-file-rename';
-      rename.title = `Rename ${name}`;
-      rename.innerHTML = '<i class="fa-solid fa-pen"></i>';
-      rename.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        openButton.click();
-        window.setTimeout(() => clickHidden('renameFileButton'), 0);
-      });
+      if (!isPom) {
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'runner-file-delete';
+        del.title = `Delete ${name}`;
+        del.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+        del.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          openButton.click();
+          window.setTimeout(() => clickHidden('deleteFileButton'), 0);
+        });
+        row.appendChild(del);
+      }
 
       openButton.dataset.treeUiPatched = '1';
       openButton.parentNode.insertBefore(row, openButton);
-      row.appendChild(del);
       row.appendChild(openButton);
-      row.appendChild(rename);
+
+      if (!isPom) {
+        const rename = document.createElement('button');
+        rename.type = 'button';
+        rename.className = 'runner-file-rename';
+        rename.title = `Rename ${name}`;
+        rename.innerHTML = '<i class="fa-solid fa-pen"></i>';
+        rename.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          openButton.click();
+          window.setTimeout(() => clickHidden('renameFileButton'), 0);
+        });
+        row.appendChild(rename);
+      }
     });
+  }
+
+  function addBottomToolbar() {
+    const filesPanel = document.querySelector('.runner-files');
+    if (!filesPanel || filesPanel.querySelector('.runner-tree-toolbar')) return;
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'runner-tree-toolbar';
+
+    const openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'runner-tree-btn';
+    openBtn.title = 'Import local ASTRA project folder';
+    openBtn.innerHTML = '<i class="fa-solid fa-folder-open"></i> Open';
+    openBtn.addEventListener('click', () => {
+      if (typeof window.__glImportFolder === 'function') window.__glImportFolder();
+    });
+
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'runner-tree-btn';
+    saveBtn.title = 'Save project to browser storage';
+    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+    saveBtn.addEventListener('click', () => {
+      if (typeof window.__glSaveProject === 'function') {
+        window.__glSaveProject();
+        saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+        setTimeout(() => { saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save'; }, 1500);
+      }
+    });
+
+    toolbar.appendChild(openBtn);
+    toolbar.appendChild(saveBtn);
+    filesPanel.appendChild(toolbar);
   }
 
   function patchTree() {
@@ -188,6 +262,7 @@
     patchHeader();
     patchRootTitles();
     patchFileRows();
+    addBottomToolbar();
   }
 
   function init() {

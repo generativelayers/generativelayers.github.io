@@ -237,7 +237,7 @@
 
   function createFile(kind) {
     saveCurrentFile();
-    const examples = { astra: 'Worker.astra', java: 'gl/MyHelper.java', resources: 'map.txt' };
+    const examples = { astra: 'Worker.astra', java: 'artifacts/MyArtifact.java' };
     const example = examples[kind] || 'file.txt';
     const raw = window.prompt(`New ${kind.toUpperCase()} file inside /${kind}`, example);
     if (raw === null) return;
@@ -247,7 +247,7 @@
       if (Object.prototype.hasOwnProperty.call(files, path)) throw new Error('File already exists.');
       if (kind === 'astra') files[path] = astraTemplate(path);
       else if (kind === 'java') files[path] = javaTemplate(path);
-      else files[path] = ''; // resources start empty
+      else files[path] = '';
       currentPath = path;
       els.editor.value = files[path];
       els.currentFile.textContent = path;
@@ -257,9 +257,6 @@
       window.alert(error.message);
     }
   }
-
-  // Expose for tree-ui resource button
-  window.__glCreateResourceFile = function() { createFile('resources'); };
 
   function astraTemplate(path) {
     const agentName = path.split('/').pop().replace(/\.astra$/, '') || 'Worker';
@@ -289,6 +286,7 @@
   function renameCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
+    if (currentPath === '/pom.xml') { window.alert('pom.xml cannot be renamed.'); return; }
     const kind = currentPath.startsWith('/astra/') ? 'astra' : 'java';
     const currentName = currentPath.replace(`/${kind}/`, '');
     const raw = window.prompt('Rename file', currentName);
@@ -310,6 +308,7 @@
   function deleteCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
+    if (currentPath === '/pom.xml') { window.alert('pom.xml cannot be deleted.'); return; }
     if (!window.confirm(`Delete ${currentPath}?`)) return;
 
     delete files[currentPath];
@@ -515,7 +514,7 @@
   }
 
   function loadDefaultProject() {
-    files = { '/astra/Main.astra': DEFAULT_ASTRA_SOURCE };
+    files = { '/astra/Main.astra': DEFAULT_ASTRA_SOURCE, '/pom.xml': DEFAULT_POM };
     currentPath = '/astra/Main.astra';
     els.editor.value = files[currentPath];
     els.currentFile.textContent = currentPath;
@@ -548,6 +547,95 @@
     }
   }
 
+  // ── Open folder (import local ASTRA project) ──────────
+  function importFolder() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.webkitdirectory = true;
+    input.addEventListener('change', () => {
+      if (!input.files || input.files.length === 0) return;
+      saveCurrentFile();
+      const newFiles = {};
+      let pomFound = false;
+      const readers = [];
+
+      Array.from(input.files).forEach(file => {
+        // Get path relative to the selected folder
+        const relPath = file.webkitRelativePath || file.name;
+        // Skip hidden and target dirs
+        if (relPath.includes('/.') || relPath.includes('/target/')) return;
+
+        // pom.xml at root
+        const parts = relPath.split('/');
+        if (parts.length === 2 && parts[1] === 'pom.xml') {
+          readers.push(file.text().then(text => { newFiles['/pom.xml'] = text; pomFound = true; }));
+          return;
+        }
+
+        // src/main/astra/**/*.astra
+        const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
+        if (astraMatch) {
+          readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
+          return;
+        }
+
+        // src/main/java/**/*.java
+        const javaMatch = relPath.match(/src\/main\/java\/(.+\.java)$/);
+        if (javaMatch) {
+          readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
+          return;
+        }
+      });
+
+      Promise.all(readers).then(() => {
+        if (Object.keys(newFiles).length === 0) {
+          window.alert('No ASTRA/Java/pom.xml files found in this folder.\nExpected structure: src/main/astra/*.astra and src/main/java/**/*.java');
+          return;
+        }
+        if (!pomFound) newFiles['/pom.xml'] = DEFAULT_POM;
+        files = newFiles;
+        currentPath = Object.keys(files).find(p => p.endsWith('.astra')) || Object.keys(files)[0];
+        els.editor.value = files[currentPath] || '';
+        els.currentFile.textContent = currentPath;
+        renderTree();
+        updateApiKeyUI();
+        resetOutput();
+        els.status.textContent = 'Folder imported';
+        els.output.textContent = `Imported ${Object.keys(files).length} files. Press "Run Project" to execute.`;
+        saveToStorage();
+      });
+    });
+    input.click();
+  }
+
+  // ── localStorage persistence ──────────────────────────
+  const STORAGE_KEY = 'gl-astra-project';
+
+  function saveToStorage() {
+    saveCurrentFile();
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath }));
+    } catch (e) { /* quota exceeded — ignore */ }
+  }
+
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (data && data.files && typeof data.files === 'object') {
+        files = data.files;
+        currentPath = data.currentPath || Object.keys(files)[0] || '/astra/Main.astra';
+        return true;
+      }
+    } catch (e) { /* corrupted — ignore */ }
+    return false;
+  }
+
+  // Expose for tree-ui buttons
+  window.__glImportFolder = importFolder;
+  window.__glSaveProject = saveToStorage;
+
   function installEvents() {
     els.editor.addEventListener('input', () => {
       saveCurrentFile();
@@ -574,12 +662,23 @@
     els.run.addEventListener('click', runProject);
     els.loadExample.addEventListener('click', loadDefaultProject);
     els.clearOutput.addEventListener('click', resetOutput);
+
+    // Auto-save on changes
+    els.editor.addEventListener('input', () => setTimeout(saveToStorage, 300));
   }
 
   function init() {
     initElements();
     if (!els.editor) return;
-    els.editor.value = files[currentPath];
+
+    // Try to restore from localStorage first
+    const restored = loadFromStorage();
+    if (!restored) {
+      // Default project
+      files['/pom.xml'] = files['/pom.xml'] || DEFAULT_POM;
+    }
+
+    els.editor.value = files[currentPath] || '';
     els.currentFile.textContent = currentPath;
     renderTree();
     installEvents();
