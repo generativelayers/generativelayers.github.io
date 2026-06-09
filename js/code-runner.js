@@ -695,6 +695,8 @@
     els.metaElapsed.textContent = '0.0s';
     els.output.textContent = '';
     els.status.textContent = 'Compiling…';
+    const guiBtn = document.getElementById('showGuiButton');
+    if (guiBtn) guiBtn.hidden = true;
 
     // Live stopwatch — exposed globally so Stop button can freeze it
     if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
@@ -741,21 +743,26 @@
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Check for metadata line (JSON with type:"meta")
-        // Server may send with or without spaces, so check broadly
-        if (buffer.trimStart().startsWith('{') && buffer.includes('"meta"')) {
-          const nlIdx = buffer.indexOf('\n');
-          if (nlIdx >= 0) {
-            const firstLine = buffer.slice(0, nlIdx);
+        // Process all complete lines in the buffer
+        let nlIdx;
+        while ((nlIdx = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, nlIdx);
+          buffer = buffer.slice(nlIdx + 1);
+
+          const trimmed = line.trim();
+          if (trimmed.startsWith('{') && trimmed.includes('"meta"')) {
             try {
-              const meta = JSON.parse(firstLine);
+              const meta = JSON.parse(trimmed);
               if (meta.type === 'meta') {
-                // Consume the meta line (don't show in output)
-                buffer = buffer.slice(nlIdx + 1);
                 if (meta.gui_port) {
                   const showBtn = () => {
                     const guiBtn = document.getElementById('showGuiButton');
-                    if (guiBtn) guiBtn.hidden = false;
+                    if (guiBtn) {
+                      guiBtn.hidden = false;
+                      if (typeof window.__glGuiShowButton === 'function') {
+                        window.__glGuiShowButton();
+                      }
+                    }
                   };
                   showBtn();
                   setTimeout(showBtn, 500);
@@ -764,16 +771,40 @@
                 if (meta.killed_previous) {
                   showRunnerToast('Previous execution terminated', 'info');
                 }
+                // Do not output this meta JSON line
+                continue;
               }
-            } catch {}
+            } catch (e) {
+              console.error('Failed to parse meta line:', line, e);
+            }
           }
+
+          // Append regular output line (with newline)
+          els.output.textContent += line + '\n';
         }
 
-        // Append new text to output
-        els.output.textContent += buffer;
-        buffer = '';
-
         // Auto-scroll output to bottom
+        els.output.scrollTop = els.output.scrollHeight;
+      }
+
+      // Handle any remainder in the buffer
+      if (buffer) {
+        const trimmed = buffer.trim();
+        if (trimmed.startsWith('{') && trimmed.includes('"meta"')) {
+          try {
+            const meta = JSON.parse(trimmed);
+            if (meta.type === 'meta') {
+              if (meta.gui_port) {
+                const guiBtn = document.getElementById('showGuiButton');
+                if (guiBtn) guiBtn.hidden = false;
+              }
+              buffer = '';
+            }
+          } catch {}
+        }
+        if (buffer) {
+          els.output.textContent += buffer;
+        }
         els.output.scrollTop = els.output.scrollHeight;
       }
 
