@@ -471,8 +471,27 @@
       }
     });
 
+    // ── Load from hash (redirect from framework.html / patterns.html) ──
+    function loadFromHash() {
+      const hash = window.location.hash;
+      if (!hash.startsWith('#load=')) return;
+      try {
+        const payload = JSON.parse(decodeURIComponent(hash.slice('#load='.length)));
+        if (payload && payload.source) {
+          files = { '/asl/main.asl': payload.source };
+          currentPath = '/asl/main.asl';
+          els.editor.value = files[currentPath];
+          els.curFile.textContent = currentPath;
+          renderTree();
+          updateKeyUI();
+          saveState();
+        }
+      } catch (e) { console.warn('Could not load from hash', e); }
+    }
+
     // ── Init ──
     loadState();
+    loadFromHash(); // override with hash if present
     els.editor.value = files[currentPath] || DEFAULT_SOURCE;
     els.curFile.textContent = currentPath;
     renderTree();
