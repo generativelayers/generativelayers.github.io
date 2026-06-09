@@ -473,7 +473,14 @@
     els.metaStatus.textContent = 'Running';
     els.metaReturnCode.textContent = '—';
     els.metaElapsed.textContent = '—';
-    els.output.textContent = 'Sending ASTRA project to the hosted runner…';
+    els.output.textContent = '';
+    els.status.textContent = 'Compiling…';
+
+    const startTime = Date.now();
+    const elapsedTimer = setInterval(() => {
+      const secs = ((Date.now() - startTime) / 1000).toFixed(1);
+      els.metaElapsed.textContent = `${secs}s`;
+    }, 500);
 
     try {
       const body = {
@@ -491,24 +498,84 @@
         body: JSON.stringify(body)
       });
 
-      const text = await response.text();
-      let data;
-      try { data = JSON.parse(text); }
-      catch { data = { status: response.ok ? 'completed' : 'failed', return_code: response.status, elapsed_seconds: null, output: text }; }
-
       if (!response.ok) {
-        data.status = data.status || 'failed';
-        data.return_code = data.return_code || response.status;
+        const text = await response.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = { output: text }; }
+        renderResult({ status: 'failed', return_code: response.status, elapsed_seconds: null, output: data.message || data.output || text });
+        return;
       }
 
-      renderResult(data);
+      // Stream response line by line
+      els.status.textContent = 'Running…';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Check for metadata line (JSON with type:"meta")
+        if (buffer.startsWith('{"type":"meta"')) {
+          const nlIdx = buffer.indexOf('\n');
+          if (nlIdx >= 0) {
+            try {
+              const meta = JSON.parse(buffer.slice(0, nlIdx));
+              if (meta.gui_port && typeof window.__glGuiOpen === 'function') {
+                // GUI port available — show the button
+                const guiBtn = document.getElementById('showGuiButton');
+                if (guiBtn) guiBtn.hidden = false;
+              }
+            } catch {}
+            buffer = buffer.slice(nlIdx + 1);
+          }
+        }
+
+        // Append new text to output
+        els.output.textContent += buffer;
+        buffer = '';
+
+        // Auto-scroll output to bottom
+        els.output.scrollTop = els.output.scrollHeight;
+      }
+
+      // Parse the last line for status (--- Completed/Failed/Timed out ---)
+      const outputText = els.output.textContent;
+      if (outputText.includes('--- Completed')) {
+        els.metaStatus.textContent = 'Completed';
+        els.metaReturnCode.textContent = '0';
+        els.status.textContent = 'Completed';
+      } else if (outputText.includes('--- Timed out')) {
+        els.metaStatus.textContent = 'Timeout';
+        els.status.textContent = 'Timed out';
+      } else if (outputText.includes('--- Exited with code')) {
+        const m = outputText.match(/Exited with code (\S+)/);
+        els.metaStatus.textContent = 'Failed';
+        els.metaReturnCode.textContent = m ? m[1] : '?';
+        els.status.textContent = 'Failed';
+      } else {
+        els.metaStatus.textContent = 'Finished';
+        els.status.textContent = 'Finished';
+      }
+
     } catch (error) {
-      els.metaStatus.textContent = 'Request failed';
-      els.metaReturnCode.textContent = '—';
-      els.metaElapsed.textContent = '—';
-      els.status.textContent = 'Failed';
-      els.output.textContent = 'The browser could not reach the hosted runner.\n\n' + error;
+      if (error.name === 'AbortError') {
+        els.metaStatus.textContent = 'Stopped';
+        els.status.textContent = 'Stopped';
+        els.output.textContent += '\n\nExecution stopped by user.';
+      } else {
+        els.metaStatus.textContent = 'Request failed';
+        els.metaReturnCode.textContent = '—';
+        els.status.textContent = 'Failed';
+        els.output.textContent = 'The browser could not reach the hosted runner.\n\n' + error;
+      }
     } finally {
+      clearInterval(elapsedTimer);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      els.metaElapsed.textContent = `${elapsed}s`;
       setRunning(false);
     }
   }
