@@ -5,13 +5,20 @@
  * Calls POST /api/check-astra, receives diagnostics JSON, renders a
  * beautiful diagnostics panel below the editor with click-to-jump.
  *
- * Debounced at 800ms to avoid hammering the server.
+ * SMART TRIGGERING — avoids hammering the server:
+ *   • Ctrl+S (save gesture)
+ *   • Editor blur (user clicked elsewhere)
+ *   • File tab switch
+ *   • Before "Run Project" (pre-flight)
+ *   • 3s idle fallback (stopped typing for 3 seconds)
+ *   • Rate-limited: max 1 check per 8 seconds
  */
 (function () {
   'use strict';
 
   var CHECK_URL = 'https://code.generativelayers.com/api/check-astra';
-  var DEBOUNCE_MS = 800;
+  var IDLE_MS = 3000;       // check after 3s of no typing
+  var RATE_LIMIT_MS = 8000; // minimum 8s between checks
 
   /* ── Inject CSS ─────────────────────────────────────────────── */
   var css = document.createElement('style');
@@ -35,10 +42,12 @@
     '.gl-diag-bar[data-state="warn"]{color:#fde68a;border-color:#78350f;}',
     '.gl-diag-bar[data-state="checking"]{color:#7dd3fc;}',
     '.gl-diag-bar[data-state="offline"]{color:#94a3b8;}',
+    '.gl-diag-bar[data-state="stale"]{color:#94a3b8;border-color:#334155;}',
 
     /* Icons */
     '.gl-diag-icon{font-size:14px;flex-shrink:0;transition:transform .15s;}',
     '.gl-diag-summary{flex:1;}',
+    '.gl-diag-hint{font-size:10px;color:#475569;font-weight:500;margin-left:4px;}',
     '.gl-diag-chevron{margin-left:auto;font-size:10px;color:#475569;transition:transform .25s ease;}',
     '.gl-diag-bar[data-open="1"] .gl-diag-chevron{transform:rotate(180deg);}',
 
@@ -90,8 +99,11 @@
   document.head.appendChild(css);
 
   /* ── State ──────────────────────────────────────────────────── */
-  var editor, bar, panel, summaryEl, mainIcon, spinner;
-  var timer = null, abortCtrl = null, lastSource = '';
+  var editor, bar, panel, summaryEl, mainIcon, hintEl;
+  var idleTimer = null, abortCtrl = null;
+  var lastCheckedSource = '';  // source that was last sent to server
+  var lastCheckTime = 0;       // timestamp of last successful check
+  var dirty = false;           // true = editor changed since last check
 
   /* ── Build DOM ──────────────────────────────────────────────── */
   function init() {
@@ -101,18 +113,19 @@
     var wrap = editor.closest('.runner-editor-wrap');
     if (!wrap) return;
 
-    // Remove bottom radius from editor — diagnostics bar continues it
+    // Remove bottom radius from editor
     editor.style.borderRadius = '0';
 
     // Bar
     bar = document.createElement('div');
     bar.className = 'gl-diag-bar';
-    bar.setAttribute('data-state', 'ok');
+    bar.setAttribute('data-state', 'stale');
     bar.setAttribute('data-open', '0');
     bar.innerHTML = [
       '<i class="fa-solid fa-circle-check gl-diag-icon gl-diag-main-icon"></i>',
       '<i class="fa-solid fa-spinner gl-diag-spin gl-diag-icon"></i>',
-      '<span class="gl-diag-summary">Ready</span>',
+      '<span class="gl-diag-summary">Press Ctrl+S to check syntax</span>',
+      '<span class="gl-diag-hint"></span>',
       '<i class="fa-solid fa-chevron-down gl-diag-chevron"></i>'
     ].join('');
     bar.addEventListener('click', function () {
@@ -128,48 +141,114 @@
 
     summaryEl = bar.querySelector('.gl-diag-summary');
     mainIcon = bar.querySelector('.gl-diag-main-icon');
-    spinner = bar.querySelector('.gl-diag-spin');
+    hintEl = bar.querySelector('.gl-diag-hint');
 
-    // Wire events
-    editor.addEventListener('input', scheduleCheck);
-    editor.addEventListener('focus', scheduleCheck);
+    // ── Smart triggers ──────────────────────────────────────
 
-    // Watch file tab changes
+    // 1. Ctrl+S — immediate check
+    editor.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        requestCheck('save');
+      }
+    });
+
+    // 2. Editor blur — check when leaving
+    editor.addEventListener('blur', function () {
+      if (dirty) requestCheck('blur');
+    });
+
+    // 3. Input — mark dirty + start idle timer
+    editor.addEventListener('input', function () {
+      dirty = true;
+      markStale();
+      resetIdleTimer();
+    });
+
+    // 4. File tab switch — reset and check
     var currentFileEl = document.getElementById('currentFile');
     if (currentFileEl) {
-      var obs = new MutationObserver(function () { lastSource = ''; scheduleCheck(); });
+      var obs = new MutationObserver(function () {
+        lastCheckedSource = '';
+        dirty = true;
+        requestCheck('tab');
+      });
       obs.observe(currentFileEl, { childList: true, characterData: true, subtree: true });
     }
 
-    // Initial check after short delay
-    setTimeout(doCheck, 600);
+    // 5. Before Run — intercept Run button for pre-flight check
+    var runBtn = document.getElementById('runAstraButton');
+    if (runBtn) {
+      runBtn.addEventListener('click', function () {
+        if (dirty) requestCheck('run');
+      }, true); // capture phase, non-blocking
+    }
+
+    // Initial check after 1s
+    dirty = true;
+    setTimeout(function () { requestCheck('init'); }, 1000);
   }
 
-  /* ── Debounce ───────────────────────────────────────────────── */
-  function scheduleCheck() {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(doCheck, DEBOUNCE_MS);
+  /* ── Idle timer (3s fallback) ───────────────────────────────── */
+  function resetIdleTimer() {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      if (dirty) requestCheck('idle');
+    }, IDLE_MS);
+  }
+
+  /* ── Mark stale (user is typing, last result may be outdated) ─ */
+  function markStale() {
+    if (bar.getAttribute('data-state') !== 'checking') {
+      hintEl.textContent = '(editing…)';
+    }
+  }
+
+  /* ── Rate-limited check ─────────────────────────────────────── */
+  function requestCheck(trigger) {
+    if (!editor || !bar) return;
+
+    var now = Date.now();
+    var source = editor.value || '';
+
+    // Skip if source unchanged since last check
+    if (source === lastCheckedSource) {
+      dirty = false;
+      hintEl.textContent = '';
+      return;
+    }
+
+    // Rate limit: wait if too soon (unless it's a manual save or pre-run)
+    var elapsed = now - lastCheckTime;
+    if (elapsed < RATE_LIMIT_MS && trigger !== 'save' && trigger !== 'run' && trigger !== 'init' && trigger !== 'tab') {
+      // Schedule a delayed check instead
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () {
+        requestCheck('deferred');
+      }, RATE_LIMIT_MS - elapsed + 100);
+      return;
+    }
+
+    doCheck(source);
   }
 
   /* ── Server call ────────────────────────────────────────────── */
-  function doCheck() {
-    if (!editor || !bar) return;
-
+  function doCheck(source) {
     // Only check .astra files
     var fileEl = document.getElementById('currentFile');
     var filename = fileEl ? (fileEl.textContent || '').trim() : 'Main.astra';
     if (!filename.endsWith('.astra')) {
       setState('ok', 'Not an ASTRA file');
+      hintEl.textContent = '';
+      dirty = false;
       return;
     }
-
-    var source = editor.value || '';
-    if (source === lastSource) return;
-    lastSource = source;
 
     if (!source.trim()) {
       setState('ok', 'Empty');
       setEditorGlow(false);
+      hintEl.textContent = '';
+      dirty = false;
       return;
     }
 
@@ -178,6 +257,7 @@
     abortCtrl = new AbortController();
 
     setState('checking', 'Checking…');
+    hintEl.textContent = '';
 
     fetch(CHECK_URL, {
       method: 'POST',
@@ -189,12 +269,16 @@
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {
+      lastCheckedSource = source;
+      lastCheckTime = Date.now();
+      dirty = false;
       var diags = Array.isArray(data) ? data : (data.diagnostics || []);
       renderDiags(diags);
     })
     .catch(function (err) {
       if (err.name === 'AbortError') return;
       setState('offline', 'Offline — unable to check');
+      hintEl.textContent = '';
       setEditorGlow(false);
     });
   }
@@ -208,7 +292,8 @@
       error: 'fa-circle-xmark',
       warn: 'fa-triangle-exclamation',
       checking: 'fa-spinner',
-      offline: 'fa-wifi'
+      offline: 'fa-wifi',
+      stale: 'fa-clock'
     };
     mainIcon.className = 'fa-solid ' + (icons[state] || 'fa-circle-check') + ' gl-diag-icon gl-diag-main-icon';
   }
@@ -227,6 +312,7 @@
 
     if (diags.length === 0) {
       setState('ok', 'No issues — compiled OK ✓');
+      hintEl.textContent = '';
       setEditorGlow(false);
       panel.innerHTML = '';
       bar.setAttribute('data-open', '0');
@@ -238,6 +324,7 @@
     if (errors.length) parts.push(errors.length + ' error' + (errors.length > 1 ? 's' : ''));
     if (warnings.length) parts.push(warnings.length + ' warning' + (warnings.length > 1 ? 's' : ''));
     setState(errors.length ? 'error' : 'warn', parts.join(', '));
+    hintEl.textContent = '';
     setEditorGlow(errors.length > 0);
 
     // Auto-expand on errors
