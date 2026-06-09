@@ -115,11 +115,9 @@
         </button>
         <button class="platform-tab" data-platform="jason" type="button">
           <i class="fa-solid fa-flask"></i> Jason
-          <span class="tab-badge">SOON</span>
         </button>
         <button class="platform-tab" data-platform="jacamo" type="button">
           <i class="fa-solid fa-cubes"></i> JaCaMo
-          <span class="tab-badge">SOON</span>
         </button>
       </div>
 
@@ -198,13 +196,19 @@
       activatePlatform(requestedPlatform);
     }
 
-    // Forward #load= hash to the ASTRA iframe for patterns.html integration
-    if (window.location.hash.startsWith('#load=')) {
+    // Forward #load[-platform]= hash to the correct iframe
+    const hash = window.location.hash;
+    if (hash.startsWith('#load-jason=')) {
+      activatePlatform('jason');
+      const jasonFrame = document.getElementById('frame-jason');
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html#load=' + hash.slice('#load-jason='.length);
+    } else if (hash.startsWith('#load-jacamo=')) {
+      activatePlatform('jacamo');
+      const jacamoFrame = document.getElementById('frame-jacamo');
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html#load=' + hash.slice('#load-jacamo='.length);
+    } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      // Append hash to iframe src so it loads with the payload
-      if (astraFrame) {
-        astraFrame.src = 'runner-astra.html' + window.location.hash;
-      }
+      if (astraFrame) astraFrame.src = 'runner-astra.html' + hash;
     }
   </script>
 </body>

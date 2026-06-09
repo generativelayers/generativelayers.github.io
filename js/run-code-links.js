@@ -33,25 +33,59 @@
     return (code ? code.textContent : pre.textContent).replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
   }
 
-  function isAstra(pre) {
-    if (!pre || pre.dataset.glRunReady === '1' || pre.closest('.runner-card')) return false;
+  // ── Platform detection ──────────────────────────────────────
+
+  function detectPlatform(pre) {
+    if (!pre || pre.dataset.glRunReady === '1' || pre.closest('.runner-card')) return null;
     const code = pre.querySelector('code');
-    if (!code) return false;
-    if (/\/astra\//i.test(code.dataset.source || '')) return true;
+    if (!code) return null;
+
+    // Check data-source attribute for path hints
+    const src = code.dataset.source || '';
+
+    // Check container id (tab-content or mini-code-block)
     const holder = pre.closest('.mini-code-block, .tab-content');
-    const id = holder ? holder.id || '' : '';
-    if (/(^|[-_])astra$/i.test(id) || /-ASTRA$/i.test(id)) return true;
+    const holderId = holder ? (holder.id || '') : '';
+
+    // Explicit platform markers from id or data-source
+    if (/jacamo/i.test(holderId) || /jacamo\//i.test(src)) return 'jacamo';
+    if (/jason/i.test(holderId) || /jason\//i.test(src)) return 'jason';
+    if (/(^|[-_])astra$/i.test(holderId) || /astra\//i.test(src)) return 'astra';
+
+    // Content-based detection
     const t = textOf(pre);
-    if (/^\s*(mvn|gradle|export|curl|npm|ssh|sudo|apt|git)\b/im.test(t)) return false;
-    return /agent\s+[A-Za-z_][A-Za-z0-9_]*/.test(t) || (/rule\s+\+!main\s*\(/.test(t) && /(gl\.|module\s+|console\.|C\.println|system\.)/.test(t));
+
+    // Skip shell / build commands
+    if (/^\s*(mvn|gradle|export|curl|npm|ssh|sudo|apt|git)\b/im.test(t)) return null;
+
+    // ASTRA detection: agent keyword + module/rule syntax
+    if (/agent\s+[A-Za-z_][A-Za-z0-9_]*/.test(t) || (/rule\s+\+!main\s*\(/.test(t) && /(gl\.|module\s+|console\.|C\.println|system\.)/.test(t))) {
+      return 'astra';
+    }
+
+    // Jason/JaCaMo detection: AgentSpeak syntax
+    if (/^\s*[+\-!]\s*[!?]?\w/.test(t) || /\s*<-\s/.test(t) || /\.stopMAS\b/.test(t) || /\.println?\b/.test(t)) {
+      // JaCaMo uses CArtAgO artifact syntax
+      if (/makeArtifact\s*\(/.test(t) || /focus\s*\(/.test(t) || /jaca\./.test(t) || /CartagoEnvironment/.test(t)) {
+        return 'jacamo';
+      }
+      // Jason uses gl. prefix internal actions
+      if (/gl\.\w+\(/.test(t)) return 'jason';
+      // Plain AgentSpeak -> Jason
+      if (/\+!\w/.test(t)) return 'jason';
+    }
+
+    return null;
   }
+
+  // ── Source wrapping ──────────────────────────────────────────
 
   function indent(src, n) {
     const pad = ' '.repeat(n);
     return src.split('\n').map(line => line.trim() ? pad + line : '').join('\n');
   }
 
-  function makeRunnable(src) {
+  function makeRunnableAstra(src) {
     src = src.replace(/^\s*\/\/\s*ASTRA\s*\n?/i, '').replace(/module\s+gl-astra\.GL\s+gl\s*;/g, 'module gl.astra.GL gl;').trim();
     if (/agent\s+[A-Za-z_][A-Za-z0-9_]*/.test(src)) return src.replace(/agent\s+[A-Za-z_][A-Za-z0-9_]*/, 'agent Main');
     const modules = [];
@@ -72,87 +106,130 @@
     return `agent Main {\n${modules.join('\n')}\n\n    rule +!main(list args) {\n${indent(src, 8)}\n        !shutdown();\n    }\n\n    rule +!shutdown() {\n        system.exit();\n    }\n}`;
   }
 
+  function makeRunnableJason(src) {
+    // Jason code is mostly ready to run as-is; just clean up comment headers
+    src = src.replace(/^\s*\/\/\s*Jason\s*\n?/i, '').trim();
+    // Ensure it has .stopMAS if missing
+    if (!/\.stopMAS\b/.test(src) && /\+!main\b/.test(src)) {
+      // Add .stopMAS to the main plan if not present
+      src = src.replace(/(\+!main[\s\S]*?)(\.)\s*$/, '$1\n      .stopMAS$2');
+    }
+    return src;
+  }
+
+  function makeRunnableJaCaMo(src) {
+    // JaCaMo code runs as-is
+    src = src.replace(/^\s*\/\/\s*JaCaMo\s*\n?/i, '').trim();
+    return src;
+  }
+
+  function makeRunnable(src, platform) {
+    if (platform === 'jason') return makeRunnableJason(src);
+    if (platform === 'jacamo') return makeRunnableJaCaMo(src);
+    return makeRunnableAstra(src);
+  }
+
+  // ── Navigation ──────────────────────────────────────────────
+
   function titleFor(pre) {
     const panel = pre.closest('.info-panel');
     const h = panel ? panel.querySelector('h2') : document.querySelector('h1');
-    return h ? h.textContent.replace(/\s+/g, ' ').trim() : 'ASTRA example';
+    return h ? h.textContent.replace(/\s+/g, ' ').trim() : 'Example';
   }
 
-  function openRunner(source, title) {
+  function openRunner(source, title, platform) {
+    const hashKey = platform === 'jason' ? 'load-jason'
+                  : platform === 'jacamo' ? 'load-jacamo'
+                  : 'load';
     const encoded = encodeURIComponent(JSON.stringify({ title, source }));
-    window.location.href = new URL('code.html#load=' + encoded, window.location.href).toString();
+    window.location.href = new URL('code.html#' + hashKey + '=' + encoded, window.location.href).toString();
   }
 
-  function makeRunButton(pre, scope) {
+  // ── Button creation ─────────────────────────────────────────
+
+  function makeRunButton(pre, scope, platform) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'gl-run-btn';
     button.dataset.glRunScope = scope || 'fallback';
+    button.dataset.glPlatform = platform || 'astra';
     button.innerHTML = '<i class="fa-solid fa-play"></i><span>Run</span>';
     button.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      openRunner(makeRunnable(textOf(pre)), titleFor(pre));
+      const activePre = getActivePreInScope(pre, scope);
+      const activePlatform = activePre ? (detectPlatform(activePre) || platform) : platform;
+      openRunner(makeRunnable(textOf(activePre || pre), activePlatform), titleFor(activePre || pre), activePlatform);
     });
     return button;
   }
 
-  function activeTabIsAstra(tabs) {
-    const activePanel = tabs ? tabs.querySelector(':scope > .tab-content.active') : null;
-    if (!activePanel) return true;
-    return /astra/i.test(activePanel.id || '') || /astra/i.test(activePanel.dataset.platform || '');
+  /** For tabbed containers, find the currently active tab's <pre> */
+  function getActivePreInScope(fallbackPre, scope) {
+    if (scope === 'tabs') {
+      const tabs = fallbackPre.closest('.tabs-container');
+      if (tabs) {
+        const activePanel = tabs.querySelector(':scope > .tab-content.active');
+        if (activePanel) {
+          const pre = activePanel.querySelector('pre');
+          if (pre) return pre;
+        }
+      }
+    }
+    if (scope === 'mini') {
+      const details = fallbackPre.closest('.cmd-details-content');
+      if (details) {
+        const activeBlock = details.querySelector('.mini-code-block.active');
+        if (activeBlock) {
+          const pre = activeBlock.querySelector('pre');
+          if (pre) return pre;
+        }
+      }
+    }
+    return fallbackPre;
   }
 
-  function activeMiniTabIsAstra(details) {
-    const activeBlock = details ? details.querySelector('.mini-code-block.active') : null;
-    if (!activeBlock) return true;
-    return /astra/i.test(activeBlock.id || '') || /astra/i.test(activeBlock.dataset.platform || '');
-  }
+  // ── Visibility: Run button is always visible for all platforms ──
 
   function updateRunButtonVisibility() {
-    document.querySelectorAll('.gl-run-btn[data-gl-run-scope="tabs"]').forEach(button => {
-      const tabs = button.closest('.tabs-container');
-      button.hidden = !activeTabIsAstra(tabs);
-    });
-
-    document.querySelectorAll('.gl-run-btn[data-gl-run-scope="mini"]').forEach(button => {
-      const details = button.closest('.cmd-details-content');
-      button.hidden = !activeMiniTabIsAstra(details);
+    // Run buttons are now always visible for all platforms
+    document.querySelectorAll('.gl-run-btn').forEach(button => {
+      button.hidden = false;
     });
   }
 
-  function addButtonToTabsHeader(pre) {
+  // ── Adding buttons ──────────────────────────────────────────
+
+  function addButtonToTabsHeader(pre, platform) {
     const tabs = pre.closest('.tabs-container');
     const header = tabs ? tabs.querySelector(':scope > .tabs-header') : null;
     if (!header || header.dataset.glRunReady === '1') return false;
 
-    header.appendChild(makeRunButton(pre, 'tabs'));
+    header.appendChild(makeRunButton(pre, 'tabs', platform));
     header.dataset.glRunReady = '1';
     pre.classList.add('gl-code-normalized');
     pre.dataset.glRunReady = '1';
-    updateRunButtonVisibility();
     return true;
   }
 
-  function addButtonToMiniTabs(pre) {
+  function addButtonToMiniTabs(pre, platform) {
     const details = pre.closest('.cmd-details-content');
     const miniTabs = details ? details.querySelector('.mini-tabs') : null;
     if (!miniTabs || miniTabs.dataset.glRunReady === '1') return false;
 
-    miniTabs.appendChild(makeRunButton(pre, 'mini'));
+    miniTabs.appendChild(makeRunButton(pre, 'mini', platform));
     miniTabs.dataset.glRunReady = '1';
     pre.classList.add('gl-code-normalized');
     pre.dataset.glRunReady = '1';
-    updateRunButtonVisibility();
     return true;
   }
 
-  function addFallbackButton(pre) {
+  function addFallbackButton(pre, platform) {
     const shell = document.createElement('div');
     shell.className = 'gl-run-shell';
     const bar = document.createElement('div');
     bar.className = 'gl-run-bar';
-    bar.appendChild(makeRunButton(pre, 'fallback'));
+    bar.appendChild(makeRunButton(pre, 'fallback', platform));
     pre.parentNode.insertBefore(shell, pre);
     shell.appendChild(bar);
     shell.appendChild(pre);
@@ -161,24 +238,28 @@
   }
 
   function addButton(pre) {
-    if (!isAstra(pre)) return;
-    if (addButtonToTabsHeader(pre)) return;
-    if (addButtonToMiniTabs(pre)) return;
-    addFallbackButton(pre);
+    const platform = detectPlatform(pre);
+    if (!platform) return;
+    if (addButtonToTabsHeader(pre, platform)) return;
+    if (addButtonToMiniTabs(pre, platform)) return;
+    addFallbackButton(pre, platform);
   }
 
   function scan() {
     document.querySelectorAll('pre').forEach(pre => {
+      if (pre.dataset.glRunReady === '1') return;
       if (pre.querySelector('code')) addButton(pre);
       else pre.classList.add('gl-code-normalized');
     });
     updateRunButtonVisibility();
   }
 
+  // ── Incoming source (code.html / runner pages) ──────────────
+
   function installIncomingSource() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
-    // Works on code.html (legacy) and runner-astra.html (iframe)
-    if (page !== 'code.html' && page !== 'runner-astra.html') return;
+    // Works on code.html and runner-*.html (iframes)
+    if (page !== 'code.html' && !page.startsWith('runner-')) return;
 
     if (!document.getElementById('gl-key-warning')) {
       const warning = document.createElement('div');
@@ -189,9 +270,24 @@
       if (h1) h1.insertAdjacentElement('afterend', warning);
     }
 
-    if (!window.location.hash.startsWith('#load=')) return;
+    if (!window.location.hash.startsWith('#load')) return;
     try {
-      const payload = JSON.parse(decodeURIComponent(window.location.hash.slice(6)));
+      // Parse hash: #load=, #load-jason=, #load-jacamo=
+      const hash = window.location.hash;
+      let payload;
+      if (hash.startsWith('#load-jason=')) {
+        payload = JSON.parse(decodeURIComponent(hash.slice('#load-jason='.length)));
+        payload._platform = 'jason';
+      } else if (hash.startsWith('#load-jacamo=')) {
+        payload = JSON.parse(decodeURIComponent(hash.slice('#load-jacamo='.length)));
+        payload._platform = 'jacamo';
+      } else if (hash.startsWith('#load=')) {
+        payload = JSON.parse(decodeURIComponent(hash.slice('#load='.length)));
+        payload._platform = 'astra';
+      } else {
+        return;
+      }
+
       if (!payload.source) return;
 
       // New iframe architecture: load into the file-based editor
@@ -208,16 +304,18 @@
       const metaStatus = document.getElementById('metaStatus');
       const metaReturnCode = document.getElementById('metaReturnCode');
       const metaElapsed = document.getElementById('metaElapsed');
-      if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck the API key warning above, then press "Run Source".`;
+      if (output) output.textContent = `Loaded: ${payload.title || 'Example'}\nCheck the API key warning above, then press "Run Source".`;
       if (status) status.textContent = 'Example loaded';
       if (metaStatus) metaStatus.textContent = 'Loaded';
       if (metaReturnCode) metaReturnCode.textContent = '\u2014';
       if (metaElapsed) metaElapsed.textContent = '\u2014';
       window.setTimeout(() => (document.getElementById('run-code') || input).scrollIntoView({ behavior:'smooth', block:'start' }), 100);
     } catch (error) {
-      console.warn('Could not load ASTRA example into runner.', error);
+      console.warn('Could not load example into runner.', error);
     }
   }
+
+  // ── Init ────────────────────────────────────────────────────
 
   function init() {
     addStyle();
@@ -230,6 +328,9 @@
     const observer = new MutationObserver(() => window.setTimeout(scan, 80));
     observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
   }
+
+  // Expose scan for dynamic content (patterns.html)
+  window.GLRunCodeLinks = { scan };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
