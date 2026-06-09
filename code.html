@@ -5,22 +5,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Run Code | Generative Layers</title>
+  <meta name="description" content="Run ASTRA, Jason, and JaCaMo code in the browser with Generative Layers.">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script defer src="js/search.js"></script>
-  <script defer src="js/run-code-links.js?v=2"></script>
-  <script defer src="js/code-runner.js?v=14"></script>
-  <script defer src="js/code-runner-tree-ui.js?v=8"></script>
-  <script defer src="js/code-runner-api-select.js?v=8"></script>
-  <script defer src="js/code-runner-clean-version.js?v=1"></script>
-  <script defer src="js/code-runner-stop.js?v=3"></script>
-  <script defer src="js/code-runner-storage-load.js?v=1"></script>
-  <script defer src="js/code-runner-diagnostics.js?v=4"></script>
-  <script defer src="js/code-runner-highlight.js?v=4"></script>
-  <script defer src="js/code-runner-gui.js?v=3"></script>
-  <script defer src="js/code-runner-resize.js?v=14"></script>
-  <script defer src="js/code-runner-tree-fixes.js?v=1"></script>
   <style>
     body .main {
       max-width: 1500px !important;
@@ -28,304 +17,68 @@
       padding-left: 4px !important;
       padding-right: 4px !important
     }
+    .main > h1 { padding-left: 60px }
 
-    #run-code {
-      margin-left: 0;
-      margin-right: 0
-    }
-    .main > h1{padding-left:60px}
-
-    .runner-files .runner-file {
-      font-size: 12.5px
-    }
-
-    .runner-files .runner-root-title {
-      font-size: 13px
-    }
-
-    .runner-files .runner-folder-name {
-      font-size: 12.5px
-    }
-
-    .runner-card {
-      background: var(--color-surface, #fff);
-      border: 1px solid var(--color-border, #e5e7eb);
-      border-radius: 14px;
-      padding: 14px 22px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
-      max-width: none;
-      width: 100%;
-      margin-bottom: 2px
-    }
-    .runner-card h2{margin:0 0 8px;font-size:18px}
-
-    .runner-project {
-      display: grid;
-      grid-template-columns: 195px minmax(0, 1fr);
-      column-gap: 4px;
-      row-gap: 14px;
-      align-items: stretch
-    }
-
-    .runner-files {
-      border: 1px solid #1f2937;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #0b1220;
-      color: #d1fae5;
-      min-height: auto;
-      height: auto;
-      align-self: stretch;
-      box-sizing: border-box
-    }
-
-    .runner-files-head {
+    /* ── Platform tab bar ──────────────────────────── */
+    .platform-tabs {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      background: #111827;
-      border-bottom: 1px solid #1f2937;
-      font-size: 12px;
-      font-weight: 800;
-      color: #e5e7eb
+      gap: 0;
+      margin: 0 0 0;
+      border-bottom: 2px solid var(--color-border, #e5e7eb);
     }
-
-    .runner-file-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      padding: 10px;
-      border-bottom: 1px solid #1f2937;
-      background: #0f172a
-    }
-
-    .runner-mini-button {
-      border: 1px solid rgba(52, 211, 153, .35);
-      border-radius: 999px;
-      background: rgba(52, 211, 153, .12);
-      color: #34d399;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 5px 9px;
-      cursor: pointer
-    }
-
-    .runner-mini-button:hover {
-      background: #059669;
-      color: #fff;
-      border-color: #059669
-    }
-
-    .runner-root {
-      padding: 8px 6px;
-      border-bottom: 1px solid #1f2937
-    }
-
-    .runner-root-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 3px 4px 7px;
-      color: #34d399;
-      font-size: 12px;
-      font-weight: 900
-    }
-
-    .runner-file {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      width: 100%;
-      border: 0;
-      border-radius: 7px;
-      background: transparent;
-      color: #d1fae5;
-      text-align: left;
-      padding: 5px 6px;
-      margin: 1px 0;
-      cursor: pointer;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 11px;
-      line-height: 1.25
-    }
-
-    .runner-file:hover,
-    .runner-file.active {
-      background: #1f2937;
-      color: #fff
-    }
-
-    .runner-empty-folder {
-      padding: 4px 8px 8px;
-      color: #64748b;
-      font-size: 11px;
-      font-style: italic
-    }
-
-    .runner-editor-wrap{min-width:0;display:flex;flex-direction:column;align-self:stretch;height:100%}.runner-current-file{display:flex;align-items:center;gap:8px;background:#111827;color:#e5e7eb;border:1px solid #1f2937;border-bottom:0;border-radius:12px 12px 0 0;padding:9px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:13px;font-weight:800}.runner-editor,.runner-output{width:100%;box-sizing:border-box;margin:0;padding:16px;overflow:auto;background:#0b1220;color:#d1fae5;font-size:13px;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}.runner-editor{flex:1;min-height:0;resize:vertical;border:1px solid #1f2937;border-radius:0 0 12px 12px;outline:none;white-space:pre;tab-size:4}.runner-editor:focus{border-color:var(--color-green-700,#059669);box-shadow:0 0 0 3px rgba(5,150,105,.18)}.runner-output{min-height:230px;white-space:pre-wrap;border-radius:12px;border:1px solid #1f2937;resize:both}
-
-    .runner-toolbar {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 10px 0 4px
-    }
-
-    .runner-button {
+    .platform-tab {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 14px;
+      gap: 8px;
+      padding: 12px 22px;
+      font-size: 14px;
       font-weight: 800;
-      cursor: pointer;
-      color: #fff;
-      background: var(--color-green-700, #059669);
-      font-size: 13px
-    }
-
-    .runner-button:disabled {
-      cursor: wait;
-      opacity: .65
-    }
-
-    .runner-secondary {
-      color: var(--color-text, #111827);
+      color: var(--color-text-secondary, #6b7280);
       background: transparent;
-      border: 1px solid var(--color-border, #e5e7eb)
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      margin-bottom: -2px;
     }
-
-    .runner-status {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--color-text-secondary, #4b5563)
-    }
-
-    .runner-meta {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-      margin: 4px 0 0
-    }
-
-    .runner-meta div {
-      border: 1px solid var(--color-border, #e5e7eb);
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 11px;
-      color: var(--color-text-secondary, #4b5563)
-    }
-
-    .runner-meta strong {
-      display: block;
+    .platform-tab:hover {
       color: var(--color-text, #111827);
-      font-size: 12px;
-      margin-top: 2px
+    }
+    .platform-tab.active {
+      color: #059669;
+      border-bottom-color: #059669;
+    }
+    .platform-tab i {
+      font-size: 16px;
+    }
+    .platform-tab .tab-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, .12);
+      color: #059669;
+      letter-spacing: 0.5px;
     }
 
-    .runner-key-panel {
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      background: #f8fafc;
-      padding: 16px;
-      margin: 14px 0 0
-    }
-
-    .runner-key-panel[hidden] {
-      display: none !important
-    }
-
-    .runner-key-panel h3 {
-      margin: 0 0 8px;
-      font-size: 16px
-    }
-
-    .runner-key-intro {
-      margin: 0 0 12px;
-      color: var(--color-text-secondary, #4b5563);
-      font-size: 14px;
-      line-height: 1.55
-    }
-
-    .runner-key-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 10px
-    }
-
-    .runner-key-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px
-    }
-
-    .runner-key-row[hidden] {
-      display: none !important
-    }
-
-    .runner-key-row label {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--color-text, #111827)
-    }
-
-    .runner-key-row input {
-      box-sizing: border-box;
+    /* ── Iframe container ─────────────────────────── */
+    .runner-frame-container {
       width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 9px;
-      padding: 10px 12px;
-      font-size: 14px;
-      background: #fff;
-      color: #111827
     }
-
-    .runner-key-warning {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin: 12px 0 0;
-      padding: 12px 14px;
-      border: 1px solid #fde68a;
-      border-left: 4px solid #f59e0b;
-      border-radius: 10px;
-      background: #fffbeb;
-      color: #92400e;
-      font-size: 14px;
-      line-height: 1.55
+    .runner-frame {
+      width: 100%;
+      min-height: 500px;
+      height: 900px;
+      border: none;
+      display: none;
     }
-
-    .runner-key-warning[hidden] {
-      display: none !important
-    }
-
-    .runner-key-warning a {
-      font-weight: 800;
-      color: #0a7a50;
-      text-decoration: underline;
-      text-underline-offset: 2px
+    .runner-frame.active {
+      display: block;
     }
 
     @media(max-width:900px) {
-      body .main {
-        max-width: 100% !important
-      }
-
-      .runner-project {
-        grid-template-columns: 1fr
-      }
-
-      .runner-files {
-        min-height: auto
-      }
-
-      .runner-meta,
-      .runner-key-grid {
-        grid-template-columns: 1fr
-      }
+      body .main { max-width: 100% !important }
+      .platform-tab { padding: 10px 14px; font-size: 13px }
     }
   </style>
 </head>
@@ -354,72 +107,106 @@
     </aside>
     <main class="main">
       <h1>Run Code</h1>
-      <section id="run-code">
-        <div class="runner-card">
-          <div class="runner-project">
-            <div class="runner-files">
-              <div class="runner-files-head"><span>Project files</span></div>
-              <div class="runner-file-actions"><button class="runner-mini-button" id="newAstraFileButton"
-                  type="button">+ ASTRA</button><button class="runner-mini-button" id="newJavaFileButton"
-                  type="button">+ Java</button><button class="runner-mini-button" id="renameFileButton" type="button"><i
-                    class="fa-solid fa-pen"></i></button><button class="runner-mini-button" id="deleteFileButton"
-                  type="button"><i class="fa-solid fa-trash-can"></i></button></div>
-              <div id="fileTree"></div>
-            </div>
-            <div class="runner-editor-wrap">
-              <div class="runner-current-file"><i class="fa-regular fa-file-code"></i><span
-                  id="currentFile">/astra/Main.astra</span></div><textarea class="runner-editor" id="fileEditor"
-                spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-            </div>
-          </div>
-          <div class="runner-key-panel" id="apiKeyPanel" hidden>
-            <h3><i class="fa-solid fa-key" style="margin-right:8px;color:#d97706;"></i>API key required</h3>
-            <p class="runner-key-intro" id="apiKeyIntro">This project uses an LLM provider. Fill the required key before
-              running it.</p>
-            <div class="runner-key-grid">
-              <div class="runner-key-row" data-provider-row="cerebras" hidden><label
-                  for="apiKeyCerebras">CEREBRAS_API_KEY</label><input id="apiKeyCerebras" data-provider-key="cerebras"
-                  type="password" autocomplete="off" placeholder="Paste Cerebras key for this run"></div>
-              <div class="runner-key-row" data-provider-row="groq" hidden><label
-                  for="apiKeyGroq">GROQ_API_KEY</label><input id="apiKeyGroq" data-provider-key="groq" type="password"
-                  autocomplete="off" placeholder="Paste Groq key for this run"></div>
-              <div class="runner-key-row" data-provider-row="gemini" hidden><label
-                  for="apiKeyGemini">GEMINI_API_KEY</label><input id="apiKeyGemini" data-provider-key="gemini"
-                  type="password" autocomplete="off" placeholder="Paste Gemini key for this run"></div>
-              <div class="runner-key-row" data-provider-row="openai" hidden><label
-                  for="apiKeyOpenai">OPENAI_API_KEY</label><input id="apiKeyOpenai" data-provider-key="openai"
-                  type="password" autocomplete="off" placeholder="Paste OpenAI key for this run"></div>
-              <div class="runner-key-row" data-provider-row="deepseek" hidden><label
-                  for="apiKeyDeepseek">DEEPSEEK_API_KEY</label><input id="apiKeyDeepseek" data-provider-key="deepseek"
-                  type="password" autocomplete="off" placeholder="Paste DeepSeek key for this run"></div>
-            </div>
-            <div class="runner-key-warning" id="apiKeyWarning" hidden><i class="fa-solid fa-triangle-exclamation"></i>
-              <div><strong>Provider example blocked.</strong> <span id="apiKeyWarningText"></span> Check <a
-                  href="providers.html#providers">Built-in Providers and API key setup</a>.</div>
-            </div>
-          </div>
-          <div class="runner-toolbar"><button class="runner-button" id="runAstraButton" type="button"><i
-                class="fa-solid fa-play"></i><span>Run Project</span></button><button
-              class="runner-button runner-secondary" id="loadExampleButton" type="button" hidden style="display:none"><i
-                class="fa-solid fa-rotate-left"></i><span>Load Example</span></button><button
-              class="runner-button runner-secondary" id="clearOutputButton" type="button"><i
-                class="fa-solid fa-eraser"></i><span>Clear Output</span></button><span class="runner-status"
-              id="runnerStatus">Ready</span></div>
-          <div class="runner-meta">
-            <div>Status<strong id="metaStatus">Idle</strong></div>
-            <div>Return code<strong id="metaReturnCode">—</strong></div>
-            <div>Elapsed<strong id="metaElapsed">—</strong></div>
-          </div>
-        </div>
-        <div class="runner-card">
-          <h2>Server output</h2>
-          <pre class="runner-output"
-            id="runnerOutput">Create or edit files in astra and java, then press "Run Project".</pre>
-        </div>
-      </section>
+
+      <!-- Platform tab bar -->
+      <div class="platform-tabs" id="platformTabs">
+        <button class="platform-tab active" data-platform="astra" type="button">
+          <i class="fa-solid fa-robot"></i> ASTRA
+        </button>
+        <button class="platform-tab" data-platform="jason" type="button">
+          <i class="fa-solid fa-flask"></i> Jason
+          <span class="tab-badge">SOON</span>
+        </button>
+        <button class="platform-tab" data-platform="jacamo" type="button">
+          <i class="fa-solid fa-cubes"></i> JaCaMo
+          <span class="tab-badge">SOON</span>
+        </button>
+      </div>
+
+      <!-- Isolated iframes -->
+      <div class="runner-frame-container" id="frameContainer">
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
+        <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
+        <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
+      </div>
+
     </main>
   </div>
-  <script>const sidebar=document.getElementById('sidebar');const sidebarBackdrop=document.getElementById('sidebarBackdrop');document.querySelector('.menu-toggle').addEventListener('click',function(){sidebar.classList.toggle('open');sidebarBackdrop.classList.toggle('open')});sidebarBackdrop.addEventListener('click',function(){sidebar.classList.remove('open');this.classList.remove('open')});</script>
+
+  <script>
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    document.querySelector('.menu-toggle').addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      sidebarBackdrop.classList.toggle('open');
+    });
+    sidebarBackdrop.addEventListener('click', function () {
+      sidebar.classList.remove('open');
+      this.classList.remove('open');
+    });
+
+    // Platform tab switching
+    const tabs = document.querySelectorAll('.platform-tab');
+    const frames = document.querySelectorAll('.runner-frame');
+    const frameSources = {
+      astra: 'runner-astra.html',
+      jason: 'runner-jason.html',
+      jacamo: 'runner-jacamo.html'
+    };
+
+    function activatePlatform(platform) {
+      tabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.platform === platform);
+      });
+      frames.forEach(f => {
+        const isActive = f.dataset.platform === platform;
+        f.classList.toggle('active', isActive);
+        // Lazy-load: only set src when first activated
+        if (isActive && !f.src && frameSources[platform]) {
+          f.src = frameSources[platform];
+        }
+      });
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activatePlatform(tab.dataset.platform));
+    });
+
+    // Auto-resize iframes to fit content
+    function resizeFrames() {
+      frames.forEach(f => {
+        if (!f.classList.contains('active')) return;
+        try {
+          const doc = f.contentDocument || f.contentWindow.document;
+          if (doc && doc.body) {
+            const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 500);
+            f.style.height = h + 'px';
+          }
+        } catch (e) { /* cross-origin or not loaded yet */ }
+      });
+    }
+
+    // Resize on load and periodically (content may change during runs)
+    frames.forEach(f => f.addEventListener('load', () => setTimeout(resizeFrames, 200)));
+    setInterval(resizeFrames, 2000);
+
+    // Read ?platform= query param (from patterns.html "Run in Playground" links)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedPlatform = urlParams.get('platform');
+    if (requestedPlatform && frameSources[requestedPlatform]) {
+      activatePlatform(requestedPlatform);
+    }
+
+    // Forward #load= hash to the ASTRA iframe for patterns.html integration
+    if (window.location.hash.startsWith('#load=')) {
+      const astraFrame = document.getElementById('frame-astra');
+      // Append hash to iframe src so it loads with the payload
+      if (astraFrame) {
+        astraFrame.src = 'runner-astra.html' + window.location.hash;
+      }
+    }
+  </script>
 </body>
 
 </html>

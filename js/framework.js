@@ -206,7 +206,7 @@
         <div class="tab-content active" id="syntax-astra"><pre><code>agent Main {
     module gl.astra.GL gl;
     module Console console;
-    module astra.lang.System S;
+    module System S;
 
     rule +!main(list args) {
         gl.configure("provider", "gemini");
@@ -215,6 +215,10 @@
 
         string rid = gl.ask("agent1", "classify", "Classify: apple");
         !decide_result(rid);
+        !shutdown();
+    }
+
+    rule +!shutdown() {
         S.exit();
     }
 
