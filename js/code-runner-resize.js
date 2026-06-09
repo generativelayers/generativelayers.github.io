@@ -33,6 +33,13 @@
         flex-direction: column;
         min-width: 0;
       }
+      /* hl-editor-wrap sits between runner-editor-wrap and runner-editor */
+      .runner-project.resizable .hl-editor-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
       .runner-project.resizable .runner-editor {
         flex: 1;
         min-height: 0 !important;
