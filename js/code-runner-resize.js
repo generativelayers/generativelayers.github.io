@@ -285,28 +285,16 @@
       if (!card || card.dataset.resizeReady === '1') return;
       card.dataset.resizeReady = '1';
 
-      // ── Bottom splitter (height) ──
-      const bSplit = makeSplitter('v', 'Drag to resize output height');
-      // Insert after the output element
-      output.parentNode.insertBefore(bSplit, output.nextSibling);
-
-      makeDrag(bSplit, 'v', (v) => {
-        if (v === null) return output.getBoundingClientRect().height;
-        output.style.height = Math.max(MIN_OUTPUT_H, v) + 'px';
-        output.style.minHeight = Math.max(MIN_OUTPUT_H, v) + 'px';
-      });
+      // Output gets a fixed height with scrollbar instead of a drag splitter
+      output.style.height = '300px';
+      output.style.maxHeight = '300px';
+      output.style.overflowY = 'auto';
 
       // ── Right splitter (width) ──
-      // Wrap output + bSplit in a container, then add right splitter
       const hRow = document.createElement('div');
       hRow.className = 'gl-output-hrow';
-      // Wrap output in the hRow
-      const vCol = document.createElement('div');
-      vCol.className = 'gl-output-vrow';
       output.parentNode.insertBefore(hRow, output);
-      hRow.appendChild(vCol);
-      vCol.appendChild(output);
-      vCol.appendChild(bSplit);
+      hRow.appendChild(output);
 
       const rSplit = makeSplitter('h', 'Drag to resize output width', 'gl-right-splitter');
       hRow.appendChild(rSplit);
