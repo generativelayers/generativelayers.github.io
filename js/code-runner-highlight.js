@@ -334,38 +334,43 @@
 
     addStyles();
 
-    // Wrap textarea
+    // Wrap textarea in a relative container
     const parent = textarea.parentNode;
     const wrapper = document.createElement('div');
     wrapper.className = 'hl-editor-wrap';
     parent.insertBefore(wrapper, textarea);
     wrapper.appendChild(textarea);
 
-    // Create overlay
+    // Create the highlight overlay
     overlay = document.createElement('pre');
     overlay.className = 'hl-overlay';
     overlay.setAttribute('aria-hidden', 'true');
     wrapper.appendChild(overlay);
 
-    // Sync scroll
+    // Sync scroll positions
     textarea.addEventListener('scroll', syncScroll);
 
-    // Re-highlight on input
+    // Re-highlight on user input
     textarea.addEventListener('input', scheduleHighlight);
 
-    // Also watch for programmatic value changes
-    const desc = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
-    const origSet = desc.set;
-    Object.defineProperty(textarea, 'value', {
-      get: desc.get,
-      set(v) {
-        origSet.call(this, v);
-        scheduleHighlight();
-      },
-      configurable: true
-    });
+    // Intercept programmatic .value = ... from other scripts
+    try {
+      const proto = HTMLTextAreaElement.prototype;
+      const desc = Object.getOwnPropertyDescriptor(proto, 'value');
+      if (desc && desc.set) {
+        const origSet = desc.set;
+        Object.defineProperty(textarea, 'value', {
+          get() { return desc.get.call(this); },
+          set(v) {
+            origSet.call(this, v);
+            scheduleHighlight();
+          },
+          configurable: true
+        });
+      }
+    } catch (_) { /* ignore if override fails */ }
 
-    // Watch resize (user resizes textarea)
+    // Watch resize
     if (typeof ResizeObserver !== 'undefined') {
       new ResizeObserver(() => syncScroll()).observe(textarea);
     }
@@ -388,11 +393,20 @@
   function highlight() {
     if (!overlay || !textarea) return;
     const source = textarea.value;
+    if (!source) {
+      overlay.innerHTML = '\n';
+      return;
+    }
     const tokens = tokenize(source);
-    // Add trailing newline so overlay height matches textarea
     overlay.innerHTML = renderTokens(tokens) + '\n';
     syncScroll();
   }
+
+  // Expose for other scripts to call manually
+  window.__glHighlight = function () {
+    if (!overlay) setupOverlay();
+    highlight();
+  };
 
   /* ── Boot ────────────────────────────────────────────────── */
   function init() {
@@ -402,6 +416,9 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  // Also try after a small delay (other scripts may set textarea value)
-  setTimeout(init, 200);
+  // Retry with increasing delays to catch late value assignments
+  [100, 300, 600, 1200].forEach(ms => setTimeout(() => {
+    if (!textarea) setupOverlay();
+    else highlight();
+  }, ms));
 })();
