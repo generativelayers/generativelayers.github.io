@@ -1,10 +1,10 @@
 /**
- * code-runner-gui.js  v2
+ * code-runner-gui.js  v3
  *
- * Detects GUI module usage in ASTRA code and shows a
+ * Detects GUI module usage in ASTRA / Jason / JaCaMo code and shows a
  * "Show GUI" button that opens a noVNC viewer in a modal.
  *
- * The modal dynamically resizes to match the actual ASTRA GUI
+ * The modal dynamically resizes to match the actual GUI
  * window dimensions (no black space, no cropping).
  *
  * The noVNC connection proxies through code.generativelayers.com/novnc/
@@ -13,11 +13,24 @@
   'use strict';
 
   const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=2000&path=websockify';
+  const PLATFORM = window.GL_PLATFORM || 'astra';
+  const PLATFORM_LABEL = (window.GL_PLATFORM_CONFIG && window.GL_PLATFORM_CONFIG.label) || 'ASTRA';
 
   /* ── GUI detection ──────────────────────────────────────── */
   const GUI_PATTERNS = [
+    // ASTRA patterns
     /\bastra\.gui\b/i,
     /\bmodule\s+.*GUI\b/,
+    // Jason / JaCaMo patterns
+    /\bgui\.create\b/,
+    /\bgui\.yes_no\b/,
+    /\bgui\.confirm\b/,
+    /\bgui\.input\b/,
+    /\bGridWorldView\b/,
+    /\bGridWorldModel\b/,
+    /\bMASConsoleGUI\b/,
+    /\bExecutionControlGUI\b/,
+    // Shared Java Swing patterns
     /\bJFrame\b/,
     /\bSwingUtilities\b/,
     /\bjavax\.swing\b/,
@@ -217,7 +230,7 @@
       <div class="gui-modal" id="guiModal">
         ${handleHtml}
         <div class="gui-modal-header" id="guiModalHeader">
-          <span><i class="fa-solid fa-display" style="margin-right:8px"></i>ASTRA GUI Viewer</span>
+          <span><i class="fa-solid fa-display" style="margin-right:8px"></i>${PLATFORM_LABEL} GUI Viewer</span>
           <button class="gui-modal-close" id="guiModalClose">&times;</button>
         </div>
         <iframe id="guiFrame" src="about:blank"></iframe>
@@ -225,7 +238,7 @@
           <div class="gui-loading-spinner"></div>
           <span>Please wait…</span>
         </div>
-        <div class="gui-status" id="guiStatus">Waiting for ASTRA to start GUI…</div>
+        <div class="gui-status" id="guiStatus">Waiting for ${PLATFORM_LABEL} to start GUI…</div>
       </div>
     `;
     document.body.appendChild(modalEl);
@@ -293,7 +306,7 @@
     isOpen = true;
     modalEl.hidden = false;
     iframeEl.src = NOVNC_URL;
-    document.getElementById('guiStatus').textContent = 'Connecting to ASTRA GUI…';
+    document.getElementById('guiStatus').textContent = 'Connecting to ' + PLATFORM_LABEL + ' GUI…';
     const overlay = document.getElementById('guiLoadingOverlay');
     if (overlay) overlay.hidden = false;
     // If we already have dimensions, apply them
