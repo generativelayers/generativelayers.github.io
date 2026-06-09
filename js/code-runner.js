@@ -634,6 +634,16 @@
   function setRunning(value) {
     els.loadExample.disabled = value;
     els.status.textContent = value ? 'Running…' : 'Ready';
+    // When execution ends, ensure the button returns to play mode
+    if (!value) {
+      const btn = document.getElementById('runAstraButton');
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('runner-stop-mode');
+        btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Run Project</span>';
+        btn.title = '';
+      }
+    }
   }
 
   function resetOutput() {
