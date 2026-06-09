@@ -123,15 +123,19 @@
       .gl-output-vrow {
         display: flex;
         flex-direction: column;
+        width: 100%;
+        min-height: 230px;
       }
       .gl-output-hrow {
         display: flex;
         flex-direction: row;
         align-items: stretch;
+        width: 100%;
       }
       .gl-output-hrow .runner-output {
         flex: 1;
         min-width: 0;
+        min-height: 230px;
         resize: none !important;
       }
 
