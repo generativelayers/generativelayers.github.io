@@ -6,173 +6,196 @@
   <title>JaCaMo Runner | Generative Layers</title>
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=3.6">
+  <script>
+    /* Platform config — shared modules read this */
+    window.GL_PLATFORM = 'jacamo';
+    window.GL_PLATFORM_CONFIG = {
+      id: 'jacamo',
+      label: 'JaCaMo',
+      sourceFolder: '/agt',
+      auxFolder: null,
+      sourceExt: '.asl',
+      auxExt: null,
+      sourceIcon: 'fa-file-code',
+      auxIcon: null,
+      buildFile: null,
+      buildFileName: null,
+      newSourceLabel: '+ ASL',
+      newAuxLabel: null,
+      storagePrefix: 'gl_runner_jacamo_',
+      defaultFile: '/agt/generator.asl',
+      enabled: true
+    };
+  </script>
+  <script defer src="js/search.js"></script>
+  <script defer src="js/run-code-links.js?v=2"></script>
+  <script defer src="js/code-runner-api-select.js?v=8"></script>
+  <script defer src="js/code-runner-stop.js?v=3"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Inter, system-ui, -apple-system, sans-serif; background: transparent; color: #111827; }
+    /* Strip header/sidebar chrome when inside an iframe */
+    .top, .side, .sidebar-backdrop { display: none !important; }
+    .layout { display: block !important; }
+    body { background: transparent !important; }
+    body .main {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding: 0 4px !important;
+      margin: 0 !important;
+    }
+    body .main > h1 { display: none !important; }
+
+    #run-code { margin: 0; }
 
     .runner-card {
-      background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
-      padding: 14px 22px; box-shadow: 0 10px 30px rgba(15,23,42,.06);
-      max-width: none; width: 100%; margin-bottom: 8px;
+      background: var(--color-surface, #fff);
+      border: 1px solid var(--color-border, #e5e7eb);
+      border-radius: 14px;
+      padding: 14px 22px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+      max-width: none;
+      width: 100%;
+      margin-bottom: 2px
     }
-    .runner-card h2 { margin: 0 0 8px; font-size: 18px; }
+    .runner-card h2{margin:0 0 8px;font-size:18px}
 
     .runner-project {
-      display: grid; grid-template-columns: 195px minmax(0,1fr);
-      column-gap: 4px; row-gap: 14px; align-items: stretch;
+      display: grid;
+      grid-template-columns: 195px minmax(0, 1fr);
+      column-gap: 4px;
+      row-gap: 14px;
+      align-items: stretch
     }
 
-    /* File tree */
     .runner-files {
-      border: 1px solid #1f2937; border-radius: 12px; overflow: hidden;
-      background: #0b1220; color: #d1fae5; align-self: stretch;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0b1220;
+      color: #d1fae5;
+      min-height: auto;
+      height: auto;
+      align-self: stretch;
+      box-sizing: border-box
     }
+
     .runner-files-head {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px; background: #111827;
-      border-bottom: 1px solid #1f2937; font-size: 12px; font-weight: 800; color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      font-size: 12px;
+      font-weight: 800;
+      color: #e5e7eb
     }
+
     .runner-file-actions {
-      display: flex; gap: 6px; flex-wrap: wrap; padding: 10px;
-      border-bottom: 1px solid #1f2937; background: #0f172a;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 10px;
+      border-bottom: 1px solid #1f2937;
+      background: #0f172a
     }
+
     .runner-mini-button {
-      border: 1px solid rgba(52,211,153,.35); border-radius: 999px;
-      background: rgba(52,211,153,.12); color: #34d399;
-      font-size: 11px; font-weight: 800; padding: 5px 9px; cursor: pointer;
+      border: 1px solid rgba(52, 211, 153, .35);
+      border-radius: 999px;
+      background: rgba(52, 211, 153, .12);
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 9px;
+      cursor: pointer
     }
-    .runner-mini-button:hover { background: #059669; color: #fff; border-color: #059669; }
-
-    .runner-root { padding: 8px 6px; border-bottom: 1px solid #1f2937; }
-    .runner-root-title {
-      display: flex; align-items: center; gap: 8px;
-      padding: 3px 4px 7px; color: #34d399; font-size: 13px; font-weight: 900;
-    }
-    .runner-file {
-      display: flex; align-items: center; gap: 6px; width: 100%; border: 0;
-      border-radius: 7px; background: transparent; color: #d1fae5;
-      text-align: left; padding: 5px 6px; margin: 1px 0; cursor: pointer;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 12.5px; line-height: 1.25;
-    }
-    .runner-file:hover, .runner-file.active { background: #1f2937; color: #fff; }
-    .runner-empty-folder {
-      padding: 4px 8px 8px; color: #64748b; font-size: 11px; font-style: italic;
+    .runner-mini-button:hover {
+      background: #059669;
+      color: #fff;
+      border-color: #059669
     }
 
-    /* Editor */
-    .runner-editor-wrap { min-width: 0; display: flex; flex-direction: column; align-self: stretch; height: 100%; }
-    .runner-current-file {
-      display: flex; align-items: center; gap: 8px;
-      background: #111827; color: #e5e7eb; border: 1px solid #1f2937;
-      border-bottom: 0; border-radius: 12px 12px 0 0; padding: 9px 13px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13px; font-weight: 800;
-    }
-    .runner-editor {
-      flex: 1; min-height: 0; resize: vertical; width: 100%;
-      margin: 0; padding: 16px; overflow: auto;
-      background: #0b1220; color: #d1fae5; font-size: 13px; line-height: 1.55;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      border: 1px solid #1f2937; border-radius: 0 0 12px 12px;
-      outline: none; white-space: pre; tab-size: 4;
-    }
-    .runner-editor:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.18); }
+    .runner-root { padding: 8px 6px; border-bottom: 1px solid #1f2937 }
+    .runner-root-title { display: flex; align-items: center; gap: 8px; padding: 3px 4px 7px; color: #34d399; font-size: 12px; font-weight: 900 }
+    .runner-file { display: flex; align-items: center; gap: 6px; width: 100%; border: 0; border-radius: 7px; background: transparent; color: #d1fae5; text-align: left; padding: 5px 6px; margin: 1px 0; cursor: pointer; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; line-height: 1.25 }
+    .runner-file:hover, .runner-file.active { background: #1f2937; color: #fff }
+    .runner-files .runner-file { font-size: 12.5px }
+    .runner-files .runner-root-title { font-size: 13px }
+    .runner-files .runner-folder-name { font-size: 12.5px }
+    .runner-empty-folder { padding: 4px 8px 8px; color: #64748b; font-size: 11px; font-style: italic }
 
-    /* Output */
-    .runner-output {
-      width: 100%; margin: 0; padding: 16px; overflow: auto;
-      background: #0b1220; color: #d1fae5; font-size: 13px; line-height: 1.55;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      min-height: 230px; white-space: pre-wrap; border-radius: 12px;
-      border: 1px solid #1f2937; resize: both;
-    }
+    .runner-editor-wrap{min-width:0;display:flex;flex-direction:column;align-self:stretch;height:100%}.runner-current-file{display:flex;align-items:center;gap:8px;background:#111827;color:#e5e7eb;border:1px solid #1f2937;border-bottom:0;border-radius:12px 12px 0 0;padding:9px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:13px;font-weight:800}.runner-editor,.runner-output{width:100%;box-sizing:border-box;margin:0;padding:16px;overflow:auto;background:#0b1220;color:#d1fae5;font-size:13px;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}.runner-editor{flex:1;min-height:0;resize:vertical;border:1px solid #1f2937;border-radius:0 0 12px 12px;outline:none;white-space:pre;tab-size:4}.runner-editor:focus{border-color:var(--color-green-700,#059669);box-shadow:0 0 0 3px rgba(5,150,105,.18)}.runner-output{min-height:230px;white-space:pre-wrap;border-radius:12px;border:1px solid #1f2937;resize:both}
 
-    /* Toolbar */
-    .runner-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0 4px; }
-    .runner-button {
-      display: inline-flex; align-items: center; gap: 9px; border: 0;
-      border-radius: 10px; padding: 10px 14px; font-weight: 800; cursor: pointer;
-      color: #fff; background: #059669; font-size: 13px;
-    }
-    .runner-button:disabled { cursor: wait; opacity: .65; }
-    .runner-secondary { color: #111827; background: transparent; border: 1px solid #e5e7eb; }
-    .runner-status { font-size: 13px; font-weight: 800; color: #4b5563; }
+    .runner-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0 4px }
+    .runner-button { display: inline-flex; align-items: center; gap: 9px; border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 800; cursor: pointer; color: #fff; background: var(--color-green-700, #059669); font-size: 13px }
+    .runner-button:disabled { cursor: wait; opacity: .65 }
+    .runner-secondary { color: var(--color-text, #111827); background: transparent; border: 1px solid var(--color-border, #e5e7eb) }
+    .runner-status { font-size: 13px; font-weight: 800; color: var(--color-text-secondary, #4b5563) }
+    .runner-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 4px 0 0 }
+    .runner-meta div { border: 1px solid var(--color-border, #e5e7eb); border-radius: 8px; padding: 6px 10px; font-size: 11px; color: var(--color-text-secondary, #4b5563) }
+    .runner-meta strong { display: block; color: var(--color-text, #111827); font-size: 12px; margin-top: 2px }
 
-    /* Meta */
-    .runner-meta { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; margin: 4px 0 0; }
-    .runner-meta div { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; font-size: 11px; color: #4b5563; }
-    .runner-meta strong { display: block; color: #111827; font-size: 12px; margin-top: 2px; }
-
-    /* API Key panel */
-    .runner-key-panel { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; padding: 16px; margin: 14px 0 0; }
-    .runner-key-panel[hidden] { display: none !important; }
-    .runner-key-panel h3 { margin: 0 0 8px; font-size: 16px; }
-    .runner-key-intro { margin: 0 0 12px; color: #4b5563; font-size: 14px; line-height: 1.55; }
-    .runner-key-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
-    .runner-key-row { display: flex; flex-direction: column; gap: 6px; }
-    .runner-key-row[hidden] { display: none !important; }
-    .runner-key-row label { font-size: 13px; font-weight: 800; color: #111827; }
-    .runner-key-row input { width: 100%; border: 1px solid #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 14px; background: #fff; color: #111827; }
+    .runner-key-panel { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; padding: 16px; margin: 14px 0 0 }
+    .runner-key-panel[hidden] { display: none !important }
 
     @media(max-width:900px) {
-      .runner-project { grid-template-columns: 1fr; }
-      .runner-meta { grid-template-columns: 1fr; }
+      .runner-project { grid-template-columns: 1fr }
+      .runner-files { min-height: auto }
+      .runner-meta { grid-template-columns: 1fr }
     }
   </style>
 </head>
 <body>
-  <div style="padding: 4px;">
-    <div class="runner-card">
-      <div class="runner-project">
-        <div class="runner-files">
-          <div class="runner-files-head"><span>Project files</span></div>
-          <div class="runner-file-actions">
-            <button class="runner-mini-button" id="newAslButton" type="button"><i class="fa-solid fa-plus"></i> ASL</button>
-            <button class="runner-mini-button" id="deleteFileButton" type="button"><i class="fa-solid fa-trash-can"></i></button>
+  <!-- Minimal layout: no header/sidebar needed inside iframe -->
+  <div class="layout">
+    <main class="main">
+      <section id="run-code">
+        <div class="runner-card">
+          <div class="runner-project">
+            <div class="runner-files">
+              <div class="runner-files-head"><span>Project files</span></div>
+              <div class="runner-file-actions"><button class="runner-mini-button" id="newAstraFileButton"
+                  type="button">+ ASL</button><button class="runner-mini-button" id="renameFileButton" type="button"><i
+                    class="fa-solid fa-pen"></i></button><button class="runner-mini-button" id="deleteFileButton"
+                  type="button"><i class="fa-solid fa-trash-can"></i></button></div>
+              <div id="fileTree"></div>
+            </div>
+            <div class="runner-editor-wrap">
+              <div class="runner-current-file"><i class="fa-regular fa-file-code"></i><span
+                  id="currentFile">/agt/generator.asl</span></div><textarea class="runner-editor" id="fileEditor"
+                spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            </div>
           </div>
-          <div id="fileTree"></div>
+          <div class="runner-toolbar"><button class="runner-button" id="runAstraButton" type="button"><i
+                class="fa-solid fa-play"></i><span>Run Project</span></button><button
+              class="runner-button runner-secondary" id="clearOutputButton" type="button"><i
+                class="fa-solid fa-eraser"></i><span>Clear Output</span></button><span class="runner-status"
+              id="runnerStatus">Ready</span></div>
+          <div class="runner-meta">
+            <div>Status<strong id="metaStatus">Idle</strong></div>
+            <div>Return code<strong id="metaReturnCode">&mdash;</strong></div>
+            <div>Elapsed<strong id="metaElapsed">&mdash;</strong></div>
+          </div>
         </div>
-        <div class="runner-editor-wrap">
-          <div class="runner-current-file"><i class="fa-regular fa-file-code"></i><span id="currentFile">/agt/generator.asl</span></div>
-          <textarea class="runner-editor" id="fileEditor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-        </div>
-      </div>
-      <!-- API Key panel -->
-      <div class="runner-key-panel" id="apiKeyPanel" hidden>
-        <h3><i class="fa-solid fa-key" style="margin-right:8px;color:#d97706;"></i>API key required</h3>
-        <p class="runner-key-intro">This project uses an LLM provider. Fill the required key before running.</p>
-        <div class="runner-key-grid">
-          <div class="runner-key-row" id="rowCerebras" hidden><label>CEREBRAS_API_KEY</label><input id="keyCerebras" type="password" placeholder="Paste Cerebras key"></div>
-          <div class="runner-key-row" id="rowGroq" hidden><label>GROQ_API_KEY</label><input id="keyGroq" type="password" placeholder="Paste Groq key"></div>
-          <div class="runner-key-row" id="rowGemini" hidden><label>GEMINI_API_KEY</label><input id="keyGemini" type="password" placeholder="Paste Gemini key"></div>
-          <div class="runner-key-row" id="rowOpenai" hidden><label>OPENAI_API_KEY</label><input id="keyOpenai" type="password" placeholder="Paste OpenAI key"></div>
-          <div class="runner-key-row" id="rowDeepseek" hidden><label>DEEPSEEK_API_KEY</label><input id="keyDeepseek" type="password" placeholder="Paste DeepSeek key"></div>
-        </div>
-      </div>
-      <div class="runner-toolbar">
-        <button class="runner-button" id="runButton" type="button"><i class="fa-solid fa-play"></i><span>Run Project</span></button>
-        <button class="runner-button runner-secondary" id="clearButton" type="button"><i class="fa-solid fa-eraser"></i><span>Clear Output</span></button>
-        <span class="runner-status" id="statusText">Ready</span>
-      </div>
-      <div class="runner-meta">
-        <div>Status<strong id="metaStatus">Idle</strong></div>
-        <div>Return code<strong id="metaCode">&mdash;</strong></div>
-        <div>Elapsed<strong id="metaElapsed">&mdash;</strong></div>
-      </div>
-    </div>
-    <div class="runner-card">
-      <h2>Server output</h2>
-      <pre class="runner-output" id="output">Create or edit .asl files, then press "Run Project".
+        <div class="runner-card">
+          <h2>Server output</h2>
+          <pre class="runner-output"
+            id="runnerOutput">Create or edit .asl files, then press "Run Project".
 JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
-    </div>
+        </div>
+      </section>
+    </main>
   </div>
-
   <script>
   (() => {
+    'use strict';
     const RUN_URL = 'https://code.generativelayers.com/api/run-jacamo';
     const CANCEL_URL = 'https://code.generativelayers.com/api/cancel-jacamo';
-    const STORAGE_KEY = 'gl-jacamo-project';
+    const STORAGE_KEY = 'gl_runner_jacamo_project';
+    const SOURCE_FOLDER = '/agt';
+    const SOURCE_EXT = '.asl';
+    const DEFAULT_FILE = '/agt/generator.asl';
 
     const DEFAULT_SOURCE = [
       '// JaCaMo Hello World with Generative Layers + CArtAgO',
@@ -186,44 +209,18 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
       '      .stopMAS.'
     ].join('\n');
 
-    const PROVIDERS = {
-      cerebras: { env: 'CEREBRAS_API_KEY', el: null },
-      groq: { env: 'GROQ_API_KEY', el: null },
-      gemini: { env: 'GEMINI_API_KEY', el: null },
-      openai: { env: 'OPENAI_API_KEY', el: null },
-      deepseek: { env: 'DEEPSEEK_API_KEY', el: null },
-    };
-
-    let files = { '/agt/generator.asl': DEFAULT_SOURCE };
-    let currentPath = '/agt/generator.asl';
+    let files = { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    let currentPath = DEFAULT_FILE;
     let runAbort = null;
 
     const $ = id => document.getElementById(id);
 
     const els = {
       tree: $('fileTree'), editor: $('fileEditor'), curFile: $('currentFile'),
-      run: $('runButton'), clear: $('clearButton'), status: $('statusText'),
-      output: $('output'), metaStatus: $('metaStatus'), metaCode: $('metaCode'),
-      metaElapsed: $('metaElapsed'), apiPanel: $('apiKeyPanel'),
+      run: $('runAstraButton'), clear: $('clearOutputButton'), status: $('runnerStatus'),
+      output: $('runnerOutput'), metaStatus: $('metaStatus'),
+      metaCode: $('metaReturnCode'), metaElapsed: $('metaElapsed'),
     };
-
-    // ── Provider key UI ──
-    const PROVIDER_RE = /gl\.use_provider\(\s*"?(cerebras|groq|gemini|openai|deepseek)"?\s*\)/gi;
-    function updateKeyUI() {
-      const all = Object.values(files).join('\n');
-      const needed = new Set();
-      let m; while ((m = PROVIDER_RE.exec(all)) !== null) needed.add(m[1].toLowerCase());
-      PROVIDER_RE.lastIndex = 0;
-      let anyVisible = false;
-      for (const [p, cfg] of Object.entries(PROVIDERS)) {
-        const row = $('row' + p[0].toUpperCase() + p.slice(1));
-        const input = $('key' + p[0].toUpperCase() + p.slice(1));
-        cfg.el = input;
-        if (needed.has(p)) { row.hidden = false; anyVisible = true; }
-        else { row.hidden = true; }
-      }
-      els.apiPanel.hidden = !anyVisible;
-    }
 
     // ── File tree ──
     function saveFile() {
@@ -240,12 +237,12 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
 
     function renderTree() {
       saveFile();
-      const agtFiles = Object.keys(files).filter(p => p.startsWith('/agt/')).sort();
+      const aslFiles = Object.keys(files).filter(p => p.startsWith(SOURCE_FOLDER + '/')).sort();
       let html = '<div class="runner-root">';
       html += '<div class="runner-root-title"><i class="fa-solid fa-folder-open"></i> agt</div>';
-      if (agtFiles.length === 0) html += '<div class="runner-empty-folder">empty</div>';
-      for (const p of agtFiles) {
-        const name = p.replace('/agt/', '');
+      if (aslFiles.length === 0) html += '<div class="runner-empty-folder">empty</div>';
+      for (const p of aslFiles) {
+        const name = p.replace(SOURCE_FOLDER + '/', '');
         const active = p === currentPath ? ' active' : '';
         html += `<button type="button" class="runner-file${active}" data-path="${p}"><i class="fa-solid fa-file-code" style="color:#34d399"></i><span>${name}</span></button>`;
       }
@@ -257,36 +254,56 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
     }
 
     // ── New file ──
-    $('newAslButton').addEventListener('click', () => {
+    $('newAstraFileButton').addEventListener('click', () => {
       saveFile();
       const raw = prompt('New ASL file inside /agt', 'agent.asl');
       if (!raw) return;
       let name = raw.trim();
-      if (!name.endsWith('.asl')) name += '.asl';
+      if (!name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
       if (!/^[A-Za-z0-9_.-]+$/.test(name)) { alert('Invalid filename'); return; }
-      const path = '/agt/' + name;
+      const path = SOURCE_FOLDER + '/' + name;
       if (files.hasOwnProperty(path)) { alert('File already exists'); return; }
-      const agentName = name.replace('.asl', '');
+      const agentName = name.replace(SOURCE_EXT, '');
       files[path] = `// Agent: ${agentName}\n\n!start.\n\n+!start\n   <- .println("${agentName} started");\n      .stopMAS.\n`;
       currentPath = path;
       els.editor.value = files[path];
       els.curFile.textContent = path;
       renderTree();
-      updateKeyUI();
+      saveState();
+    });
+
+    // ── Rename file ──
+    $('renameFileButton').addEventListener('click', () => {
+      saveFile();
+      if (!currentPath) return;
+      const oldName = currentPath.split('/').pop();
+      const raw = prompt('Rename file:', oldName);
+      if (!raw || raw.trim() === oldName) return;
+      let name = raw.trim();
+      if (!name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
+      if (!/^[A-Za-z0-9_.-]+$/.test(name)) { alert('Invalid filename'); return; }
+      const newPath = SOURCE_FOLDER + '/' + name;
+      if (files.hasOwnProperty(newPath)) { alert('File already exists'); return; }
+      files[newPath] = files[currentPath];
+      delete files[currentPath];
+      currentPath = newPath;
+      els.curFile.textContent = currentPath;
+      renderTree();
+      saveState();
     });
 
     // ── Delete file ──
     $('deleteFileButton').addEventListener('click', () => {
       saveFile();
-      if (!currentPath || currentPath === '/agt/generator.asl') { alert('Cannot delete generator.asl'); return; }
+      if (!currentPath || currentPath === DEFAULT_FILE) { alert('Cannot delete generator.asl'); return; }
       if (!confirm(`Delete ${currentPath}?`)) return;
       delete files[currentPath];
-      currentPath = Object.keys(files)[0] || '/agt/generator.asl';
+      currentPath = Object.keys(files)[0] || DEFAULT_FILE;
       if (!files[currentPath]) files[currentPath] = DEFAULT_SOURCE;
       els.editor.value = files[currentPath];
       els.curFile.textContent = currentPath;
       renderTree();
-      updateKeyUI();
+      saveState();
     });
 
     // ── Build payload ──
@@ -299,31 +316,30 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
       // Additional .asl files
       for (const [path, content] of Object.entries(files)) {
         if (path === firstFile) continue;
-        if (path.startsWith('/agt/')) {
-          payload.files['src/agt/' + path.slice('/agt/'.length)] = content;
+        if (path.startsWith(SOURCE_FOLDER + '/')) {
+          payload.files['src/agt/' + path.slice((SOURCE_FOLDER + '/').length)] = content;
         }
       }
 
       // Auto-generate mas2j with CArtAgO environment
       const agents = Object.keys(files)
-        .filter(p => p.startsWith('/agt/') && p.endsWith('.asl'))
-        .map(p => p.replace('/agt/', '').replace('.asl', ''));
+        .filter(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT))
+        .map(p => p.replace(SOURCE_FOLDER + '/', '').replace(SOURCE_EXT, ''));
       if (agents.length > 0) {
         const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
         payload.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "src/agt";\n}\n`;
       }
 
-      // API keys
-      for (const [p, cfg] of Object.entries(PROVIDERS)) {
-        if (cfg.el && cfg.el.value.trim()) {
-          payload.api_keys[cfg.env] = cfg.el.value.trim();
-        }
+      // API keys from the smart panel
+      if (typeof window.__glGetApiKeys === 'function') {
+        payload.api_keys = window.__glGetApiKeys();
       }
 
       return payload;
     }
 
     // ── Run ──
+    let startTime = 0;
     async function runProject() {
       if (runAbort) { runAbort.abort(); runAbort = null; }
 
@@ -337,7 +353,14 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
       const payload = buildPayload();
       const controller = new AbortController();
       runAbort = controller;
-      const startTime = Date.now();
+      startTime = Date.now();
+      window.__glRunStartTime = startTime;
+
+      // Live elapsed timer
+      if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
+      window.__glElapsedTimer = setInterval(() => {
+        if (startTime) els.metaElapsed.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+      }, 200);
 
       try {
         const resp = await fetch(RUN_URL, {
@@ -405,6 +428,7 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
         els.run.disabled = false;
         els.status.textContent = 'Ready';
         runAbort = null;
+        if (window.__glElapsedTimer) { clearInterval(window.__glElapsedTimer); window.__glElapsedTimer = null; }
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
         if (els.metaElapsed.textContent === '\u2014') els.metaElapsed.textContent = elapsed + 's';
       }
@@ -421,9 +445,7 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
     // ── Persistence ──
     function saveState() {
       saveFile();
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath }));
-      } catch (e) {}
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath })); } catch (e) {}
     }
 
     function loadState() {
@@ -440,33 +462,31 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
     }
 
     // Auto-save on changes
-    els.editor.addEventListener('input', () => { saveState(); updateKeyUI(); });
+    els.editor.addEventListener('input', () => saveState());
     setInterval(saveState, 5000);
 
     // ── Parent message handling ──
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'gl-api-keys') {
         const keys = e.data.keys || {};
-        for (const [provider, value] of Object.entries(keys)) {
-          const input = $('key' + provider[0].toUpperCase() + provider.slice(1));
-          if (input) input.value = value;
-        }
+        document.querySelectorAll('[data-gl-key]').forEach(input => {
+          if (keys[input.dataset.glEnv]) input.value = keys[input.dataset.glEnv];
+        });
       }
       if (e.data && e.data.type === 'gl-load-code') {
         const payload = e.data.payload;
         if (payload && payload.source) {
-          files = { '/agt/generator.asl': payload.source };
+          files = { [DEFAULT_FILE]: payload.source };
           if (payload.files) {
             for (const [rel, content] of Object.entries(payload.files)) {
               const m = rel.match(/src\/agt\/(.+\.asl)$/);
-              if (m) files['/agt/' + m[1]] = content;
+              if (m) files[SOURCE_FOLDER + '/' + m[1]] = content;
             }
           }
-          currentPath = '/agt/generator.asl';
+          currentPath = DEFAULT_FILE;
           els.editor.value = files[currentPath];
           els.curFile.textContent = currentPath;
           renderTree();
-          updateKeyUI();
           saveState();
         }
       }
@@ -479,24 +499,34 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
       try {
         const payload = JSON.parse(decodeURIComponent(hash.slice('#load='.length)));
         if (payload && payload.source) {
-          files = { '/agt/generator.asl': payload.source };
-          currentPath = '/agt/generator.asl';
+          files = { [DEFAULT_FILE]: payload.source };
+          currentPath = DEFAULT_FILE;
           els.editor.value = files[currentPath];
           els.curFile.textContent = currentPath;
           renderTree();
-          updateKeyUI();
           saveState();
         }
       } catch (e) { console.warn('Could not load from hash', e); }
     }
 
+    // ── Expose GLRunner for external loading ──
+    window.GLRunner = {
+      loadSource(source, title) {
+        files = { [DEFAULT_FILE]: source };
+        currentPath = DEFAULT_FILE;
+        els.editor.value = files[currentPath];
+        els.curFile.textContent = currentPath;
+        renderTree();
+        saveState();
+      }
+    };
+
     // ── Init ──
     loadState();
-    loadFromHash(); // override with hash if present
+    loadFromHash();
     els.editor.value = files[currentPath] || DEFAULT_SOURCE;
     els.curFile.textContent = currentPath;
     renderTree();
-    updateKeyUI();
   })();
   </script>
 </body>
