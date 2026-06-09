@@ -383,8 +383,9 @@ JaCaMo adds CArtAgO artifacts and organisation on top of Jason agents.</pre>
             els.metaCode.textContent = '0';
           } else if (footer.startsWith('Exited with code')) {
             const code = footer.match(/code (\S+)/);
-            els.metaStatus.textContent = 'Failed';
-            els.metaCode.textContent = code ? code[1] : '?';
+            const codeVal = code ? code[1] : '?';
+            els.metaStatus.textContent = (codeVal === '0' || codeVal === 'None') ? 'Completed' : 'Failed';
+            els.metaCode.textContent = codeVal;
           } else if (footer.startsWith('Timed out')) {
             els.metaStatus.textContent = 'Timed out';
           }
