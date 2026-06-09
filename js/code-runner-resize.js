@@ -1,10 +1,12 @@
 /**
- * code-runner-resize.js  v8
+ * code-runner-resize.js  v9
  *
- * Three custom resizers:
- *   1. Horizontal splitter: resize file-tree column width.
- *   2. Vertical splitter: resize editor height (below gl-diag-panel).
- *   3. Output resizer: bottom-right corner handle on .runner-output.
+ * Custom green drag-bar resizers:
+ *   1. File-tree horizontal splitter (between file tree and editor)
+ *   2. Editor vertical splitter (below gl-diag-panel, changes editor height)
+ *   3. Editor right-side splitter (changes editor-wrap width)
+ *   4. Output bottom splitter (changes output height)
+ *   5. Output right-side splitter (changes output width)
  */
 (() => {
   'use strict';
@@ -13,11 +15,14 @@
   const MAX_FILES_W = 500;
   const MIN_EDITOR_H = 120;
   const MAX_EDITOR_H = 1200;
+  const MIN_EDITOR_W = 300;
   const MIN_OUTPUT_W = 200;
-  const MIN_OUTPUT_H = 100;
+  const MIN_OUTPUT_H = 80;
+  const MAX_OUTPUT_H = 1200;
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+  /* ── Shared splitter bar CSS ──────────────────────────── */
   function addStyles() {
     if (document.getElementById('gl-resize-style')) return;
     const s = document.createElement('style');
@@ -46,36 +51,12 @@
         min-height: 0 !important;
         resize: none !important;
       }
-      /* Ensure overlay doesn't block anything */
       .runner-project.resizable .hl-overlay {
         pointer-events: none;
       }
 
-      /* ── Horizontal splitter (file tree ↔ editor) ── */
-      .runner-hsplitter {
-        cursor: col-resize;
-        background: transparent;
-        position: relative;
-        z-index: 12;
-        border-radius: 4px;
-        transition: background 0.15s;
-        align-self: stretch;
-      }
-      .runner-hsplitter:hover, .runner-hsplitter.dragging {
-        background: rgba(52,211,153,0.4);
-      }
-      .runner-hsplitter::after {
-        content:''; position:absolute; top:50%; left:50%;
-        transform:translate(-50%,-50%); width:2px; height:30px;
-        border-radius:2px; background:rgba(52,211,153,0.35);
-        transition: background 0.15s, height 0.15s;
-      }
-      .runner-hsplitter:hover::after, .runner-hsplitter.dragging::after {
-        background:#34d399; height:50px;
-      }
-
-      /* ── Vertical splitter (editor height) ── */
-      .runner-vsplitter {
+      /* ── Vertical splitter bar (drag up/down → height) ── */
+      .gl-vsplitter {
         height: 8px;
         cursor: row-resize;
         background: transparent;
@@ -85,49 +66,72 @@
         transition: background 0.15s;
         flex-shrink: 0;
       }
-      .runner-vsplitter:hover, .runner-vsplitter.dragging {
+      .gl-vsplitter:hover, .gl-vsplitter.dragging {
         background: rgba(52,211,153,0.4);
       }
-      .runner-vsplitter::after {
+      .gl-vsplitter::after {
         content:''; position:absolute; left:50%; top:50%;
         transform:translate(-50%,-50%); height:2px; width:40px;
         border-radius:2px; background:rgba(52,211,153,0.35);
         transition: background 0.15s, width 0.15s;
       }
-      .runner-vsplitter:hover::after, .runner-vsplitter.dragging::after {
+      .gl-vsplitter:hover::after, .gl-vsplitter.dragging::after {
         background:#34d399; width:70px;
       }
 
-      /* ── Output corner resizer ── */
-      .runner-output-resizer {
-        position: absolute;
-        right: 0; bottom: 0;
-        width: 18px; height: 18px;
-        cursor: nwse-resize;
-        z-index: 14;
+      /* ── Horizontal splitter bar (drag left/right → width) ── */
+      .gl-hsplitter {
+        cursor: col-resize;
         background: transparent;
-        transition: background 0.15s;
-      }
-      .runner-output-resizer:hover, .runner-output-resizer.dragging {
-        background: rgba(52,211,153,0.25);
-        border-radius: 4px 0 12px 0;
-      }
-      .runner-output-resizer::after {
-        content: '';
-        position: absolute;
-        right: 4px; bottom: 4px;
-        width: 8px; height: 8px;
-        border-right: 2px solid rgba(52,211,153,0.5);
-        border-bottom: 2px solid rgba(52,211,153,0.5);
-        transition: border-color 0.15s;
-      }
-      .runner-output-resizer:hover::after, .runner-output-resizer.dragging::after {
-        border-color: #34d399;
-      }
-      .runner-output-wrap {
         position: relative;
+        z-index: 12;
+        border-radius: 4px;
+        transition: background 0.15s;
+        align-self: stretch;
       }
-      .runner-output-wrap .runner-output {
+      .gl-hsplitter:hover, .gl-hsplitter.dragging {
+        background: rgba(52,211,153,0.4);
+      }
+      .gl-hsplitter::after {
+        content:''; position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%); width:2px; height:30px;
+        border-radius:2px; background:rgba(52,211,153,0.35);
+        transition: background 0.15s, height 0.15s;
+      }
+      .gl-hsplitter:hover::after, .gl-hsplitter.dragging::after {
+        background:#34d399; height:50px;
+      }
+
+      /* ── File-tree specific (sits in the grid) ── */
+      .runner-hsplitter { width: 6px; }
+
+      /* ── Right-side splitter (inline-flex alongside target) ── */
+      .gl-right-splitter { width: 8px; flex-shrink: 0; }
+
+      /* ── Wrappers for right-side splitter layout ── */
+      .gl-hresizable-row {
+        display: flex !important;
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .gl-hresizable-row > :first-child {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* ── Output wrapping ── */
+      .gl-output-vrow {
+        display: flex;
+        flex-direction: column;
+      }
+      .gl-output-hrow {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .gl-output-hrow .runner-output {
+        flex: 1;
+        min-width: 0;
         resize: none !important;
       }
 
@@ -135,11 +139,47 @@
       body.gl-resizing { user-select:none!important; }
       body.gl-resizing-h { cursor:col-resize!important; }
       body.gl-resizing-v { cursor:row-resize!important; }
-      body.gl-resizing-nwse { cursor:nwse-resize!important; }
     `;
     document.head.appendChild(s);
   }
 
+  /* ── Drag helper ─────────────────────────────────────── */
+  function makeDrag(el, axis, onMove, onEnd) {
+    let dragging = false, startPos = 0, startVal = 0;
+    const isH = axis === 'h';
+    const cursorClass = isH ? 'gl-resizing-h' : 'gl-resizing-v';
+
+    el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      dragging = true;
+      startPos = isH ? e.clientX : e.clientY;
+      startVal = onMove(null); // null = return current value
+      el.classList.add('dragging');
+      document.body.classList.add('gl-resizing', cursorClass);
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const delta = (isH ? e.clientX : e.clientY) - startPos;
+      onMove(startVal + delta);
+    });
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      document.body.classList.remove('gl-resizing', cursorClass);
+      if (onEnd) onEnd();
+    });
+  }
+
+  /* ── Create a splitter element ──────────────────────── */
+  function makeSplitter(axis, title, extraClass) {
+    const el = document.createElement('div');
+    el.className = (axis === 'h' ? 'gl-hsplitter' : 'gl-vsplitter') + (extraClass ? ' ' + extraClass : '');
+    el.title = title;
+    return el;
+  }
+
+  /* ══════════════════════════════════════════════════════ */
   function init() {
     const project = document.querySelector('.runner-project');
     const filesPanel = project && project.querySelector('.runner-files');
@@ -149,160 +189,121 @@
     project.dataset.resizeReady = '1';
     addStyles();
 
-    // ── Set initial widths ──
+    // ── 1. File-tree horizontal splitter ──────────────
     const currentW = filesPanel.getBoundingClientRect().width || 195;
     project.style.setProperty('--files-w', currentW + 'px');
 
-    // ── Insert horizontal splitter (file tree ↔ editor) ──
-    const hSplit = document.createElement('div');
-    hSplit.className = 'runner-hsplitter';
-    hSplit.title = 'Drag to resize file tree';
-    project.insertBefore(hSplit, editorWrap);
+    const filesSplitter = makeSplitter('h', 'Drag to resize file tree', 'runner-hsplitter');
+    project.insertBefore(filesSplitter, editorWrap);
     project.classList.add('resizable');
 
-    // ── Horizontal splitter drag ──
-    let hDragging = false, hStartX = 0, hStartW = 0;
-    hSplit.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      hDragging = true;
-      hStartX = e.clientX;
-      hStartW = filesPanel.getBoundingClientRect().width;
-      hSplit.classList.add('dragging');
-      document.body.classList.add('gl-resizing', 'gl-resizing-h');
-    });
-    document.addEventListener('mousemove', (e) => {
-      if (!hDragging) return;
-      const w = clamp(hStartW + (e.clientX - hStartX), MIN_FILES_W, MAX_FILES_W);
-      project.style.setProperty('--files-w', w + 'px');
-    });
-    document.addEventListener('mouseup', () => {
-      if (!hDragging) return;
-      hDragging = false;
-      hSplit.classList.remove('dragging');
-      document.body.classList.remove('gl-resizing', 'gl-resizing-h');
+    makeDrag(filesSplitter, 'h', (v) => {
+      if (v === null) return filesPanel.getBoundingClientRect().width;
+      project.style.setProperty('--files-w', clamp(v, MIN_FILES_W, MAX_FILES_W) + 'px');
     });
 
-    // ── Insert vertical splitter (below diag panel / below editor) ──
-    setupVerticalSplitter(editorWrap);
+    // ── 2. Editor vertical splitter + 3. Editor right splitter ──
+    setupEditorResizers(editorWrap, project);
 
-    // ── Output resizer ──
-    setupOutputResizer();
+    // ── 4+5. Output bottom + right splitters ──
+    setupOutputResizers();
   }
 
-  function setupVerticalSplitter(editorWrap) {
-    // Wait for hl-editor-wrap to exist (highlight.js creates it)
+  /* ── Editor resizers ─────────────────────────────────── */
+  function setupEditorResizers(editorWrap, project) {
     const trySetup = () => {
       const hlWrap = editorWrap.querySelector('.hl-editor-wrap');
-      if (!hlWrap) {
-        setTimeout(trySetup, 200);
-        return;
-      }
+      if (!hlWrap) { setTimeout(trySetup, 200); return; }
 
-      // Set initial editor height from current size
+      // Set initial height
       const initialH = hlWrap.getBoundingClientRect().height || 460;
-      hlWrap.closest('.runner-project').style.setProperty('--editor-h', initialH + 'px');
+      project.style.setProperty('--editor-h', initialH + 'px');
 
-      // Find insert point: after gl-diag-panel if it exists, otherwise after hl-editor-wrap
-      const insertAfter = () => {
-        const diagPanel = editorWrap.querySelector('.gl-diag-panel');
-        return diagPanel || hlWrap;
-      };
-
-      // Create splitter
-      const vSplit = document.createElement('div');
-      vSplit.className = 'runner-vsplitter';
-      vSplit.title = 'Drag to resize editor height';
-
-      // Insert after the target element
+      // ── Vertical splitter (height) ──
+      const vSplit = makeSplitter('v', 'Drag to resize editor height');
+      const insertAfter = () => editorWrap.querySelector('.gl-diag-panel') || hlWrap;
       const target = insertAfter();
       target.parentNode.insertBefore(vSplit, target.nextSibling);
 
-      // Drag logic
-      let vDragging = false, vStartY = 0, vStartH = 0;
-      vSplit.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        vDragging = true;
-        vStartY = e.clientY;
-        vStartH = hlWrap.getBoundingClientRect().height;
-        vSplit.classList.add('dragging');
-        document.body.classList.add('gl-resizing', 'gl-resizing-v');
-      });
-      document.addEventListener('mousemove', (e) => {
-        if (!vDragging) return;
-        const h = clamp(vStartH + (e.clientY - vStartY), MIN_EDITOR_H, MAX_EDITOR_H);
-        hlWrap.closest('.runner-project').style.setProperty('--editor-h', h + 'px');
-      });
-      document.addEventListener('mouseup', () => {
-        if (!vDragging) return;
-        vDragging = false;
-        vSplit.classList.remove('dragging');
-        document.body.classList.remove('gl-resizing', 'gl-resizing-v');
+      makeDrag(vSplit, 'v', (v) => {
+        if (v === null) return hlWrap.getBoundingClientRect().height;
+        project.style.setProperty('--editor-h', clamp(v, MIN_EDITOR_H, MAX_EDITOR_H) + 'px');
       });
 
-      // Watch for gl-diag-panel appearing later and reposition splitter
-      const observer = new MutationObserver(() => {
+      // Watch for gl-diag-panel appearing and reposition
+      new MutationObserver(() => {
         const newTarget = insertAfter();
         if (vSplit.previousElementSibling !== newTarget) {
           newTarget.parentNode.insertBefore(vSplit, newTarget.nextSibling);
         }
-      });
-      observer.observe(editorWrap, { childList: true, subtree: true });
-    };
+      }).observe(editorWrap, { childList: true, subtree: true });
 
+      // ── Right-side splitter (width) ──
+      // Wrap the editor-wrap's grid cell content in a flex row
+      // We wrap the ENTIRE runner-editor-wrap content with a horizontal row + splitter
+      const rSplit = makeSplitter('h', 'Drag to resize editor width', 'gl-right-splitter');
+      editorWrap.appendChild(rSplit);
+
+      // Make editor-wrap a flex row with its content + right splitter? No—
+      // Better: we wrap the grid cell. The editor-wrap is the 3rd grid child.
+      // We insert a wrapper div in the grid that contains editor-wrap + right splitter.
+      // But that changes the grid. Instead, let's just use an absolutely-positioned
+      // right-edge splitter or make the editor-wrap overflow:visible.
+
+      // Simpler: place the right splitter as the last child of runner-editor-wrap,
+      // positioned absolutely on the right edge.
+      rSplit.style.cssText = 'position:absolute;right:-4px;top:0;bottom:0;width:8px;';
+      editorWrap.style.position = 'relative';
+
+      makeDrag(rSplit, 'h', (v) => {
+        if (v === null) return editorWrap.getBoundingClientRect().width;
+        editorWrap.style.maxWidth = Math.max(MIN_EDITOR_W, v) + 'px';
+      });
+    };
     trySetup();
   }
 
-  function setupOutputResizer() {
+  /* ── Output resizers ─────────────────────────────────── */
+  function setupOutputResizers() {
     const trySetup = () => {
       const output = document.querySelector('.runner-output');
-      if (!output) {
-        setTimeout(trySetup, 300);
-        return;
-      }
+      if (!output) { setTimeout(trySetup, 300); return; }
 
-      // Wrap output in a relative container if not already done
-      if (!output.parentElement.classList.contains('runner-output-wrap')) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'runner-output-wrap';
-        output.parentNode.insertBefore(wrapper, output);
-        wrapper.appendChild(output);
-      }
+      const card = output.closest('.runner-card');
+      if (!card || card.dataset.resizeReady === '1') return;
+      card.dataset.resizeReady = '1';
 
-      const wrapper = output.parentElement;
+      // ── Bottom splitter (height) ──
+      const bSplit = makeSplitter('v', 'Drag to resize output height');
+      // Insert after the output element
+      output.parentNode.insertBefore(bSplit, output.nextSibling);
 
-      // Create corner resizer handle
-      const handle = document.createElement('div');
-      handle.className = 'runner-output-resizer';
-      handle.title = 'Drag to resize output';
-      wrapper.appendChild(handle);
-
-      let oDragging = false, oStartX = 0, oStartY = 0, oStartW = 0, oStartH = 0;
-      handle.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        oDragging = true;
-        oStartX = e.clientX;
-        oStartY = e.clientY;
-        const rect = output.getBoundingClientRect();
-        oStartW = rect.width;
-        oStartH = rect.height;
-        handle.classList.add('dragging');
-        document.body.classList.add('gl-resizing', 'gl-resizing-nwse');
+      makeDrag(bSplit, 'v', (v) => {
+        if (v === null) return output.getBoundingClientRect().height;
+        output.style.height = Math.max(MIN_OUTPUT_H, v) + 'px';
+        output.style.minHeight = Math.max(MIN_OUTPUT_H, v) + 'px';
       });
-      document.addEventListener('mousemove', (e) => {
-        if (!oDragging) return;
-        const w = Math.max(MIN_OUTPUT_W, oStartW + (e.clientX - oStartX));
-        const h = Math.max(MIN_OUTPUT_H, oStartH + (e.clientY - oStartY));
-        output.style.width = w + 'px';
-        output.style.height = h + 'px';
-      });
-      document.addEventListener('mouseup', () => {
-        if (!oDragging) return;
-        oDragging = false;
-        handle.classList.remove('dragging');
-        document.body.classList.remove('gl-resizing', 'gl-resizing-nwse');
+
+      // ── Right splitter (width) ──
+      // Wrap output + bSplit in a container, then add right splitter
+      const hRow = document.createElement('div');
+      hRow.className = 'gl-output-hrow';
+      // Wrap output in the hRow
+      const vCol = document.createElement('div');
+      vCol.className = 'gl-output-vrow';
+      output.parentNode.insertBefore(hRow, output);
+      hRow.appendChild(vCol);
+      vCol.appendChild(output);
+      vCol.appendChild(bSplit);
+
+      const rSplit = makeSplitter('h', 'Drag to resize output width', 'gl-right-splitter');
+      hRow.appendChild(rSplit);
+
+      makeDrag(rSplit, 'h', (v) => {
+        if (v === null) return output.getBoundingClientRect().width;
+        output.style.width = Math.max(MIN_OUTPUT_W, v) + 'px';
       });
     };
-
     trySetup();
   }
 
