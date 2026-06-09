@@ -332,10 +332,7 @@
 
     panelEl.hidden = false;
 
-    const plural = providers.length > 1;
-    introEl.textContent = plural
-      ? `This code uses ${providers.length} LLM providers. Fill each required key before running.`
-      : `This code uses ${PROVIDERS[providers[0]].label}. Fill the API key before running.`;
+    introEl.innerHTML = 'Get your API key from <a href="providers.html#providers" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
 
     gridEl.innerHTML = providers.map(key => {
       const p = PROVIDERS[key];
