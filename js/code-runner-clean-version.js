@@ -6,8 +6,12 @@
     const replacements = [
       ['// Generative Layers v0.1.2 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
       ['// Generative Layers v0.1.3 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
+      ['// Generative Layers v0.1.4 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
+      ['// Generative Layers v0.1.5 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
       ['C.println("Generative Layers v0.1.2 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
-      ['C.println("Generative Layers v0.1.3 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");']
+      ['C.println("Generative Layers v0.1.3 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
+      ['C.println("Generative Layers v0.1.4 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
+      ['C.println("Generative Layers v0.1.5 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");']
     ];
 
     let updated = editor.value;
