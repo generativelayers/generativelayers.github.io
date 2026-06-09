@@ -59,7 +59,15 @@
     if (/\bconsole\./.test(src) && !/module\s+Console\s+console\s*;/.test(src)) modules.push('    module Console console;');
     if (/\bC\.println/.test(src) && !/module\s+Console\s+C\s*;/.test(src)) modules.push('    module Console C;');
     if (!/module\s+System\s+system\s*;/.test(src)) modules.push('    module System system;');
-    if (/rule\s+\+!main\s*\(/.test(src)) return `agent Main {\n${modules.join('\n')}\n\n${indent(src, 4)}\n}`;
+    if (/rule\s+\+!main\s*\(/.test(src)) {
+      let wrapped = indent(src, 4);
+      if (!/system\.exit\(\)|S\.exit\(\)/.test(wrapped)) {
+        wrapped = wrapped.replace(/(rule\s+\+!main\s*\([^)]*\)\s*\{)([\s\S]*?\n)((\s*)\})/, (m, head, body, close, pad) => {
+          return head + body + pad + '    system.exit();\n' + close;
+        });
+      }
+      return `agent Main {\n${modules.join('\n')}\n\n${wrapped}\n}`;
+    }
     return `agent Main {\n${modules.join('\n')}\n\n    rule +!main(list args) {\n${indent(src, 8)}\n        system.exit();\n    }\n}`;
   }
 
