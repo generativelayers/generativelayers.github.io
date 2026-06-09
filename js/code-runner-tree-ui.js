@@ -98,8 +98,8 @@
 
       .runner-tree-toolbar {
         display: flex;
-        gap: 6px;
-        padding: 10px 8px;
+        gap: 4px;
+        padding: 8px 6px;
         border-top: 1px solid #1f2937;
         background: #0f172a;
       }
@@ -108,7 +108,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 4px;
         flex: 1;
         border: 1px solid rgba(52, 211, 153, 0.3);
         border-radius: 8px;
@@ -117,7 +117,7 @@
         cursor: pointer;
         font-size: 11px;
         font-weight: 700;
-        padding: 7px 6px;
+        padding: 6px 4px;
         transition: all 0.15s;
       }
 
