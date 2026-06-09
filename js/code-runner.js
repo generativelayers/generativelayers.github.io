@@ -76,6 +76,10 @@
     '    rule +!main(list args) {',
     '        C.println("Hello from ASTRA on code.generativelayers.com");',
     '        C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");',
+    '        !shutdown();',
+    '    }',
+    '',
+    '    rule +!shutdown() {',
     '        system.exit();',
     '    }',
     '}'
@@ -366,6 +370,10 @@
       '',
       '    rule +!main(list args) {',
       `        C.println("${agentName} started");`,
+      '        !shutdown();',
+      '    }',
+      '',
+      '    rule +!shutdown() {',
       '        system.exit();',
       '    }',
       '}'
@@ -1001,6 +1009,30 @@
     saveToStorage();
   }
   window.__glResetProject = resetProject;
+
+  // Expose GLRunner API for iframe integration and run-code-links.js
+  window.GLRunner = {
+    loadSource: function(source, title) {
+      if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+      files = { '/astra/Main.astra': source, '/pom.xml': DEFAULT_POM };
+      currentPath = '/astra/Main.astra';
+      els.editor.value = source;
+      els.currentFile.textContent = currentPath;
+      renderTree();
+      updateApiKeyUI();
+      els.output.textContent = `Loaded: ${title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
+      els.status.textContent = 'Example loaded';
+      els.metaStatus.textContent = 'Loaded';
+      els.metaReturnCode.textContent = '\u2014';
+      els.metaElapsed.textContent = '\u2014';
+      saveToStorage();
+    },
+    loadPayload: function(payload) {
+      if (payload && payload.source) {
+        this.loadSource(payload.source, payload.title);
+      }
+    }
+  };
 
   function installEvents() {
     els.editor.addEventListener('input', () => {

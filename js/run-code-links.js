@@ -63,12 +63,13 @@
       let wrapped = indent(src, 4);
       if (!/system\.exit\(\)|S\.exit\(\)/.test(wrapped)) {
         wrapped = wrapped.replace(/(rule\s+\+!main\s*\([^)]*\)\s*\{)([\s\S]*?\n)((\s*)\})/, (m, head, body, close, pad) => {
-          return head + body + pad + '    system.exit();\n' + close;
+          return head + body + pad + '    !shutdown();\n' + close;
         });
       }
-      return `agent Main {\n${modules.join('\n')}\n\n${wrapped}\n}`;
+      const shutdownRule = '\n\n    rule +!shutdown() {\n        system.exit();\n    }';
+      return `agent Main {\n${modules.join('\n')}\n\n${wrapped}${shutdownRule}\n}`;
     }
-    return `agent Main {\n${modules.join('\n')}\n\n    rule +!main(list args) {\n${indent(src, 8)}\n        system.exit();\n    }\n}`;
+    return `agent Main {\n${modules.join('\n')}\n\n    rule +!main(list args) {\n${indent(src, 8)}\n        !shutdown();\n    }\n\n    rule +!shutdown() {\n        system.exit();\n    }\n}`;
   }
 
   function titleFor(pre) {
@@ -176,9 +177,8 @@
 
   function installIncomingSource() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
-    if (page !== 'code.html') return;
-    const input = document.getElementById('astraSource');
-    if (!input) return;
+    // Works on code.html (legacy) and runner-astra.html (iframe)
+    if (page !== 'code.html' && page !== 'runner-astra.html') return;
 
     if (!document.getElementById('gl-key-warning')) {
       const warning = document.createElement('div');
@@ -193,17 +193,26 @@
     try {
       const payload = JSON.parse(decodeURIComponent(window.location.hash.slice(6)));
       if (!payload.source) return;
-      input.value = payload.source;
+
+      // New iframe architecture: load into the file-based editor
+      if (typeof window.GLRunner !== 'undefined' && window.GLRunner.loadSource) {
+        window.GLRunner.loadSource(payload.source, payload.title);
+        return;
+      }
+
+      // Legacy: direct element access (code.html with inline runner)
+      const input = document.getElementById('astraSource');
+      if (input) input.value = payload.source;
       const output = document.getElementById('runnerOutput');
       const status = document.getElementById('runnerStatus');
       const metaStatus = document.getElementById('metaStatus');
       const metaReturnCode = document.getElementById('metaReturnCode');
       const metaElapsed = document.getElementById('metaElapsed');
-      if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck the API key warning above, then press “Run Source”.`;
+      if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck the API key warning above, then press "Run Source".`;
       if (status) status.textContent = 'Example loaded';
       if (metaStatus) metaStatus.textContent = 'Loaded';
-      if (metaReturnCode) metaReturnCode.textContent = '—';
-      if (metaElapsed) metaElapsed.textContent = '—';
+      if (metaReturnCode) metaReturnCode.textContent = '\u2014';
+      if (metaElapsed) metaElapsed.textContent = '\u2014';
       window.setTimeout(() => (document.getElementById('run-code') || input).scrollIntoView({ behavior:'smooth', block:'start' }), 100);
     } catch (error) {
       console.warn('Could not load ASTRA example into runner.', error);
