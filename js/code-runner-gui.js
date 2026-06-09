@@ -191,50 +191,33 @@
     iframeEl.src = 'about:blank';
   }
 
-  /* ── Scan for GUI usage ─────────────────────────────────── */
+  /* ── Scan for GUI usage (internal only, does NOT show button) ── */
   function scan() {
-    const usesGui = detectGui();
-    if (btnEl) btnEl.hidden = !usesGui;
-    return usesGui;
+    return detectGui();
   }
 
   // Expose for other scripts
   window.__glGuiScan = scan;
   window.__glGuiDetected = detectGui;
+  // Called by code-runner.js when server sends gui_port in meta line
   window.__glGuiOpen = function() {
     if (btnEl) btnEl.hidden = false;
     openModal();
   };
   window.__glGuiClose = closeModal;
+  // Allow server meta to show the button without opening modal
+  window.__glGuiShowButton = function() {
+    if (btnEl) btnEl.hidden = false;
+  };
 
   /* ── Boot ────────────────────────────────────────────────── */
   function init() {
     createUI();
-    scan();
-
-    // Hook the Run button: just show the GUI button (don't auto-open modal)
-    const runBtn = document.getElementById('runAstraButton');
-    if (runBtn) {
-      runBtn.addEventListener('click', () => {
-        if (detectGui() && btnEl) {
-          btnEl.hidden = false;
-        }
-      });
-    }
+    // Button stays hidden until server confirms GUI via gui_port meta line
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  // Rescan periodically when editor changes
-  setTimeout(scan, 500);
-  setTimeout(scan, 1500);
-
-  // Hook into editor input events
-  document.addEventListener('DOMContentLoaded', () => {
-    const editor = document.getElementById('fileEditor');
-    if (editor) {
-      editor.addEventListener('input', () => setTimeout(scan, 100));
-    }
-  });
+  // No auto-scan — button only shown when server sends gui_port
 })();
