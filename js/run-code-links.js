@@ -10,11 +10,16 @@
       .tabs-container pre, .mini-code-block pre, .gl-run-shell pre, pre.gl-code-normalized { overflow-x:hidden !important; white-space:pre-wrap !important; overflow-wrap:anywhere !important; background:#0b1220 !important; }
       .tabs-container pre code, .mini-code-block pre code, .gl-run-shell pre code, pre.gl-code-normalized code { white-space:pre-wrap !important; overflow-wrap:anywhere !important; }
       .tabs-header, .gl-run-bar { background:#111827 !important; border-bottom:1px solid #1f2937 !important; }
+      .tabs-header { gap:10px !important; }
+      .tabs-header .tabs-buttons { margin-right:auto !important; }
+      .tabs-header .gl-run-btn { margin-left:8px !important; }
+      .mini-tabs .gl-run-btn { margin-left:8px !important; }
       .gl-run-shell { border:1px solid #1f2937; border-radius:10px; overflow:hidden; margin:0; }
       .tabs-container .gl-run-shell, .mini-code-container .gl-run-shell { border:0; border-radius:0; }
       .gl-run-bar { display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:8px 12px; }
       .gl-run-btn { display:inline-flex; align-items:center; gap:7px; border:1px solid rgba(52,211,153,.35); border-radius:999px; background:rgba(52,211,153,.12); color:#34d399; font-size:12px; font-weight:800; padding:6px 12px; cursor:pointer; }
       .gl-run-btn:hover { background:#059669; border-color:#059669; color:white; }
+      .gl-run-btn[hidden] { display:none !important; }
       .gl-key-warning { display:flex; gap:12px; align-items:flex-start; max-width:1100px; margin:0 0 18px; padding:14px 16px; border:1px solid #fde68a; border-left:4px solid #f59e0b; border-radius:10px; background:#fffbeb; color:#92400e; font-size:14px; line-height:1.55; }
       .gl-key-warning i { color:#d97706; margin-top:3px; }
       .gl-key-warning strong { color:#78350f; }
@@ -69,22 +74,76 @@
     window.location.href = new URL('code.html#load=' + encoded, window.location.href).toString();
   }
 
-  function addButton(pre) {
-    if (!isAstra(pre)) return;
-    const shell = document.createElement('div');
-    shell.className = 'gl-run-shell';
-    const bar = document.createElement('div');
-    bar.className = 'gl-run-bar';
+  function makeRunButton(pre, scope) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'gl-run-btn';
+    button.dataset.glRunScope = scope || 'fallback';
     button.innerHTML = '<i class="fa-solid fa-play"></i><span>Run</span>';
     button.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
       openRunner(makeRunnable(textOf(pre)), titleFor(pre));
     });
-    bar.appendChild(button);
+    return button;
+  }
+
+  function activeTabIsAstra(tabs) {
+    const activePanel = tabs ? tabs.querySelector(':scope > .tab-content.active') : null;
+    if (!activePanel) return true;
+    return /astra/i.test(activePanel.id || '') || /astra/i.test(activePanel.dataset.platform || '');
+  }
+
+  function activeMiniTabIsAstra(details) {
+    const activeBlock = details ? details.querySelector('.mini-code-block.active') : null;
+    if (!activeBlock) return true;
+    return /astra/i.test(activeBlock.id || '') || /astra/i.test(activeBlock.dataset.platform || '');
+  }
+
+  function updateRunButtonVisibility() {
+    document.querySelectorAll('.gl-run-btn[data-gl-run-scope="tabs"]').forEach(button => {
+      const tabs = button.closest('.tabs-container');
+      button.hidden = !activeTabIsAstra(tabs);
+    });
+
+    document.querySelectorAll('.gl-run-btn[data-gl-run-scope="mini"]').forEach(button => {
+      const details = button.closest('.cmd-details-content');
+      button.hidden = !activeMiniTabIsAstra(details);
+    });
+  }
+
+  function addButtonToTabsHeader(pre) {
+    const tabs = pre.closest('.tabs-container');
+    const header = tabs ? tabs.querySelector(':scope > .tabs-header') : null;
+    if (!header || header.dataset.glRunReady === '1') return false;
+
+    header.appendChild(makeRunButton(pre, 'tabs'));
+    header.dataset.glRunReady = '1';
+    pre.classList.add('gl-code-normalized');
+    pre.dataset.glRunReady = '1';
+    updateRunButtonVisibility();
+    return true;
+  }
+
+  function addButtonToMiniTabs(pre) {
+    const details = pre.closest('.cmd-details-content');
+    const miniTabs = details ? details.querySelector('.mini-tabs') : null;
+    if (!miniTabs || miniTabs.dataset.glRunReady === '1') return false;
+
+    miniTabs.appendChild(makeRunButton(pre, 'mini'));
+    miniTabs.dataset.glRunReady = '1';
+    pre.classList.add('gl-code-normalized');
+    pre.dataset.glRunReady = '1';
+    updateRunButtonVisibility();
+    return true;
+  }
+
+  function addFallbackButton(pre) {
+    const shell = document.createElement('div');
+    shell.className = 'gl-run-shell';
+    const bar = document.createElement('div');
+    bar.className = 'gl-run-bar';
+    bar.appendChild(makeRunButton(pre, 'fallback'));
     pre.parentNode.insertBefore(shell, pre);
     shell.appendChild(bar);
     shell.appendChild(pre);
@@ -92,11 +151,19 @@
     pre.dataset.glRunReady = '1';
   }
 
+  function addButton(pre) {
+    if (!isAstra(pre)) return;
+    if (addButtonToTabsHeader(pre)) return;
+    if (addButtonToMiniTabs(pre)) return;
+    addFallbackButton(pre);
+  }
+
   function scan() {
     document.querySelectorAll('pre').forEach(pre => {
       if (pre.querySelector('code')) addButton(pre);
       else pre.classList.add('gl-code-normalized');
     });
+    updateRunButtonVisibility();
   }
 
   function installIncomingSource() {
@@ -139,8 +206,12 @@
     addStyle();
     scan();
     installIncomingSource();
+
+    document.addEventListener('click', () => window.setTimeout(updateRunButtonVisibility, 0), true);
+    document.addEventListener('change', () => window.setTimeout(updateRunButtonVisibility, 0), true);
+
     const observer = new MutationObserver(() => window.setTimeout(scan, 80));
-    observer.observe(document.body, { childList:true, subtree:true });
+    observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
