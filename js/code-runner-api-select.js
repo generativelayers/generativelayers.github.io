@@ -110,6 +110,24 @@
       color: #92400e; font-size: 13px; line-height: 1.5;
     }
     .gl-keys-warn[hidden] { display: none !important; }
+    .gl-keys-select-row {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 12px;
+    }
+    .gl-keys-select-row label {
+      font-size: 13px; font-weight: 800; color: #334155; white-space: nowrap;
+    }
+    .gl-keys-select {
+      flex: 1; max-width: 260px;
+      border: 1px solid #cbd5e1; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; font-weight: 700;
+      background: #fff; color: #111827; cursor: pointer;
+      appearance: auto;
+    }
+    .gl-keys-select:focus {
+      outline: none; border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5,150,105,.1);
+    }
   `;
   document.head.appendChild(style);
 
@@ -118,8 +136,10 @@
   let gridEl = null;
   let introEl = null;
   let warnEl = null;
+  let selectEl = null;
   let lastDetected = '';
   let scanTimer = null;
+  let manualProvider = '';   // user-selected override
 
   /* ── Detection ───────────────────────────────────────────── */
   function getAllProjectText() {
@@ -182,18 +202,31 @@
     const toolbar = document.querySelector('.runner-toolbar');
     if (!toolbar) return;
 
+    // Build provider options for the dropdown
+    const providerOptions = Object.keys(PROVIDERS).map(key => {
+      const p = PROVIDERS[key];
+      return `<option value="${key}">${p.label}</option>`;
+    }).join('');
+
     // Create new panel
     panelEl = document.createElement('div');
     panelEl.className = 'gl-keys-panel';
     panelEl.id = 'glKeysPanel';
-    panelEl.hidden = true;
+    panelEl.hidden = false;
     panelEl.innerHTML = `
       <div class="gl-keys-header">
         <i class="fa-solid fa-key"></i>
         <span>API Keys</span>
       </div>
+      <div class="gl-keys-select-row">
+        <label for="glProviderSelect">LLM Provider:</label>
+        <select class="gl-keys-select" id="glProviderSelect">
+          <option value="">Auto-detect from code</option>
+          ${providerOptions}
+        </select>
+      </div>
       <div class="gl-keys-intro" id="glKeysIntro">
-        Detected providers from your code. Fill the required keys before running.
+        Select a provider or let it auto-detect from your code.
       </div>
       <div class="gl-keys-grid" id="glKeysGrid"></div>
       <div class="gl-keys-warn" id="glKeysWarn" hidden>
@@ -211,6 +244,16 @@
     gridEl = document.getElementById('glKeysGrid');
     introEl = document.getElementById('glKeysIntro');
     warnEl = document.getElementById('glKeysWarn');
+    selectEl = document.getElementById('glProviderSelect');
+
+    // Wire dropdown
+    if (selectEl) {
+      selectEl.addEventListener('change', () => {
+        manualProvider = selectEl.value;
+        lastDetected = '';  // force re-render
+        scan();
+      });
+    }
 
     // Wire events
     const editor = document.getElementById('fileEditor');
@@ -236,7 +279,14 @@
   }
 
   function scan() {
-    const providers = detectProviders();
+    let providers;
+    if (manualProvider) {
+      // Manual selection — show that provider
+      providers = [manualProvider];
+    } else {
+      // Auto-detect from code
+      providers = detectProviders();
+    }
     const key = providers.sort().join(',');
 
     // Skip if nothing changed
