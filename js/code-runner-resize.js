@@ -68,26 +68,7 @@
         background:#34d399; height:50px;
       }
 
-      .runner-vsplitter {
-        height: 6px; cursor: row-resize; background: transparent;
-        position: relative; z-index: 12; flex-shrink: 0;
-        border-radius: 4px; transition: background 0.15s;
-      }
-      .runner-vsplitter:hover, .runner-vsplitter.dragging {
-        background: rgba(52,211,153,0.4);
-      }
-      .runner-vsplitter::after {
-        content:''; position:absolute; top:50%; left:50%;
-        transform:translate(-50%,-50%); height:2px; width:30px;
-        border-radius:2px; background:rgba(52,211,153,0.35);
-        transition: background 0.15s;
-      }
-      .runner-vsplitter:hover::after, .runner-vsplitter.dragging::after {
-        background:#34d399; width:50px;
-      }
-
       body.gl-resizing-h { user-select:none!important; cursor:col-resize!important; }
-      body.gl-resizing-v { user-select:none!important; cursor:row-resize!important; }
     `;
     document.head.appendChild(s);
   }
@@ -144,42 +125,6 @@
       document.body.classList.remove('gl-resizing-h');
     });
 
-    // ── Vertical splitter (editor height) ────────────────
-    const editor = editorWrap.querySelector('.runner-editor');
-    const hlWrap = editorWrap.querySelector('.hl-editor-wrap');
-    if (!editor || !hlWrap) return;
-
-    // Place splitter inside editorWrap, after the diag panel (last child)
-    const vSplit = document.createElement('div');
-    vSplit.className = 'runner-vsplitter';
-    vSplit.title = 'Drag to resize editor height';
-    editorWrap.appendChild(vSplit);
-
-    let vDragging = false, vStartY = 0, vStartH = 0;
-
-    vSplit.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      vDragging = true;
-      vStartY = e.clientY;
-      vStartH = hlWrap.getBoundingClientRect().height;
-      vSplit.classList.add('dragging');
-      document.body.classList.add('gl-resizing-v');
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!vDragging) return;
-      const nextH = Math.max(MIN_EDITOR_H, vStartH + (e.clientY - vStartY));
-      hlWrap.style.flex = 'none';
-      hlWrap.style.height = nextH + 'px';
-      syncOverlay(editor);
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (!vDragging) return;
-      vDragging = false;
-      vSplit.classList.remove('dragging');
-      document.body.classList.remove('gl-resizing-v');
-    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
