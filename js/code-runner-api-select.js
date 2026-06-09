@@ -192,17 +192,42 @@
     return [...new Set(found)];
   }
 
+  /* ── Default models per provider ──────────────────────── */
+  const DEFAULT_MODELS = {
+    cerebras:  'gpt-oss-120b',
+    groq:      'llama-3.3-70b-versatile',
+    gemini:    'gemini-2.0-flash',
+    openai:    'gpt-4o',
+    deepseek:  'deepseek-chat'
+  };
+
   /* ── Apply provider selection to source code ────────────── */
   function applyProviderToSource(providerKey) {
     const editor = document.getElementById('fileEditor');
     if (!editor) return;
 
-    const src = editor.value;
-    // Replace setting("provider", "xxx") with the new provider
-    const providerRe = /(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/;
-    if (providerRe.test(src)) {
+    const original = editor.value;
+    const model = DEFAULT_MODELS[providerKey] || providerKey;
+    let src = original;
+
+    // 1. Replace use_provider("xxx") → use_provider("providerKey")  (all occurrences)
+    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
+
+    // 2. Replace setting("provider", "xxx")
+    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
+
+    // 3. Replace configure("provider", "xxx")
+    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
+
+    // 4. Replace configure("model", "xxx") → configure("model", "defaultModel")
+    src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
+
+    // 5. Replace setting("model", "xxx")
+    src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
+
+    if (src !== original) {
       const pos = editor.selectionStart || 0;
-      editor.value = src.replace(providerRe, `$1${providerKey}$2`);
+      editor.value = src;
       editor.selectionStart = editor.selectionEnd = Math.min(pos, editor.value.length);
       editor.dispatchEvent(new Event('input', { bubbles: true }));
     }
