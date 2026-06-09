@@ -206,6 +206,7 @@
         <div class="tab-content active" id="syntax-astra"><pre><code>agent Main {
     module gl.astra.GL gl;
     module Console console;
+    module astra.lang.System S;
 
     rule +!main(list args) {
         gl.configure("provider", "gemini");
@@ -214,6 +215,7 @@
 
         string rid = gl.ask("agent1", "classify", "Classify: apple");
         !decide_result(rid);
+        S.exit();
     }
 
     rule +!decide_result(string rid) : gl.valid(rid) == true {
@@ -227,7 +229,8 @@
     gl.configure("model", "gemini-2.5-flash");
     gl.use_provider();
     gl.ask("agent1", "classify", "Classify: apple", Rid);
-    !decide_result(Rid).
+    !decide_result(Rid);
+    .stopMAS.
 
 +!decide_result(Rid)
    : gl.valid(Rid, true)
@@ -242,7 +245,8 @@
     configure("model", "gemini-2.5-flash");
     use_provider();
     ask("agent1", "classify", "Classify: apple", Rid);
-    !decide_result(Rid).
+    !decide_result(Rid);
+    .stopMAS.
 
 +!decide_result(Rid) <-
     valid(Rid, IsValid);
