@@ -132,8 +132,39 @@
       window.setTimeout(setStopButton, 50);
 
       try {
-        return await nativeFetch(resource, nextOptions);
+        const response = await nativeFetch(resource, nextOptions);
+
+        // Wrap the response so that when the stream is fully consumed,
+        // we reset the button. Monkey-patch the body so the reader
+        // signals when done.
+        const origBody = response.body;
+        if (origBody) {
+          const origGetReader = origBody.getReader.bind(origBody);
+          origBody.getReader = function() {
+            const reader = origGetReader();
+            const origRead = reader.read.bind(reader);
+            reader.read = async function() {
+              const result = await origRead();
+              if (result.done) {
+                // Stream finished — reset to Run button
+                activeController = null;
+                activeRunId = null;
+                stopRequested = false;
+                window.setTimeout(setRunButton, 0);
+              }
+              return result;
+            };
+            return reader;
+          };
+        }
+
+        return response;
       } catch (error) {
+        activeController = null;
+        activeRunId = null;
+        stopRequested = false;
+        window.setTimeout(setRunButton, 0);
+
         if (stopRequested || error.name === 'AbortError') {
           return new Response(JSON.stringify({
             status: 'stopped',
@@ -146,11 +177,6 @@
           });
         }
         throw error;
-      } finally {
-        activeController = null;
-        activeRunId = null;
-        stopRequested = false;
-        window.setTimeout(setRunButton, 0);
       }
     };
   }
