@@ -116,7 +116,8 @@
       const text = title.textContent || '';
       const isAstra = text.includes('/astra');
       const isJava = text.includes('/java');
-      if (!isAstra && !isJava) return;
+      const isResources = text.includes('/resources');
+      if (!isAstra && !isJava && !isResources) return;
 
       const label = document.createElement('div');
       label.className = 'runner-root-label';
@@ -128,12 +129,14 @@
       const add = document.createElement('button');
       add.type = 'button';
       add.className = 'runner-folder-add';
-      add.title = isAstra ? 'New ASTRA file' : 'New Java file';
+      add.title = isAstra ? 'New ASTRA file' : isJava ? 'New Java file' : 'New resource file';
       add.innerHTML = '<i class="fa-solid fa-plus"></i>';
       add.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        clickHidden(isAstra ? 'newAstraFileButton' : 'newJavaFileButton');
+        if (isAstra) clickHidden('newAstraFileButton');
+        else if (isJava) clickHidden('newJavaFileButton');
+        else if (isResources && typeof window.__glCreateResourceFile === 'function') window.__glCreateResourceFile();
       });
 
       title.appendChild(label);
