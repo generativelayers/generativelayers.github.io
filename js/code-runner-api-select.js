@@ -212,7 +212,7 @@
     panelEl = document.createElement('div');
     panelEl.className = 'gl-keys-panel';
     panelEl.id = 'glKeysPanel';
-    panelEl.hidden = false;
+    panelEl.hidden = true;
     panelEl.innerHTML = `
       <div class="gl-keys-header">
         <i class="fa-solid fa-key"></i>
@@ -271,7 +271,34 @@
 
     // Initial scan
     scan();
+
+    // Reset panel when New/Open/Load buttons are clicked (dynamic buttons)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest && e.target.closest('.runner-tree-btn, .runner-mini-button');
+      if (btn) {
+        // A file tree action button was clicked — reset and re-scan
+        setTimeout(resetPanel, 200);
+      }
+    });
+
+    // Also watch for project loads from storage
+    const fileTree = document.getElementById('fileTree');
+    if (fileTree) {
+      new MutationObserver(() => {
+        lastDetected = '';
+        setTimeout(scan, 200);
+      }).observe(fileTree, { childList: true, subtree: true });
+    }
   }
+
+  function resetPanel() {
+    manualProvider = '';
+    lastDetected = '';
+    if (selectEl) selectEl.value = '';
+    if (panelEl) panelEl.hidden = true;
+    setTimeout(scan, 300);  // re-scan after project loads
+  }
+  window.__glResetApiPanel = resetPanel;
 
   function scheduleScan() {
     if (scanTimer) clearTimeout(scanTimer);
