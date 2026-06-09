@@ -130,6 +130,87 @@
       .runner-tree-btn i {
         font-size: 12px;
       }
+
+      /* ── Subfolder tree ── */
+      .runner-folder-head {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 6px;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 6px;
+        user-select: none;
+        margin: 1px 0;
+      }
+      .runner-folder-head:hover {
+        background: #1e293b;
+        color: #e2e8f0;
+      }
+      .runner-folder-body {
+        padding-left: 8px;
+        margin-left: 9px;
+        border-left: 1px solid rgba(52, 211, 153, 0.12);
+      }
+      .runner-chevron {
+        font-size: 8px;
+        transition: transform 0.15s;
+        width: 10px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .runner-folder.collapsed > .runner-folder-head .runner-chevron {
+        transform: rotate(-90deg);
+      }
+      .runner-folder.collapsed > .runner-folder-body {
+        display: none;
+      }
+      .runner-folder-ico {
+        font-size: 11px;
+        flex-shrink: 0;
+        color: #fbbf24;
+      }
+      .runner-folder-actions {
+        display: none;
+        gap: 3px;
+        margin-left: auto;
+        align-items: center;
+      }
+      .runner-folder-head:hover .runner-folder-actions {
+        display: flex;
+      }
+      .runner-folder-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        border-radius: 5px;
+        background: rgba(52, 211, 153, 0.08);
+        color: #34d399;
+        cursor: pointer;
+        font-size: 9px;
+        padding: 0;
+      }
+      .runner-folder-action-btn:hover {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+      }
+      .runner-folder-action-btn.delete {
+        color: #fca5a5;
+        border-color: rgba(248, 113, 113, 0.3);
+        background: rgba(248, 113, 113, 0.06);
+      }
+      .runner-folder-action-btn.delete:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #fff;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -257,10 +338,70 @@
     filesPanel.appendChild(toolbar);
   }
 
+  function patchFolderHeads() {
+    document.querySelectorAll('.runner-folder-head:not([data-tree-ui-patched])').forEach(head => {
+      head.dataset.treeUiPatched = '1';
+      const folderPath = head.dataset.folderPath;
+
+      // Collapse/expand on click
+      head.addEventListener('click', (e) => {
+        if (e.target.closest('.runner-folder-actions')) return;
+        const folder = head.closest('.runner-folder');
+        if (!folder) return;
+        folder.classList.toggle('collapsed');
+        const ico = head.querySelector('.runner-folder-ico');
+        if (ico) {
+          ico.classList.toggle('fa-folder-open', !folder.classList.contains('collapsed'));
+          ico.classList.toggle('fa-folder', folder.classList.contains('collapsed'));
+        }
+      });
+
+      // Action buttons (appear on hover via CSS)
+      const actions = document.createElement('div');
+      actions.className = 'runner-folder-actions';
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'runner-folder-action-btn';
+      addBtn.title = 'New file';
+      addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.__glCreateFileInFolder === 'function') window.__glCreateFileInFolder(folderPath);
+      });
+
+      const renameBtn = document.createElement('button');
+      renameBtn.type = 'button';
+      renameBtn.className = 'runner-folder-action-btn';
+      renameBtn.title = 'Rename folder';
+      renameBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+      renameBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.__glRenameFolder === 'function') window.__glRenameFolder(folderPath);
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'runner-folder-action-btn delete';
+      deleteBtn.title = 'Delete folder';
+      deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.__glDeleteFolder === 'function') window.__glDeleteFolder(folderPath);
+      });
+
+      actions.appendChild(addBtn);
+      actions.appendChild(renameBtn);
+      actions.appendChild(deleteBtn);
+      head.appendChild(actions);
+    });
+  }
+
   function patchTree() {
     addStyle();
     patchHeader();
     patchRootTitles();
+    patchFolderHeads();
     patchFileRows();
     addBottomToolbar();
   }
