@@ -78,10 +78,12 @@
 
     const astraFiles = sortedPaths('/astra');
     const javaFiles = sortedPaths('/java');
+    const resFiles = sortedPaths('/resources');
 
     els.fileTree.innerHTML = [
       renderRoot('/astra', astraFiles),
-      renderRoot('/java', javaFiles)
+      renderRoot('/java', javaFiles),
+      renderRoot('/resources', resFiles)
     ].join('');
 
     els.fileTree.querySelectorAll('[data-path]').forEach(button => {
@@ -90,12 +92,14 @@
   }
 
   function renderRoot(root, paths) {
-    const icon = root === '/astra' ? 'fa-robot' : 'fa-brands fa-java';
+    const icons = { '/astra': 'fa-robot', '/java': 'fa-brands fa-java', '/resources': 'fa-folder-open' };
+    const icon = icons[root] || 'fa-folder';
     const empty = paths.length === 0 ? '<div class="runner-empty-folder">empty</div>' : '';
     const items = paths.map(path => {
       const active = path === currentPath ? ' active' : '';
       const shortName = path.slice(root.length + 1);
-      return `<button type="button" class="runner-file${active}" data-path="${escapeHtml(path)}"><i class="fa-regular fa-file-code"></i><span>${escapeHtml(shortName)}</span></button>`;
+      const fileIcon = root === '/resources' ? 'fa-regular fa-file' : 'fa-regular fa-file-code';
+      return `<button type="button" class="runner-file${active}" data-path="${escapeHtml(path)}"><i class="${fileIcon}"></i><span>${escapeHtml(shortName)}</span></button>`;
     }).join('');
 
     return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${root}</span></div>${empty}${items}</div>`;
@@ -114,7 +118,8 @@
   function renderTreeNoSave() {
     const astraFiles = sortedPaths('/astra');
     const javaFiles = sortedPaths('/java');
-    els.fileTree.innerHTML = [renderRoot('/astra', astraFiles), renderRoot('/java', javaFiles)].join('');
+    const resFiles = sortedPaths('/resources');
+    els.fileTree.innerHTML = [renderRoot('/astra', astraFiles), renderRoot('/java', javaFiles), renderRoot('/resources', resFiles)].join('');
     els.fileTree.querySelectorAll('[data-path]').forEach(button => {
       button.addEventListener('click', () => openFile(button.dataset.path));
     });
@@ -140,14 +145,17 @@
 
   function createFile(kind) {
     saveCurrentFile();
-    const example = kind === 'astra' ? 'Worker.astra' : 'gl/MyHelper.java';
+    const examples = { astra: 'Worker.astra', java: 'gl/MyHelper.java', resources: 'map.txt' };
+    const example = examples[kind] || 'file.txt';
     const raw = window.prompt(`New ${kind.toUpperCase()} file inside /${kind}`, example);
     if (raw === null) return;
 
     try {
       const path = cleanPathName(kind, raw);
       if (Object.prototype.hasOwnProperty.call(files, path)) throw new Error('File already exists.');
-      files[path] = kind === 'astra' ? astraTemplate(path) : javaTemplate(path);
+      if (kind === 'astra') files[path] = astraTemplate(path);
+      else if (kind === 'java') files[path] = javaTemplate(path);
+      else files[path] = ''; // resources start empty
       currentPath = path;
       els.editor.value = files[path];
       els.currentFile.textContent = path;
@@ -157,6 +165,9 @@
       window.alert(error.message);
     }
   }
+
+  // Expose for tree-ui resource button
+  window.__glCreateResourceFile = function() { createFile('resources'); };
 
   function astraTemplate(path) {
     const agentName = path.split('/').pop().replace(/\.astra$/, '') || 'Worker';
@@ -299,10 +310,16 @@
     Object.entries(files).forEach(([path, content]) => {
       if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
       if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
+      if (path.startsWith('/resources/')) payload[`src/main/resources/${path.slice('/resources/'.length)}`] = content;
     });
 
     return payload;
   }
+
+  // Expose all code for external detectors (GUI, API keys)
+  window.__glGetAllCode = function() {
+    return Object.values(files).join('\n');
+  };
 
   function validateProjectBeforeRun() {
     saveCurrentFile();
