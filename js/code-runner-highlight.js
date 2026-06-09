@@ -294,6 +294,8 @@
     style.textContent = `
       .hl-editor-wrap {
         position: relative;
+        background: #0b1220;
+        border-radius: 0 0 12px 12px;
       }
       .hl-overlay {
         position: absolute;
@@ -316,11 +318,11 @@
         z-index: 1;
       }
       .hl-editor-wrap .runner-editor {
-        color: transparent;
+        color: transparent !important;
         caret-color: #d1fae5;
         z-index: 2;
         position: relative;
-        background: #0b1220;
+        background: transparent !important;
         resize: vertical;
       }
     `;
