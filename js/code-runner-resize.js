@@ -30,13 +30,19 @@
     s.textContent = `
       /* ── Grid tweaks ─────────────────────────── */
       .runner-project.resizable {
-        grid-template-columns: var(--files-w, 195px) 6px minmax(0, 1fr) !important;
+        grid-template-columns: var(--files-w, 195px) 6px 1fr !important;
         column-gap: 0 !important;
+        overflow: visible !important;
       }
       .runner-project.resizable .runner-editor-wrap {
         display: flex;
         flex-direction: column;
         min-width: 0;
+        overflow: visible;
+      }
+      /* Let the runner-card overflow so editor can expand */
+      .runner-card:has(.runner-project.resizable) {
+        overflow: visible !important;
       }
       .runner-project.resizable .hl-editor-wrap {
         flex: none;
@@ -261,7 +267,9 @@
 
       makeDrag(rSplit, 'h', (v) => {
         if (v === null) return editorWrap.getBoundingClientRect().width;
-        editorWrap.style.maxWidth = Math.max(MIN_EDITOR_W, v) + 'px';
+        const w = Math.max(MIN_EDITOR_W, v);
+        editorWrap.style.width = w + 'px';
+        editorWrap.style.minWidth = w + 'px';
       });
     };
     trySetup();
