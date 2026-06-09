@@ -14,7 +14,7 @@
     '    module Console C;',
     '    module System system;',
     '',
-    '    // Generative Layers v0.1.2 short ASTRA alias.',
+    '    // Generative Layers short ASTRA alias.',
     '    module gl.astra.GL gl;',
     '',
     '    // Old full path still works:',
@@ -22,7 +22,7 @@
     '',
     '    rule +!main(list args) {',
     '        C.println("Hello from ASTRA on code.generativelayers.com");',
-    '        C.println("Generative Layers v0.1.2 ASTRA alias is loaded: module gl.astra.GL gl;");',
+    '        C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");',
     '        system.exit();',
     '    }',
     '}'
@@ -231,7 +231,14 @@
     return Object.values(files).join('\n');
   }
 
-  function detectRequiredProviders() {
+  function selectedProviderKey() {
+    const selector = document.getElementById('apiKeyProviderSelect');
+    if (!selector) return '';
+    if (selector.value === 'custom') return '__custom__';
+    return Object.prototype.hasOwnProperty.call(PROVIDERS, selector.value) ? selector.value : '';
+  }
+
+  function detectRequiredProvidersFallback() {
     const clean = stripLineComments(fullProjectText()).toLowerCase();
     const found = [];
 
@@ -243,7 +250,6 @@
     });
 
     if (!found.includes('gemini') && /gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
-    if (!found.includes('openai') && /gpt-(?:3|4|4o|5|o)/i.test(clean)) found.push('openai');
     if (!found.includes('deepseek') && /deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
     if (!found.includes('groq') && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
     if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
@@ -260,7 +266,13 @@
   }
 
   function getApiKeyState() {
-    const required = detectRequiredProviders();
+    const selected = selectedProviderKey();
+
+    if (selected === '__custom__') {
+      return { required: [], apiKeys: {}, missing: [] };
+    }
+
+    const required = selected ? [selected] : detectRequiredProvidersFallback();
     const apiKeys = {};
     const missing = [];
 
@@ -275,6 +287,14 @@
   }
 
   function updateApiKeyUI() {
+    const selected = selectedProviderKey();
+
+    if (selected === '__custom__') {
+      els.apiKeyPanel.hidden = false;
+      document.querySelectorAll('[data-provider-row]').forEach(row => { row.hidden = true; });
+      return { required: [], apiKeys: {}, missing: [] };
+    }
+
     const state = getApiKeyState();
     const needsKeys = state.required.length > 0;
 
@@ -288,7 +308,7 @@
       return state;
     }
 
-    els.apiKeyIntro.textContent = `This project uses ${providerList(state.required)}. Fill the required key before running it.`;
+    els.apiKeyIntro.textContent = `This run uses ${providerList(state.required)}. Fill only the selected provider key before running it.`;
 
     if (state.missing.length > 0) {
       els.apiKeyWarning.hidden = false;
@@ -324,7 +344,6 @@
   }
 
   function setRunning(value) {
-    els.run.disabled = value;
     els.loadExample.disabled = value;
     els.status.textContent = value ? 'Running…' : 'Ready';
   }
@@ -363,7 +382,7 @@
       els.metaReturnCode.textContent = '—';
       els.metaElapsed.textContent = '—';
       els.status.textContent = 'API key missing';
-      els.output.textContent = `This project uses ${providerList(keyState.required)}. Fill the missing key first: ${providerList(keyState.missing)}.`;
+      els.output.textContent = `This run uses ${providerList(keyState.required)}. Fill the selected provider key first: ${providerList(keyState.missing)}.`;
       els.apiKeyPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
