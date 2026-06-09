@@ -112,6 +112,7 @@
     '/pom.xml': DEFAULT_POM
   };
   let currentPath = '/astra/Main.astra';
+  let emptyFolders = new Set();
 
   const els = {};
 
@@ -194,6 +195,13 @@
     const built = {};
     Object.entries(tree.folders).forEach(([name, sub]) => {
       built[name] = buildFolderTree(basePath + '/' + name, sub);
+    });
+    // Merge empty folders
+    emptyFolders.forEach(fp => {
+      if (!fp.startsWith(basePath + '/')) return;
+      const rel = fp.slice(basePath.length + 1);
+      const seg = rel.indexOf('/') === -1 ? rel : rel.slice(0, rel.indexOf('/'));
+      if (!built[seg]) built[seg] = buildFolderTree(basePath + '/' + seg, []);
     });
     tree.folders = built;
     return tree;
@@ -472,6 +480,15 @@
     const moved = {};
     affected.forEach(p => { moved[newFolder + p.slice(folderPath.length)] = files[p]; delete files[p]; });
     Object.assign(files, moved);
+    // Update empty folders
+    const efRemove = [], efAdd = [];
+    emptyFolders.forEach(fp => {
+      if (fp.startsWith(folderPath + '/') || fp === folderPath) {
+        efRemove.push(fp); efAdd.push(newFolder + fp.slice(folderPath.length));
+      }
+    });
+    efRemove.forEach(fp => emptyFolders.delete(fp));
+    efAdd.forEach(fp => emptyFolders.add(fp));
     if (currentPath && currentPath.startsWith(folderPath + '/')) {
       currentPath = newFolder + currentPath.slice(folderPath.length);
       els.editor.value = files[currentPath] || '';
@@ -488,6 +505,10 @@
     const name = folderPath.split('/').pop();
     if (!window.confirm(`Delete "${name}" and its ${affected.length} file(s)?`)) return;
     affected.forEach(p => delete files[p]);
+    // Clean up empty folders within
+    emptyFolders.forEach(fp => {
+      if (fp.startsWith(folderPath + '/') || fp === folderPath) emptyFolders.delete(fp);
+    });
     if (currentPath && currentPath.startsWith(folderPath + '/')) {
       const remaining = Object.keys(files).sort();
       currentPath = remaining[0] || null;
@@ -527,6 +548,24 @@
   window.__glRenameFolder = renameFolder;
   window.__glDeleteFolder = deleteFolder;
   window.__glCreateFileInFolder = createFileInFolder;
+
+  function createFolder(parentPath) {
+    const raw = window.prompt('New folder name', 'newFolder');
+    if (raw === null) return;
+    const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
+      window.alert('Invalid folder name.'); return;
+    }
+    const fp = parentPath + '/' + cleaned;
+    const exists = Object.keys(files).some(p => p.startsWith(fp + '/'));
+    if (exists || emptyFolders.has(fp)) {
+      window.alert('Folder already exists.'); return;
+    }
+    emptyFolders.add(fp);
+    renderTree();
+    saveToStorage();
+  }
+  window.__glCreateFolder = createFolder;
 
   function validateProjectBeforeRun() {
     saveCurrentFile();
@@ -798,7 +837,7 @@
   function saveToStorage() {
     saveCurrentFile();
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath, emptyFolders: [...emptyFolders] }));
     } catch (e) { /* quota exceeded — ignore */ }
   }
 
@@ -810,6 +849,7 @@
       if (data && data.files && typeof data.files === 'object') {
         files = data.files;
         currentPath = data.currentPath || Object.keys(files)[0] || '/astra/Main.astra';
+        if (Array.isArray(data.emptyFolders)) emptyFolders = new Set(data.emptyFolders);
         return true;
       }
     } catch (e) { /* corrupted — ignore */ }
