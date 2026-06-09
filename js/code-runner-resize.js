@@ -202,7 +202,8 @@
 
     document.addEventListener('mousemove', (e) => {
       if (!vDragging) return;
-      const nextH = Math.max(MIN_EDITOR_H, vStartH + (e.clientY - vStartY));
+      const minH = Math.max(MIN_EDITOR_H, filesPanel.getBoundingClientRect().height);
+      const nextH = Math.max(minH, vStartH + (e.clientY - vStartY));
       editor.style.height = nextH + 'px';
       editor.style.minHeight = nextH + 'px';
       editor.style.flex = 'none';
