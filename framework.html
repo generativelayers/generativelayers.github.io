@@ -27,6 +27,7 @@
   <!-- Styles -->
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'>
   <link rel='stylesheet' href='style.css?v=3.6'>
+  <link rel='stylesheet' href='framework-layout.css?v=1'>
   <script defer src='js/search.js'></script>
   <script defer src='js/run-code-links.js?v=1'></script>
 </head>
@@ -62,7 +63,7 @@
     </aside>
 
     <!-- Main -->
-    <main class='main'>
+    <main class='main framework-main'>
       <h1>Framework</h1>
       <p class='lead'>The framework boundary between agent programs and external generative resources.</p>
 
@@ -122,16 +123,13 @@
       <section class='info-panel' id='core-concepts'>
         <h2>Core concepts</h2>
 
-        <!-- Agent Layer -->
         <div class='concept-card card' id='concept-agent-layer' onclick='toggleConcept(&quot;agent-layer&quot;)'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-user-gear'></i> Agent Layer</h3>
               <p class='concept-desc'>The host agent platform and its execution semantics.</p>
             </div>
-            <button class='concept-toggle-btn' aria-label='Expand Details'>
-              <i class='fa-solid fa-eye'></i>
-            </button>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
@@ -142,16 +140,13 @@
           </div>
         </div>
 
-        <!-- Adapter -->
         <div class='concept-card card' id='concept-adapter' onclick='toggleConcept(&quot;adapter&quot;)'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-diagram-project'></i> Adapter</h3>
               <p class='concept-desc'>The bridge between an agent framework and Generative Layers.</p>
             </div>
-            <button class='concept-toggle-btn' aria-label='Expand Details'>
-              <i class='fa-solid fa-eye'></i>
-            </button>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
@@ -162,16 +157,13 @@
           </div>
         </div>
 
-        <!-- Governance Boundary -->
         <div class='concept-card card' id='concept-governance' onclick='toggleConcept(&quot;governance&quot;)'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-shield-halved'></i> Governance Boundary</h3>
               <p class='concept-desc'>Policy, limits, audit, and admissibility checks.</p>
             </div>
-            <button class='concept-toggle-btn' aria-label='Expand Details'>
-              <i class='fa-solid fa-eye'></i>
-            </button>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
@@ -182,16 +174,13 @@
           </div>
         </div>
 
-        <!-- Provider -->
         <div class='concept-card card' id='concept-provider' onclick='toggleConcept(&quot;provider&quot;)'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-server'></i> Provider</h3>
               <p class='concept-desc'>The abstract connector to an LLM, tool, API, service, or module.</p>
             </div>
-            <button class='concept-toggle-btn' aria-label='Expand Details'>
-              <i class='fa-solid fa-eye'></i>
-            </button>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
@@ -202,16 +191,13 @@
           </div>
         </div>
 
-        <!-- Candidate Material -->
         <div class='concept-card card' id='concept-material' onclick='toggleConcept(&quot;material&quot;)'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-cube'></i> Candidate Material</h3>
               <p class='concept-desc'>External output that may be adopted, verified, ignored, or rejected.</p>
             </div>
-            <button class='concept-toggle-btn' aria-label='Expand Details'>
-              <i class='fa-solid fa-eye'></i>
-            </button>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
@@ -227,7 +213,6 @@
         <h2>Canonical commands</h2>
         <p>The framework establishes a strict canonical contract of 16 core commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
 
-        <!-- Command Filters -->
         <div class='command-filters'>
           <button class='filter-btn active' data-group='all'>All</button>
           <button class='filter-btn' data-group='lifecycle'>Lifecycle</button>
