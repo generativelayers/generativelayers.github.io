@@ -90,11 +90,20 @@
     activeController.abort();
     notifyCancel(runId);
 
-    setText('runnerStatus', 'Stopping…');
-    setText('metaStatus', 'Stopping');
+    // Freeze the elapsed timer at its current value
+    if (window.__glElapsedTimer) {
+      clearInterval(window.__glElapsedTimer);
+      window.__glElapsedTimer = null;
+    }
+    if (window.__glRunStartTime) {
+      const secs = ((Date.now() - window.__glRunStartTime) / 1000).toFixed(1);
+      setText('metaElapsed', `${secs}s`);
+    }
+
+    setText('runnerStatus', 'Stopped');
+    setText('metaStatus', 'Stopped');
     setText('metaReturnCode', '—');
-    setText('metaElapsed', '—');
-    output('Stop requested. Waiting is cancelled. If the backend cancel endpoint is installed, the server process is also terminated.');
+    output('Execution stopped by user.');
   }
 
   function patchFetch() {
