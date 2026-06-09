@@ -178,17 +178,57 @@
     });
   }
 
+  function buildFolderTree(basePath, paths) {
+    const tree = { folders: {}, files: [] };
+    paths.forEach(fullPath => {
+      const relative = fullPath.slice(basePath.length + 1);
+      const slashIdx = relative.indexOf('/');
+      if (slashIdx === -1) {
+        tree.files.push({ name: relative, fullPath });
+      } else {
+        const folder = relative.slice(0, slashIdx);
+        if (!tree.folders[folder]) tree.folders[folder] = [];
+        tree.folders[folder].push(fullPath);
+      }
+    });
+    const built = {};
+    Object.entries(tree.folders).forEach(([name, sub]) => {
+      built[name] = buildFolderTree(basePath + '/' + name, sub);
+    });
+    tree.folders = built;
+    return tree;
+  }
+
+  function renderFolderContents(tree, basePath) {
+    let html = '';
+    Object.keys(tree.folders).sort().forEach(name => {
+      const fp = basePath + '/' + name;
+      html += `<div class="runner-folder" data-folder-path="${escapeHtml(fp)}">`;
+      html += `<div class="runner-folder-head" data-folder-path="${escapeHtml(fp)}">`;
+      html += `<i class="fa-solid fa-chevron-down runner-chevron"></i>`;
+      html += `<i class="fa-solid fa-folder-open runner-folder-ico"></i>`;
+      html += `<span>${escapeHtml(name)}</span>`;
+      html += `</div><div class="runner-folder-body">`;
+      html += renderFolderContents(tree.folders[name], fp);
+      html += `</div></div>`;
+    });
+    tree.files.sort((a, b) => a.name.localeCompare(b.name)).forEach(f => {
+      const active = f.fullPath === currentPath ? ' active' : '';
+      html += `<button type="button" class="runner-file${active}" data-path="${escapeHtml(f.fullPath)}"><i class="fa-regular fa-file-code"></i><span>${escapeHtml(f.name)}</span></button>`;
+    });
+    if (Object.keys(tree.folders).length === 0 && tree.files.length === 0) {
+      html += '<div class="runner-empty-folder">empty</div>';
+    }
+    return html;
+  }
+
   function renderRoot(root, paths) {
     const icons = { '/astra': 'fa-robot', '/java': 'fa-brands fa-java' };
     const icon = icons[root] || 'fa-folder';
-    const empty = paths.length === 0 ? '<div class="runner-empty-folder">empty</div>' : '';
-    const items = paths.map(path => {
-      const active = path === currentPath ? ' active' : '';
-      const shortName = path.slice(root.length + 1);
-      return `<button type="button" class="runner-file${active}" data-path="${escapeHtml(path)}"><i class="fa-regular fa-file-code"></i><span>${escapeHtml(shortName)}</span></button>`;
-    }).join('');
-
-    return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${root}</span></div>${empty}${items}</div>`;
+    const contents = paths.length === 0
+      ? '<div class="runner-empty-folder">empty</div>'
+      : renderFolderContents(buildFolderTree(root, paths), root);
+    return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${root}</span></div>${contents}</div>`;
   }
 
   function openFile(path) {
@@ -228,9 +268,6 @@
     if (kind === 'astra' && !name.endsWith('.astra')) name += '.astra';
     if (kind === 'java' && !name.endsWith('.java')) name += '.java';
 
-    if (kind === 'astra' && !/^[A-Za-z0-9_.$-]+\.astra$/.test(name)) {
-      throw new Error('ASTRA files must be directly inside /astra and end with .astra.');
-    }
 
     return `/${kind}/${name}`;
   }
@@ -410,6 +447,86 @@
   window.__glGetAllCode = function() {
     return Object.values(files).join('\n');
   };
+
+  // ── Folder operations (for tree-ui) ────────────────────
+  function renameFolder(folderPath) {
+    saveCurrentFile();
+    const root = folderPath.startsWith('/astra') ? '/astra' : '/java';
+    const relative = folderPath.slice(root.length + 1);
+    const raw = window.prompt('Rename folder', relative);
+    if (raw === null) return;
+    const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
+      window.alert('Invalid folder name.'); return;
+    }
+    const newFolder = root + '/' + cleaned;
+    if (newFolder === folderPath) return;
+    const affected = Object.keys(files).filter(p => p.startsWith(folderPath + '/'));
+    if (affected.length === 0) return;
+    for (const old of affected) {
+      const np = newFolder + old.slice(folderPath.length);
+      if (Object.prototype.hasOwnProperty.call(files, np) && !affected.includes(np)) {
+        window.alert('Conflict: ' + np + ' already exists.'); return;
+      }
+    }
+    const moved = {};
+    affected.forEach(p => { moved[newFolder + p.slice(folderPath.length)] = files[p]; delete files[p]; });
+    Object.assign(files, moved);
+    if (currentPath && currentPath.startsWith(folderPath + '/')) {
+      currentPath = newFolder + currentPath.slice(folderPath.length);
+      els.editor.value = files[currentPath] || '';
+      els.currentFile.textContent = currentPath;
+    }
+    renderTree();
+    saveToStorage();
+  }
+
+  function deleteFolder(folderPath) {
+    saveCurrentFile();
+    const affected = Object.keys(files).filter(p => p.startsWith(folderPath + '/'));
+    if (affected.length === 0) return;
+    const name = folderPath.split('/').pop();
+    if (!window.confirm(`Delete "${name}" and its ${affected.length} file(s)?`)) return;
+    affected.forEach(p => delete files[p]);
+    if (currentPath && currentPath.startsWith(folderPath + '/')) {
+      const remaining = Object.keys(files).sort();
+      currentPath = remaining[0] || null;
+      els.editor.value = currentPath ? files[currentPath] : '';
+      els.currentFile.textContent = currentPath || 'No file selected';
+    }
+    renderTree();
+    updateApiKeyUI();
+    saveToStorage();
+  }
+
+  function createFileInFolder(folderPath) {
+    saveCurrentFile();
+    const kind = folderPath.startsWith('/astra') ? 'astra' : 'java';
+    const ext = kind === 'astra' ? '.astra' : '.java';
+    const raw = window.prompt(`New file in ${folderPath}`, kind === 'astra' ? 'Agent.astra' : 'MyClass.java');
+    if (raw === null) return;
+    let name = raw.trim();
+    if (!name) return;
+    if (!name.endsWith(ext)) name += ext;
+    if (!/^[A-Za-z0-9_.$/-]+$/.test(name)) {
+      window.alert('Invalid file name.'); return;
+    }
+    const path = folderPath + '/' + name;
+    if (Object.prototype.hasOwnProperty.call(files, path)) {
+      window.alert('File already exists.'); return;
+    }
+    files[path] = kind === 'astra' ? astraTemplate(path) : javaTemplate(path);
+    currentPath = path;
+    els.editor.value = files[path];
+    els.currentFile.textContent = path;
+    renderTree();
+    updateApiKeyUI();
+    saveToStorage();
+  }
+
+  window.__glRenameFolder = renameFolder;
+  window.__glDeleteFolder = deleteFolder;
+  window.__glCreateFileInFolder = createFileInFolder;
 
   function validateProjectBeforeRun() {
     saveCurrentFile();
