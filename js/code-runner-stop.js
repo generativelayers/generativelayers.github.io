@@ -160,12 +160,13 @@
 
         return response;
       } catch (error) {
+        const wasStopped = stopRequested;
         activeController = null;
         activeRunId = null;
         stopRequested = false;
         window.setTimeout(setRunButton, 0);
 
-        if (stopRequested || error.name === 'AbortError') {
+        if (wasStopped || error.name === 'AbortError') {
           return new Response(JSON.stringify({
             status: 'stopped',
             return_code: 'stopped',
