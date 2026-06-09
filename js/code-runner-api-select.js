@@ -186,6 +186,7 @@
     panelEl = document.createElement('div');
     panelEl.className = 'gl-keys-panel';
     panelEl.id = 'glKeysPanel';
+    panelEl.hidden = true;
     panelEl.innerHTML = `
       <div class="gl-keys-header">
         <i class="fa-solid fa-key"></i>
