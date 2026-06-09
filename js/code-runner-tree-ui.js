@@ -170,7 +170,7 @@
       .runner-folder-ico {
         font-size: 11px;
         flex-shrink: 0;
-        color: #fbbf24;
+        color: #34d399;
       }
       .runner-folder-actions {
         display: none;
@@ -252,7 +252,19 @@
         clickHidden(isAstra ? 'newAstraFileButton' : 'newJavaFileButton');
       });
 
+      const addFolder = document.createElement('button');
+      addFolder.type = 'button';
+      addFolder.className = 'runner-folder-add';
+      addFolder.title = isAstra ? 'New folder in /astra' : 'New folder in /java';
+      addFolder.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+      addFolder.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(isAstra ? '/astra' : '/java');
+      });
+
       title.appendChild(label);
+      title.appendChild(addFolder);
       title.appendChild(add);
       title.dataset.treeUiPatched = '1';
     });
@@ -360,6 +372,16 @@
       const actions = document.createElement('div');
       actions.className = 'runner-folder-actions';
 
+      const newFolderBtn = document.createElement('button');
+      newFolderBtn.type = 'button';
+      newFolderBtn.className = 'runner-folder-action-btn';
+      newFolderBtn.title = 'New subfolder';
+      newFolderBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+      newFolderBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(folderPath);
+      });
+
       const addBtn = document.createElement('button');
       addBtn.type = 'button';
       addBtn.className = 'runner-folder-action-btn';
@@ -390,6 +412,7 @@
         if (typeof window.__glDeleteFolder === 'function') window.__glDeleteFolder(folderPath);
       });
 
+      actions.appendChild(newFolderBtn);
       actions.appendChild(addBtn);
       actions.appendChild(renameBtn);
       actions.appendChild(deleteBtn);
