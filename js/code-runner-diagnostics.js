@@ -1,283 +1,298 @@
 /**
- * code-runner-diagnostics.js — Real-time ASTRA syntax checking via server-side compiler.
+ * code-runner-diagnostics.js
  *
- * Sends the editor source to /api/check-astra (the real ASTRA compiler),
- * receives JSON diagnostics [{file, severity, message, startLine, startCol, endLine, endCol}],
- * and renders them below the editor.
+ * Real-time ASTRA syntax checking via the server-side ASTRA compiler.
+ * Calls POST /api/check-astra, receives diagnostics JSON, renders a
+ * beautiful diagnostics panel below the editor with click-to-jump.
  *
- * Debounced at 600 ms after last keystroke to avoid hammering the server.
+ * Debounced at 800ms to avoid hammering the server.
  */
-(() => {
+(function () {
   'use strict';
 
-  const CHECK_URL = 'https://code.generativelayers.com/api/check-astra';
-  const DEBOUNCE_MS = 600;
-  const STYLE_ID = 'gl-diagnostics-style';
+  var CHECK_URL = 'https://code.generativelayers.com/api/check-astra';
+  var DEBOUNCE_MS = 800;
 
-  /* ── CSS ───────────────────────────────────────────────────── */
-  function addStyle() {
-    if (document.getElementById(STYLE_ID)) return;
-    const s = document.createElement('style');
-    s.id = STYLE_ID;
-    s.textContent = `
-      .diag-bar {
-        display: flex; align-items: center; gap: 10px;
-        padding: 8px 14px; cursor: pointer; user-select: none;
-        border: 1px solid #1f2937; border-top: 0;
-        border-radius: 0 0 12px 12px;
-        background: #0f172a; color: #94a3b8;
-        font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-        font-size: 12px; font-weight: 700;
-        transition: background .15s;
-      }
-      .diag-bar:hover { background: #1e293b; }
-      .diag-bar.has-errors { color: #fca5a5; }
-      .diag-bar.has-warnings { color: #fde68a; }
-      .diag-bar.has-errors.has-warnings { color: #fca5a5; }
-      .diag-bar.all-clear { color: #6ee7b7; }
-      .diag-bar.checking { color: #94a3b8; }
-      .diag-bar .diag-chevron { margin-left: auto; transition: transform .2s; font-size: 10px; color: #475569; }
-      .diag-bar.expanded .diag-chevron { transform: rotate(180deg); }
-      .diag-bar .diag-spinner { display: none; }
-      .diag-bar.checking .diag-spinner { display: inline-block; animation: diag-spin .8s linear infinite; }
-      @keyframes diag-spin { to { transform: rotate(360deg); } }
+  /* ── Inject CSS ─────────────────────────────────────────────── */
+  var css = document.createElement('style');
+  css.textContent = [
+    /* Bar */
+    '.gl-diag-bar{',
+    '  display:flex;align-items:center;gap:10px;',
+    '  padding:9px 16px;cursor:pointer;user-select:none;',
+    '  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);',
+    '  border:1px solid #1e3a5f;border-top:none;',
+    '  border-radius:0 0 12px 12px;',
+    '  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;',
+    '  font-size:12px;font-weight:700;letter-spacing:.3px;',
+    '  color:#94a3b8;transition:all .2s ease;',
+    '}',
+    '.gl-diag-bar:hover{background:linear-gradient(135deg,#1e293b 0%,#334155 100%);}',
 
-      .diag-list {
-        max-height: 0; overflow: hidden;
-        border: 1px solid #1f2937; border-top: 0;
-        background: #0b1220;
-        transition: max-height .25s ease;
-        margin-top: -12px;
-        border-radius: 0 0 12px 12px;
-      }
-      .diag-bar.expanded + .diag-list {
-        max-height: 260px; overflow-y: auto;
-        border-radius: 0 0 12px 12px;
-      }
-      .diag-bar.expanded { border-radius: 0; }
+    /* States */
+    '.gl-diag-bar[data-state="ok"]{color:#6ee7b7;border-color:#065f46;}',
+    '.gl-diag-bar[data-state="error"]{color:#fca5a5;border-color:#7f1d1d;}',
+    '.gl-diag-bar[data-state="warn"]{color:#fde68a;border-color:#78350f;}',
+    '.gl-diag-bar[data-state="checking"]{color:#7dd3fc;}',
+    '.gl-diag-bar[data-state="offline"]{color:#94a3b8;}',
 
-      .diag-item {
-        display: flex; align-items: flex-start; gap: 10px;
-        padding: 7px 14px; cursor: pointer;
-        font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-        font-size: 12px; line-height: 1.45;
-        border-bottom: 1px solid #1e293b;
-        color: #cbd5e1;
-        transition: background .1s;
-      }
-      .diag-item:hover { background: #1e293b; }
-      .diag-item:last-child { border-bottom: 0; }
-      .diag-line { min-width: 42px; color: #64748b; font-weight: 800; text-align: right; flex-shrink: 0; }
-      .diag-icon { flex-shrink: 0; width: 16px; text-align: center; }
-      .diag-icon.sev-error { color: #f87171; }
-      .diag-icon.sev-warning { color: #fbbf24; }
-      .diag-icon.sev-info { color: #60a5fa; }
-      .diag-msg { flex: 1; }
-    `;
-    document.head.appendChild(s);
-  }
+    /* Icons */
+    '.gl-diag-icon{font-size:14px;flex-shrink:0;transition:transform .15s;}',
+    '.gl-diag-summary{flex:1;}',
+    '.gl-diag-chevron{margin-left:auto;font-size:10px;color:#475569;transition:transform .25s ease;}',
+    '.gl-diag-bar[data-open="1"] .gl-diag-chevron{transform:rotate(180deg);}',
 
-  /* ── DOM ───────────────────────────────────────────────────── */
-  let bar, list, editor, currentFileEl;
-  let timer = null;
-  let abortCtrl = null;
-  let lastSource = '';
+    /* Spinner */
+    '.gl-diag-spin{display:none;animation:glDiagSpin .7s linear infinite;}',
+    '.gl-diag-bar[data-state="checking"] .gl-diag-spin{display:inline-block;}',
+    '.gl-diag-bar[data-state="checking"] .gl-diag-main-icon{display:none;}',
+    '@keyframes glDiagSpin{to{transform:rotate(360deg);}}',
 
-  function build() {
-    const editorWrap = document.querySelector('.runner-editor-wrap');
+    /* Panel */
+    '.gl-diag-panel{',
+    '  max-height:0;overflow:hidden;',
+    '  background:#0a0f1e;',
+    '  border:1px solid #1e3a5f;border-top:none;',
+    '  border-radius:0 0 12px 12px;',
+    '  transition:max-height .3s cubic-bezier(.4,0,.2,1);',
+    '}',
+    '.gl-diag-bar[data-open="1"]+.gl-diag-panel{max-height:280px;overflow-y:auto;}',
+    '.gl-diag-bar[data-open="1"]{border-radius:0;}',
+
+    /* Items */
+    '.gl-diag-item{',
+    '  display:flex;align-items:flex-start;gap:10px;',
+    '  padding:8px 16px;cursor:pointer;',
+    '  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;',
+    '  font-size:12px;line-height:1.5;',
+    '  color:#cbd5e1;border-bottom:1px solid rgba(30,58,95,.5);',
+    '  transition:background .12s ease;',
+    '}',
+    '.gl-diag-item:hover{background:rgba(30,58,95,.6);}',
+    '.gl-diag-item:last-child{border-bottom:none;}',
+    '.gl-diag-line{min-width:38px;color:#64748b;font-weight:900;text-align:right;flex-shrink:0;}',
+    '.gl-diag-sev{flex-shrink:0;width:18px;text-align:center;font-size:13px;}',
+    '.gl-diag-sev.e{color:#f87171;}',
+    '.gl-diag-sev.w{color:#fbbf24;}',
+    '.gl-diag-sev.i{color:#60a5fa;}',
+    '.gl-diag-msg{flex:1;word-break:break-word;}',
+
+    /* Editor glow when errors */
+    '.runner-editor.has-errors{',
+    '  border-color:#7f1d1d !important;',
+    '  box-shadow:0 0 0 2px rgba(239,68,68,.15),inset 0 0 30px rgba(239,68,68,.04) !important;',
+    '}',
+    '.runner-editor.has-errors:focus{',
+    '  border-color:#dc2626 !important;',
+    '  box-shadow:0 0 0 3px rgba(239,68,68,.25),inset 0 0 30px rgba(239,68,68,.06) !important;',
+    '}',
+  ].join('\n');
+  document.head.appendChild(css);
+
+  /* ── State ──────────────────────────────────────────────────── */
+  var editor, bar, panel, summaryEl, mainIcon, spinner;
+  var timer = null, abortCtrl = null, lastSource = '';
+
+  /* ── Build DOM ──────────────────────────────────────────────── */
+  function init() {
     editor = document.getElementById('fileEditor');
-    currentFileEl = document.getElementById('currentFile');
-    if (!editorWrap || !editor) return false;
-
-    editor.style.borderRadius = '0';
-
-    bar = document.createElement('div');
-    bar.className = 'diag-bar all-clear';
-    bar.innerHTML = '<i class="fa-solid fa-circle-check diag-main-icon"></i> <i class="fa-solid fa-spinner diag-spinner"></i> <span class="diag-summary">No issues</span> <i class="fa-solid fa-chevron-down diag-chevron"></i>';
-    bar.addEventListener('click', () => bar.classList.toggle('expanded'));
-
-    list = document.createElement('div');
-    list.className = 'diag-list';
-
-    editorWrap.appendChild(bar);
-    editorWrap.appendChild(list);
-    return true;
-  }
-
-  /* ── Server call ───────────────────────────────────────────── */
-
-  function getCurrentFilename() {
-    if (!currentFileEl) return 'Main.astra';
-    return (currentFileEl.textContent || '').split('/').pop() || 'Main.astra';
-  }
-
-  async function checkOnServer() {
     if (!editor) return;
 
-    const filename = getCurrentFilename();
+    var wrap = editor.closest('.runner-editor-wrap');
+    if (!wrap) return;
+
+    // Remove bottom radius from editor — diagnostics bar continues it
+    editor.style.borderRadius = '0';
+
+    // Bar
+    bar = document.createElement('div');
+    bar.className = 'gl-diag-bar';
+    bar.setAttribute('data-state', 'ok');
+    bar.setAttribute('data-open', '0');
+    bar.innerHTML = [
+      '<i class="fa-solid fa-circle-check gl-diag-icon gl-diag-main-icon"></i>',
+      '<i class="fa-solid fa-spinner gl-diag-spin gl-diag-icon"></i>',
+      '<span class="gl-diag-summary">Ready</span>',
+      '<i class="fa-solid fa-chevron-down gl-diag-chevron"></i>'
+    ].join('');
+    bar.addEventListener('click', function () {
+      bar.setAttribute('data-open', bar.getAttribute('data-open') === '1' ? '0' : '1');
+    });
+
+    // Panel
+    panel = document.createElement('div');
+    panel.className = 'gl-diag-panel';
+
+    wrap.appendChild(bar);
+    wrap.appendChild(panel);
+
+    summaryEl = bar.querySelector('.gl-diag-summary');
+    mainIcon = bar.querySelector('.gl-diag-main-icon');
+    spinner = bar.querySelector('.gl-diag-spin');
+
+    // Wire events
+    editor.addEventListener('input', scheduleCheck);
+    editor.addEventListener('focus', scheduleCheck);
+
+    // Watch file tab changes
+    var currentFileEl = document.getElementById('currentFile');
+    if (currentFileEl) {
+      var obs = new MutationObserver(function () { lastSource = ''; scheduleCheck(); });
+      obs.observe(currentFileEl, { childList: true, characterData: true, subtree: true });
+    }
+
+    // Initial check after short delay
+    setTimeout(doCheck, 600);
+  }
+
+  /* ── Debounce ───────────────────────────────────────────────── */
+  function scheduleCheck() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(doCheck, DEBOUNCE_MS);
+  }
+
+  /* ── Server call ────────────────────────────────────────────── */
+  function doCheck() {
+    if (!editor || !bar) return;
+
+    // Only check .astra files
+    var fileEl = document.getElementById('currentFile');
+    var filename = fileEl ? (fileEl.textContent || '').trim() : 'Main.astra';
     if (!filename.endsWith('.astra')) {
-      renderClear('Not an ASTRA file');
+      setState('ok', 'Not an ASTRA file');
       return;
     }
 
-    const source = editor.value;
+    var source = editor.value || '';
     if (source === lastSource) return;
     lastSource = source;
 
     if (!source.trim()) {
-      renderClear('Empty file');
+      setState('ok', 'Empty');
+      setEditorGlow(false);
       return;
     }
 
-    // Abort any in-flight request
-    if (abortCtrl) abortCtrl.abort();
+    // Abort previous request
+    if (abortCtrl) { try { abortCtrl.abort(); } catch (e) {} }
     abortCtrl = new AbortController();
 
-    setChecking(true);
+    setState('checking', 'Checking…');
 
-    try {
-      // Build the same files payload as the runner
-      const files = {};
-      // Get all project files from the code-runner's global state
-      if (window.__glFiles) {
-        Object.entries(window.__glFiles).forEach(([path, content]) => {
-          if (path.startsWith('/astra/')) files['src/main/astra/' + path.slice(7)] = content;
-          if (path.startsWith('/java/')) files['src/main/java/' + path.slice(6)] = content;
-        });
-      } else {
-        files['src/main/astra/' + filename] = source;
-      }
-
-      const response = await fetch(CHECK_URL, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source, files }),
-        signal: abortCtrl.signal
-      });
-
-      const data = await response.json();
-
-      // Server returns: { diagnostics: [{file, severity, message, startLine, startCol, endLine, endCol}] }
-      // or directly an array
-      const diags = Array.isArray(data) ? data : (data.diagnostics || []);
-      render(diags);
-    } catch (err) {
-      if (err.name === 'AbortError') return; // Superseded by newer request
-      // Network error — don't show as a diagnostic, just note it
-      renderClear('Offline — unable to check');
-    } finally {
-      setChecking(false);
-    }
-  }
-
-  /* ── Render ────────────────────────────────────────────────── */
-
-  function setChecking(active) {
-    if (active) {
-      bar.classList.add('checking');
-      bar.querySelector('.diag-summary').textContent = 'Checking…';
-    } else {
-      bar.classList.remove('checking');
-    }
-  }
-
-  function renderClear(msg) {
-    bar.className = 'diag-bar all-clear';
-    bar.querySelector('.diag-summary').textContent = msg || 'No issues';
-    bar.querySelector('.diag-main-icon').className = 'fa-solid fa-circle-check diag-main-icon';
-    list.innerHTML = '';
-    bar.classList.remove('expanded');
-  }
-
-  function render(diags) {
-    const errors = diags.filter(d => d.severity === 'error');
-    const warnings = diags.filter(d => d.severity === 'warning');
-
-    if (diags.length === 0) {
-      renderClear('No issues — compiled OK');
-      return;
-    }
-
-    const parts = [];
-    if (errors.length) parts.push(`${errors.length} error${errors.length > 1 ? 's' : ''}`);
-    if (warnings.length) parts.push(`${warnings.length} warning${warnings.length > 1 ? 's' : ''}`);
-    bar.querySelector('.diag-summary').textContent = parts.join(', ');
-
-    let cls = 'diag-bar';
-    if (errors.length) cls += ' has-errors';
-    else if (warnings.length) cls += ' has-warnings';
-    else cls += ' all-clear';
-    if (bar.classList.contains('expanded')) cls += ' expanded';
-
-    const icon = errors.length ? 'fa-circle-xmark' : 'fa-triangle-exclamation';
-    bar.querySelector('.diag-main-icon').className = `fa-solid ${icon} diag-main-icon`;
-    bar.className = cls;
-
-    if (errors.length && !bar.classList.contains('expanded')) {
-      bar.classList.add('expanded');
-    }
-
-    const sevIcon = {
-      error: '<i class="fa-solid fa-circle-xmark diag-icon sev-error"></i>',
-      warning: '<i class="fa-solid fa-triangle-exclamation diag-icon sev-warning"></i>',
-      info: '<i class="fa-solid fa-circle-info diag-icon sev-info"></i>'
-    };
-
-    list.innerHTML = diags.map(d => `
-      <div class="diag-item" data-line="${d.startLine || 1}">
-        <span class="diag-line">L${d.startLine || 1}</span>
-        ${sevIcon[d.severity] || sevIcon.error}
-        <span class="diag-msg">${escapeHtml(d.message)}</span>
-      </div>
-    `).join('');
-
-    list.querySelectorAll('.diag-item').forEach(item => {
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        jumpToLine(parseInt(item.dataset.line, 10));
-      });
+    fetch(CHECK_URL, {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: source }),
+      signal: abortCtrl.signal
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var diags = Array.isArray(data) ? data : (data.diagnostics || []);
+      renderDiags(diags);
+    })
+    .catch(function (err) {
+      if (err.name === 'AbortError') return;
+      setState('offline', 'Offline — unable to check');
+      setEditorGlow(false);
     });
   }
 
-  function escapeHtml(s) {
+  /* ── Render ─────────────────────────────────────────────────── */
+  function setState(state, text) {
+    bar.setAttribute('data-state', state);
+    summaryEl.textContent = text;
+    var icons = {
+      ok: 'fa-circle-check',
+      error: 'fa-circle-xmark',
+      warn: 'fa-triangle-exclamation',
+      checking: 'fa-spinner',
+      offline: 'fa-wifi'
+    };
+    mainIcon.className = 'fa-solid ' + (icons[state] || 'fa-circle-check') + ' gl-diag-icon gl-diag-main-icon';
+  }
+
+  function setEditorGlow(hasErrors) {
+    if (hasErrors) {
+      editor.classList.add('has-errors');
+    } else {
+      editor.classList.remove('has-errors');
+    }
+  }
+
+  function renderDiags(diags) {
+    var errors = diags.filter(function (d) { return d.severity === 'error'; });
+    var warnings = diags.filter(function (d) { return d.severity === 'warning'; });
+
+    if (diags.length === 0) {
+      setState('ok', 'No issues — compiled OK ✓');
+      setEditorGlow(false);
+      panel.innerHTML = '';
+      bar.setAttribute('data-open', '0');
+      return;
+    }
+
+    // Summary text
+    var parts = [];
+    if (errors.length) parts.push(errors.length + ' error' + (errors.length > 1 ? 's' : ''));
+    if (warnings.length) parts.push(warnings.length + ' warning' + (warnings.length > 1 ? 's' : ''));
+    setState(errors.length ? 'error' : 'warn', parts.join(', '));
+    setEditorGlow(errors.length > 0);
+
+    // Auto-expand on errors
+    if (errors.length) bar.setAttribute('data-open', '1');
+
+    // Build items
+    var sevIcons = {
+      error: '<i class="fa-solid fa-circle-xmark gl-diag-sev e"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation gl-diag-sev w"></i>',
+      info: '<i class="fa-solid fa-circle-info gl-diag-sev i"></i>'
+    };
+
+    panel.innerHTML = diags.map(function (d) {
+      var line = d.startLine || 1;
+      return '<div class="gl-diag-item" data-line="' + line + '">' +
+        '<span class="gl-diag-line">L' + line + '</span>' +
+        (sevIcons[d.severity] || sevIcons.error) +
+        '<span class="gl-diag-msg">' + esc(d.message) + '</span>' +
+        '</div>';
+    }).join('');
+
+    // Click-to-jump
+    var items = panel.querySelectorAll('.gl-diag-item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].addEventListener('click', (function (item) {
+        return function (e) {
+          e.stopPropagation();
+          jumpToLine(parseInt(item.getAttribute('data-line'), 10));
+        };
+      })(items[i]));
+    }
+  }
+
+  function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function jumpToLine(lineNum) {
     if (!editor) return;
-    const lines = editor.value.split('\n');
-    let pos = 0;
-    for (let i = 0; i < Math.min(lineNum - 1, lines.length); i++) pos += lines[i].length + 1;
-    editor.focus();
-    editor.setSelectionRange(pos, pos + (lines[lineNum - 1] || '').length);
-    const lh = parseFloat(getComputedStyle(editor).lineHeight) || 20;
-    editor.scrollTop = Math.max(0, (lineNum - 5) * lh);
-  }
-
-  /* ── Debounce ──────────────────────────────────────────────── */
-  function scheduleLint() {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(checkOnServer, DEBOUNCE_MS);
-  }
-
-  /* ── Init ──────────────────────────────────────────────────── */
-  function init() {
-    addStyle();
-    if (!build()) return;
-
-    editor.addEventListener('input', scheduleLint);
-    editor.addEventListener('focus', scheduleLint);
-
-    if (currentFileEl) {
-      const obs = new MutationObserver(scheduleLint);
-      obs.observe(currentFileEl, { childList: true, characterData: true, subtree: true });
+    var lines = editor.value.split('\n');
+    var pos = 0;
+    for (var i = 0; i < Math.min(lineNum - 1, lines.length); i++) {
+      pos += lines[i].length + 1;
     }
-
-    setTimeout(checkOnServer, 500);
+    editor.focus();
+    var lineLen = (lines[lineNum - 1] || '').length;
+    editor.setSelectionRange(pos, pos + lineLen);
+    var lh = parseFloat(getComputedStyle(editor).lineHeight) || 20;
+    editor.scrollTop = Math.max(0, (lineNum - 4) * lh);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  /* ── Boot ───────────────────────────────────────────────────── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
