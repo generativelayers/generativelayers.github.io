@@ -27,9 +27,89 @@
     '    }',
     '}'
   ].join('\n');
+  const DEFAULT_POM = [
+    '<project xmlns="http://maven.apache.org/POM/4.0.0"',
+    '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+    '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">',
+    '',
+    '    <modelVersion>4.0.0</modelVersion>',
+    '',
+    '    <groupId>com.generativelayers.server</groupId>',
+    '    <artifactId>gl-astra-smoke</artifactId>',
+    '    <version>0.1.5</version>',
+    '',
+    '    <parent>',
+    '        <groupId>com.astralanguage</groupId>',
+    '        <artifactId>astra-base</artifactId>',
+    '        <version>2.0.13</version>',
+    '    </parent>',
+    '',
+    '    <properties>',
+    '        <maven.compiler.release>17</maven.compiler.release>',
+    '        <astra.main>Main</astra.main>',
+    '    </properties>',
+    '',
+    '    <dependencies>',
+    '        <dependency>',
+    '            <groupId>com.generativelayers</groupId>',
+    '            <artifactId>generative-layers-core</artifactId>',
+    '            <version>0.1.5</version>',
+    '        </dependency>',
+    '',
+    '        <!-- ASTRA extra modules -->',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-gui</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-protocols</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-cartago</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-eis-0.5</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-eis-0.7</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-langchain4j</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '        <dependency>',
+    '            <groupId>com.astralanguage</groupId>',
+    '            <artifactId>astra-unittest</artifactId>',
+    '            <version>2.0.13</version>',
+    '        </dependency>',
+    '    </dependencies>',
+    '',
+    '    <build>',
+    '        <defaultGoal>clean compile astra:deploy</defaultGoal>',
+    '        <plugins>',
+    '            <plugin>',
+    '                <groupId>com.astralanguage</groupId>',
+    '                <artifactId>astra-maven-plugin</artifactId>',
+    '                <version>2.0.13</version>',
+    '            </plugin>',
+    '        </plugins>',
+    '    </build>',
+    '</project>'
+  ].join('\n');
 
   let files = {
-    '/astra/Main.astra': DEFAULT_ASTRA_SOURCE
+    '/astra/Main.astra': DEFAULT_ASTRA_SOURCE,
+    '/pom.xml': DEFAULT_POM
   };
   let currentPath = '/astra/Main.astra';
 
@@ -78,13 +158,20 @@
 
     const astraFiles = sortedPaths('/astra');
     const javaFiles = sortedPaths('/java');
-    const resFiles = sortedPaths('/resources');
+    const hasPom = Object.prototype.hasOwnProperty.call(files, '/pom.xml');
 
-    els.fileTree.innerHTML = [
+    let html = [
       renderRoot('/astra', astraFiles),
-      renderRoot('/java', javaFiles),
-      renderRoot('/resources', resFiles)
+      renderRoot('/java', javaFiles)
     ].join('');
+
+    // pom.xml as a standalone root-level file
+    if (hasPom) {
+      const active = currentPath === '/pom.xml' ? ' active' : '';
+      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="/pom.xml"><i class="fa-regular fa-file-lines"></i><span>pom.xml</span></button></div>`;
+    }
+
+    els.fileTree.innerHTML = html;
 
     els.fileTree.querySelectorAll('[data-path]').forEach(button => {
       button.addEventListener('click', () => openFile(button.dataset.path));
@@ -92,14 +179,13 @@
   }
 
   function renderRoot(root, paths) {
-    const icons = { '/astra': 'fa-robot', '/java': 'fa-brands fa-java', '/resources': 'fa-folder-open' };
+    const icons = { '/astra': 'fa-robot', '/java': 'fa-brands fa-java' };
     const icon = icons[root] || 'fa-folder';
     const empty = paths.length === 0 ? '<div class="runner-empty-folder">empty</div>' : '';
     const items = paths.map(path => {
       const active = path === currentPath ? ' active' : '';
       const shortName = path.slice(root.length + 1);
-      const fileIcon = root === '/resources' ? 'fa-regular fa-file' : 'fa-regular fa-file-code';
-      return `<button type="button" class="runner-file${active}" data-path="${escapeHtml(path)}"><i class="${fileIcon}"></i><span>${escapeHtml(shortName)}</span></button>`;
+      return `<button type="button" class="runner-file${active}" data-path="${escapeHtml(path)}"><i class="fa-regular fa-file-code"></i><span>${escapeHtml(shortName)}</span></button>`;
     }).join('');
 
     return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${root}</span></div>${empty}${items}</div>`;
@@ -118,8 +204,14 @@
   function renderTreeNoSave() {
     const astraFiles = sortedPaths('/astra');
     const javaFiles = sortedPaths('/java');
-    const resFiles = sortedPaths('/resources');
-    els.fileTree.innerHTML = [renderRoot('/astra', astraFiles), renderRoot('/java', javaFiles), renderRoot('/resources', resFiles)].join('');
+    const hasPom = Object.prototype.hasOwnProperty.call(files, '/pom.xml');
+
+    let html = [renderRoot('/astra', astraFiles), renderRoot('/java', javaFiles)].join('');
+    if (hasPom) {
+      const active = currentPath === '/pom.xml' ? ' active' : '';
+      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="/pom.xml"><i class="fa-regular fa-file-lines"></i><span>pom.xml</span></button></div>`;
+    }
+    els.fileTree.innerHTML = html;
     els.fileTree.querySelectorAll('[data-path]').forEach(button => {
       button.addEventListener('click', () => openFile(button.dataset.path));
     });
@@ -310,7 +402,6 @@
     Object.entries(files).forEach(([path, content]) => {
       if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
       if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
-      if (path.startsWith('/resources/')) payload[`src/main/resources/${path.slice('/resources/'.length)}`] = content;
     });
 
     return payload;
@@ -388,7 +479,8 @@
     try {
       const body = {
         source: files['/astra/Main.astra'],
-        files: serverFilesPayload()
+        files: serverFilesPayload(),
+        pom_xml: files['/pom.xml'] || null
       };
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
 
