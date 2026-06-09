@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.6">
   <script>
-    /* Platform config — shared modules read this */
+    /* Platform config — code-runner.js reads this */
     window.GL_PLATFORM = 'jason';
     window.GL_PLATFORM_CONFIG = {
       id: 'jason',
@@ -17,7 +17,7 @@
       auxFolder: null,
       sourceExt: '.asl',
       auxExt: null,
-      sourceIcon: 'fa-file-code',
+      sourceIcon: 'fa-hat-wizard',
       auxIcon: null,
       buildFile: null,
       buildFileName: null,
@@ -30,8 +30,16 @@
   </script>
   <script defer src="js/search.js"></script>
   <script defer src="js/run-code-links.js?v=2"></script>
+  <script defer src="js/code-runner.js?v=16"></script>
+  <script defer src="js/code-runner-tree-ui.js?v=8"></script>
   <script defer src="js/code-runner-api-select.js?v=8"></script>
+  <script defer src="js/code-runner-clean-version.js?v=1"></script>
   <script defer src="js/code-runner-stop.js?v=3"></script>
+  <script defer src="js/code-runner-storage-load.js?v=1"></script>
+  <script defer src="js/code-runner-diagnostics-jason.js?v=1"></script>
+  <script defer src="js/code-runner-highlight-jason.js?v=1"></script>
+  <script defer src="js/code-runner-resize.js?v=14"></script>
+  <script defer src="js/code-runner-tree-fixes.js?v=1"></script>
   <style>
     /* Strip header/sidebar chrome when inside an iframe */
     .top, .side, .sidebar-backdrop { display: none !important; }
@@ -138,11 +146,21 @@
 
     .runner-key-panel { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; padding: 16px; margin: 14px 0 0 }
     .runner-key-panel[hidden] { display: none !important }
+    .runner-key-panel h3 { margin: 0 0 8px; font-size: 16px }
+    .runner-key-intro { margin: 0 0 12px; color: var(--color-text-secondary, #4b5563); font-size: 14px; line-height: 1.55 }
+    .runner-key-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px }
+    .runner-key-row { display: flex; flex-direction: column; gap: 6px }
+    .runner-key-row[hidden] { display: none !important }
+    .runner-key-row label { font-size: 13px; font-weight: 800; color: var(--color-text, #111827) }
+    .runner-key-row input { box-sizing: border-box; width: 100%; border: 1px solid #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 14px; background: #fff; color: #111827 }
+    .runner-key-warning { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0 0; padding: 12px 14px; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 10px; background: #fffbeb; color: #92400e; font-size: 14px; line-height: 1.55 }
+    .runner-key-warning[hidden] { display: none !important }
+    .runner-key-warning a { font-weight: 800; color: #0a7a50; text-decoration: underline; text-underline-offset: 2px }
 
     @media(max-width:900px) {
       .runner-project { grid-template-columns: 1fr }
       .runner-files { min-height: auto }
-      .runner-meta { grid-template-columns: 1fr }
+      .runner-meta, .runner-key-grid { grid-template-columns: 1fr }
     }
   </style>
 </head>
@@ -167,8 +185,25 @@
                 spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
             </div>
           </div>
+          <div class="runner-key-panel" id="apiKeyPanel" hidden>
+            <h3><i class="fa-solid fa-key" style="margin-right:8px;color:#d97706;"></i>API key required</h3>
+            <p class="runner-key-intro" id="apiKeyIntro">This project uses an LLM provider. Fill the required key before running it.</p>
+            <div class="runner-key-grid">
+              <div class="runner-key-row" data-provider-row="cerebras" hidden><label for="apiKeyCerebras">CEREBRAS_API_KEY</label><input id="apiKeyCerebras" data-provider-key="cerebras" type="password" autocomplete="off" placeholder="Paste Cerebras key for this run"></div>
+              <div class="runner-key-row" data-provider-row="groq" hidden><label for="apiKeyGroq">GROQ_API_KEY</label><input id="apiKeyGroq" data-provider-key="groq" type="password" autocomplete="off" placeholder="Paste Groq key for this run"></div>
+              <div class="runner-key-row" data-provider-row="gemini" hidden><label for="apiKeyGemini">GEMINI_API_KEY</label><input id="apiKeyGemini" data-provider-key="gemini" type="password" autocomplete="off" placeholder="Paste Gemini key for this run"></div>
+              <div class="runner-key-row" data-provider-row="openai" hidden><label for="apiKeyOpenai">OPENAI_API_KEY</label><input id="apiKeyOpenai" data-provider-key="openai" type="password" autocomplete="off" placeholder="Paste OpenAI key for this run"></div>
+              <div class="runner-key-row" data-provider-row="deepseek" hidden><label for="apiKeyDeepseek">DEEPSEEK_API_KEY</label><input id="apiKeyDeepseek" data-provider-key="deepseek" type="password" autocomplete="off" placeholder="Paste DeepSeek key for this run"></div>
+            </div>
+            <div class="runner-key-warning" id="apiKeyWarning" hidden><i class="fa-solid fa-triangle-exclamation"></i>
+              <div><strong>Provider example blocked.</strong> <span id="apiKeyWarningText"></span> Check <a
+                  href="providers.html#providers">Built-in Providers and API key setup</a>.</div>
+            </div>
+          </div>
           <div class="runner-toolbar"><button class="runner-button" id="runAstraButton" type="button"><i
                 class="fa-solid fa-play"></i><span>Run Project</span></button><button
+              class="runner-button runner-secondary" id="loadExampleButton" type="button" hidden style="display:none"><i
+                class="fa-solid fa-rotate-left"></i><span>Load Example</span></button><button
               class="runner-button runner-secondary" id="clearOutputButton" type="button"><i
                 class="fa-solid fa-eraser"></i><span>Clear Output</span></button><span class="runner-status"
               id="runnerStatus">Ready</span></div>
@@ -187,344 +222,22 @@
     </main>
   </div>
   <script>
-  (() => {
-    'use strict';
-    const RUN_URL = 'https://code.generativelayers.com/api/run-jason';
-    const CANCEL_URL = 'https://code.generativelayers.com/api/cancel-jason';
-    const STORAGE_KEY = 'gl_runner_jason_project';
-    const SOURCE_FOLDER = '/asl';
-    const SOURCE_EXT = '.asl';
-    const DEFAULT_FILE = '/asl/main.asl';
-
-    const DEFAULT_SOURCE = [
-      '// Jason Hello World with Generative Layers',
-      '',
-      '!start.',
-      '',
-      '+!start',
-      '   <- .println("Hello from Jason on code.generativelayers.com");',
-      '      .println("Generative Layers Jason adapter loaded.");',
-      '      .stopMAS.'
-    ].join('\n');
-
-    let files = { [DEFAULT_FILE]: DEFAULT_SOURCE };
-    let currentPath = DEFAULT_FILE;
-    let runAbort = null;
-
-    const $ = id => document.getElementById(id);
-
-    const els = {
-      tree: $('fileTree'), editor: $('fileEditor'), curFile: $('currentFile'),
-      run: $('runAstraButton'), clear: $('clearOutputButton'), status: $('runnerStatus'),
-      output: $('runnerOutput'), metaStatus: $('metaStatus'),
-      metaCode: $('metaReturnCode'), metaElapsed: $('metaElapsed'),
-    };
-
-    // ── File tree ──
-    function saveFile() {
-      if (currentPath && files.hasOwnProperty(currentPath)) files[currentPath] = els.editor.value;
-    }
-
-    function openFile(path) {
-      saveFile();
-      currentPath = path;
-      els.editor.value = files[path] || '';
-      els.curFile.textContent = path;
-      renderTree();
-    }
-
-    function renderTree() {
-      saveFile();
-      const aslFiles = Object.keys(files).filter(p => p.startsWith(SOURCE_FOLDER + '/')).sort();
-      let html = '<div class="runner-root">';
-      html += '<div class="runner-root-title"><i class="fa-solid fa-folder-open"></i> asl</div>';
-      if (aslFiles.length === 0) html += '<div class="runner-empty-folder">empty</div>';
-      for (const p of aslFiles) {
-        const name = p.replace(SOURCE_FOLDER + '/', '');
-        const active = p === currentPath ? ' active' : '';
-        html += `<button type="button" class="runner-file${active}" data-path="${p}"><i class="fa-solid fa-file-code" style="color:#34d399"></i><span>${name}</span></button>`;
-      }
-      html += '</div>';
-      els.tree.innerHTML = html;
-      els.tree.querySelectorAll('[data-path]').forEach(btn => {
-        btn.addEventListener('click', () => openFile(btn.dataset.path));
-      });
-    }
-
-    // ── New file ──
-    $('newAstraFileButton').addEventListener('click', () => {
-      saveFile();
-      const raw = prompt('New ASL file inside /asl', 'agent.asl');
-      if (!raw) return;
-      let name = raw.trim();
-      if (!name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
-      if (!/^[A-Za-z0-9_.-]+$/.test(name)) { alert('Invalid filename'); return; }
-      const path = SOURCE_FOLDER + '/' + name;
-      if (files.hasOwnProperty(path)) { alert('File already exists'); return; }
-      const agentName = name.replace(SOURCE_EXT, '');
-      files[path] = `// Agent: ${agentName}\n\n!start.\n\n+!start\n   <- .println("${agentName} started");\n      .stopMAS.\n`;
-      currentPath = path;
-      els.editor.value = files[path];
-      els.curFile.textContent = path;
-      renderTree();
-      saveState();
-    });
-
-    // ── Rename file ──
-    $('renameFileButton').addEventListener('click', () => {
-      saveFile();
-      if (!currentPath) return;
-      const oldName = currentPath.split('/').pop();
-      const raw = prompt('Rename file:', oldName);
-      if (!raw || raw.trim() === oldName) return;
-      let name = raw.trim();
-      if (!name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
-      if (!/^[A-Za-z0-9_.-]+$/.test(name)) { alert('Invalid filename'); return; }
-      const newPath = SOURCE_FOLDER + '/' + name;
-      if (files.hasOwnProperty(newPath)) { alert('File already exists'); return; }
-      files[newPath] = files[currentPath];
-      delete files[currentPath];
-      currentPath = newPath;
-      els.curFile.textContent = currentPath;
-      renderTree();
-      saveState();
-    });
-
-    // ── Delete file ──
-    $('deleteFileButton').addEventListener('click', () => {
-      saveFile();
-      if (!currentPath || currentPath === DEFAULT_FILE) { alert('Cannot delete main.asl'); return; }
-      if (!confirm(`Delete ${currentPath}?`)) return;
-      delete files[currentPath];
-      currentPath = Object.keys(files)[0] || DEFAULT_FILE;
-      if (!files[currentPath]) files[currentPath] = DEFAULT_SOURCE;
-      els.editor.value = files[currentPath];
-      els.curFile.textContent = currentPath;
-      renderTree();
-      saveState();
-    });
-
-    // ── Build payload ──
-    function buildPayload() {
-      saveFile();
-      const source = files[DEFAULT_FILE] || DEFAULT_SOURCE;
-      const payload = { source, files: {}, api_keys: {} };
-
-      // Additional .asl files
-      for (const [path, content] of Object.entries(files)) {
-        if (path === DEFAULT_FILE) continue;
-        if (path.startsWith(SOURCE_FOLDER + '/')) {
-          payload.files['src/main/asl/' + path.slice((SOURCE_FOLDER + '/').length)] = content;
-        }
-      }
-
-      // Auto-generate mas2j
-      const agents = Object.keys(files)
-        .filter(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT))
-        .map(p => p.replace(SOURCE_FOLDER + '/', '').replace(SOURCE_EXT, ''));
-      if (agents.length > 0) {
-        const agentLines = agents.map(a => `        ${a};`).join('\n');
-        payload.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "src/main/asl";\n}\n`;
-      }
-
-      // API keys from the smart panel
-      if (typeof window.__glGetApiKeys === 'function') {
-        payload.api_keys = window.__glGetApiKeys();
-      }
-
-      return payload;
-    }
-
-    // ── Run ──
-    let startTime = 0;
-    async function runProject() {
-      if (runAbort) { runAbort.abort(); runAbort = null; }
-
-      els.run.disabled = true;
-      els.status.textContent = 'Running...';
-      els.metaStatus.textContent = 'Running';
-      els.metaCode.textContent = '\u2014';
-      els.metaElapsed.textContent = '\u2014';
-      els.output.textContent = '';
-
-      const payload = buildPayload();
-      const controller = new AbortController();
-      runAbort = controller;
-      startTime = Date.now();
-      window.__glRunStartTime = startTime;
-
-      // Live elapsed timer
-      if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
-      window.__glElapsedTimer = setInterval(() => {
-        if (startTime) els.metaElapsed.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
-      }, 200);
-
-      try {
-        const resp = await fetch(RUN_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        if (!resp.ok) {
-          const text = await resp.text();
-          els.output.textContent = `Error ${resp.status}: ${text}`;
-          els.metaStatus.textContent = 'Error';
-          return;
-        }
-
-        const reader = resp.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-          for (const line of lines) {
-            if (line.startsWith('{"type":"meta"')) continue;
-            els.output.textContent += line + '\n';
-            els.output.scrollTop = els.output.scrollHeight;
-          }
-        }
-        if (buffer) els.output.textContent += buffer;
-
-        // Parse footer for status
-        const text = els.output.textContent;
-        const footerMatch = text.match(/--- (.+) ---\s*$/);
-        if (footerMatch) {
-          const footer = footerMatch[1];
-          if (footer.startsWith('Completed')) {
-            els.metaStatus.textContent = 'Completed';
-            els.metaCode.textContent = '0';
-          } else if (footer.startsWith('Exited with code')) {
-            const code = footer.match(/code (\S+)/);
-            const codeVal = code ? code[1] : '?';
-            els.metaStatus.textContent = (codeVal === '0' || codeVal === 'None') ? 'Completed' : 'Failed';
-            els.metaCode.textContent = codeVal;
-          } else if (footer.startsWith('Timed out')) {
-            els.metaStatus.textContent = 'Timed out';
-          }
-          const elapsed = footer.match(/([\d.]+)s/);
-          if (elapsed) els.metaElapsed.textContent = elapsed[1] + 's';
-        }
-
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          els.output.textContent += '\n--- Cancelled ---\n';
-          els.metaStatus.textContent = 'Cancelled';
-        } else {
-          els.output.textContent += '\nNetwork error: ' + err.message + '\n';
-          els.metaStatus.textContent = 'Error';
-        }
-      } finally {
-        els.run.disabled = false;
-        els.status.textContent = 'Ready';
-        runAbort = null;
-        if (window.__glElapsedTimer) { clearInterval(window.__glElapsedTimer); window.__glElapsedTimer = null; }
-        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-        if (els.metaElapsed.textContent === '\u2014') els.metaElapsed.textContent = elapsed + 's';
-      }
-    }
-
-    els.run.addEventListener('click', runProject);
-    els.clear.addEventListener('click', () => {
-      els.output.textContent = 'Create or edit .asl files, then press "Run Project".';
-      els.metaStatus.textContent = 'Idle';
-      els.metaCode.textContent = '\u2014';
-      els.metaElapsed.textContent = '\u2014';
-    });
-
-    // ── Persistence ──
-    function saveState() {
-      saveFile();
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath })); } catch (e) {}
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const data = JSON.parse(raw);
-          if (data.files && Object.keys(data.files).length) {
-            files = data.files;
-            currentPath = data.currentPath || Object.keys(files)[0];
-          }
-        }
-      } catch (e) {}
-    }
-
-    // Auto-save on changes
-    els.editor.addEventListener('input', () => saveState());
-    setInterval(saveState, 5000);
-
-    // ── Parent message handling ──
-    window.addEventListener('message', (e) => {
+    // Listen for API key sharing from parent
+    window.addEventListener('message', function(e) {
       if (e.data && e.data.type === 'gl-api-keys') {
         const keys = e.data.keys || {};
-        document.querySelectorAll('[data-gl-key]').forEach(input => {
-          if (keys[input.dataset.glEnv]) input.value = keys[input.dataset.glEnv];
+        Object.entries(keys).forEach(([provider, value]) => {
+          const input = document.querySelector(`[data-provider-key="${provider}"]`);
+          if (input) input.value = value;
         });
       }
       if (e.data && e.data.type === 'gl-load-code') {
-        const payload = e.data.payload;
-        if (payload && payload.source) {
-          files = { [DEFAULT_FILE]: payload.source };
-          if (payload.files) {
-            for (const [rel, content] of Object.entries(payload.files)) {
-              const m = rel.match(/src\/main\/asl\/(.+\.asl)$/);
-              if (m) files[SOURCE_FOLDER + '/' + m[1]] = content;
-            }
-          }
-          currentPath = DEFAULT_FILE;
-          els.editor.value = files[currentPath];
-          els.curFile.textContent = currentPath;
-          renderTree();
-          saveState();
+        // Parent can send code payload to load
+        if (typeof window.GLRunner !== 'undefined' && window.GLRunner.loadPayload) {
+          window.GLRunner.loadPayload(e.data.payload);
         }
       }
     });
-
-    // ── Load from hash (redirect from framework.html / patterns.html) ──
-    function loadFromHash() {
-      const hash = window.location.hash;
-      if (!hash.startsWith('#load=')) return;
-      try {
-        const payload = JSON.parse(decodeURIComponent(hash.slice('#load='.length)));
-        if (payload && payload.source) {
-          files = { [DEFAULT_FILE]: payload.source };
-          currentPath = DEFAULT_FILE;
-          els.editor.value = files[currentPath];
-          els.curFile.textContent = currentPath;
-          renderTree();
-          saveState();
-        }
-      } catch (e) { console.warn('Could not load from hash', e); }
-    }
-
-    // ── Expose GLRunner for external loading ──
-    window.GLRunner = {
-      loadSource(source, title) {
-        files = { [DEFAULT_FILE]: source };
-        currentPath = DEFAULT_FILE;
-        els.editor.value = files[currentPath];
-        els.curFile.textContent = currentPath;
-        renderTree();
-        saveState();
-      }
-    };
-
-    // ── Init ──
-    loadState();
-    loadFromHash();
-    els.editor.value = files[currentPath] || DEFAULT_SOURCE;
-    els.curFile.textContent = currentPath;
-    renderTree();
-  })();
   </script>
 </body>
 </html>

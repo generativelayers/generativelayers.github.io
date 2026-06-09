@@ -1,5 +1,23 @@
 (() => {
-  const ASTRA_RUN_URL = 'https://code.generativelayers.com/api/run-astra';
+  /* ── Platform config ───────────────────────────────────── */
+  const CFG = window.GL_PLATFORM_CONFIG || {};
+  const PLATFORM = window.GL_PLATFORM || 'astra';
+  const SOURCE_FOLDER = CFG.sourceFolder || '/astra';
+  const AUX_FOLDER = CFG.auxFolder || '/java';
+  const SOURCE_EXT = CFG.sourceExt || '.astra';
+  const AUX_EXT = CFG.auxExt || '.java';
+  const SOURCE_ICON = CFG.sourceIcon || 'fa-robot';
+  const AUX_ICON = CFG.auxIcon || 'fa-brands fa-java';
+  const BUILD_FILE = CFG.buildFile || '/pom.xml';
+  const DEFAULT_FILE = CFG.defaultFile || '/astra/Main.astra';
+  const STORAGE_KEY_CFG = (CFG.storagePrefix || 'gl-astra-') + 'project';
+
+  const RUN_URLS = {
+    astra: 'https://code.generativelayers.com/api/run-astra',
+    jason: 'https://code.generativelayers.com/api/run-jason',
+    jacamo: 'https://code.generativelayers.com/api/run-jacamo'
+  };
+  const RUN_URL = RUN_URLS[PLATFORM] || RUN_URLS.astra;
 
   // ── Toast notification utility ─────────────────────────
   function showRunnerToast(message, type = 'info') {
@@ -62,28 +80,53 @@
     deepseek: { label: 'DeepSeek', env: 'DEEPSEEK_API_KEY' }
   };
 
-  const DEFAULT_ASTRA_SOURCE = [
-    'agent Main {',
-    '    module Console C;',
-    '    module System system;',
-    '',
-    '    // Generative Layers short ASTRA alias.',
-    '    module gl.astra.GL gl;',
-    '',
-    '    // Old full path still works:',
-    '    // module gl.adapter.astra.AstraAdapter gl;',
-    '',
-    '    rule +!main(list args) {',
-    '        C.println("Hello from ASTRA on code.generativelayers.com");',
-    '        C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");',
-    '        !shutdown();',
-    '    }',
-    '',
-    '    rule +!shutdown() {',
-    '        system.exit();',
-    '    }',
-    '}'
-  ].join('\n');
+  /* ── Platform-specific defaults ──────────────────────── */
+  const DEFAULT_SOURCES = {
+    astra: [
+      'agent Main {',
+      '    module Console C;',
+      '    module System system;',
+      '',
+      '    // Generative Layers short ASTRA alias.',
+      '    module gl.astra.GL gl;',
+      '',
+      '    // Old full path still works:',
+      '    // module gl.adapter.astra.AstraAdapter gl;',
+      '',
+      '    rule +!main(list args) {',
+      '        C.println("Hello from ASTRA on code.generativelayers.com");',
+      '        C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");',
+      '        !shutdown();',
+      '    }',
+      '',
+      '    rule +!shutdown() {',
+      '        system.exit();',
+      '    }',
+      '}'
+    ].join('\n'),
+    jason: [
+      '// Jason Hello World with Generative Layers',
+      '',
+      '!start.',
+      '',
+      '+!start',
+      '   <- .println("Hello from Jason on code.generativelayers.com");',
+      '      .println("Generative Layers Jason adapter loaded.");',
+      '      .stopMAS.'
+    ].join('\n'),
+    jacamo: [
+      '// JaCaMo Hello World with Generative Layers + CArtAgO',
+      '// Agents + Artifacts + Organisation',
+      '',
+      '!start.',
+      '',
+      '+!start',
+      '   <- .println("Hello from JaCaMo on code.generativelayers.com");',
+      '      .println("[CArtAgO] Environment active");',
+      '      .stopMAS.'
+    ].join('\n')
+  };
+  const DEFAULT_SOURCE = DEFAULT_SOURCES[PLATFORM] || DEFAULT_SOURCES.astra;
   const DEFAULT_POM = [
     '<project xmlns="http://maven.apache.org/POM/4.0.0"',
     '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
@@ -164,11 +207,10 @@
     '</project>'
   ].join('\n');
 
-  let files = {
-    '/astra/Main.astra': DEFAULT_ASTRA_SOURCE,
-    '/pom.xml': DEFAULT_POM
-  };
-  let currentPath = '/astra/Main.astra';
+  let files = PLATFORM === 'astra'
+    ? { [DEFAULT_FILE]: DEFAULT_SOURCE, '/pom.xml': DEFAULT_POM }
+    : { [DEFAULT_FILE]: DEFAULT_SOURCE };
+  let currentPath = DEFAULT_FILE;
   let emptyFolders = new Set();
 
   const els = {};
@@ -214,19 +256,19 @@
   function renderTree() {
     saveCurrentFile();
 
-    const astraFiles = sortedPaths('/astra');
-    const javaFiles = sortedPaths('/java');
-    const hasPom = Object.prototype.hasOwnProperty.call(files, '/pom.xml');
+    const sourceFiles = sortedPaths(SOURCE_FOLDER);
+    const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
+    const hasBuild = BUILD_FILE && Object.prototype.hasOwnProperty.call(files, BUILD_FILE);
 
-    let html = [
-      renderRoot('/astra', astraFiles),
-      renderRoot('/java', javaFiles)
-    ].join('');
+    let html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
+    if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
+    html = html.join('');
 
-    // pom.xml as a standalone root-level file
-    if (hasPom) {
-      const active = currentPath === '/pom.xml' ? ' active' : '';
-      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="/pom.xml"><i class="fa-regular fa-file-lines"></i><span>pom.xml</span></button></div>`;
+    // Build file as standalone root-level file
+    if (hasBuild) {
+      const buildName = (BUILD_FILE || '').replace(/^\//, '');
+      const active = currentPath === BUILD_FILE ? ' active' : '';
+      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="${BUILD_FILE}"><i class="fa-regular fa-file-lines"></i><span>${buildName}</span></button></div>`;
     }
 
     els.fileTree.innerHTML = html;
@@ -288,7 +330,9 @@
   }
 
   function renderRoot(root, paths) {
-    const icons = { '/astra': 'fa-robot', '/java': 'fa-brands fa-java' };
+  const icons = {};
+    icons[SOURCE_FOLDER] = SOURCE_ICON;
+    if (AUX_FOLDER) icons[AUX_FOLDER] = AUX_ICON;
     const icon = icons[root] || 'fa-folder';
     const contents = paths.length === 0
       ? '<div class="runner-empty-folder">empty</div>'
@@ -308,14 +352,17 @@
   }
 
   function renderTreeNoSave() {
-    const astraFiles = sortedPaths('/astra');
-    const javaFiles = sortedPaths('/java');
-    const hasPom = Object.prototype.hasOwnProperty.call(files, '/pom.xml');
+    const sourceFiles = sortedPaths(SOURCE_FOLDER);
+    const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
+    const hasBuild = BUILD_FILE && Object.prototype.hasOwnProperty.call(files, BUILD_FILE);
 
-    let html = [renderRoot('/astra', astraFiles), renderRoot('/java', javaFiles)].join('');
-    if (hasPom) {
-      const active = currentPath === '/pom.xml' ? ' active' : '';
-      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="/pom.xml"><i class="fa-regular fa-file-lines"></i><span>pom.xml</span></button></div>`;
+    let html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
+    if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
+    html = html.join('');
+    if (hasBuild) {
+      const buildName = (BUILD_FILE || '').replace(/^\//, '');
+      const active = currentPath === BUILD_FILE ? ' active' : '';
+      html += `<div class="runner-root"><button type="button" class="runner-file${active}" data-path="${BUILD_FILE}"><i class="fa-regular fa-file-lines"></i><span>${buildName}</span></button></div>`;
     }
     els.fileTree.innerHTML = html;
     els.fileTree.querySelectorAll('[data-path]').forEach(button => {
@@ -325,14 +372,18 @@
 
   function cleanPathName(kind, rawName) {
     let name = String(rawName || '').trim().replace(/\\/g, '/').replace(/^\/+/, '');
-    name = name.replace(/^astra\//i, '').replace(/^java\//i, '').replace(/^src\/main\/astra\//i, '').replace(/^src\/main\/java\//i, '');
+    name = name.replace(new RegExp(`^${SOURCE_FOLDER.slice(1)}\/`, 'i'), '');
+    if (AUX_FOLDER) name = name.replace(new RegExp(`^${AUX_FOLDER.slice(1)}\/`, 'i'), '');
+    name = name.replace(/^src\/main\/astra\//i, '').replace(/^src\/main\/java\//i, '').replace(/^src\/agt\//i, '').replace(/^src\/main\/asl\//i, '');
 
     if (!name) throw new Error('Filename is empty.');
     if (name.includes('..') || name.startsWith('/') || name.split('/').some(part => !part)) throw new Error('Invalid path.');
     if (!/^[A-Za-z0-9_.$/-]+$/.test(name)) throw new Error('Use only letters, numbers, underscore, dash, dot, dollar sign, and slash.');
 
-    if (kind === 'astra' && !name.endsWith('.astra')) name += '.astra';
-    if (kind === 'java' && !name.endsWith('.java')) name += '.java';
+    const sourceKind = SOURCE_FOLDER.slice(1);
+    const auxKind = AUX_FOLDER ? AUX_FOLDER.slice(1) : null;
+    if (kind === sourceKind && !name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
+    if (auxKind && kind === auxKind && !name.endsWith(AUX_EXT)) name += AUX_EXT;
 
 
     return `/${kind}/${name}`;
@@ -340,7 +391,9 @@
 
   function createFile(kind) {
     saveCurrentFile();
-    const examples = { astra: 'Worker.astra', java: 'artifacts/MyArtifact.java' };
+    const examples = {};
+    examples[SOURCE_FOLDER.slice(1)] = 'Agent' + SOURCE_EXT;
+    if (AUX_FOLDER) examples[AUX_FOLDER.slice(1)] = 'artifacts/MyArtifact' + AUX_EXT;
     const example = examples[kind] || 'file.txt';
     const raw = window.prompt(`New ${kind.toUpperCase()} file inside /${kind}`, example);
     if (raw === null) return;
@@ -348,8 +401,8 @@
     try {
       const path = cleanPathName(kind, raw);
       if (Object.prototype.hasOwnProperty.call(files, path)) throw new Error('File already exists.');
-      if (kind === 'astra') files[path] = astraTemplate(path);
-      else if (kind === 'java') files[path] = javaTemplate(path);
+      if (kind === SOURCE_FOLDER.slice(1)) files[path] = sourceTemplate(path);
+      else if (AUX_FOLDER && kind === AUX_FOLDER.slice(1)) files[path] = javaTemplate(path);
       else files[path] = '';
       currentPath = path;
       els.editor.value = files[path];
@@ -361,23 +414,27 @@
     }
   }
 
-  function astraTemplate(path) {
-    const agentName = path.split('/').pop().replace(/\.astra$/, '') || 'Worker';
-    return [
-      `agent ${agentName} {`,
-      '    module Console C;',
-      '    module System system;',
-      '',
-      '    rule +!main(list args) {',
-      `        C.println("${agentName} started");`,
-      '        !shutdown();',
-      '    }',
-      '',
-      '    rule +!shutdown() {',
-      '        system.exit();',
-      '    }',
-      '}'
-    ].join('\n');
+  function sourceTemplate(path) {
+    const baseName = path.split('/').pop().replace(new RegExp('\\' + SOURCE_EXT + '$'), '') || 'Agent';
+    if (PLATFORM === 'astra') {
+      return [
+        `agent ${baseName} {`,
+        '    module Console C;',
+        '    module System system;',
+        '',
+        '    rule +!main(list args) {',
+        `        C.println("${baseName} started");`,
+        '        !shutdown();',
+        '    }',
+        '',
+        '    rule +!shutdown() {',
+        '        system.exit();',
+        '    }',
+        '}'
+      ].join('\n');
+    }
+    // Jason / JaCaMo AgentSpeak template
+    return `// Agent: ${baseName}\n\n!start.\n\n+!start\n   <- .println("${baseName} started");\n      .stopMAS.\n`;
   }
 
   function javaTemplate(path) {
@@ -393,8 +450,8 @@
   function renameCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
-    if (currentPath === '/pom.xml') { window.alert('pom.xml cannot be renamed.'); return; }
-    const kind = currentPath.startsWith('/astra/') ? 'astra' : 'java';
+    if (currentPath === BUILD_FILE) { window.alert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be renamed.`); return; }
+    const kind = currentPath.startsWith(SOURCE_FOLDER + '/') ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : SOURCE_FOLDER.slice(1));
     const currentName = currentPath.replace(`/${kind}/`, '');
     const raw = window.prompt('Rename file', currentName);
     if (raw === null) return;
@@ -415,7 +472,7 @@
   function deleteCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
-    if (currentPath === '/pom.xml') { window.alert('pom.xml cannot be deleted.'); return; }
+    if (currentPath === BUILD_FILE) { window.alert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be deleted.`); return; }
     if (!window.confirm(`Delete ${currentPath}?`)) return;
 
     delete files[currentPath];
@@ -506,8 +563,14 @@
     const payload = {};
 
     Object.entries(files).forEach(([path, content]) => {
-      if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
-      if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
+      if (PLATFORM === 'astra') {
+        if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
+        if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
+      } else if (PLATFORM === 'jason') {
+        if (path.startsWith('/asl/')) payload[`src/main/asl/${path.slice('/asl/'.length)}`] = content;
+      } else if (PLATFORM === 'jacamo') {
+        if (path.startsWith('/agt/')) payload[`src/agt/${path.slice('/agt/'.length)}`] = content;
+      }
     });
 
     return payload;
@@ -521,7 +584,7 @@
   // ── Folder operations (for tree-ui) ────────────────────
   function renameFolder(folderPath) {
     saveCurrentFile();
-    const root = folderPath.startsWith('/astra') ? '/astra' : '/java';
+    const root = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_FOLDER : (AUX_FOLDER || SOURCE_FOLDER);
     const relative = folderPath.slice(root.length + 1);
     const raw = window.prompt('Rename folder', relative);
     if (raw === null) return;
@@ -584,9 +647,9 @@
 
   function createFileInFolder(folderPath) {
     saveCurrentFile();
-    const kind = folderPath.startsWith('/astra') ? 'astra' : 'java';
-    const ext = kind === 'astra' ? '.astra' : '.java';
-    const raw = window.prompt(`New file in ${folderPath}`, kind === 'astra' ? 'Agent.astra' : 'MyClass.java');
+    const kind = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : SOURCE_FOLDER.slice(1));
+    const ext = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_EXT : (AUX_EXT || SOURCE_EXT);
+    const raw = window.prompt(`New file in ${folderPath}`, 'Agent' + ext);
     if (raw === null) return;
     let name = raw.trim();
     if (!name) return;
@@ -598,7 +661,7 @@
     if (Object.prototype.hasOwnProperty.call(files, path)) {
       window.alert('File already exists.'); return;
     }
-    files[path] = kind === 'astra' ? astraTemplate(path) : javaTemplate(path);
+    files[path] = folderPath.startsWith(SOURCE_FOLDER) ? sourceTemplate(path) : javaTemplate(path);
     currentPath = path;
     els.editor.value = files[path];
     els.currentFile.textContent = path;
@@ -631,11 +694,18 @@
 
   function validateProjectBeforeRun() {
     saveCurrentFile();
-    if (!Object.prototype.hasOwnProperty.call(files, '/astra/Main.astra')) {
-      return 'Main.astra is required. Create /astra/Main.astra because the hosted runner starts agent Main.';
+    if (PLATFORM === 'astra') {
+      if (!Object.prototype.hasOwnProperty.call(files, '/astra/Main.astra')) {
+        return 'Main.astra is required. Create /astra/Main.astra because the hosted runner starts agent Main.';
+      }
+      if (!/agent\s+Main\b/.test(files['/astra/Main.astra'])) {
+        return '/astra/Main.astra must contain agent Main.';
+      }
     }
-    if (!/agent\s+Main\b/.test(files['/astra/Main.astra'])) {
-      return '/astra/Main.astra must contain agent Main.';
+    // Jason/JaCaMo: just need at least one .asl file
+    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+      const hasSource = Object.keys(files).some(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT));
+      if (!hasSource) return `At least one ${SOURCE_EXT} file is required in ${SOURCE_FOLDER}.`;
     }
     return '';
   }
@@ -663,7 +733,7 @@
     els.metaStatus.textContent = 'Idle';
     els.metaReturnCode.textContent = '—';
     els.metaElapsed.textContent = '—';
-    els.output.textContent = 'Create or edit files in /astra and /java, then press “Run Project”.';
+    els.output.textContent = `Create or edit files in ${SOURCE_FOLDER}${AUX_FOLDER ? ' and ' + AUX_FOLDER : ''}, then press "Run Project".`;
   }
 
   function norm(output) {
@@ -722,13 +792,28 @@
 
     try {
       const body = {
-        source: files['/astra/Main.astra'],
+        source: files[DEFAULT_FILE],
         files: serverFilesPayload(),
-        pom_xml: files['/pom.xml'] || null
       };
+      if (PLATFORM === 'astra') body.pom_xml = files['/pom.xml'] || null;
+      // Jason/JaCaMo: auto-generate mas2j
+      if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+        const agents = Object.keys(files)
+          .filter(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT))
+          .map(p => p.replace(SOURCE_FOLDER + '/', '').replace(SOURCE_EXT, ''));
+        if (agents.length > 0) {
+          if (PLATFORM === 'jacamo') {
+            const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
+            body.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "src/agt";\n}\n`;
+          } else {
+            const agentLines = agents.map(a => `        ${a};`).join('\n');
+            body.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "src/main/asl";\n}\n`;
+          }
+        }
+      }
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
 
-      const response = await fetch(ASTRA_RUN_URL, {
+      const response = await fetch(RUN_URL, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-store',
@@ -865,8 +950,10 @@
   }
 
   function loadDefaultProject() {
-    files = { '/astra/Main.astra': DEFAULT_ASTRA_SOURCE, '/pom.xml': DEFAULT_POM };
-    currentPath = '/astra/Main.astra';
+    files = PLATFORM === 'astra'
+      ? { [DEFAULT_FILE]: DEFAULT_SOURCE, '/pom.xml': DEFAULT_POM }
+      : { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    currentPath = DEFAULT_FILE;
     els.editor.value = files[currentPath];
     els.currentFile.textContent = currentPath;
     renderTree();
@@ -883,20 +970,21 @@
       if (!payload.source) return;
       // Stop any running execution before loading
       if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-      files = { '/astra/Main.astra': payload.source };
-      currentPath = '/astra/Main.astra';
+      files = { [DEFAULT_FILE]: payload.source };
+      if (PLATFORM === 'astra' && !files['/pom.xml']) files['/pom.xml'] = DEFAULT_POM;
+      currentPath = DEFAULT_FILE;
       els.editor.value = payload.source;
       els.currentFile.textContent = currentPath;
       renderTree();
       updateApiKeyUI();
-      els.output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press “Run Project”.`;
+      els.output.textContent = `Loaded: ${payload.title || PLATFORM.toUpperCase() + ' example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
       els.status.textContent = 'Example loaded';
       els.metaStatus.textContent = 'Loaded';
       els.metaReturnCode.textContent = '—';
       els.metaElapsed.textContent = '—';
       window.setTimeout(() => (document.getElementById('run-code') || els.editor).scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (error) {
-      console.warn('Could not load ASTRA example into runner.', error);
+      console.warn('Could not load example into runner.', error);
     }
   }
 
@@ -942,7 +1030,7 @@
 
       Promise.all(readers).then(() => {
         if (Object.keys(newFiles).length === 0) {
-          window.alert('No ASTRA/Java/pom.xml files found in this folder.\nExpected structure: src/main/astra/*.astra and src/main/java/**/*.java');
+          window.alert(`No ${SOURCE_EXT} files found in this folder.`);
           return;
         }
         // Stop any running execution before loading new project
@@ -964,7 +1052,7 @@
   }
 
   // ── localStorage persistence ──────────────────────────
-  const STORAGE_KEY = 'gl-astra-project';
+  const STORAGE_KEY = STORAGE_KEY_CFG;
 
   function saveToStorage() {
     saveCurrentFile();
@@ -980,7 +1068,7 @@
       const data = JSON.parse(raw);
       if (data && data.files && typeof data.files === 'object') {
         files = data.files;
-        currentPath = data.currentPath || Object.keys(files)[0] || '/astra/Main.astra';
+        currentPath = data.currentPath || Object.keys(files)[0] || DEFAULT_FILE;
         if (Array.isArray(data.emptyFolders)) emptyFolders = new Set(data.emptyFolders);
         return true;
       }
@@ -996,12 +1084,11 @@
     if (!window.confirm('Start a new project? This will erase all current files and restore the default template.')) return;
     // Stop any running execution before resetting
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-    files = {
-      '/astra/Main.astra': DEFAULT_ASTRA_SOURCE,
-      '/pom.xml': DEFAULT_POM
-    };
+    files = PLATFORM === 'astra'
+      ? { [DEFAULT_FILE]: DEFAULT_SOURCE, '/pom.xml': DEFAULT_POM }
+      : { [DEFAULT_FILE]: DEFAULT_SOURCE };
     emptyFolders = new Set();
-    currentPath = '/astra/Main.astra';
+    currentPath = DEFAULT_FILE;
     els.editor.value = files[currentPath];
     els.currentFile.textContent = currentPath;
     renderTree();
@@ -1014,13 +1101,14 @@
   window.GLRunner = {
     loadSource: function(source, title) {
       if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-      files = { '/astra/Main.astra': source, '/pom.xml': DEFAULT_POM };
-      currentPath = '/astra/Main.astra';
+      files = { [DEFAULT_FILE]: source };
+      if (PLATFORM === 'astra') files['/pom.xml'] = DEFAULT_POM;
+      currentPath = DEFAULT_FILE;
       els.editor.value = source;
       els.currentFile.textContent = currentPath;
       renderTree();
       updateApiKeyUI();
-      els.output.textContent = `Loaded: ${title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
+      els.output.textContent = `Loaded: ${title || PLATFORM.toUpperCase() + ' example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
       els.status.textContent = 'Example loaded';
       els.metaStatus.textContent = 'Loaded';
       els.metaReturnCode.textContent = '\u2014';
@@ -1053,8 +1141,8 @@
     });
 
     document.querySelectorAll('[data-provider-key]').forEach(input => input.addEventListener('input', updateApiKeyUI));
-    els.newAstra.addEventListener('click', () => createFile('astra'));
-    els.newJava.addEventListener('click', () => createFile('java'));
+    els.newAstra.addEventListener('click', () => createFile(SOURCE_FOLDER.slice(1)));
+    if (els.newJava && AUX_FOLDER) els.newJava.addEventListener('click', () => createFile(AUX_FOLDER.slice(1)));
     els.rename.addEventListener('click', renameCurrentFile);
     els.delete.addEventListener('click', deleteCurrentFile);
     els.run.addEventListener('click', runProject);
@@ -1073,7 +1161,7 @@
     const restored = loadFromStorage();
     if (!restored) {
       // Default project
-      files['/pom.xml'] = files['/pom.xml'] || DEFAULT_POM;
+      files['/pom.xml'] = files['/pom.xml'] || (PLATFORM === 'astra' ? DEFAULT_POM : undefined);
     }
 
     els.editor.value = files[currentPath] || '';
