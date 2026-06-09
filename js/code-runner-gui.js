@@ -161,6 +161,30 @@
 
       body.gui-dragging, body.gui-dragging * { user-select: none !important; }
       body.gui-dragging iframe { pointer-events: none !important; }
+
+      .gui-loading-overlay {
+        position: absolute;
+        inset: 42px 0 30px 0; /* between header and status bar */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #0b1220;
+        z-index: 5;
+        color: #94a3b8;
+        font-size: 15px;
+        gap: 12px;
+        transition: opacity 0.3s;
+      }
+      .gui-loading-overlay[hidden] { display: none !important; }
+      .gui-loading-spinner {
+        width: 28px; height: 28px;
+        border: 3px solid #334155;
+        border-top-color: #8b5cf6;
+        border-radius: 50%;
+        animation: gui-spin 0.8s linear infinite;
+      }
+      @keyframes gui-spin { to { transform: rotate(360deg); } }
     `;
     document.head.appendChild(s);
   }
@@ -197,6 +221,10 @@
           <button class="gui-modal-close" id="guiModalClose">&times;</button>
         </div>
         <iframe id="guiFrame" src="about:blank"></iframe>
+        <div class="gui-loading-overlay" id="guiLoadingOverlay">
+          <div class="gui-loading-spinner"></div>
+          <span>Please wait…</span>
+        </div>
         <div class="gui-status" id="guiStatus">Waiting for ASTRA to start GUI…</div>
       </div>
     `;
@@ -249,7 +277,11 @@
     modal.style.height = modalH + 'px';
 
     const status = document.getElementById('guiStatus');
-    if (status) status.textContent = `Connected — ${w}×${h}`;
+    if (status) status.textContent = 'Connected';
+
+    // Hide loading overlay once we have real content
+    const overlay = document.getElementById('guiLoadingOverlay');
+    if (overlay) overlay.hidden = true;
   }
 
   function toggleModal() {
@@ -262,6 +294,8 @@
     modalEl.hidden = false;
     iframeEl.src = NOVNC_URL;
     document.getElementById('guiStatus').textContent = 'Connecting to ASTRA GUI…';
+    const overlay = document.getElementById('guiLoadingOverlay');
+    if (overlay) overlay.hidden = false;
     // If we already have dimensions, apply them
     if (guiWidth && guiHeight) {
       resizeModal(guiWidth, guiHeight);
