@@ -128,6 +128,22 @@
       outline: none; border-color: #059669;
       box-shadow: 0 0 0 3px rgba(5,150,105,.1);
     }
+    .gl-custom-grid {
+      display: grid; grid-template-columns: auto 1fr; gap: 6px 10px;
+      margin: 10px 0 0; padding: 12px 14px;
+      border: 1px solid #e2e8f0; border-radius: 10px; background: #fff;
+    }
+    .gl-custom-grid[hidden] { display: none !important; }
+    .gl-custom-grid label {
+      font-size: 12px; font-weight: 700; color: #64748b;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      align-self: center;
+    }
+    .gl-custom-grid input {
+      border: 1px solid #cbd5e1; border-radius: 6px;
+      padding: 6px 10px; font-size: 13px; background: #f8fafc; color: #111827;
+    }
+    .gl-custom-grid input:focus { outline: none; border-color: #059669; background: #fff; }
   `;
   document.head.appendChild(style);
 
@@ -233,6 +249,41 @@
     }
   }
 
+  /* ── Apply custom provider to source code ───────────────── */
+  function applyCustomToSource() {
+    const editor = document.getElementById('fileEditor');
+    if (!editor) return;
+
+    const provName = (document.getElementById('glCustomProvider')?.value || 'chatcompletions').trim();
+    const modelName = (document.getElementById('glCustomModel')?.value || 'grok-2').trim();
+    const endpoint = (document.getElementById('glCustomEndpoint')?.value || '').trim();
+
+    const original = editor.value;
+    let src = original;
+
+    // Rewrite provider
+    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
+    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
+    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
+
+    // Rewrite model
+    src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
+    src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
+
+    // Rewrite endpoint if present
+    if (endpoint) {
+      src = src.replace(/(configure\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
+      src = src.replace(/(setting\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
+    }
+
+    if (src !== original) {
+      const pos = editor.selectionStart || 0;
+      editor.value = src;
+      editor.selectionStart = editor.selectionEnd = Math.min(pos, editor.value.length);
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
   /* ── Build UI ────────────────────────────────────────────── */
   function init() {
     // Remove old panel if it exists
@@ -264,12 +315,20 @@
         <select class="gl-keys-select" id="glProviderSelect">
           <option value="">Auto-detect from code</option>
           ${providerOptions}
+          <option value="custom">Custom / unlisted endpoint</option>
         </select>
       </div>
       <div class="gl-keys-intro" id="glKeysIntro">
         Select a provider or let it auto-detect from your code.
       </div>
       <div class="gl-keys-grid" id="glKeysGrid"></div>
+      <div class="gl-custom-grid" id="glCustomGrid" hidden>
+        <label>Provider</label><input id="glCustomProvider" value="chatcompletions" autocomplete="off">
+        <label>Model</label><input id="glCustomModel" value="grok-2" autocomplete="off">
+        <label>Endpoint</label><input id="glCustomEndpoint" value="https://api.x.ai/v1/chat/completions" autocomplete="off">
+        <label>Key env</label><input id="glCustomEnv" value="XAI_API_KEY" autocomplete="off">
+        <label>Key value</label><input id="glCustomKey" type="password" placeholder="Paste key for this run" autocomplete="off">
+      </div>
       <div class="gl-keys-warn" id="glKeysWarn" hidden>
         <i class="fa-solid fa-triangle-exclamation"></i>
         <span id="glKeysWarnText"></span>
@@ -288,11 +347,17 @@
     selectEl = document.getElementById('glProviderSelect');
 
     // Wire dropdown
+    const customGrid = document.getElementById('glCustomGrid');
     if (selectEl) {
       selectEl.addEventListener('change', () => {
         manualProvider = selectEl.value;
         lastDetected = '';  // force re-render
-        if (manualProvider) applyProviderToSource(manualProvider);
+        if (customGrid) customGrid.hidden = (manualProvider !== 'custom');
+        if (manualProvider && manualProvider !== 'custom') {
+          applyProviderToSource(manualProvider);
+        } else if (manualProvider === 'custom') {
+          applyCustomToSource();
+        }
         scan();
       });
     }
@@ -441,6 +506,12 @@
       const value = input.value.trim();
       if (env && value) keys[env] = value;
     });
+    // Include custom provider key
+    if (manualProvider === 'custom') {
+      const env = (document.getElementById('glCustomEnv')?.value || '').trim();
+      const val = (document.getElementById('glCustomKey')?.value || '').trim();
+      if (env && val) keys[env] = val;
+    }
     return keys;
   };
 
