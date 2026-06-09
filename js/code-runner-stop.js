@@ -111,6 +111,11 @@
     setText('metaStatus', 'Stopped');
     setText('metaReturnCode', '—');
     output('Execution stopped by user.');
+
+    // Hide GUI button and close modal
+    const guiBtn = document.getElementById('showGuiButton');
+    if (guiBtn) guiBtn.hidden = true;
+    if (typeof window.__glGuiClose === 'function') window.__glGuiClose();
   }
 
   function patchFetch() {
