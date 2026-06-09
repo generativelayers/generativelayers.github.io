@@ -192,6 +192,22 @@
     return [...new Set(found)];
   }
 
+  /* ── Apply provider selection to source code ────────────── */
+  function applyProviderToSource(providerKey) {
+    const editor = document.getElementById('fileEditor');
+    if (!editor) return;
+
+    const src = editor.value;
+    // Replace setting("provider", "xxx") with the new provider
+    const providerRe = /(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/;
+    if (providerRe.test(src)) {
+      const pos = editor.selectionStart || 0;
+      editor.value = src.replace(providerRe, `$1${providerKey}$2`);
+      editor.selectionStart = editor.selectionEnd = Math.min(pos, editor.value.length);
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
   /* ── Build UI ────────────────────────────────────────────── */
   function init() {
     // Remove old panel if it exists
@@ -251,6 +267,7 @@
       selectEl.addEventListener('change', () => {
         manualProvider = selectEl.value;
         lastDetected = '';  // force re-render
+        if (manualProvider) applyProviderToSource(manualProvider);
         scan();
       });
     }
