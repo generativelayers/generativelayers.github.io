@@ -264,7 +264,7 @@
       mode: 'cors',
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: source }),
+      body: JSON.stringify({ source: source, filename: filename.split('/').pop() }),
       signal: abortCtrl.signal
     })
     .then(function (r) { return r.json(); })
