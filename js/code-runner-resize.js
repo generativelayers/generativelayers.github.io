@@ -44,6 +44,13 @@
         flex: 1;
         min-height: 0 !important;
         resize: both !important;
+        position: relative;
+        z-index: 2;
+      }
+      /* Ensure syntax highlight overlay doesn't block native resize handle */
+      .runner-project.resizable .hl-overlay {
+        pointer-events: none;
+        z-index: 1;
       }
 
       .runner-hsplitter {
