@@ -1,9 +1,9 @@
 /**
- * code-runner-resize.js  v3
+ * code-runner-resize.js  v4
  *
- * Adds drag-to-resize between the file tree and editor,
- * a bottom handle for editor height, and a right-edge handle
- * for runner-editor-wrap width.
+ * Adds drag-to-resize between the file tree and editor (horizontal splitter),
+ * and a bottom handle for editor height (vertical splitter).
+ * The editor width fills the remaining space automatically via flex.
  */
 (() => {
   'use strict';
@@ -11,8 +11,6 @@
   const MIN_FILES_W = 140;
   const MAX_FILES_W = 500;
   const MIN_EDITOR_H = 200;
-  const MIN_EDITOR_W = 360;
-  const MAX_EDITOR_W = 2600;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -29,7 +27,7 @@
         align-items: stretch !important;
         gap: 0 !important;
         max-width: 100%;
-        overflow-x: auto;
+        overflow: hidden;
       }
 
       .runner-project.resizable .runner-files {
@@ -39,21 +37,15 @@
 
       .runner-project.resizable .runner-editor-wrap {
         position: relative;
-        flex: 1 1 auto;
-        min-width: ${MIN_EDITOR_W}px;
-        overflow: visible;
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
       }
 
       .runner-project.resizable .hl-editor-wrap,
       .runner-project.resizable .runner-editor {
         width: 100%;
         box-sizing: border-box;
-      }
-
-      .runner-project.resizable .runner-editor,
-      .runner-project.resizable .hl-editor-wrap .runner-editor {
-        resize: both !important;
-        overflow: auto !important;
       }
 
       .runner-hsplitter {
@@ -88,39 +80,6 @@
         height: 50px;
       }
 
-      .runner-width-handle {
-        position: absolute;
-        top: 0;
-        right: -5px;
-        bottom: 6px;
-        width: 10px;
-        cursor: ew-resize;
-        z-index: 14;
-        border-radius: 4px;
-        background: transparent;
-        transition: background 0.15s;
-      }
-      .runner-width-handle:hover,
-      .runner-width-handle.dragging {
-        background: rgba(52, 211, 153, 0.30);
-      }
-      .runner-width-handle::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 2px;
-        height: 42px;
-        border-radius: 2px;
-        background: rgba(52, 211, 153, 0.35);
-      }
-      .runner-width-handle:hover::after,
-      .runner-width-handle.dragging::after {
-        background: #34d399;
-        height: 70px;
-      }
-
       .runner-vsplitter {
         height: 6px;
         cursor: row-resize;
@@ -153,16 +112,12 @@
         width: 50px;
       }
 
-      body.gl-resizing-h,
-      body.gl-resizing-w,
+      body.gl-resizing-h {
+        user-select: none !important;
+        cursor: col-resize !important;
+      }
       body.gl-resizing-v {
         user-select: none !important;
-      }
-      body.gl-resizing-h,
-      body.gl-resizing-w {
-        cursor: ew-resize !important;
-      }
-      body.gl-resizing-v {
         cursor: row-resize !important;
       }
     `;
@@ -191,6 +146,7 @@
     filesPanel.style.width = currentW + 'px';
     project.classList.add('resizable');
 
+    // ── Horizontal splitter (file tree ↔ editor) ──────────
     const hSplit = document.createElement('div');
     hSplit.className = 'runner-hsplitter';
     hSplit.title = 'Drag to resize file tree';
@@ -222,44 +178,9 @@
       document.body.classList.remove('gl-resizing-h');
     });
 
+    // ── Vertical splitter (editor height) ─────────────────
     const editor = editorWrap.querySelector('.runner-editor');
     if (!editor) return;
-
-    editor.style.resize = 'both';
-    editor.style.overflow = 'auto';
-
-    const widthHandle = document.createElement('div');
-    widthHandle.className = 'runner-width-handle';
-    widthHandle.title = 'Drag to resize editor width';
-    editorWrap.appendChild(widthHandle);
-
-    let wDragging = false;
-    let wStartX = 0;
-    let wStartW = 0;
-
-    widthHandle.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      wDragging = true;
-      wStartX = e.clientX;
-      wStartW = editorWrap.getBoundingClientRect().width;
-      widthHandle.classList.add('dragging');
-      document.body.classList.add('gl-resizing-w');
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!wDragging) return;
-      const nextW = clamp(wStartW + (e.clientX - wStartX), MIN_EDITOR_W, MAX_EDITOR_W);
-      editorWrap.style.width = nextW + 'px';
-      editorWrap.style.flex = '0 0 ' + nextW + 'px';
-      syncOverlay(editor);
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (!wDragging) return;
-      wDragging = false;
-      widthHandle.classList.remove('dragging');
-      document.body.classList.remove('gl-resizing-w');
-    });
 
     const vSplit = document.createElement('div');
     vSplit.className = 'runner-vsplitter';
