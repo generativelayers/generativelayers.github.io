@@ -243,12 +243,34 @@ function installMobileFixes() {
   document.head.appendChild(style);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    installRunCodeNavigation();
-    installMobileFixes();
+function normalizeProviderFreeTierLabels() {
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPage !== 'providers.html') return;
+
+  document.querySelectorAll('tr[onclick*="toggleProviderSetup"]').forEach(row => {
+    const providerCell = row.querySelector('td:first-child');
+    const freeTierCell = row.querySelector('td:nth-child(2)');
+    if (!providerCell || !freeTierCell) return;
+
+    const providerName = providerCell.textContent.trim().toLowerCase();
+    if (providerName === 'groq') freeTierCell.textContent = 'Free (no credit card)';
+    if (providerName === 'gemini') freeTierCell.textContent = 'Free tier';
   });
-} else {
+
+  const groqSetup = document.querySelector('#setup-groq div');
+  if (groqSetup) {
+    groqSetup.innerHTML = groqSetup.innerHTML.replace('Sign up (free) &rarr;', 'Sign up (free, no credit card) &rarr;');
+  }
+}
+
+function initSharedPageScripts() {
   installRunCodeNavigation();
   installMobileFixes();
+  normalizeProviderFreeTierLabels();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSharedPageScripts);
+} else {
+  initSharedPageScripts();
 }
