@@ -182,6 +182,24 @@
     const editor = editorWrap.querySelector('.runner-editor');
     if (!editor) return;
 
+    // Sync editor height to never be shorter than the file tree
+    function syncEditorMinHeight() {
+      const filesH = filesPanel.getBoundingClientRect().height;
+      const editorH = editor.getBoundingClientRect().height;
+      if (filesH > editorH) {
+        editor.style.minHeight = filesH + 'px';
+        editor.style.height = filesH + 'px';
+        syncOverlay(editor);
+      }
+    }
+    // Sync on load (after a tick so the tree has rendered)
+    setTimeout(syncEditorMinHeight, 50);
+    setTimeout(syncEditorMinHeight, 300);
+    setTimeout(syncEditorMinHeight, 1000);
+    // Re-sync whenever the file tree DOM changes
+    const treeObserver = new MutationObserver(syncEditorMinHeight);
+    treeObserver.observe(filesPanel, { childList: true, subtree: true });
+
     const vSplit = document.createElement('div');
     vSplit.className = 'runner-vsplitter';
     vSplit.title = 'Drag to resize editor height';
