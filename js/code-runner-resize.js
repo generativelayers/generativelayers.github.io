@@ -285,9 +285,9 @@
       if (!card || card.dataset.resizeReady === '1') return;
       card.dataset.resizeReady = '1';
 
-      // Output gets a fixed height with scrollbar instead of a drag splitter
+      // Output gets a fixed height with scrollbar
       output.style.height = '300px';
-      output.style.maxHeight = '300px';
+      output.style.maxHeight = 'none';
       output.style.overflowY = 'auto';
 
       // ── Right splitter (width) ──
@@ -302,6 +302,16 @@
       makeDrag(rSplit, 'h', (v) => {
         if (v === null) return output.getBoundingClientRect().width;
         output.style.width = Math.max(MIN_OUTPUT_W, v) + 'px';
+      });
+
+      // ── Bottom splitter (height) ──
+      const vSplit = makeSplitter('v', 'Drag to resize output height');
+      hRow.parentNode.insertBefore(vSplit, hRow.nextSibling);
+
+      makeDrag(vSplit, 'v', (v) => {
+        if (v === null) return output.getBoundingClientRect().height;
+        const h = clamp(v, MIN_OUTPUT_H, MAX_OUTPUT_H);
+        output.style.height = h + 'px';
       });
     };
     trySetup();
