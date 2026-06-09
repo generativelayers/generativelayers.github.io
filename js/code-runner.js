@@ -697,6 +697,7 @@
     els.status.textContent = 'Compiling…';
     const guiBtn = document.getElementById('showGuiButton');
     if (guiBtn) guiBtn.hidden = true;
+    if (typeof window.__glGuiReset === 'function') window.__glGuiReset();
 
     // Live stopwatch — exposed globally so Stop button can freeze it
     if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
@@ -767,6 +768,11 @@
                   showBtn();
                   setTimeout(showBtn, 500);
                   setTimeout(showBtn, 1500);
+                }
+                if (meta.gui_resize && meta.gui_width && meta.gui_height) {
+                  if (typeof window.__glGuiResize === 'function') {
+                    window.__glGuiResize(meta.gui_width, meta.gui_height);
+                  }
                 }
                 if (meta.killed_previous) {
                   showRunnerToast('Previous execution terminated', 'info');
