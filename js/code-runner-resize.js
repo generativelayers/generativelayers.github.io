@@ -43,7 +43,7 @@
       .runner-project.resizable .runner-editor {
         flex: 1;
         min-height: 0 !important;
-        resize: none !important;
+        resize: both !important;
       }
 
       .runner-hsplitter {
