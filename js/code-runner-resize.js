@@ -1,9 +1,9 @@
 /**
- * code-runner-resize.js  v4
+ * code-runner-resize.js  v5
  *
- * Adds drag-to-resize between the file tree and editor (horizontal splitter),
- * and a bottom handle for editor height (vertical splitter).
- * The editor width fills the remaining space automatically via flex.
+ * Horizontal splitter: resize file tree ↔ editor width.
+ * Vertical splitter: resize editor height (min = file tree height).
+ * Editor width fills remaining space via flex.
  */
 (() => {
   'use strict';
@@ -12,13 +12,10 @@
   const MAX_FILES_W = 500;
   const MIN_EDITOR_H = 200;
 
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
   function addStyles() {
     if (document.getElementById('gl-resize-style')) return;
-
     const s = document.createElement('style');
     s.id = 'gl-resize-style';
     s.textContent = `
@@ -29,108 +26,78 @@
         max-width: 100%;
         overflow: hidden;
       }
-
       .runner-project.resizable .runner-files {
         flex-shrink: 0;
         overflow-y: auto;
       }
-
       .runner-project.resizable .runner-editor-wrap {
         position: relative;
         flex: 1 1 0;
         min-width: 0;
-        overflow: hidden;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: visible;
       }
-
       .runner-project.resizable .hl-editor-wrap,
       .runner-project.resizable .runner-editor {
         width: 100%;
         box-sizing: border-box;
       }
+      /* Editor fills the editor-wrap height */
+      .runner-project.resizable .runner-editor {
+        flex: 1 1 auto;
+        min-height: 0;
+        resize: none !important;
+      }
 
       .runner-hsplitter {
-        width: 6px;
-        cursor: col-resize;
-        background: transparent;
-        position: relative;
-        z-index: 12;
-        flex-shrink: 0;
-        border-radius: 4px;
-        transition: background 0.15s;
+        width: 6px; cursor: col-resize; background: transparent;
+        position: relative; z-index: 12; flex-shrink: 0;
+        border-radius: 4px; transition: background 0.15s;
       }
-      .runner-hsplitter:hover,
-      .runner-hsplitter.dragging {
-        background: rgba(52, 211, 153, 0.4);
+      .runner-hsplitter:hover, .runner-hsplitter.dragging {
+        background: rgba(52,211,153,0.4);
       }
       .runner-hsplitter::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 2px;
-        height: 30px;
-        border-radius: 2px;
-        background: rgba(52, 211, 153, 0.35);
-        transition: background 0.15s;
+        content:''; position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%); width:2px; height:30px;
+        border-radius:2px; background:rgba(52,211,153,0.35);
+        transition: background 0.15s, height 0.15s;
       }
-      .runner-hsplitter:hover::after,
-      .runner-hsplitter.dragging::after {
-        background: #34d399;
-        height: 50px;
+      .runner-hsplitter:hover::after, .runner-hsplitter.dragging::after {
+        background:#34d399; height:50px;
       }
 
       .runner-vsplitter {
-        height: 6px;
-        cursor: row-resize;
-        background: transparent;
-        position: relative;
-        z-index: 12;
-        border-radius: 4px;
-        transition: background 0.15s;
-        margin-top: -1px;
+        height: 6px; cursor: row-resize; background: transparent;
+        position: relative; z-index: 12; flex-shrink: 0;
+        border-radius: 4px; transition: background 0.15s;
       }
-      .runner-vsplitter:hover,
-      .runner-vsplitter.dragging {
-        background: rgba(52, 211, 153, 0.4);
+      .runner-vsplitter:hover, .runner-vsplitter.dragging {
+        background: rgba(52,211,153,0.4);
       }
       .runner-vsplitter::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        height: 2px;
-        width: 30px;
-        border-radius: 2px;
-        background: rgba(52, 211, 153, 0.35);
-        transition: background 0.15s;
+        content:''; position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%); height:2px; width:30px;
+        border-radius:2px; background:rgba(52,211,153,0.35);
+        transition: background 0.15s, width 0.15s;
       }
-      .runner-vsplitter:hover::after,
-      .runner-vsplitter.dragging::after {
-        background: #34d399;
-        width: 50px;
+      .runner-vsplitter:hover::after, .runner-vsplitter.dragging::after {
+        background:#34d399; width:50px;
       }
 
-      body.gl-resizing-h {
-        user-select: none !important;
-        cursor: col-resize !important;
-      }
-      body.gl-resizing-v {
-        user-select: none !important;
-        cursor: row-resize !important;
-      }
+      body.gl-resizing-h { user-select:none!important; cursor:col-resize!important; }
+      body.gl-resizing-v { user-select:none!important; cursor:row-resize!important; }
     `;
     document.head.appendChild(s);
   }
 
   function syncOverlay(editor) {
-    const overlay = editor.parentElement && editor.parentElement.querySelector('.hl-overlay');
-    if (!overlay) return;
-
-    const rect = editor.getBoundingClientRect();
-    overlay.style.width = rect.width + 'px';
-    overlay.style.height = rect.height + 'px';
+    const ov = editor.parentElement && editor.parentElement.querySelector('.hl-overlay');
+    if (!ov) return;
+    const r = editor.getBoundingClientRect();
+    ov.style.width = r.width + 'px';
+    ov.style.height = r.height + 'px';
   }
 
   function init() {
@@ -152,9 +119,7 @@
     hSplit.title = 'Drag to resize file tree';
     project.insertBefore(hSplit, editorWrap);
 
-    let hDragging = false;
-    let hStartX = 0;
-    let hStartW = 0;
+    let hDragging = false, hStartX = 0, hStartW = 0;
 
     hSplit.addEventListener('mousedown', (e) => {
       e.preventDefault();
@@ -164,13 +129,10 @@
       hSplit.classList.add('dragging');
       document.body.classList.add('gl-resizing-h');
     });
-
     document.addEventListener('mousemove', (e) => {
       if (!hDragging) return;
-      const nextW = clamp(hStartW + (e.clientX - hStartX), MIN_FILES_W, MAX_FILES_W);
-      filesPanel.style.width = nextW + 'px';
+      filesPanel.style.width = clamp(hStartW + (e.clientX - hStartX), MIN_FILES_W, MAX_FILES_W) + 'px';
     });
-
     document.addEventListener('mouseup', () => {
       if (!hDragging) return;
       hDragging = false;
@@ -182,49 +144,46 @@
     const editor = editorWrap.querySelector('.runner-editor');
     if (!editor) return;
 
-    // Sync editor height to never be shorter than the file tree
-    function syncEditorMinHeight() {
-      const filesH = filesPanel.getBoundingClientRect().height;
-      const editorH = editor.getBoundingClientRect().height;
-      if (filesH > editorH) {
-        editor.style.minHeight = filesH + 'px';
-        editor.style.height = filesH + 'px';
-        syncOverlay(editor);
-      }
-    }
-    // Sync on load (after a tick so the tree has rendered)
-    setTimeout(syncEditorMinHeight, 50);
-    setTimeout(syncEditorMinHeight, 300);
-    setTimeout(syncEditorMinHeight, 1000);
-    // Re-sync whenever the file tree DOM changes
-    const treeObserver = new MutationObserver(syncEditorMinHeight);
-    treeObserver.observe(filesPanel, { childList: true, subtree: true });
-
+    // Place vertical splitter AFTER editorWrap (outside the flex column)
     const vSplit = document.createElement('div');
     vSplit.className = 'runner-vsplitter';
     vSplit.title = 'Drag to resize editor height';
-    editorWrap.appendChild(vSplit);
+    // Insert after the project flex row, not inside editorWrap
+    project.parentElement.insertBefore(vSplit, project.nextSibling);
 
-    let vDragging = false;
-    let vStartY = 0;
-    let vStartH = 0;
+    // On page load, match editor-wrap height to file tree
+    function matchFilesHeight() {
+      const filesH = filesPanel.getBoundingClientRect().height;
+      if (filesH > MIN_EDITOR_H) {
+        editorWrap.style.minHeight = filesH + 'px';
+      }
+    }
+    // Run after tree UI has rendered
+    setTimeout(matchFilesHeight, 100);
+    setTimeout(matchFilesHeight, 500);
+    setTimeout(matchFilesHeight, 1500);
+
+    let vDragging = false, vStartY = 0, vStartH = 0;
 
     vSplit.addEventListener('mousedown', (e) => {
       e.preventDefault();
       vDragging = true;
       vStartY = e.clientY;
-      vStartH = editor.getBoundingClientRect().height;
+      vStartH = editorWrap.getBoundingClientRect().height;
       vSplit.classList.add('dragging');
       document.body.classList.add('gl-resizing-v');
     });
 
     document.addEventListener('mousemove', (e) => {
       if (!vDragging) return;
-      const minH = Math.max(MIN_EDITOR_H, filesPanel.getBoundingClientRect().height);
+      const filesH = filesPanel.getBoundingClientRect().height;
+      const minH = Math.max(MIN_EDITOR_H, filesH);
       const nextH = Math.max(minH, vStartH + (e.clientY - vStartY));
-      editor.style.height = nextH + 'px';
-      editor.style.minHeight = nextH + 'px';
-      editor.style.flex = 'none';
+      // Set height on the entire project row so both columns match
+      editorWrap.style.minHeight = nextH + 'px';
+      editorWrap.style.height = nextH + 'px';
+      editorWrap.style.flex = '0 0 ' + nextH + 'px';
+      filesPanel.style.height = nextH + 'px';
       syncOverlay(editor);
     });
 
