@@ -87,8 +87,15 @@
 
     stopRequested = true;
     const runId = activeRunId;
-    activeController.abort();
+    const ctrl = activeController;
+
+    // Null immediately so keepStopVisibleWhileRunning() won't re-set stop mode
+    activeController = null;
+    activeRunId = null;
+
+    ctrl.abort();
     notifyCancel(runId);
+    setRunButton();
 
     // Freeze the elapsed timer at its current value
     if (window.__glElapsedTimer) {

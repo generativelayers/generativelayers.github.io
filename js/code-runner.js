@@ -289,7 +289,8 @@
     const contents = paths.length === 0
       ? '<div class="runner-empty-folder">empty</div>'
       : renderFolderContents(buildFolderTree(root, paths), root);
-    return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${root}</span></div>${contents}</div>`;
+    const displayName = root.replace(/^\//, '');
+    return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${displayName}</span></div>${contents}</div>`;
   }
 
   function openFile(path) {
