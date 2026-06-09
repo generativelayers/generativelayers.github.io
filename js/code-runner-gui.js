@@ -9,7 +9,7 @@
 (() => {
   'use strict';
 
-  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=1000';
+  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=2000&path=websockify';
 
   /* ── GUI detection ──────────────────────────────────────── */
   const GUI_PATTERNS = [
