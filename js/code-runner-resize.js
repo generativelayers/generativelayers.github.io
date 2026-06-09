@@ -290,7 +290,10 @@
       output.style.maxHeight = 'none';
       output.style.overflowY = 'auto';
 
-      // ── Right splitter (width) ──
+      // Wrap: vrow > hrow > [output + right-splitter] + bottom-splitter
+      // This keeps both axes independent.
+
+      // ── Horizontal row (output + right splitter) ──
       const hRow = document.createElement('div');
       hRow.className = 'gl-output-hrow';
       output.parentNode.insertBefore(hRow, output);
@@ -301,7 +304,9 @@
 
       makeDrag(rSplit, 'h', (v) => {
         if (v === null) return output.getBoundingClientRect().width;
-        output.style.width = Math.max(MIN_OUTPUT_W, v) + 'px';
+        const w = Math.max(MIN_OUTPUT_W, v);
+        output.style.flex = 'none';
+        output.style.width = w + 'px';
       });
 
       // ── Bottom splitter (height) ──
@@ -310,8 +315,7 @@
 
       makeDrag(vSplit, 'v', (v) => {
         if (v === null) return output.getBoundingClientRect().height;
-        const h = clamp(v, MIN_OUTPUT_H, MAX_OUTPUT_H);
-        output.style.height = h + 'px';
+        output.style.height = clamp(v, MIN_OUTPUT_H, MAX_OUTPUT_H) + 'px';
       });
     };
     trySetup();
