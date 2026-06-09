@@ -39,11 +39,17 @@
     const style = document.createElement('style');
     style.id = 'gl-runner-stop-style';
     style.textContent = `
+      #runAstraButton {
+        min-width: 150px;
+        text-align: center;
+        justify-content: center;
+      }
       #runAstraButton.runner-stop-mode {
         background: #dc2626 !important;
         color: #fff !important;
         opacity: 1 !important;
         cursor: pointer !important;
+        min-width: 150px;
       }
       #runAstraButton.runner-stop-mode:hover {
         background: #b91c1c !important;
