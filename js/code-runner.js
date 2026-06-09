@@ -266,58 +266,30 @@
   }
 
   function getApiKeyState() {
-    const selected = selectedProviderKey();
-
-    if (selected === '__custom__') {
-      return { required: [], apiKeys: {}, missing: [] };
+    // Use new smart panel if available
+    if (typeof window.__glGetApiKeys === 'function') {
+      const apiKeys = window.__glGetApiKeys();
+      const missing = typeof window.__glGetMissingProviders === 'function' ? window.__glGetMissingProviders() : [];
+      return { required: Object.keys(apiKeys).length > 0 || missing.length > 0 ? ['detected'] : [], apiKeys, missing };
     }
-
-    const required = selected ? [selected] : detectRequiredProvidersFallback();
+    // Fallback to old detection
+    const required = detectRequiredProvidersFallback();
     const apiKeys = {};
     const missing = [];
-
     required.forEach(provider => {
       const input = getProviderInput(provider);
       const value = input ? input.value.trim() : '';
       if (value) apiKeys[PROVIDERS[provider].env] = value;
       else missing.push(provider);
     });
-
     return { required, apiKeys, missing };
   }
 
   function updateApiKeyUI() {
-    const selected = selectedProviderKey();
-
-    if (selected === '__custom__') {
-      els.apiKeyPanel.hidden = false;
-      document.querySelectorAll('[data-provider-row]').forEach(row => { row.hidden = true; });
-      return { required: [], apiKeys: {}, missing: [] };
-    }
-
-    const state = getApiKeyState();
-    const needsKeys = state.required.length > 0;
-
-    els.apiKeyPanel.hidden = !needsKeys;
-    document.querySelectorAll('[data-provider-row]').forEach(row => {
-      row.hidden = !state.required.includes(row.dataset.providerRow);
-    });
-
-    if (!needsKeys) {
-      els.apiKeyWarning.hidden = true;
-      return state;
-    }
-
-    els.apiKeyIntro.textContent = `This run uses ${providerList(state.required)}. Fill only the selected provider key before running it.`;
-
-    if (state.missing.length > 0) {
-      els.apiKeyWarning.hidden = false;
-      els.apiKeyWarningText.textContent = `Missing: ${providerList(state.missing)}.`;
-    } else {
-      els.apiKeyWarning.hidden = true;
-    }
-
-    return state;
+    // Always hide old panel — new smart panel handles everything
+    if (els.apiKeyPanel) els.apiKeyPanel.hidden = true;
+    if (els.apiKeyWarning) els.apiKeyWarning.hidden = true;
+    return getApiKeyState();
   }
 
   function serverFilesPayload() {
@@ -377,13 +349,16 @@
     }
 
     const keyState = updateApiKeyUI();
+    // Only block if there are detected providers with missing keys
     if (keyState.missing.length > 0) {
+      const missingText = Array.isArray(keyState.missing) ? keyState.missing.join(', ') : String(keyState.missing);
       els.metaStatus.textContent = 'API key missing';
       els.metaReturnCode.textContent = '—';
       els.metaElapsed.textContent = '—';
       els.status.textContent = 'API key missing';
-      els.output.textContent = `This run uses ${providerList(keyState.required)}. Fill the selected provider key first: ${providerList(keyState.missing)}.`;
-      els.apiKeyPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      els.output.textContent = `Missing API keys: ${missingText}. Fill them in the panel above, then try again.`;
+      const keysPanel = document.getElementById('glKeysPanel');
+      if (keysPanel) keysPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
