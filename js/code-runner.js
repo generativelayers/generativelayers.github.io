@@ -742,26 +742,30 @@
         buffer += decoder.decode(value, { stream: true });
 
         // Check for metadata line (JSON with type:"meta")
-        if (buffer.startsWith('{"type":"meta"')) {
+        // Server may send with or without spaces, so check broadly
+        if (buffer.trimStart().startsWith('{') && buffer.includes('"meta"')) {
           const nlIdx = buffer.indexOf('\n');
           if (nlIdx >= 0) {
+            const firstLine = buffer.slice(0, nlIdx);
             try {
-              const meta = JSON.parse(buffer.slice(0, nlIdx));
-              if (meta.gui_port) {
-                // GUI port available — show the button (try immediately + retry)
-                const showBtn = () => {
-                  const guiBtn = document.getElementById('showGuiButton');
-                  if (guiBtn) guiBtn.hidden = false;
-                };
-                showBtn();
-                setTimeout(showBtn, 500);
-                setTimeout(showBtn, 1500);
-              }
-              if (meta.killed_previous) {
-                showRunnerToast('Previous execution terminated', 'info');
+              const meta = JSON.parse(firstLine);
+              if (meta.type === 'meta') {
+                // Consume the meta line (don't show in output)
+                buffer = buffer.slice(nlIdx + 1);
+                if (meta.gui_port) {
+                  const showBtn = () => {
+                    const guiBtn = document.getElementById('showGuiButton');
+                    if (guiBtn) guiBtn.hidden = false;
+                  };
+                  showBtn();
+                  setTimeout(showBtn, 500);
+                  setTimeout(showBtn, 1500);
+                }
+                if (meta.killed_previous) {
+                  showRunnerToast('Previous execution terminated', 'info');
+                }
               }
             } catch {}
-            buffer = buffer.slice(nlIdx + 1);
           }
         }
 
