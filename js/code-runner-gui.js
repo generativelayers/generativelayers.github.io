@@ -66,8 +66,7 @@
       .gui-modal-backdrop {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(4px);
+        background: rgba(0,0,0,0.35);
         z-index: 9998;
         display: flex;
         align-items: center;
@@ -213,13 +212,12 @@
     createUI();
     scan();
 
-    // Hook the Run button: auto-open GUI viewer when running GUI code
+    // Hook the Run button: just show the GUI button (don't auto-open modal)
     const runBtn = document.getElementById('runAstraButton');
     if (runBtn) {
       runBtn.addEventListener('click', () => {
-        if (detectGui()) {
-          // Small delay so Xvfb has time to start on server
-          setTimeout(openModal, 2000);
+        if (detectGui() && btnEl) {
+          btnEl.hidden = false;
         }
       });
     }
