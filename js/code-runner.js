@@ -644,6 +644,10 @@
         btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Run Project</span>';
         btn.title = '';
       }
+      // Hide GUI button and close modal — program is no longer running
+      const guiBtn = document.getElementById('showGuiButton');
+      if (guiBtn) guiBtn.hidden = true;
+      if (typeof window.__glGuiClose === 'function') window.__glGuiClose();
     }
   }
 
