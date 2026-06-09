@@ -217,6 +217,8 @@
     patchFetch();
     interceptStopClick();
     keepStopVisibleWhileRunning();
+    // Expose globally so New/Load project can stop running execution
+    window.__glStopExecution = stopExecution;
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
