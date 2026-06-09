@@ -345,8 +345,18 @@
       }
     });
 
+    const newBtn = document.createElement('button');
+    newBtn.type = 'button';
+    newBtn.className = 'runner-tree-btn';
+    newBtn.title = 'New project (reset to default template)';
+    newBtn.innerHTML = '<i class="fa-solid fa-file-circle-plus"></i> New';
+    newBtn.addEventListener('click', () => {
+      if (typeof window.__glResetProject === 'function') window.__glResetProject();
+    });
+
     toolbar.appendChild(openBtn);
     toolbar.appendChild(saveBtn);
+    toolbar.appendChild(newBtn);
     filesPanel.appendChild(toolbar);
   }
 

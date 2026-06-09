@@ -860,6 +860,22 @@
   window.__glImportFolder = importFolder;
   window.__glSaveProject = saveToStorage;
 
+  function resetProject() {
+    if (!window.confirm('Start a new project? This will erase all current files and restore the default template.')) return;
+    files = {
+      '/astra/Main.astra': DEFAULT_ASTRA_SOURCE,
+      '/pom.xml': DEFAULT_POM
+    };
+    emptyFolders = new Set();
+    currentPath = '/astra/Main.astra';
+    els.editor.value = files[currentPath];
+    els.currentFile.textContent = currentPath;
+    renderTree();
+    updateApiKeyUI();
+    saveToStorage();
+  }
+  window.__glResetProject = resetProject;
+
   function installEvents() {
     els.editor.addEventListener('input', () => {
       saveCurrentFile();
