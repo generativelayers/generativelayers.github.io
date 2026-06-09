@@ -747,10 +747,15 @@
           if (nlIdx >= 0) {
             try {
               const meta = JSON.parse(buffer.slice(0, nlIdx));
-              if (meta.gui_port && typeof window.__glGuiOpen === 'function') {
-                // GUI port available — show the button
-                const guiBtn = document.getElementById('showGuiButton');
-                if (guiBtn) guiBtn.hidden = false;
+              if (meta.gui_port) {
+                // GUI port available — show the button (try immediately + retry)
+                const showBtn = () => {
+                  const guiBtn = document.getElementById('showGuiButton');
+                  if (guiBtn) guiBtn.hidden = false;
+                };
+                showBtn();
+                setTimeout(showBtn, 500);
+                setTimeout(showBtn, 1500);
               }
               if (meta.killed_previous) {
                 showRunnerToast('Previous execution terminated', 'info');
