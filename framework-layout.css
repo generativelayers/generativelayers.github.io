@@ -8,15 +8,15 @@
 
 .framework-main #canonical-commands .commands-table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(1) {
-  width: 24% !important;
+  width: auto !important;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(2) {
-  width: 13% !important;
+  width: 110px !important;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(3) {
@@ -24,7 +24,7 @@
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(4) {
-  width: 13% !important;
+  width: 90px !important;
 }
 
 .framework-main #canonical-commands .commands-table th,
@@ -34,7 +34,7 @@
 
 .framework-main #canonical-commands .commands-table th:nth-child(4),
 .framework-main #canonical-commands .commands-table td:nth-child(4) {
-  min-width: 96px;
+  min-width: 90px;
   text-align: center;
   white-space: nowrap;
   padding-left: 8px;
@@ -52,5 +52,13 @@
 @media (max-width: 1100px) {
   .framework-main #canonical-commands .table-container {
     overflow-x: auto;
+  }
+}
+
+/* On mobile, allow command names to wrap since screen is narrow */
+@media (max-width: 768px) {
+  .framework-main .cmd-name {
+    white-space: normal;
+    word-break: break-word;
   }
 }
