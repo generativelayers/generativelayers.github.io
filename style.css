@@ -917,7 +917,7 @@ p, li {
 
 .commands-table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
   text-align: left;
   font-family: var(--font-sans);
@@ -983,8 +983,8 @@ p, li {
   padding: 4px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid #d1eae0;
-  word-break: break-all;
-  white-space: normal;
+  word-break: normal;
+  white-space: nowrap;
 }
 
 .small-overloads {

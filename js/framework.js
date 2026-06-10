@@ -172,7 +172,7 @@
     table.innerHTML = `
       <table class="commands-table">
         <colgroup>
-          <col style="width:28%"><col style="width:12%"><col style="width:50%"><col style="width:10%">
+          <col style="width:auto"><col style="width:110px"><col style="width:50%"><col style="width:90px">
         </colgroup>
         <thead>
           <tr><th>Command</th><th>Return Type</th><th>Description</th><th style="text-align:center">Usage</th></tr>

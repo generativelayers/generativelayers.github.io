@@ -263,9 +263,52 @@ function normalizeProviderFreeTierLabels() {
   }
 }
 
+function installMobileSidebarToggle() {
+  const menuToggle = document.querySelector('.menu-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!menuToggle || !sidebar) return;
+
+  // Avoid double-binding if an inline script already bound it
+  if (menuToggle.dataset.glBound) return;
+  menuToggle.dataset.glBound = '1';
+
+  menuToggle.addEventListener('click', function () {
+    sidebar.classList.toggle('open');
+    if (backdrop) backdrop.classList.toggle('open');
+    const isOpen = sidebar.classList.contains('open');
+    document.documentElement.classList.toggle('sidebar-open', isOpen);
+    document.body.classList.toggle('sidebar-open', isOpen);
+    if (isOpen) {
+      lockedScrollY = window.scrollY;
+      document.body.style.top = `-${lockedScrollY}px`;
+      isSidebarLocked = true;
+    } else {
+      document.body.style.top = '';
+      document.documentElement.classList.remove('sidebar-open');
+      document.body.classList.remove('sidebar-open');
+      window.scrollTo(0, lockedScrollY);
+      isSidebarLocked = false;
+    }
+  });
+
+  if (backdrop) {
+    backdrop.addEventListener('click', function () {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('open');
+      document.body.style.top = '';
+      document.documentElement.classList.remove('sidebar-open');
+      document.body.classList.remove('sidebar-open');
+      window.scrollTo(0, lockedScrollY);
+      isSidebarLocked = false;
+    });
+  }
+}
+
 function initSharedPageScripts() {
   installRunCodeNavigation();
   installMobileFixes();
+  installMobileSidebarToggle();
   normalizeProviderFreeTierLabels();
 }
 
