@@ -70,7 +70,7 @@
       <section class='info-panel' id='request-path'>
         <h2>Request path</h2>
         <div class='architecture'>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-ask&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-ask")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-user-gear arch-icon-indicator'></i>
               <span>1. Agent asks for external support.</span>
@@ -78,7 +78,7 @@
             <span class='arch-phase-badge phase-initiation'>Initiation</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-use_provider&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-use_provider")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-diagram-project arch-icon-indicator'></i>
               <span>2. Adapter creates a Generative Layers request.</span>
@@ -86,7 +86,7 @@
             <span class='arch-phase-badge phase-step-two'>Adapter</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-admissible&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-admissible")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-shield-halved arch-icon-indicator'></i>
               <span>3. Governance checks policy, limits, context, and audit requirements.</span>
@@ -94,7 +94,7 @@
             <span class='arch-phase-badge phase-governance'>Governance</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-invoke&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-invoke")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-server arch-icon-indicator'></i>
               <span>4. Provider calls an LLM, tool, API, service, or module.</span>
@@ -102,7 +102,7 @@
             <span class='arch-phase-badge phase-execution'>Provider</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-candidate&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-candidate")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-cube arch-icon-indicator'></i>
               <span>5. Result returns as candidate material.</span>
@@ -110,7 +110,7 @@
             <span class='arch-phase-badge phase-material'>Material</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand(&quot;row-accept&quot;)' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-accept")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-scale-balanced arch-icon-indicator'></i>
               <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
@@ -123,7 +123,7 @@
       <section class='info-panel' id='core-concepts'>
         <h2>Core concepts</h2>
 
-        <div class='concept-card card' id='concept-agent-layer' onclick='toggleConcept(&quot;agent-layer&quot;)'>
+        <div class='concept-card card' id='concept-agent-layer' onclick='toggleConcept("agent-layer")'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-user-gear'></i> Agent Layer</h3>
@@ -140,7 +140,7 @@
           </div>
         </div>
 
-        <div class='concept-card card' id='concept-adapter' onclick='toggleConcept(&quot;adapter&quot;)'>
+        <div class='concept-card card' id='concept-adapter' onclick='toggleConcept("adapter")'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-diagram-project'></i> Adapter</h3>
@@ -157,7 +157,7 @@
           </div>
         </div>
 
-        <div class='concept-card card' id='concept-governance' onclick='toggleConcept(&quot;governance&quot;)'>
+        <div class='concept-card card' id='concept-governance' onclick='toggleConcept("governance")'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-shield-halved'></i> Governance Boundary</h3>
@@ -174,7 +174,7 @@
           </div>
         </div>
 
-        <div class='concept-card card' id='concept-provider' onclick='toggleConcept(&quot;provider&quot;)'>
+        <div class='concept-card card' id='concept-provider' onclick='toggleConcept("provider")'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-server'></i> Provider</h3>
@@ -191,7 +191,7 @@
           </div>
         </div>
 
-        <div class='concept-card card' id='concept-material' onclick='toggleConcept(&quot;material&quot;)'>
+        <div class='concept-card card' id='concept-material' onclick='toggleConcept("material")'>
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-cube'></i> Candidate Material</h3>
