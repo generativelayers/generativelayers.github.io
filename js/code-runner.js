@@ -2,14 +2,18 @@
   /* ── Platform config ───────────────────────────────────── */
   const CFG = window.GL_PLATFORM_CONFIG || {};
   const PLATFORM = window.GL_PLATFORM || 'astra';
-  const SOURCE_FOLDER = CFG.sourceFolder || '/astra';
-  const AUX_FOLDER = CFG.auxFolder || '/java';
+  const FLAT_ROOT = !!CFG.flatRoot;
+  const SOURCE_FOLDER = CFG.sourceFolder || (FLAT_ROOT ? null : '/astra');
+  const AUX_FOLDER = CFG.auxFolder || (FLAT_ROOT ? null : '/java');
   const SOURCE_EXT = CFG.sourceExt || '.astra';
   const AUX_EXT = CFG.auxExt || '.java';
+  const EXTRA_EXTS = CFG.extraExts || [];
   const SOURCE_ICON = CFG.sourceIcon || 'fa-robot';
   const AUX_ICON = CFG.auxIcon || 'fa-brands fa-java';
   const BUILD_FILE = CFG.buildFile || '/pom.xml';
   const DEFAULT_FILE = CFG.defaultFile || '/astra/Main.astra';
+  const SERVER_ASL_DIR = CFG.serverAslDir || 'src/main/asl';
+  const SERVER_JAVA_DIR = CFG.serverJavaDir || 'src/main/java';
   const STORAGE_KEY_CFG = (CFG.storagePrefix || 'gl-astra-') + 'project';
 
   const RUN_URLS = {
@@ -371,21 +375,35 @@
   }
 
   function sortedPaths(root) {
+    if (!root) return [];
     return Object.keys(files)
       .filter(path => path.startsWith(root + '/'))
       .sort((a, b) => a.localeCompare(b));
   }
 
+  /** Get all project files (excluding build file) sorted */
+  function allProjectFiles() {
+    return Object.keys(files)
+      .filter(p => p !== BUILD_FILE)
+      .sort((a, b) => a.localeCompare(b));
+  }
+
   function renderTree() {
     saveCurrentFile();
-
-    const sourceFiles = sortedPaths(SOURCE_FOLDER);
-    const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
     const hasBuild = BUILD_FILE && Object.prototype.hasOwnProperty.call(files, BUILD_FILE);
+    let html = '';
 
-    let html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
-    if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
-    html = html.join('');
+    if (FLAT_ROOT) {
+      // Flat root: single "Project" section with all files
+      const projectFiles = allProjectFiles();
+      html = renderFlatRoot(projectFiles);
+    } else {
+      const sourceFiles = sortedPaths(SOURCE_FOLDER);
+      const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
+      html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
+      if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
+      html = html.join('');
+    }
 
     // Build file as standalone root-level file
     if (hasBuild) {
@@ -453,8 +471,8 @@
   }
 
   function renderRoot(root, paths) {
-  const icons = {};
-    icons[SOURCE_FOLDER] = SOURCE_ICON;
+    const icons = {};
+    if (SOURCE_FOLDER) icons[SOURCE_FOLDER] = SOURCE_ICON;
     if (AUX_FOLDER) icons[AUX_FOLDER] = AUX_ICON;
     const icon = icons[root] || 'fa-folder';
     const contents = paths.length === 0
@@ -462,6 +480,15 @@
       : renderFolderContents(buildFolderTree(root, paths), root);
     const displayName = root.replace(/^\//, '');
     return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid ${icon}"></i><span>${displayName}</span></div>${contents}</div>`;
+  }
+
+  /** Render a flat root tree — all project files under a single "Project" heading */
+  function renderFlatRoot(paths) {
+    const tree = buildFolderTree('', paths);
+    const contents = paths.length === 0
+      ? '<div class="runner-empty-folder">empty</div>'
+      : renderFolderContents(tree, '');
+    return `<div class="runner-root"><div class="runner-root-title"><i class="fa-solid fa-folder-open"></i><span>Project</span></div>${contents}</div>`;
   }
 
   function openFile(path) {
@@ -475,13 +502,19 @@
   }
 
   function renderTreeNoSave() {
-    const sourceFiles = sortedPaths(SOURCE_FOLDER);
-    const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
     const hasBuild = BUILD_FILE && Object.prototype.hasOwnProperty.call(files, BUILD_FILE);
+    let html = '';
 
-    let html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
-    if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
-    html = html.join('');
+    if (FLAT_ROOT) {
+      html = renderFlatRoot(allProjectFiles());
+    } else {
+      const sourceFiles = sortedPaths(SOURCE_FOLDER);
+      const auxFiles = AUX_FOLDER ? sortedPaths(AUX_FOLDER) : [];
+      html = [renderRoot(SOURCE_FOLDER, sourceFiles)];
+      if (AUX_FOLDER) html.push(renderRoot(AUX_FOLDER, auxFiles));
+      html = html.join('');
+    }
+
     if (hasBuild) {
       const buildName = (BUILD_FILE || '').replace(/^\//, '');
       const active = currentPath === BUILD_FILE ? ' active' : '';
@@ -495,38 +528,59 @@
 
   function cleanPathName(kind, rawName) {
     let name = String(rawName || '').trim().replace(/\\/g, '/').replace(/^\/+/, '');
-    name = name.replace(new RegExp(`^${SOURCE_FOLDER.slice(1)}\/`, 'i'), '');
-    if (AUX_FOLDER) name = name.replace(new RegExp(`^${AUX_FOLDER.slice(1)}\/`, 'i'), '');
+    if (!FLAT_ROOT) {
+      if (SOURCE_FOLDER) name = name.replace(new RegExp(`^${SOURCE_FOLDER.slice(1)}\\/`, 'i'), '');
+      if (AUX_FOLDER) name = name.replace(new RegExp(`^${AUX_FOLDER.slice(1)}\\/`, 'i'), '');
+    }
     name = name.replace(/^src\/main\/astra\//i, '').replace(/^src\/main\/java\//i, '').replace(/^src\/agt\//i, '').replace(/^src\/main\/asl\//i, '');
 
     if (!name) throw new Error('Filename is empty.');
     if (name.includes('..') || name.startsWith('/') || name.split('/').some(part => !part)) throw new Error('Invalid path.');
     if (!/^[A-Za-z0-9_.$/-]+$/.test(name)) throw new Error('Use only letters, numbers, underscore, dash, dot, dollar sign, and slash.');
 
-    const sourceKind = SOURCE_FOLDER.slice(1);
-    const auxKind = AUX_FOLDER ? AUX_FOLDER.slice(1) : null;
-    if (kind === sourceKind && !name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
-    if (auxKind && kind === auxKind && !name.endsWith(AUX_EXT)) name += AUX_EXT;
+    if (FLAT_ROOT) {
+      // In flat mode: accept any filename as-is
+      return `/${name}`;
+    }
 
+    const sourceKind = SOURCE_FOLDER ? SOURCE_FOLDER.slice(1) : null;
+    const auxKind = AUX_FOLDER ? AUX_FOLDER.slice(1) : null;
+    if (sourceKind && kind === sourceKind && !name.endsWith(SOURCE_EXT)) name += SOURCE_EXT;
+    if (auxKind && kind === auxKind && !name.endsWith(AUX_EXT)) name += AUX_EXT;
 
     return `/${kind}/${name}`;
   }
 
   function createFile(kind) {
     saveCurrentFile();
-    const examples = {};
-    examples[SOURCE_FOLDER.slice(1)] = 'Agent' + SOURCE_EXT;
-    if (AUX_FOLDER) examples[AUX_FOLDER.slice(1)] = 'artifacts/MyArtifact' + AUX_EXT;
-    const example = examples[kind] || 'file.txt';
-    const raw = window.prompt(`New ${kind.toUpperCase()} file inside /${kind}`, example);
+    let example, promptLabel;
+    if (FLAT_ROOT) {
+      example = 'agent' + SOURCE_EXT;
+      promptLabel = 'new';
+    } else {
+      const examples = {};
+      if (SOURCE_FOLDER) examples[SOURCE_FOLDER.slice(1)] = 'Agent' + SOURCE_EXT;
+      if (AUX_FOLDER) examples[AUX_FOLDER.slice(1)] = 'artifacts/MyArtifact' + AUX_EXT;
+      example = examples[kind] || 'file.txt';
+      promptLabel = kind.toUpperCase();
+    }
+    const raw = window.prompt('New file', example);
     if (raw === null) return;
 
     try {
       const path = cleanPathName(kind, raw);
       if (Object.prototype.hasOwnProperty.call(files, path)) throw new Error('File already exists.');
-      if (kind === SOURCE_FOLDER.slice(1)) files[path] = sourceTemplate(path);
-      else if (AUX_FOLDER && kind === AUX_FOLDER.slice(1)) files[path] = javaTemplate(path);
-      else files[path] = '';
+      if (FLAT_ROOT) {
+        // Pick template by extension if recognized, otherwise empty
+        if (path.endsWith(SOURCE_EXT)) files[path] = sourceTemplate(path);
+        else if (path.endsWith(AUX_EXT)) files[path] = javaTemplate(path);
+        else if (path.endsWith('.mas2j')) files[path] = mas2jTemplate();
+        else files[path] = '';
+      } else {
+        if (SOURCE_FOLDER && kind === SOURCE_FOLDER.slice(1)) files[path] = sourceTemplate(path);
+        else if (AUX_FOLDER && kind === AUX_FOLDER.slice(1)) files[path] = javaTemplate(path);
+        else files[path] = '';
+      }
       currentPath = path;
       els.editor.value = files[path];
       els.currentFile.textContent = path;
@@ -535,6 +589,13 @@
     } catch (error) {
       window.alert(error.message);
     }
+  }
+
+  function mas2jTemplate() {
+    if (PLATFORM === 'jacamo') {
+      return `MAS my_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n        main  agentArchClass jaca.CAgentArch;\n    aslSourcePath: "${SERVER_ASL_DIR}";\n}\n`;
+    }
+    return `MAS my_project {\n    agents:\n        main;\n    aslSourcePath: "${SERVER_ASL_DIR}";\n}\n`;
   }
 
   function sourceTemplate(path) {
@@ -574,8 +635,14 @@
     saveCurrentFile();
     if (!currentPath) return;
     if (currentPath === BUILD_FILE) { window.alert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be renamed.`); return; }
-    const kind = currentPath.startsWith(SOURCE_FOLDER + '/') ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : SOURCE_FOLDER.slice(1));
-    const currentName = currentPath.replace(`/${kind}/`, '');
+    let kind, currentName;
+    if (FLAT_ROOT) {
+      kind = currentPath.endsWith(AUX_EXT) ? 'aux' : 'source';
+      currentName = currentPath.replace(/^\//, '');
+    } else {
+      kind = (SOURCE_FOLDER && currentPath.startsWith(SOURCE_FOLDER + '/')) ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : (SOURCE_FOLDER ? SOURCE_FOLDER.slice(1) : ''));
+      currentName = currentPath.replace(`/${kind}/`, '');
+    }
     const raw = window.prompt('Rename file', currentName);
     if (raw === null) return;
 
@@ -686,7 +753,23 @@
     const payload = {};
 
     Object.entries(files).forEach(([path, content]) => {
-      if (PLATFORM === 'astra') {
+      if (path === BUILD_FILE) return; // pom.xml sent separately
+
+      if (FLAT_ROOT) {
+        // Flat root: map files by extension to server-expected directories
+        const rel = path.replace(/^\//, '');
+        if (path.endsWith(SOURCE_EXT)) {
+          payload[`${SERVER_ASL_DIR}/${rel}`] = content;
+        } else if (path.endsWith(AUX_EXT)) {
+          payload[`${SERVER_JAVA_DIR}/${rel}`] = content;
+        } else if (path.endsWith('.mas2j')) {
+          // .mas2j files go at the project root on the server
+          payload[rel] = content;
+        } else {
+          // Any other file type: send at project root
+          payload[rel] = content;
+        }
+      } else if (PLATFORM === 'astra') {
         if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
         if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
       } else if (PLATFORM === 'jason') {
@@ -709,8 +792,16 @@
   // ── Folder operations (for tree-ui) ────────────────────
   function renameFolder(folderPath) {
     saveCurrentFile();
-    const root = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_FOLDER : (AUX_FOLDER || SOURCE_FOLDER);
-    const relative = folderPath.slice(root.length + 1);
+    let root, relative;
+    if (FLAT_ROOT) {
+      // In flat mode, find the parent path
+      const lastSlash = folderPath.lastIndexOf('/');
+      root = lastSlash > 0 ? folderPath.slice(0, lastSlash) : '';
+      relative = folderPath.replace(/^\//, '');
+    } else {
+      root = (SOURCE_FOLDER && folderPath.startsWith(SOURCE_FOLDER)) ? SOURCE_FOLDER : (AUX_FOLDER || SOURCE_FOLDER || '');
+      relative = folderPath.slice(root.length + 1);
+    }
     const raw = window.prompt('Rename folder', relative);
     if (raw === null) return;
     const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
@@ -773,13 +864,21 @@
 
   function createFileInFolder(folderPath) {
     saveCurrentFile();
-    const kind = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : SOURCE_FOLDER.slice(1));
-    const ext = folderPath.startsWith(SOURCE_FOLDER) ? SOURCE_EXT : (AUX_EXT || SOURCE_EXT);
+    let ext;
+    if (FLAT_ROOT) {
+      // In flat mode, ask what kind of file
+      ext = SOURCE_EXT;
+    } else {
+      ext = (SOURCE_FOLDER && folderPath.startsWith(SOURCE_FOLDER)) ? SOURCE_EXT : (AUX_EXT || SOURCE_EXT);
+    }
     const raw = window.prompt(`New file in ${folderPath}`, 'Agent' + ext);
     if (raw === null) return;
     let name = raw.trim();
     if (!name) return;
-    if (!name.endsWith(ext)) name += ext;
+    // Only auto-add extension if no recognized extension present
+    if (!name.endsWith(SOURCE_EXT) && !name.endsWith(AUX_EXT) && !name.endsWith('.mas2j')) {
+      name += ext;
+    }
     if (!/^[A-Za-z0-9_.$/-]+$/.test(name)) {
       window.alert('Invalid file name.'); return;
     }
@@ -787,7 +886,7 @@
     if (Object.prototype.hasOwnProperty.call(files, path)) {
       window.alert('File already exists.'); return;
     }
-    files[path] = folderPath.startsWith(SOURCE_FOLDER) ? sourceTemplate(path) : javaTemplate(path);
+    files[path] = name.endsWith(AUX_EXT) ? javaTemplate(path) : sourceTemplate(path);
     currentPath = path;
     els.editor.value = files[path];
     els.currentFile.textContent = path;
@@ -828,10 +927,10 @@
         return '/astra/Main.astra must contain agent Main.';
       }
     }
-    // Jason/JaCaMo: just need at least one .asl file
+    // Jason/JaCaMo: just need at least one .asl file anywhere in the project
     if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-      const hasSource = Object.keys(files).some(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT));
-      if (!hasSource) return `At least one ${SOURCE_EXT} file is required in ${SOURCE_FOLDER}.`;
+      const hasSource = Object.keys(files).some(p => p.endsWith(SOURCE_EXT) && p !== BUILD_FILE);
+      if (!hasSource) return `At least one ${SOURCE_EXT} file is required.`;
     }
     return '';
   }
@@ -859,7 +958,8 @@
     els.metaStatus.textContent = 'Idle';
     els.metaReturnCode.textContent = '—';
     els.metaElapsed.textContent = '—';
-    els.output.textContent = `Create or edit files in ${SOURCE_FOLDER}${AUX_FOLDER ? ' and ' + AUX_FOLDER : ''}, then press "Run Project".`;
+    const folderDesc = FLAT_ROOT ? 'the project' : `${SOURCE_FOLDER}${AUX_FOLDER ? ' and ' + AUX_FOLDER : ''}`;
+    els.output.textContent = `Create or edit files in ${folderDesc}, then press "Run Project".`;
   }
 
   function norm(output) {
@@ -922,18 +1022,27 @@
         files: serverFilesPayload(),
       };
       if (BUILD_FILE && files[BUILD_FILE]) body.pom_xml = files[BUILD_FILE];
-      // Jason/JaCaMo: auto-generate mas2j
+      // Jason/JaCaMo: auto-generate mas2j (unless user provided one)
       if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-        const agents = Object.keys(files)
-          .filter(p => p.startsWith(SOURCE_FOLDER + '/') && p.endsWith(SOURCE_EXT))
-          .map(p => p.replace(SOURCE_FOLDER + '/', '').replace(SOURCE_EXT, ''));
-        if (agents.length > 0) {
-          if (PLATFORM === 'jacamo') {
-            const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
-            body.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "src/agt";\n}\n`;
-          } else {
-            const agentLines = agents.map(a => `        ${a};`).join('\n');
-            body.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "src/main/asl";\n}\n`;
+        const userMas2j = Object.keys(files).find(p => p.endsWith('.mas2j'));
+        if (userMas2j) {
+          // User provided a .mas2j file — send it explicitly
+          body.mas2j = files[userMas2j];
+          body.mas2j_name = userMas2j.replace(/^\//, '');
+        } else {
+          // Auto-generate from .asl files
+          const agents = Object.keys(files)
+            .filter(p => p.endsWith(SOURCE_EXT) && p !== BUILD_FILE)
+            .map(p => p.replace(/^\//, '').replace(SOURCE_EXT, '').replace(/\//g, '.'));
+          if (agents.length > 0) {
+            const aslPath = SERVER_ASL_DIR;
+            if (PLATFORM === 'jacamo') {
+              const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
+              body.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
+            } else {
+              const agentLines = agents.map(a => `        ${a};`).join('\n');
+              body.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
+            }
           }
         }
       }
@@ -1114,7 +1223,7 @@
     }
   }
 
-  // ── Open folder (import local ASTRA project) ──────────
+  // ── Open folder (import local project) ──────────────────
   function importFolder() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -1139,18 +1248,24 @@
           return;
         }
 
-        // src/main/astra/**/*.astra
-        const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
-        if (astraMatch) {
-          readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
-          return;
-        }
-
-        // src/main/java/**/*.java
-        const javaMatch = relPath.match(/src\/main\/java\/(.+\.java)$/);
-        if (javaMatch) {
-          readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
-          return;
+        if (FLAT_ROOT) {
+          // Flat root: import .asl, .java, .mas2j from anywhere in the project
+          const name = parts.slice(1).join('/'); // remove top-level folder name
+          if (name.endsWith(SOURCE_EXT) || name.endsWith(AUX_EXT) || name.endsWith('.mas2j')) {
+            readers.push(file.text().then(text => { newFiles[`/${name}`] = text; }));
+          }
+        } else {
+          // ASTRA mode: structured import
+          const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
+          if (astraMatch) {
+            readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
+            return;
+          }
+          const javaMatch = relPath.match(/src\/main\/java\/(.+\.java)$/);
+          if (javaMatch) {
+            readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
+            return;
+          }
         }
       });
 
@@ -1163,7 +1278,7 @@
         if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
         if (!pomFound && BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
         files = newFiles;
-        currentPath = Object.keys(files).find(p => p.endsWith('.astra')) || Object.keys(files)[0];
+        currentPath = Object.keys(files).find(p => p.endsWith(SOURCE_EXT)) || Object.keys(files)[0];
         els.editor.value = files[currentPath] || '';
         els.currentFile.textContent = currentPath;
         renderTree();
@@ -1267,8 +1382,8 @@
     });
 
     document.querySelectorAll('[data-provider-key]').forEach(input => input.addEventListener('input', updateApiKeyUI));
-    els.newAstra.addEventListener('click', () => createFile(SOURCE_FOLDER.slice(1)));
-    if (els.newJava && AUX_FOLDER) els.newJava.addEventListener('click', () => createFile(AUX_FOLDER.slice(1)));
+    els.newAstra.addEventListener('click', () => createFile(FLAT_ROOT ? 'source' : (SOURCE_FOLDER ? SOURCE_FOLDER.slice(1) : 'source')));
+    if (els.newJava) els.newJava.addEventListener('click', () => createFile(FLAT_ROOT ? 'aux' : (AUX_FOLDER ? AUX_FOLDER.slice(1) : 'aux')));
     els.rename.addEventListener('click', renameCurrentFile);
     els.delete.addEventListener('click', deleteCurrentFile);
     els.run.addEventListener('click', runProject);

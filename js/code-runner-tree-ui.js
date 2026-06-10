@@ -232,13 +232,15 @@
       const text = (title.textContent || '').trim().toLowerCase();
       
       const CFG = window.GL_PLATFORM_CONFIG || {};
-      const sourceFolder = CFG.sourceFolder || '/astra';
-      const auxFolder = CFG.auxFolder || '/java';
+      const isFlat = !!CFG.flatRoot;
+      const sourceFolder = CFG.sourceFolder || (isFlat ? null : '/astra');
+      const auxFolder = CFG.auxFolder || (isFlat ? null : '/java');
       
       const isSource = sourceFolder && text === sourceFolder.substring(1).toLowerCase();
       const isAux = auxFolder && text === auxFolder.substring(1).toLowerCase();
+      const isProject = isFlat && text === 'project';
       
-      if (!isSource && !isAux) return;
+      if (!isSource && !isAux && !isProject) return;
 
       const label = document.createElement('div');
       label.className = 'runner-root-label';
@@ -247,31 +249,61 @@
         label.appendChild(title.firstChild);
       }
 
-      const add = document.createElement('button');
-      add.type = 'button';
-      add.className = 'runner-folder-add';
-      add.title = isSource ? (CFG.newSourceLabel || '+ ASTRA') : (CFG.newAuxLabel || '+ Java');
-      add.innerHTML = '<i class="fa-solid fa-plus"></i>';
-      add.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        clickHidden(isSource ? 'newAstraFileButton' : 'newJavaFileButton');
-      });
+      if (isProject) {
+        // Flat root: single + File button and folder button
+        const addFile = document.createElement('button');
+        addFile.type = 'button';
+        addFile.className = 'runner-folder-add';
+        addFile.title = '+ File';
+        addFile.innerHTML = '<i class="fa-solid fa-plus"></i>';
+        addFile.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          clickHidden('newAstraFileButton');
+        });
 
-      const addFolder = document.createElement('button');
-      addFolder.type = 'button';
-      addFolder.className = 'runner-folder-add';
-      addFolder.title = isSource ? `New folder in ${sourceFolder}` : `New folder in ${auxFolder}`;
-      addFolder.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
-      addFolder.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(isSource ? sourceFolder : auxFolder);
-      });
+        const addFolder = document.createElement('button');
+        addFolder.type = 'button';
+        addFolder.className = 'runner-folder-add';
+        addFolder.title = 'New folder';
+        addFolder.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+        addFolder.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder('');
+        });
 
-      title.appendChild(label);
-      title.appendChild(addFolder);
-      title.appendChild(add);
+        title.appendChild(label);
+        title.appendChild(addFolder);
+        title.appendChild(addFile);
+      } else {
+        // Standard mode: source or aux root
+        const add = document.createElement('button');
+        add.type = 'button';
+        add.className = 'runner-folder-add';
+        add.title = isSource ? (CFG.newSourceLabel || '+ ASTRA') : (CFG.newAuxLabel || '+ Java');
+        add.innerHTML = '<i class="fa-solid fa-plus"></i>';
+        add.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          clickHidden(isSource ? 'newAstraFileButton' : 'newJavaFileButton');
+        });
+
+        const addFolder = document.createElement('button');
+        addFolder.type = 'button';
+        addFolder.className = 'runner-folder-add';
+        addFolder.title = isSource ? `New folder in ${sourceFolder}` : `New folder in ${auxFolder}`;
+        addFolder.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+        addFolder.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(isSource ? sourceFolder : auxFolder);
+        });
+
+        title.appendChild(label);
+        title.appendChild(addFolder);
+        title.appendChild(add);
+      }
       title.dataset.treeUiPatched = '1';
     });
   }
