@@ -1076,9 +1076,9 @@
   }
 
   function loadDefaultProject() {
-    files = PLATFORM === 'astra'
-      ? { [DEFAULT_FILE]: DEFAULT_SOURCE, '/pom.xml': DEFAULT_POM }
-      : { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    const newFiles = { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    if (BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
+    files = newFiles;
     currentPath = DEFAULT_FILE;
     els.editor.value = files[currentPath];
     els.currentFile.textContent = currentPath;
@@ -1097,7 +1097,7 @@
       // Stop any running execution before loading
       if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
       files = { [DEFAULT_FILE]: payload.source };
-      if (PLATFORM === 'astra' && !files['/pom.xml']) files['/pom.xml'] = DEFAULT_POM;
+      if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
       currentPath = DEFAULT_FILE;
       els.editor.value = payload.source;
       els.currentFile.textContent = currentPath;
@@ -1161,7 +1161,7 @@
         }
         // Stop any running execution before loading new project
         if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-        if (!pomFound) newFiles['/pom.xml'] = DEFAULT_POM;
+        if (!pomFound && BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
         files = newFiles;
         currentPath = Object.keys(files).find(p => p.endsWith('.astra')) || Object.keys(files)[0];
         els.editor.value = files[currentPath] || '';
@@ -1210,9 +1210,9 @@
     if (!window.confirm('Start a new project? This will erase all current files and restore the default template.')) return;
     // Stop any running execution before resetting
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-    files = PLATFORM === 'astra'
-      ? { [DEFAULT_FILE]: DEFAULT_SOURCE, '/pom.xml': DEFAULT_POM }
-      : { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    const newFiles = { [DEFAULT_FILE]: DEFAULT_SOURCE };
+    if (BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
+    files = newFiles;
     emptyFolders = new Set();
     currentPath = DEFAULT_FILE;
     els.editor.value = files[currentPath];
@@ -1228,7 +1228,7 @@
     loadSource: function(source, title) {
       if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
       files = { [DEFAULT_FILE]: source };
-      if (PLATFORM === 'astra') files['/pom.xml'] = DEFAULT_POM;
+      if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
       currentPath = DEFAULT_FILE;
       els.editor.value = source;
       els.currentFile.textContent = currentPath;
@@ -1285,9 +1285,8 @@
 
     // Try to restore from localStorage first
     const restored = loadFromStorage();
-    if (!restored) {
-      // Default project
-      files['/pom.xml'] = files['/pom.xml'] || (PLATFORM === 'astra' ? DEFAULT_POM : undefined);
+    if (!restored && BUILD_FILE) {
+      files[BUILD_FILE] = files[BUILD_FILE] || (DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra);
     }
 
     els.editor.value = files[currentPath] || '';
