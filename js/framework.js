@@ -130,7 +130,7 @@
   }
 
   function codeBlock(command, platform, label) {
-    return `<div class="mini-code-block ${platform === 'astra' ? 'active' : ''}" id="code-${command.id}-${platform}"><pre><code><span class="comment">// ${label}</span>\n${escapeHtml(command[platform])}</code></pre></div>`;
+    return `<div class="mini-code-block ${platform === 'astra' ? 'active' : ''}" id="code-${command.id}-${platform}"><pre data-gl-run-ready="1"><code><span class="comment">// ${label}</span>\n${escapeHtml(command[platform])}</code></pre></div>`;
   }
 
   function commandRow(command) {

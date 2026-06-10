@@ -13,10 +13,12 @@
     window.GL_PLATFORM_CONFIG = {
       id: 'jason',
       label: 'Jason',
-      sourceFolder: '/asl',
-      auxFolder: '/java',
+      flatRoot: true,
+      sourceFolder: null,
+      auxFolder: null,
       sourceExt: '.asl',
       auxExt: '.java',
+      extraExts: ['.mas2j'],
       sourceIcon: 'fa-hat-wizard',
       auxIcon: 'fa-brands fa-java',
       buildFile: '/pom.xml',
@@ -24,14 +26,16 @@
       newSourceLabel: '+ ASL',
       newAuxLabel: '+ Java',
       storagePrefix: 'gl_runner_jason_',
-      defaultFile: '/asl/main.asl',
+      defaultFile: '/main.asl',
+      serverAslDir: 'src/main/asl',
+      serverJavaDir: 'src/main/java',
       enabled: true
     };
   </script>
   <script defer src="js/search.js"></script>
   <script defer src="js/run-code-links.js?v=3"></script>
-  <script defer src="js/code-runner.js?v=4"></script>
-  <script defer src="js/code-runner-tree-ui.js?v=2"></script>
+  <script defer src="js/code-runner.js?v=5"></script>
+  <script defer src="js/code-runner-tree-ui.js?v=3"></script>
   <script defer src="js/code-runner-api-select.js?v=8"></script>
   <script defer src="js/code-runner-clean-version.js?v=1"></script>
   <script defer src="js/code-runner-stop.js?v=4"></script>
@@ -176,15 +180,15 @@
             <div class="runner-files">
               <div class="runner-files-head"><span>Project files</span></div>
               <div class="runner-file-actions"><button class="runner-mini-button" id="newAstraFileButton"
-                  type="button">+ ASL</button><button class="runner-mini-button" id="newJavaFileButton"
-                  type="button">+ Java</button><button class="runner-mini-button" id="renameFileButton" type="button"><i
+                  type="button">+ File</button><button class="runner-mini-button" id="newJavaFileButton"
+                  type="button" hidden></button><button class="runner-mini-button" id="renameFileButton" type="button"><i
                     class="fa-solid fa-pen"></i></button><button class="runner-mini-button" id="deleteFileButton"
                   type="button"><i class="fa-solid fa-trash-can"></i></button></div>
               <div id="fileTree"></div>
             </div>
             <div class="runner-editor-wrap">
               <div class="runner-current-file"><i class="fa-regular fa-file-code"></i><span
-                  id="currentFile">/asl/main.asl</span></div><textarea class="runner-editor" id="fileEditor"
+                  id="currentFile">/main.asl</span></div><textarea class="runner-editor" id="fileEditor"
                 spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
             </div>
           </div>
