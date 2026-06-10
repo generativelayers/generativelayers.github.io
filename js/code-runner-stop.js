@@ -61,6 +61,13 @@
   function setStopButton() {
     const btn = button();
     if (!btn || !activeController) return;
+    // Keep the exact same width as the Run button
+    if (!btn.style.width) {
+      const rect = btn.getBoundingClientRect();
+      if (rect.width > 0) {
+        btn.style.width = rect.width + 'px';
+      }
+    }
     btn.disabled = false;
     btn.classList.add('runner-stop-mode');
     btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>STOP</span>';
@@ -70,6 +77,8 @@
   function setRunButton() {
     const btn = button();
     if (!btn) return;
+    // Clear inline width to let it auto-size normally
+    btn.style.width = '';
     btn.disabled = false;
     btn.classList.remove('runner-stop-mode');
     btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Run Project</span>';
