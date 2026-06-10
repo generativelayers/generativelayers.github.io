@@ -229,10 +229,16 @@
     document.querySelectorAll('.runner-root-title').forEach(title => {
       if (title.dataset.treeUiPatched === '1') return;
 
-      const text = title.textContent || '';
-      const isAstra = text.includes('/astra');
-      const isJava = text.includes('/java');
-      if (!isAstra && !isJava) return;
+      const text = (title.textContent || '').trim().toLowerCase();
+      
+      const CFG = window.GL_PLATFORM_CONFIG || {};
+      const sourceFolder = CFG.sourceFolder || '/astra';
+      const auxFolder = CFG.auxFolder || '/java';
+      
+      const isSource = sourceFolder && text === sourceFolder.substring(1).toLowerCase();
+      const isAux = auxFolder && text === auxFolder.substring(1).toLowerCase();
+      
+      if (!isSource && !isAux) return;
 
       const label = document.createElement('div');
       label.className = 'runner-root-label';
@@ -244,23 +250,23 @@
       const add = document.createElement('button');
       add.type = 'button';
       add.className = 'runner-folder-add';
-      add.title = isAstra ? 'New ASTRA file' : 'New Java file';
+      add.title = isSource ? (CFG.newSourceLabel || '+ ASTRA') : (CFG.newAuxLabel || '+ Java');
       add.innerHTML = '<i class="fa-solid fa-plus"></i>';
       add.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        clickHidden(isAstra ? 'newAstraFileButton' : 'newJavaFileButton');
+        clickHidden(isSource ? 'newAstraFileButton' : 'newJavaFileButton');
       });
 
       const addFolder = document.createElement('button');
       addFolder.type = 'button';
       addFolder.className = 'runner-folder-add';
-      addFolder.title = isAstra ? 'New folder in /astra' : 'New folder in /java';
+      addFolder.title = isSource ? `New folder in ${sourceFolder}` : `New folder in ${auxFolder}`;
       addFolder.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
       addFolder.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(isAstra ? '/astra' : '/java');
+        if (typeof window.__glCreateFolder === 'function') window.__glCreateFolder(isSource ? sourceFolder : auxFolder);
       });
 
       title.appendChild(label);
