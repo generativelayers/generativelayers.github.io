@@ -14,15 +14,15 @@
       id: 'jason',
       label: 'Jason',
       sourceFolder: '/asl',
-      auxFolder: null,
+      auxFolder: '/java',
       sourceExt: '.asl',
-      auxExt: null,
+      auxExt: '.java',
       sourceIcon: 'fa-hat-wizard',
-      auxIcon: null,
-      buildFile: null,
-      buildFileName: null,
+      auxIcon: 'fa-brands fa-java',
+      buildFile: '/pom.xml',
+      buildFileName: 'pom.xml',
       newSourceLabel: '+ ASL',
-      newAuxLabel: null,
+      newAuxLabel: '+ Java',
       storagePrefix: 'gl_runner_jason_',
       defaultFile: '/asl/main.asl',
       enabled: true
@@ -176,7 +176,8 @@
             <div class="runner-files">
               <div class="runner-files-head"><span>Project files</span></div>
               <div class="runner-file-actions"><button class="runner-mini-button" id="newAstraFileButton"
-                  type="button">+ ASL</button><button class="runner-mini-button" id="renameFileButton" type="button"><i
+                  type="button">+ ASL</button><button class="runner-mini-button" id="newJavaFileButton"
+                  type="button">+ Java</button><button class="runner-mini-button" id="renameFileButton" type="button"><i
                     class="fa-solid fa-pen"></i></button><button class="runner-mini-button" id="deleteFileButton"
                   type="button"><i class="fa-solid fa-trash-can"></i></button></div>
               <div id="fileTree"></div>
