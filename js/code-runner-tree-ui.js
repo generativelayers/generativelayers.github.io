@@ -235,8 +235,8 @@
       const sourceFolder = CFG.sourceFolder || '/astra';
       const auxFolder = CFG.auxFolder || '/java';
       
-      const isSource = text === sourceFolder.replace(/^\\//, '').toLowerCase();
-      const isAux = text === auxFolder.replace(/^\\//, '').toLowerCase();
+      const isSource = sourceFolder && text === sourceFolder.substring(1).toLowerCase();
+      const isAux = auxFolder && text === auxFolder.substring(1).toLowerCase();
       
       if (!isSource && !isAux) return;
 
