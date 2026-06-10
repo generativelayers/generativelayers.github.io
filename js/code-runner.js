@@ -751,9 +751,10 @@
   function deleteFolder(folderPath) {
     saveCurrentFile();
     const affected = Object.keys(files).filter(p => p.startsWith(folderPath + '/'));
-    if (affected.length === 0) return;
+    const isEmpty = affected.length === 0 && emptyFolders.has(folderPath);
+    if (affected.length === 0 && !isEmpty) return;
     const name = folderPath.split('/').pop();
-    if (!window.confirm(`Delete "${name}" and its ${affected.length} file(s)?`)) return;
+    if (!window.confirm(`Delete "${name}"${affected.length > 0 ? ` and its ${affected.length} file(s)` : ''}?`)) return;
     affected.forEach(p => delete files[p]);
     // Clean up empty folders within
     emptyFolders.forEach(fp => {
