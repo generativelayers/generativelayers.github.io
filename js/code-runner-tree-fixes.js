@@ -2,7 +2,8 @@
   'use strict';
 
   const STYLE_ID = 'gl-tree-fixes-style';
-  const STORAGE_KEY = 'gl-astra-project';
+  const CFG = window.GL_PLATFORM_CONFIG || {};
+  const STORAGE_KEY = (CFG.storagePrefix || 'gl-astra-') + 'project';
 
   function addStyle() {
     if (document.getElementById(STYLE_ID)) return;
