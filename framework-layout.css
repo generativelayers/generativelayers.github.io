@@ -53,8 +53,4 @@
   .framework-main #canonical-commands .table-container {
     overflow-x: auto;
   }
-
-  .framework-main #canonical-commands .commands-table {
-    min-width: 860px;
-  }
 }
