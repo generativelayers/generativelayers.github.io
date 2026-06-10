@@ -121,12 +121,25 @@
       // Add .stopMAS to the main plan if not present
       src = src.replace(/(\+!main[\s\S]*?)(\.)\s*$/, '$1\n      .stopMAS$2');
     }
+    // Prepend initial goal !main. if plan +!main exists but !main. is missing
+    if (/\+!main\b/.test(src) && !/^\s*!main\./m.test(src)) {
+      src = '!main.\n\n' + src;
+    }
     return src;
   }
 
   function makeRunnableJaCaMo(src) {
     // JaCaMo code runs as-is
     src = src.replace(/^\s*\/\/\s*JaCaMo\s*\n?/i, '').trim();
+    // Ensure it has .stopMAS if missing
+    if (!/\.stopMAS\b/.test(src) && /\+!main\b/.test(src)) {
+      // Add .stopMAS to the main plan if not present
+      src = src.replace(/(\+!main[\s\S]*?)(\.)\s*$/, '$1\n      .stopMAS$2');
+    }
+    // Prepend initial goal !main. if plan +!main exists but !main. is missing
+    if (/\+!main\b/.test(src) && !/^\s*!main\./m.test(src)) {
+      src = '!main.\n\n' + src;
+    }
     return src;
   }
 
