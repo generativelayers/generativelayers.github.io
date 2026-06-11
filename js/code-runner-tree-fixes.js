@@ -3,6 +3,7 @@
 
   const STYLE_ID = 'gl-tree-fixes-style';
   const STORAGE_KEY = 'gl-astra-project';
+  const SIDEBAR_COLLAPSE_KEY = `gl-runner-files-collapsed-${window.GL_PLATFORM || 'default'}`;
 
   function addStyle() {
     if (document.getElementById(STYLE_ID)) return;
@@ -43,6 +44,73 @@
       .runner-folder-actions {
         margin-left: auto !important;
         flex-shrink: 0;
+      }
+
+      .runner-files-head {
+        justify-content: space-between !important;
+      }
+
+      .runner-files-head span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .runner-files-collapse-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        margin-left: auto;
+        border: 1px solid rgba(52, 211, 153, .35);
+        border-radius: 8px;
+        background: rgba(52, 211, 153, .10);
+        color: #34d399;
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .runner-files-collapse-toggle:hover {
+        background: #059669;
+        color: #ffffff;
+        border-color: #059669;
+      }
+
+      .runner-project.files-collapsed {
+        grid-template-columns: 44px minmax(0, 1fr) !important;
+      }
+
+      .runner-project.files-collapsed .runner-files {
+        width: 44px !important;
+        min-width: 44px !important;
+        overflow: hidden !important;
+      }
+
+      .runner-project.files-collapsed .runner-files-head {
+        justify-content: center !important;
+        padding: 8px 7px !important;
+      }
+
+      .runner-project.files-collapsed .runner-files-head span,
+      .runner-project.files-collapsed .runner-file-actions,
+      .runner-project.files-collapsed #fileTree {
+        display: none !important;
+      }
+
+      .runner-project.files-collapsed .runner-files-collapse-toggle {
+        margin-left: 0;
+      }
+
+      @media(max-width:900px) {
+        .runner-project.files-collapsed {
+          grid-template-columns: 44px minmax(0, 1fr) !important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -144,10 +212,62 @@
     });
   }
 
+  function setFilesCollapsed(collapsed) {
+    const project = document.querySelector('.runner-project');
+    const toggle = document.querySelector('.runner-files-collapse-toggle');
+    if (!project) return;
+
+    project.classList.toggle('files-collapsed', collapsed);
+    if (toggle) {
+      toggle.textContent = collapsed ? '>' : '<';
+      toggle.setAttribute('aria-label', collapsed ? 'Expand project files panel' : 'Collapse project files panel');
+      toggle.setAttribute('title', collapsed ? 'Expand files' : 'Collapse files');
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+
+    try {
+      localStorage.setItem(SIDEBAR_COLLAPSE_KEY, collapsed ? '1' : '0');
+    } catch (_) {}
+
+    window.dispatchEvent(new Event('resize'));
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'gl-runner-resize' }, '*');
+    }
+  }
+
+  function patchFilesCollapseToggle() {
+    const filesHead = document.querySelector('.runner-files-head');
+    if (!filesHead || filesHead.querySelector('.runner-files-collapse-toggle')) return;
+
+    const toggle = document.createElement('button');
+    toggle.className = 'runner-files-collapse-toggle';
+    toggle.type = 'button';
+    toggle.textContent = '<';
+    toggle.setAttribute('aria-label', 'Collapse project files panel');
+    toggle.setAttribute('title', 'Collapse files');
+    toggle.setAttribute('aria-expanded', 'true');
+
+    toggle.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const project = document.querySelector('.runner-project');
+      setFilesCollapsed(!project || !project.classList.contains('files-collapsed'));
+    });
+
+    filesHead.appendChild(toggle);
+
+    let collapsed = false;
+    try {
+      collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+    } catch (_) {}
+    setFilesCollapsed(collapsed);
+  }
+
   function patchTree() {
     addStyle();
     patchDeleteFolder();
     patchRootActions();
+    patchFilesCollapseToggle();
   }
 
   function init() {
