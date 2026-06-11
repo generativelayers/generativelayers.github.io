@@ -180,8 +180,10 @@
 
   function stripComments(source) {
     return String(source || '')
-      .replace(/\/\/.*$/gm, '')        // line comments
-      .replace(/\/\*[\s\S]*?\*\//g, ''); // block comments
+      .replace(/\/\/.*$/gm, '')          // line comments
+      .replace(/\/\*[\s\S]*?\*\//g, '')  // block comments
+      .replace(/"(?:[^"\\]|\\.)*"/g, '""')   // strip double-quoted string contents
+      .replace(/'(?:[^'\\]|\\.)*'/g, "''");  // strip single-quoted string contents
   }
 
   function detectProviders() {
