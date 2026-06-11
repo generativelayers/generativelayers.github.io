@@ -170,6 +170,12 @@ function installMobileFixes() {
         transform: translate3d(0, 0, 0) !important;
       }
 
+      .side a {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(52, 211, 153, 0.18);
+        cursor: pointer;
+      }
+
       .sidebar-backdrop {
         position: fixed !important;
         top: var(--header-height) !important;
@@ -280,7 +286,6 @@ function installMobileSidebarToggle() {
   const backdrop = document.getElementById('sidebarBackdrop');
   if (!menuToggle || !sidebar) return;
 
-  // Avoid double-binding if an inline script already bound it
   if (menuToggle.dataset.glBound) return;
   menuToggle.dataset.glBound = '1';
   menuToggle.type = 'button';
@@ -318,8 +323,6 @@ function installMobileSidebarToggle() {
       event.stopPropagation();
     }
 
-    // Mobile browsers often fire pointer/touch/click for one tap.
-    // This keeps one physical tap from opening and immediately closing the drawer.
     if (now - lastSidebarToggleAt < 350) return;
     lastSidebarToggleAt = now;
 
@@ -345,10 +348,167 @@ function installMobileSidebarToggle() {
     }, { passive: false });
   }
 
-  sidebar.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', function () {
-      setSidebarOpen(false);
-    });
+  let sidebarNavigationStartedAt = 0;
+
+  function navigateFromSidebar(link, event) {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || link.target === '_blank') return;
+
+    const now = Date.now();
+    if (now - sidebarNavigationStartedAt < 450) {
+      if (event) event.preventDefault();
+      return;
+    }
+    sidebarNavigationStartedAt = now;
+
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    setSidebarOpen(false);
+    window.location.assign(link.href);
+  }
+
+  sidebar.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', event => navigateFromSidebar(link, event), { passive: false });
+    link.addEventListener('touchend', event => navigateFromSidebar(link, event), { passive: false });
+    link.addEventListener('pointerup', event => {
+      if (!event.pointerType || event.pointerType === 'touch' || event.pointerType === 'pen') {
+        navigateFromSidebar(link, event);
+      }
+    }, { passive: false });
+  });
+}
+
+function pageTitleFromFilename(page) {
+  const map = {
+    'index.html': 'Introduction',
+    'getting-started.html': 'Getting Started',
+    'framework.html': 'Framework',
+    'patterns.html': 'Patterns',
+    'providers.html': 'Providers',
+    'code.html': 'Run Code',
+    'research.html': 'Research',
+    'repositories.html': 'Repositories'
+  };
+  return map[page] || page;
+}
+
+function stripText(text) {
+  return (text || '').replace(/\s+/g, ' ').trim();
+}
+
+async function buildSearchIndex() {
+  if (searchIndex) return searchIndex;
+
+  const parser = new DOMParser();
+  const results = [];
+
+  await Promise.all(PAGES.map(async page => {
+    try {
+      const response = await fetch(page, { cache: 'force-cache' });
+      if (!response.ok) return;
+      const html = await response.text();
+      const doc = parser.parseFromString(html, 'text/html');
+      const pageTitle = stripText(doc.querySelector('h1')?.textContent) || pageTitleFromFilename(page);
+
+      results.push({
+        page,
+        title: pageTitle,
+        section: pageTitle,
+        context: stripText(doc.querySelector('meta[name="description"]')?.getAttribute('content')),
+        url: page
+      });
+
+      doc.querySelectorAll('h2, h3, .card h3, .info-panel h2').forEach(heading => {
+        const section = stripText(heading.textContent);
+        if (!section) return;
+        const id = heading.id || heading.closest('[id]')?.id || '';
+        const parent = heading.closest('.card, .info-panel, section, article') || heading.parentElement;
+        const context = stripText(parent?.textContent).slice(0, 220);
+        results.push({
+          page,
+          title: pageTitle,
+          section,
+          context,
+          url: id ? `${page}#${id}` : page
+        });
+      });
+    } catch (error) {
+      /* Keep the page usable if a search source cannot be fetched. */
+    }
+  }));
+
+  searchIndex = results;
+  return searchIndex;
+}
+
+function installSearch() {
+  const input = document.querySelector('.search');
+  const wrapper = document.querySelector('.search-wrapper');
+  if (!input || !wrapper || input.dataset.glSearchBound) return;
+
+  input.dataset.glSearchBound = '1';
+
+  let resultsBox = wrapper.querySelector('.search-results');
+  if (!resultsBox) {
+    resultsBox = document.createElement('div');
+    resultsBox.className = 'search-results';
+    wrapper.appendChild(resultsBox);
+  }
+
+  function renderSearchResults(items, query) {
+    if (!query) {
+      resultsBox.style.display = 'none';
+      resultsBox.innerHTML = '';
+      return;
+    }
+
+    if (!items.length) {
+      resultsBox.innerHTML = '<span class="search-empty">No results found</span>';
+      resultsBox.style.display = 'block';
+      return;
+    }
+
+    resultsBox.innerHTML = items.slice(0, 8).map(item => `
+      <a class="search-hit" href="${item.url}">
+        <span class="search-hit-page">${item.title}</span>
+        <span class="search-hit-section">${item.section}</span>
+        <span class="search-hit-ctx">${item.context || ''}</span>
+      </a>
+    `).join('');
+    resultsBox.style.display = 'block';
+  }
+
+  input.addEventListener('input', async () => {
+    const query = stripText(input.value).toLowerCase();
+    if (query.length < 2) {
+      renderSearchResults([], '');
+      return;
+    }
+
+    const index = await buildSearchIndex();
+    const words = query.split(' ').filter(Boolean);
+    const matches = index
+      .map(item => {
+        const haystack = `${item.title} ${item.section} ${item.context}`.toLowerCase();
+        const score = words.reduce((total, word) => total + (haystack.includes(word) ? 1 : 0), 0);
+        return { item, score };
+      })
+      .filter(entry => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(entry => entry.item);
+
+    renderSearchResults(matches, query);
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim().length >= 2) input.dispatchEvent(new Event('input'));
+  });
+
+  document.addEventListener('click', event => {
+    if (!wrapper.contains(event.target)) resultsBox.style.display = 'none';
   });
 }
 
@@ -357,6 +517,7 @@ function initSharedPageScripts() {
   installMobileFixes();
   installMobileSidebarToggle();
   normalizeProviderFreeTierLabels();
+  installSearch();
 }
 
 if (document.readyState === 'loading') {
