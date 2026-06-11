@@ -98,7 +98,7 @@
 
       .runner-project.files-collapsed .runner-files {
         position: absolute !important;
-        top: 0;
+        top: 7px;
         left: 8px;
         z-index: 20;
         width: 28px !important;
@@ -157,7 +157,7 @@
         }
 
         .runner-project.files-collapsed .runner-files {
-          top: 0;
+          top: 7px;
           left: 8px;
         }
       }
