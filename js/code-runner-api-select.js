@@ -159,15 +159,23 @@
 
   /* ── Detection ───────────────────────────────────────────── */
   function getAllProjectText() {
-    // Use __glGetAllCode to scan ALL files in the project,
-    // not just the currently-visible editor tab.
-    // This ensures the LLM panel only appears when code actually uses LLM.
-    if (typeof window.__glGetAllCode === 'function') {
-      return window.__glGetAllCode();
-    }
-    // Fallback to just the visible editor
+    // Scan ALL files in the project for GL framework usage.
+    // The current editor content may not be saved yet, so we
+    // combine saved files (excluding the current one) with the
+    // live editor value for real-time detection.
     const editor = document.getElementById('fileEditor');
-    return editor ? (editor.value || '') : '';
+    const liveText = editor ? (editor.value || '') : '';
+
+    if (typeof window.__glGetAllCode === 'function' && typeof window.__glCurrentPath === 'function') {
+      const curPath = window.__glCurrentPath();
+      // Get all file contents EXCEPT the current file (which may be stale)
+      const saved = window.__glGetAllCodeExcept ? window.__glGetAllCodeExcept(curPath) : window.__glGetAllCode();
+      return saved + '\n' + liveText;
+    }
+    if (typeof window.__glGetAllCode === 'function') {
+      return window.__glGetAllCode() + '\n' + liveText;
+    }
+    return liveText;
   }
 
   function stripComments(source) {

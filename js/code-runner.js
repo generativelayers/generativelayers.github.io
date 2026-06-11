@@ -842,6 +842,19 @@
     return Object.values(files).join('\n');
   };
 
+  // Return all file contents EXCEPT the given path (for live-scan merging)
+  window.__glGetAllCodeExcept = function(excludePath) {
+    return Object.entries(files)
+      .filter(([p]) => p !== excludePath)
+      .map(([, v]) => v)
+      .join('\n');
+  };
+
+  // Return the currently-edited file path
+  window.__glCurrentPath = function() {
+    return currentPath || '';
+  };
+
   // ── Folder operations (for tree-ui) ────────────────────
   async function renameFolder(folderPath) {
     saveCurrentFile();
