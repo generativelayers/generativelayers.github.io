@@ -82,19 +82,42 @@
         border-color: #059669;
       }
 
+      .runner-project {
+        position: relative;
+      }
+
       .runner-project.files-collapsed {
-        grid-template-columns: 44px minmax(0, 1fr) !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .runner-project.files-collapsed .runner-editor-wrap {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-width: 0 !important;
       }
 
       .runner-project.files-collapsed .runner-files {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        z-index: 20;
         width: 44px !important;
         min-width: 44px !important;
+        max-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
         overflow: hidden !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 18px rgba(2, 6, 23, .22);
       }
 
       .runner-project.files-collapsed .runner-files-head {
         justify-content: center !important;
-        padding: 8px 7px !important;
+        align-items: center !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-bottom: 0 !important;
       }
 
       .runner-project.files-collapsed .runner-files-head span,
@@ -104,12 +127,27 @@
       }
 
       .runner-project.files-collapsed .runner-files-collapse-toggle {
-        margin-left: 0;
+        width: 32px;
+        height: 32px;
+        margin: 0 !important;
+        border-radius: 10px;
+        font-size: 17px;
+        background: #059669;
+        color: #ffffff;
+        border-color: #059669;
+      }
+
+      .runner-project.files-collapsed .runner-current-file {
+        padding-left: 58px !important;
       }
 
       @media(max-width:900px) {
         .runner-project.files-collapsed {
-          grid-template-columns: 44px minmax(0, 1fr) !important;
+          grid-template-columns: minmax(0, 1fr) !important;
+        }
+
+        .runner-project.files-collapsed .runner-editor-wrap {
+          grid-column: 1 / -1 !important;
         }
       }
     `;
