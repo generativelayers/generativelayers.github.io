@@ -68,7 +68,7 @@
         border-radius: 8px;
         background: rgba(52, 211, 153, .10);
         color: #34d399;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 900;
         line-height: 1;
         cursor: pointer;
@@ -98,26 +98,30 @@
 
       .runner-project.files-collapsed .runner-files {
         position: absolute !important;
-        top: 0;
-        left: 0;
+        top: 6px;
+        left: 8px;
         z-index: 20;
-        width: 44px !important;
-        min-width: 44px !important;
-        max-width: 44px !important;
-        height: 44px !important;
-        min-height: 44px !important;
-        overflow: hidden !important;
-        border-radius: 12px !important;
-        box-shadow: 0 8px 18px rgba(2, 6, 23, .22);
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        overflow: visible !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
       }
 
       .runner-project.files-collapsed .runner-files-head {
+        display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        width: 44px !important;
-        height: 44px !important;
+        width: 34px !important;
+        height: 34px !important;
         padding: 0 !important;
-        border-bottom: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
       }
 
       .runner-project.files-collapsed .runner-files-head span,
@@ -127,18 +131,19 @@
       }
 
       .runner-project.files-collapsed .runner-files-collapse-toggle {
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         margin: 0 !important;
         border-radius: 10px;
-        font-size: 17px;
+        font-size: 14px;
         background: #059669;
         color: #ffffff;
         border-color: #059669;
+        box-shadow: 0 4px 10px rgba(5, 150, 105, .28);
       }
 
       .runner-project.files-collapsed .runner-current-file {
-        padding-left: 58px !important;
+        padding-left: 56px !important;
       }
 
       @media(max-width:900px) {
@@ -148,6 +153,11 @@
 
         .runner-project.files-collapsed .runner-editor-wrap {
           grid-column: 1 / -1 !important;
+        }
+
+        .runner-project.files-collapsed .runner-files {
+          top: 7px;
+          left: 8px;
         }
       }
     `;
