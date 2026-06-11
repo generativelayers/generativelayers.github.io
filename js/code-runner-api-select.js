@@ -159,16 +159,15 @@
 
   /* ── Detection ───────────────────────────────────────────── */
   function getAllProjectText() {
-    // Access the runner's files object if available
+    // Use __glGetAllCode to scan ALL files in the project,
+    // not just the currently-visible editor tab.
+    // This ensures the LLM panel only appears when code actually uses LLM.
+    if (typeof window.__glGetAllCode === 'function') {
+      return window.__glGetAllCode();
+    }
+    // Fallback to just the visible editor
     const editor = document.getElementById('fileEditor');
-    if (!editor) return '';
-
-    // Try to get all files from the runner's scope
-    // code-runner.js exposes fullProjectText internally, but we can
-    // scan all file content by checking the editor + saved files
-    // For robustness, just read the visible editor text + any
-    // stored files we can find
-    return editor.value || '';
+    return editor ? (editor.value || '') : '';
   }
 
   function stripComments(source) {
