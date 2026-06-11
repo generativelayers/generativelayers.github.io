@@ -635,25 +635,71 @@
     saveCurrentFile();
     if (!currentPath) return;
     if (currentPath === BUILD_FILE) { await glAlert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be renamed.`); return; }
-    let kind, currentName;
+    let kind;
     if (FLAT_ROOT) {
       kind = currentPath.endsWith(AUX_EXT) ? 'aux' : 'source';
-      currentName = currentPath.replace(/^\//, '');
     } else {
       kind = (SOURCE_FOLDER && currentPath.startsWith(SOURCE_FOLDER + '/')) ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : (SOURCE_FOLDER ? SOURCE_FOLDER.slice(1) : ''));
-      currentName = currentPath.replace(`/${kind}/`, '');
     }
-    const raw = await glPrompt('Rename file', currentName);
+    // Show only the filename (last segment), not the full path
+    const fileName = currentPath.split('/').pop();
+    const raw = await glPrompt('Rename file', fileName);
     if (raw === null) return;
 
     try {
-      const nextPath = cleanPathName(kind, raw);
-      if (nextPath !== currentPath && Object.prototype.hasOwnProperty.call(files, nextPath)) throw new Error('File already exists.');
-      files[nextPath] = files[currentPath];
+      // Preserve parent directory: replace only the last segment
+      const parentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+      const cleanedName = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+      if (!cleanedName) throw new Error('Filename is empty.');
+      if (cleanedName.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleanedName)) throw new Error('Invalid filename.');
+
+      // If the user typed just a filename, keep it in the same folder
+      let nextPath;
+      if (cleanedName.includes('/')) {
+        // User typed a path — use cleanPathName for full path resolution
+        nextPath = cleanPathName(kind, cleanedName);
+      } else {
+        // Just a filename — keep in same folder
+        nextPath = parentDir + '/' + cleanedName;
+      }
+
+      if (nextPath === currentPath) return;
+      if (Object.prototype.hasOwnProperty.call(files, nextPath)) throw new Error('File already exists.');
+
+      let content = files[currentPath];
+
+      // Auto-update agent/class name for .astra files
+      if (PLATFORM === 'astra' && currentPath.endsWith(SOURCE_EXT) && nextPath.endsWith(SOURCE_EXT)) {
+        const oldBase = currentPath.split('/').pop().replace(new RegExp('\\' + SOURCE_EXT + '$'), '');
+        const newBase = nextPath.split('/').pop().replace(new RegExp('\\' + SOURCE_EXT + '$'), '');
+        if (oldBase && newBase && oldBase !== newBase) {
+          // Update "agent OldName" → "agent NewName" (first occurrence)
+          content = content.replace(
+            new RegExp('(\\bagent\\s+)' + oldBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b'),
+            '$1' + newBase
+          );
+        }
+      }
+
+      // Auto-update comment for .asl files (Jason/JaCaMo)
+      if ((PLATFORM === 'jason' || PLATFORM === 'jacamo') && currentPath.endsWith(SOURCE_EXT) && nextPath.endsWith(SOURCE_EXT)) {
+        const oldBase = currentPath.split('/').pop().replace(new RegExp('\\' + SOURCE_EXT + '$'), '');
+        const newBase = nextPath.split('/').pop().replace(new RegExp('\\' + SOURCE_EXT + '$'), '');
+        if (oldBase && newBase && oldBase !== newBase) {
+          content = content.replace(
+            new RegExp('(//\\s*Agent:\\s*)' + oldBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b'),
+            '$1' + newBase
+          );
+        }
+      }
+
+      files[nextPath] = content;
       delete files[currentPath];
       currentPath = nextPath;
+      els.editor.value = content;
       els.currentFile.textContent = currentPath;
       renderTree();
+      saveToStorage();
     } catch (error) {
       await glAlert(error.message);
     }
