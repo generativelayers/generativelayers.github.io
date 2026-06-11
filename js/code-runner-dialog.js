@@ -55,7 +55,7 @@
       }
       .gl-dialog-input {
         background: #111827;
-        border: 1px solid #4f46e5;
+        border: 1px solid #0d9462;
         border-radius: 8px;
         padding: 10px 12px;
         color: #e5e7eb;
@@ -66,8 +66,8 @@
         transition: border-color 0.2s, box-shadow 0.2s;
       }
       .gl-dialog-input:focus {
-        border-color: #8b5cf6;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+        border-color: #34d399;
+        box-shadow: 0 0 0 3px rgba(13, 148, 98, 0.22);
       }
       .gl-dialog-buttons {
         display: flex;
@@ -94,10 +94,10 @@
         color: #e5e7eb;
       }
       .gl-dialog-btn-ok {
-        background: #8b5cf6;
+        background: #0d9462;
         color: #fff;
       }
-      .gl-dialog-btn-ok:hover { background: #7c3aed; }
+      .gl-dialog-btn-ok:hover { background: #0a7a50; }
       .gl-dialog-btn-danger {
         background: #dc2626;
         color: #fff;
