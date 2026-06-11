@@ -179,12 +179,44 @@
   function detectProviders() {
     const raw = getAllProjectText();
     const clean = stripComments(raw);
+
+    // ── Stage 1: Does ANY file use the GL framework? ──
+    // These patterns cover all 3 platforms abstractly:
+    //   ASTRA:  use_provider(...), configure("provider",...), import gl.astra.GL
+    //   Jason:  gl.use_provider(...), gl.configure(...), gl.invoke(...)
+    //   JaCaMo: use_provider(...), makeArtifact("gl","gl.jacamo.GL",...), invoke(...)
+    const GL_FRAMEWORK_PATTERNS = [
+      /\buse_provider\s*\(/,                    // ASTRA + JaCaMo direct call
+      /\bgl\.use_provider\s*\(/,                // Jason gl. prefix
+      /\bgl\.configure\s*\(/,                   // Jason gl.configure
+      /\bgl\.invoke\s*\(/,                      // Jason gl.invoke
+      /\bgl\.providers\s*\(/,                   // Jason gl.providers
+      /\bmakeArtifact\s*\([^)]*gl\.jacamo\.GL/,  // JaCaMo artifact creation
+      /\bimport\s+gl\.\w+\.GL\b/,              // ASTRA import gl.astra.GL
+      /\bgl\.jason\.GL\b/,                     // Jason GL class reference
+      /\bgl\.jacamo\.GL\b/,                    // JaCaMo GL class reference
+      /\bgl\.astra\.GL\b/,                     // ASTRA GL class reference
+      /\bsetting\s*\(\s*["']provider["']/,     // Jason/JaCaMo setting("provider",...)
+      /\bconfigure\s*\(\s*["']provider["']/,   // ASTRA/JaCaMo configure("provider",...)
+    ];
+
+    const usesGL = GL_FRAMEWORK_PATTERNS.some(re => re.test(clean));
+    if (!usesGL) {
+      // No GL framework usage detected → no LLM panel needed
+      return [];
+    }
+
+    // ── Stage 2: Which specific providers are referenced? ──
     const found = [];
 
     Object.keys(PROVIDERS).forEach(key => {
       const p = PROVIDERS[key];
-      // Match: gl.use_provider("groq"), gl.configure("provider", "groq"),
-      //        setting("provider", "groq"), GROQ_API_KEY, apiKeyEnv
+      // Match across all platform syntaxes:
+      //   use_provider("key")       — ASTRA, JaCaMo
+      //   gl.use_provider("key")    — Jason
+      //   setting("provider","key") — Jason, JaCaMo
+      //   configure("provider","key") — ASTRA
+      //   ENV_VAR_NAME              — all
       const patterns = [
         new RegExp(`use_provider\\s*\\(\\s*["']${key}["']`, 'i'),
         new RegExp(`["']provider["']\\s*,\\s*["']${key}["']`, 'i'),
@@ -203,6 +235,14 @@
     if (!found.includes('groq')     && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
     if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
     if (!found.includes('openai')   && /gpt-4|gpt-3\.5/i.test(clean)) found.push('openai');
+
+    // If GL is detected but no specific provider found, show panel with
+    // empty provider (user can select from dropdown)
+    if (found.length === 0) {
+      // GL framework detected but no explicit provider — still show panel
+      // so user can pick one from the dropdown
+      found.push('cerebras'); // default provider
+    }
 
     return [...new Set(found)];
   }
