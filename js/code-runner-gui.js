@@ -1,18 +1,15 @@
 /**
- * code-runner-gui.js  v3
+ * code-runner-gui.js  v5
  *
  * Detects GUI module usage in ASTRA / Jason / JaCaMo code and shows a
- * "Show GUI" button that opens a noVNC viewer in a modal.
- *
- * The modal dynamically resizes to match the actual GUI
- * window dimensions (no black space, no cropping).
+ * "Show GUI" button that opens a noVNC viewer in a draggable, resizable modal.
  *
  * The noVNC connection proxies through code.generativelayers.com/novnc/
  */
 (() => {
   'use strict';
 
-  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=2000&path=websockify';
+  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=3000&path=websockify';
   const PLATFORM = window.GL_PLATFORM || 'astra';
   const PLATFORM_LABEL = (window.GL_PLATFORM_CONFIG && window.GL_PLATFORM_CONFIG.label) || 'ASTRA';
 
@@ -50,8 +47,10 @@
 
   /* ── UI ─────────────────────────────────────────────────── */
   let btnEl = null;
-  let modalEl = null;
+  let modalEl = null;   // the .gui-modal div (NOT the backdrop)
+  let backdropEl = null;
   let iframeEl = null;
+  let dragOverlayEl = null;
   let isOpen = false;
   let guiWidth = 0;
   let guiHeight = 0;
@@ -79,21 +78,19 @@
       }
       .gui-btn[hidden] { display: none !important; }
 
-      .gui-modal-backdrop {
+      /* Backdrop: semi-transparent overlay */
+      .gui-backdrop {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         background: rgba(0,0,0,0.35);
         z-index: 9998;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* Allow mouse events to pass through backdrop so drag works
-           when cursor moves outside the modal bounds */
-        pointer-events: none;
       }
-      .gui-modal-backdrop[hidden] { display: none !important; }
+      .gui-backdrop[hidden] { display: none !important; }
 
+      /* Modal: absolutely positioned, draggable */
       .gui-modal {
+        position: fixed;
+        z-index: 9999;
         background: #1e1e2e;
         border: 1px solid #444;
         border-radius: 14px;
@@ -101,26 +98,28 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        position: relative;
-        transition: width 0.3s ease, height 0.3s ease;
-        /* Re-enable pointer events on the modal itself */
-        pointer-events: auto;
+        /* Default: centered */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         /* Default size before we know the GUI dimensions */
         width: 90vw;
         max-width: 700px;
         height: 70vh;
         max-height: 820px;
-        min-width: 220px;
-        min-height: 150px;
+        min-width: 260px;
+        min-height: 180px;
       }
+      .gui-modal[hidden] { display: none !important; }
+
       .gui-modal.gui-modal--sized {
         max-width: none;
         max-height: none;
       }
-      .gui-modal.gui-modal--dragged {
-        position: absolute;
-        transition: none;
+      .gui-modal.gui-modal--positioned {
+        transform: none;
       }
+
       .gui-modal-header {
         display: flex;
         align-items: center;
@@ -151,10 +150,6 @@
         border: 0;
         width: 100%;
         background: #0b1220;
-        /* Ensure noVNC iframe always receives mouse events */
-        pointer-events: auto;
-        position: relative;
-        z-index: 2;
       }
 
       .gui-status {
@@ -181,8 +176,15 @@
       .gui-resize-handle--se { bottom:-4px; right:-4px; width:14px; height:14px; cursor:se-resize; }
       .gui-resize-handle--sw { bottom:-4px; left:-4px; width:14px; height:14px; cursor:sw-resize; }
 
-      body.gui-dragging, body.gui-dragging * { user-select: none !important; }
-      body.gui-dragging iframe { pointer-events: none !important; }
+      /* Transparent overlay shown ONLY during drag/resize to capture
+         mouse events that go over the iframe */
+      .gui-drag-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 10000;
+        cursor: move;
+      }
+      .gui-drag-overlay[hidden] { display: none !important; }
 
       .gui-loading-overlay {
         position: absolute;
@@ -192,14 +194,11 @@
         align-items: center;
         justify-content: center;
         background: #0b1220;
-        z-index: 1; /* below iframe (z-index:2) when connected */
+        z-index: 5;
         color: #94a3b8;
         font-size: 15px;
         gap: 12px;
         transition: opacity 0.3s;
-      }
-      .gui-loading-overlay:not([hidden]) {
-        z-index: 6; /* above iframe when loading */
       }
       .gui-loading-overlay[hidden] { display: none !important; }
       .gui-loading-spinner {
@@ -231,34 +230,44 @@
       toolbar.appendChild(btnEl);
     }
 
-    // Modal
-    modalEl = document.createElement('div');
-    modalEl.className = 'gui-modal-backdrop';
-    modalEl.hidden = true;
+    // Backdrop (separate element — just a dark overlay, no children)
+    backdropEl = document.createElement('div');
+    backdropEl.className = 'gui-backdrop';
+    backdropEl.hidden = true;
+    backdropEl.addEventListener('click', closeModal);
+    document.body.appendChild(backdropEl);
+
+    // Drag overlay (shown only during drag to capture events over iframe)
+    dragOverlayEl = document.createElement('div');
+    dragOverlayEl.className = 'gui-drag-overlay';
+    dragOverlayEl.hidden = true;
+    document.body.appendChild(dragOverlayEl);
+
+    // Modal (separate element — not inside backdrop)
     const HANDLES = ['n','s','e','w','ne','nw','se','sw'];
     const handleHtml = HANDLES.map(d => `<div class="gui-resize-handle gui-resize-handle--${d}" data-dir="${d}"></div>`).join('');
 
+    modalEl = document.createElement('div');
+    modalEl.className = 'gui-modal';
+    modalEl.id = 'guiModal';
+    modalEl.hidden = true;
     modalEl.innerHTML = `
-      <div class="gui-modal" id="guiModal">
-        ${handleHtml}
-        <div class="gui-modal-header" id="guiModalHeader">
-          <span><i class="fa-solid fa-display" style="margin-right:8px"></i>${PLATFORM_LABEL} GUI Viewer</span>
-          <button class="gui-modal-close" id="guiModalClose">&times;</button>
-        </div>
-        <iframe id="guiFrame" src="about:blank"></iframe>
-        <div class="gui-loading-overlay" id="guiLoadingOverlay">
-          <div class="gui-loading-spinner"></div>
-          <span>Please wait…</span>
-        </div>
-        <div class="gui-status" id="guiStatus">Waiting for ${PLATFORM_LABEL} to start GUI…</div>
+      ${handleHtml}
+      <div class="gui-modal-header" id="guiModalHeader">
+        <span><i class="fa-solid fa-display" style="margin-right:8px"></i>${PLATFORM_LABEL} GUI Viewer</span>
+        <button class="gui-modal-close" id="guiModalClose">&times;</button>
       </div>
+      <iframe id="guiFrame" src="about:blank"></iframe>
+      <div class="gui-loading-overlay" id="guiLoadingOverlay">
+        <div class="gui-loading-spinner"></div>
+        <span>Please wait…</span>
+      </div>
+      <div class="gui-status" id="guiStatus">Waiting for ${PLATFORM_LABEL} to start GUI…</div>
     `;
     document.body.appendChild(modalEl);
 
     // Close handlers
     document.getElementById('guiModalClose').addEventListener('click', closeModal);
-    // Backdrop is now pointer-events:none, so no need for backdrop click handler.
-    // Just keep Escape key to close.
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isOpen) closeModal();
     });
@@ -278,8 +287,7 @@
     guiWidth = w;
     guiHeight = h;
 
-    const modal = document.getElementById('guiModal');
-    if (!modal) return;
+    if (!modalEl) return;
 
     const HEADER_HEIGHT = 42;   // header bar
     const STATUS_HEIGHT = 30;   // status bar
@@ -296,12 +304,12 @@
     const modalW = Math.round(w * scale);
     const modalH = Math.round(h * scale) + CHROME;
 
-    modal.classList.add('gui-modal--sized');
-    modal.style.width = modalW + 'px';
-    modal.style.height = modalH + 'px';
+    modalEl.classList.add('gui-modal--sized');
+    modalEl.style.width = modalW + 'px';
+    modalEl.style.height = modalH + 'px';
 
     const status = document.getElementById('guiStatus');
-    if (status) status.textContent = 'Connected';
+    if (status) status.textContent = 'Connected — drag header to move';
 
     // Hide loading overlay once we have real content
     const overlay = document.getElementById('guiLoadingOverlay');
@@ -315,6 +323,7 @@
 
   function openModal() {
     isOpen = true;
+    backdropEl.hidden = false;
     modalEl.hidden = false;
     iframeEl.src = NOVNC_URL;
     document.getElementById('guiStatus').textContent = 'Connecting to ' + PLATFORM_LABEL + ' GUI…';
@@ -328,15 +337,14 @@
 
   function closeModal() {
     isOpen = false;
+    backdropEl.hidden = true;
     modalEl.hidden = true;
     iframeEl.src = 'about:blank';
     // Reset position so it re-centers on next open
-    const modal = document.getElementById('guiModal');
-    if (modal) {
-      modal.classList.remove('gui-modal--dragged');
-      modal.style.left = '';
-      modal.style.top = '';
-    }
+    modalEl.classList.remove('gui-modal--positioned');
+    modalEl.style.left = '50%';
+    modalEl.style.top = '50%';
+    modalEl.style.transform = 'translate(-50%, -50%)';
   }
 
   /* ── Scan for GUI usage (internal only, does NOT show button) ── */
@@ -374,11 +382,10 @@
   window.__glGuiReset = function() {
     guiWidth = 0;
     guiHeight = 0;
-    const modal = document.getElementById('guiModal');
-    if (modal) {
-      modal.classList.remove('gui-modal--sized');
-      modal.style.width = '';
-      modal.style.height = '';
+    if (modalEl) {
+      modalEl.classList.remove('gui-modal--sized');
+      modalEl.style.width = '';
+      modalEl.style.height = '';
     }
   };
 
@@ -392,8 +399,7 @@
   /* ── Drag to move ───────────────────────────────────────── */
   function setupDragToMove() {
     const header = document.getElementById('guiModalHeader');
-    const modal = document.getElementById('guiModal');
-    if (!header || !modal) return;
+    if (!header || !modalEl) return;
 
     let dragging = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
 
@@ -401,34 +407,37 @@
       if (e.target.closest('.gui-modal-close')) return;
       e.preventDefault();
       dragging = true;
-      document.body.classList.add('gui-dragging');
 
-      // Switch from flex-centered to absolute positioning on first drag
-      if (!modal.classList.contains('gui-modal--dragged')) {
-        const rect = modal.getBoundingClientRect();
-        modal.classList.add('gui-modal--dragged');
-        modal.style.left = rect.left + 'px';
-        modal.style.top = rect.top + 'px';
+      // Switch from centered transform to absolute positioning on first drag
+      if (!modalEl.classList.contains('gui-modal--positioned')) {
+        const rect = modalEl.getBoundingClientRect();
+        modalEl.classList.add('gui-modal--positioned');
+        modalEl.style.transform = 'none';
+        modalEl.style.left = rect.left + 'px';
+        modalEl.style.top = rect.top + 'px';
       }
 
       startX = e.clientX;
       startY = e.clientY;
-      origLeft = parseInt(modal.style.left, 10) || 0;
-      origTop = parseInt(modal.style.top, 10) || 0;
+      origLeft = parseInt(modalEl.style.left, 10) || 0;
+      origTop = parseInt(modalEl.style.top, 10) || 0;
+
+      // Show transparent overlay to capture mouse events over the iframe
+      dragOverlayEl.hidden = false;
+      dragOverlayEl.style.cursor = 'move';
     });
 
-    // Use window-level listeners so drag continues even when mouse
-    // leaves the iframe or modal bounds
-    window.addEventListener('mousemove', (e) => {
+    // Listen on document (captures events even over the overlay)
+    document.addEventListener('mousemove', (e) => {
       if (!dragging) return;
-      modal.style.left = (origLeft + e.clientX - startX) + 'px';
-      modal.style.top = (origTop + e.clientY - startY) + 'px';
+      modalEl.style.left = (origLeft + e.clientX - startX) + 'px';
+      modalEl.style.top = (origTop + e.clientY - startY) + 'px';
     });
 
-    window.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', () => {
       if (!dragging) return;
       dragging = false;
-      document.body.classList.remove('gui-dragging');
+      dragOverlayEl.hidden = true;
     });
 
     // Also listen on parent window for cross-iframe drag support
@@ -436,20 +445,19 @@
       if (window.parent && window.parent !== window) {
         window.parent.addEventListener('mousemove', (e) => {
           if (!dragging) return;
-          // Translate parent coords to iframe coords
           const iframe = window.frameElement;
           if (iframe) {
             const ir = iframe.getBoundingClientRect();
             const cx = e.clientX - ir.left;
             const cy = e.clientY - ir.top;
-            modal.style.left = (origLeft + cx - startX) + 'px';
-            modal.style.top = (origTop + cy - startY) + 'px';
+            modalEl.style.left = (origLeft + cx - startX) + 'px';
+            modalEl.style.top = (origTop + cy - startY) + 'px';
           }
         });
         window.parent.addEventListener('mouseup', () => {
           if (!dragging) return;
           dragging = false;
-          document.body.classList.remove('gui-dragging');
+          dragOverlayEl.hidden = true;
         });
       }
     } catch (e) { /* cross-origin — ignore */ }
@@ -457,9 +465,8 @@
 
   /* ── Resize handles ────────────────────────────────────── */
   function setupResizeHandles() {
-    const modal = document.getElementById('guiModal');
-    if (!modal) return;
-    const handles = modal.querySelectorAll('.gui-resize-handle');
+    if (!modalEl) return;
+    const handles = modalEl.querySelectorAll('.gui-resize-handle');
 
     handles.forEach(handle => {
       const dir = handle.dataset.dir;
@@ -469,26 +476,28 @@
         e.preventDefault();
         e.stopPropagation();
         active = true;
-        document.body.classList.add('gui-dragging');
 
         // Ensure absolute positioning
-        if (!modal.classList.contains('gui-modal--dragged')) {
-          const rect = modal.getBoundingClientRect();
-          modal.classList.add('gui-modal--dragged');
-          modal.style.left = rect.left + 'px';
-          modal.style.top = rect.top + 'px';
+        if (!modalEl.classList.contains('gui-modal--positioned')) {
+          const rect = modalEl.getBoundingClientRect();
+          modalEl.classList.add('gui-modal--positioned');
+          modalEl.style.transform = 'none';
+          modalEl.style.left = rect.left + 'px';
+          modalEl.style.top = rect.top + 'px';
         }
-        // Remove size transition while resizing
-        modal.style.transition = 'none';
 
         startX = e.clientX;
         startY = e.clientY;
         origRect = {
-          left: parseInt(modal.style.left, 10),
-          top: parseInt(modal.style.top, 10),
-          width: modal.offsetWidth,
-          height: modal.offsetHeight
+          left: parseInt(modalEl.style.left, 10),
+          top: parseInt(modalEl.style.top, 10),
+          width: modalEl.offsetWidth,
+          height: modalEl.offsetHeight
         };
+
+        // Show transparent overlay
+        dragOverlayEl.hidden = false;
+        dragOverlayEl.style.cursor = getComputedStyle(handle).cursor;
       });
 
       document.addEventListener('mousemove', (e) => {
@@ -497,23 +506,22 @@
         const dy = e.clientY - startY;
         let { left, top, width, height } = origRect;
 
-        if (dir.includes('e')) width = Math.max(220, width + dx);
-        if (dir.includes('w')) { width = Math.max(220, width - dx); left = origRect.left + origRect.width - width; }
-        if (dir.includes('s')) height = Math.max(150, height + dy);
-        if (dir.includes('n')) { height = Math.max(150, height - dy); top = origRect.top + origRect.height - height; }
+        if (dir.includes('e')) width = Math.max(260, width + dx);
+        if (dir.includes('w')) { width = Math.max(260, width - dx); left = origRect.left + origRect.width - width; }
+        if (dir.includes('s')) height = Math.max(180, height + dy);
+        if (dir.includes('n')) { height = Math.max(180, height - dy); top = origRect.top + origRect.height - height; }
 
-        modal.style.left = left + 'px';
-        modal.style.top = top + 'px';
-        modal.style.width = width + 'px';
-        modal.style.height = height + 'px';
-        modal.classList.add('gui-modal--sized');
+        modalEl.style.left = left + 'px';
+        modalEl.style.top = top + 'px';
+        modalEl.style.width = width + 'px';
+        modalEl.style.height = height + 'px';
+        modalEl.classList.add('gui-modal--sized');
       });
 
       document.addEventListener('mouseup', () => {
         if (!active) return;
         active = false;
-        document.body.classList.remove('gui-dragging');
-        modal.style.transition = '';
+        dragOverlayEl.hidden = true;
       });
     });
   }
