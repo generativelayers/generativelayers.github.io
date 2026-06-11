@@ -98,14 +98,14 @@
 
       .runner-project.files-collapsed .runner-files {
         position: absolute !important;
-        top: 6px;
+        top: 0;
         left: 8px;
         z-index: 20;
-        width: 34px !important;
-        min-width: 34px !important;
-        max-width: 34px !important;
-        height: 34px !important;
-        min-height: 34px !important;
+        width: 28px !important;
+        min-width: 28px !important;
+        max-width: 28px !important;
+        height: 28px !important;
+        min-height: 28px !important;
         overflow: visible !important;
         background: transparent !important;
         border: 0 !important;
@@ -117,8 +117,8 @@
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        width: 34px !important;
-        height: 34px !important;
+        width: 28px !important;
+        height: 28px !important;
         padding: 0 !important;
         background: transparent !important;
         border: 0 !important;
@@ -126,15 +126,16 @@
 
       .runner-project.files-collapsed .runner-files-head span,
       .runner-project.files-collapsed .runner-file-actions,
-      .runner-project.files-collapsed #fileTree {
+      .runner-project.files-collapsed #fileTree,
+      .runner-project.files-collapsed .runner-tree-toolbar {
         display: none !important;
       }
 
       .runner-project.files-collapsed .runner-files-collapse-toggle {
-        width: 34px;
-        height: 34px;
+        width: 28px;
+        height: 28px;
         margin: 0 !important;
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 14px;
         background: #059669;
         color: #ffffff;
@@ -143,7 +144,7 @@
       }
 
       .runner-project.files-collapsed .runner-current-file {
-        padding-left: 56px !important;
+        padding-left: 46px !important;
       }
 
       @media(max-width:900px) {
@@ -156,7 +157,7 @@
         }
 
         .runner-project.files-collapsed .runner-files {
-          top: 7px;
+          top: 0;
           left: 8px;
         }
       }
