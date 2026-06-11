@@ -16,6 +16,7 @@ const PAGES = [
 let searchIndex = null;
 let lockedScrollY = 0;
 let isSidebarLocked = false;
+let lastSidebarToggleAt = 0;
 
 function installRunCodeNavigation() {
   const sidebar = document.getElementById('sidebar');
@@ -74,11 +75,12 @@ function installMobileFixes() {
       max-width: 100vw;
       box-sizing: border-box;
       overflow: visible;
+      z-index: 10000 !important;
     }
 
     .header-inner {
       position: relative;
-      z-index: 1;
+      z-index: 10001;
     }
 
     .header-inner,
@@ -94,23 +96,32 @@ function installMobileFixes() {
     }
 
     .menu-toggle {
-      width: 48px;
-      height: 48px;
-      min-width: 48px;
-      min-height: 48px;
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      min-height: 52px;
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      -webkit-appearance: none;
+      appearance: none;
       position: relative;
-      z-index: 10000 !important;
+      z-index: 10003 !important;
       pointer-events: auto !important;
       isolation: isolate;
+      line-height: 1;
     }
 
-    .menu-toggle,
-    .menu-toggle * {
-      pointer-events: auto !important;
+    .menu-toggle::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      z-index: -1;
+    }
+
+    .menu-toggle i {
+      pointer-events: none !important;
     }
 
     .search-wrapper {
@@ -131,7 +142,7 @@ function installMobileFixes() {
 
       .menu-toggle {
         display: flex !important;
-        flex: 0 0 48px;
+        flex: 0 0 52px;
       }
 
       .search-wrapper {
@@ -272,37 +283,73 @@ function installMobileSidebarToggle() {
   // Avoid double-binding if an inline script already bound it
   if (menuToggle.dataset.glBound) return;
   menuToggle.dataset.glBound = '1';
+  menuToggle.type = 'button';
+  menuToggle.setAttribute('aria-controls', sidebar.id || 'sidebar');
+  menuToggle.setAttribute('aria-expanded', 'false');
 
-  menuToggle.addEventListener('click', function () {
-    sidebar.classList.toggle('open');
-    if (backdrop) backdrop.classList.toggle('open');
-    const isOpen = sidebar.classList.contains('open');
-    document.documentElement.classList.toggle('sidebar-open', isOpen);
-    document.body.classList.toggle('sidebar-open', isOpen);
+  function unlockBodyScroll() {
+    document.body.style.top = '';
+    document.documentElement.classList.remove('sidebar-open');
+    document.body.classList.remove('sidebar-open');
+    if (isSidebarLocked) window.scrollTo(0, lockedScrollY);
+    isSidebarLocked = false;
+  }
+
+  function setSidebarOpen(isOpen) {
+    sidebar.classList.toggle('open', isOpen);
+    if (backdrop) backdrop.classList.toggle('open', isOpen);
+    menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
     if (isOpen) {
       lockedScrollY = window.scrollY;
+      document.documentElement.classList.add('sidebar-open');
+      document.body.classList.add('sidebar-open');
       document.body.style.top = `-${lockedScrollY}px`;
       isSidebarLocked = true;
     } else {
-      document.body.style.top = '';
-      document.documentElement.classList.remove('sidebar-open');
-      document.body.classList.remove('sidebar-open');
-      window.scrollTo(0, lockedScrollY);
-      isSidebarLocked = false;
+      unlockBodyScroll();
     }
-  });
+  }
+
+  function handleMenuActivation(event) {
+    const now = Date.now();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Mobile browsers often fire pointer/touch/click for one tap.
+    // This keeps one physical tap from opening and immediately closing the drawer.
+    if (now - lastSidebarToggleAt < 350) return;
+    lastSidebarToggleAt = now;
+
+    setSidebarOpen(!sidebar.classList.contains('open'));
+  }
+
+  menuToggle.addEventListener('click', handleMenuActivation, { passive: false });
+  menuToggle.addEventListener('pointerup', handleMenuActivation, { passive: false });
+  menuToggle.addEventListener('touchend', handleMenuActivation, { passive: false });
+
+  document.addEventListener('pointerup', function (event) {
+    const target = event.target && event.target.closest ? event.target.closest('.menu-toggle') : null;
+    if (target === menuToggle) handleMenuActivation(event);
+  }, { capture: true, passive: false });
 
   if (backdrop) {
     backdrop.addEventListener('click', function () {
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('open');
-      document.body.style.top = '';
-      document.documentElement.classList.remove('sidebar-open');
-      document.body.classList.remove('sidebar-open');
-      window.scrollTo(0, lockedScrollY);
-      isSidebarLocked = false;
+      setSidebarOpen(false);
     });
+    backdrop.addEventListener('touchend', function (event) {
+      event.preventDefault();
+      setSidebarOpen(false);
+    }, { passive: false });
   }
+
+  sidebar.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function () {
+      setSidebarOpen(false);
+    });
+  });
 }
 
 function initSharedPageScripts() {
