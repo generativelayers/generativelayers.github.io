@@ -29,7 +29,7 @@
       jacamo: '+!request_support(Prompt) <-\n    invoke("agent1", "classify", "llm.answer", "ANSWER", Prompt, "label", Rid);\n    !decide_result(Rid).'
     },
     {
-      id: 'invoke_with_beliefs', group: 'invocation', command: 'invoke_with_beliefs(...)', type: 'String',
+      id: 'invoke_with_beliefs', group: 'invocation', command: 'invoke_with_beliefs(agent, goal, body, affordance, prompt, requiredCsv, beliefQuery)', type: 'String',
       description: 'Invoke a generative body with selected agent beliefs prepended as grounded context.',
       astra: 'rule +!request_grounded(string prompt) {\n    string rid = gl.invoke_with_beliefs("agent1", "classify", "llm.answer", "ANSWER", prompt, "label", "known(fruit)");\n    !decide_result(rid);\n}',
       jason: '+!request_grounded(Prompt) <-\n    gl.invoke_with_beliefs("agent1", "classify", "llm.answer", "ANSWER", Prompt, "label", "known(fruit)", Rid);\n    !decide_result(Rid).',
