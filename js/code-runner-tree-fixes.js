@@ -197,7 +197,7 @@
     return { data, files, emptyFolders, filePaths, folderPaths };
   }
 
-  function deleteEmptyFolderFromStorage(folderPath) {
+  async function deleteEmptyFolderFromStorage(folderPath) {
     const state = folderStorageState(folderPath);
     if (!state.data || state.filePaths.length > 0 || state.folderPaths.length === 0) return false;
 
@@ -206,7 +206,7 @@
     const message = nestedCount > 1
       ? `Delete folder "${name}" and its ${nestedCount - 1} empty subfolder(s)?`
       : `Delete empty folder "${name}"?`;
-    if (!window.confirm(message)) return true;
+    if (!(await glConfirm(message))) return true;
 
     const remove = new Set(state.folderPaths);
     state.data.emptyFolders = state.emptyFolders.filter(path => !remove.has(path));

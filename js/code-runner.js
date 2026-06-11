@@ -551,7 +551,7 @@
     return `/${kind}/${name}`;
   }
 
-  function createFile(kind) {
+  async function createFile(kind) {
     saveCurrentFile();
     let example, promptLabel;
     if (FLAT_ROOT) {
@@ -564,7 +564,7 @@
       example = examples[kind] || 'file.txt';
       promptLabel = kind.toUpperCase();
     }
-    const raw = window.prompt('New file', example);
+    const raw = await glPrompt('New file', example);
     if (raw === null) return;
 
     try {
@@ -587,7 +587,7 @@
       renderTree();
       updateApiKeyUI();
     } catch (error) {
-      window.alert(error.message);
+      await glAlert(error.message);
     }
   }
 
@@ -631,10 +631,10 @@
     return `${packageLine}public class ${className} {\n    public static String hello() {\n        return "Hello from Java";\n    }\n}\n`;
   }
 
-  function renameCurrentFile() {
+  async function renameCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
-    if (currentPath === BUILD_FILE) { window.alert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be renamed.`); return; }
+    if (currentPath === BUILD_FILE) { await glAlert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be renamed.`); return; }
     let kind, currentName;
     if (FLAT_ROOT) {
       kind = currentPath.endsWith(AUX_EXT) ? 'aux' : 'source';
@@ -643,7 +643,7 @@
       kind = (SOURCE_FOLDER && currentPath.startsWith(SOURCE_FOLDER + '/')) ? SOURCE_FOLDER.slice(1) : (AUX_FOLDER ? AUX_FOLDER.slice(1) : (SOURCE_FOLDER ? SOURCE_FOLDER.slice(1) : ''));
       currentName = currentPath.replace(`/${kind}/`, '');
     }
-    const raw = window.prompt('Rename file', currentName);
+    const raw = await glPrompt('Rename file', currentName);
     if (raw === null) return;
 
     try {
@@ -655,15 +655,15 @@
       els.currentFile.textContent = currentPath;
       renderTree();
     } catch (error) {
-      window.alert(error.message);
+      await glAlert(error.message);
     }
   }
 
-  function deleteCurrentFile() {
+  async function deleteCurrentFile() {
     saveCurrentFile();
     if (!currentPath) return;
-    if (currentPath === BUILD_FILE) { window.alert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be deleted.`); return; }
-    if (!window.confirm(`Delete ${currentPath}?`)) return;
+    if (currentPath === BUILD_FILE) { await glAlert(`${(BUILD_FILE || '').replace(/^\//, '')} cannot be deleted.`); return; }
+    if (!(await glConfirm(`Delete ${currentPath}?`))) return;
 
     delete files[currentPath];
     const remaining = Object.keys(files).sort();
@@ -797,7 +797,7 @@
   };
 
   // ── Folder operations (for tree-ui) ────────────────────
-  function renameFolder(folderPath) {
+  async function renameFolder(folderPath) {
     saveCurrentFile();
     let root, relative;
     if (FLAT_ROOT) {
@@ -809,11 +809,11 @@
       root = (SOURCE_FOLDER && folderPath.startsWith(SOURCE_FOLDER)) ? SOURCE_FOLDER : (AUX_FOLDER || SOURCE_FOLDER || '');
       relative = folderPath.slice(root.length + 1);
     }
-    const raw = window.prompt('Rename folder', relative);
+    const raw = await glPrompt('Rename folder', relative);
     if (raw === null) return;
     const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
     if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
-      window.alert('Invalid folder name.'); return;
+      await glAlert('Invalid folder name.'); return;
     }
     const newFolder = root + '/' + cleaned;
     if (newFolder === folderPath) return;
@@ -822,7 +822,7 @@
     for (const old of affected) {
       const np = newFolder + old.slice(folderPath.length);
       if (Object.prototype.hasOwnProperty.call(files, np) && !affected.includes(np)) {
-        window.alert('Conflict: ' + np + ' already exists.'); return;
+        await glAlert('Conflict: ' + np + ' already exists.'); return;
       }
     }
     const moved = {};
@@ -846,13 +846,13 @@
     saveToStorage();
   }
 
-  function deleteFolder(folderPath) {
+  async function deleteFolder(folderPath) {
     saveCurrentFile();
     const affected = Object.keys(files).filter(p => p.startsWith(folderPath + '/'));
     const isEmpty = affected.length === 0 && emptyFolders.has(folderPath);
     if (affected.length === 0 && !isEmpty) return;
     const name = folderPath.split('/').pop();
-    if (!window.confirm(`Delete "${name}"${affected.length > 0 ? ` and its ${affected.length} file(s)` : ''}?`)) return;
+    if (!(await glConfirm(`Delete "${name}"${affected.length > 0 ? ` and its ${affected.length} file(s)` : ''}?`))) return;
     affected.forEach(p => delete files[p]);
     // Clean up empty folders within
     emptyFolders.forEach(fp => {
@@ -869,7 +869,7 @@
     saveToStorage();
   }
 
-  function createFileInFolder(folderPath) {
+  async function createFileInFolder(folderPath) {
     saveCurrentFile();
     let ext;
     if (FLAT_ROOT) {
@@ -878,7 +878,7 @@
     } else {
       ext = (SOURCE_FOLDER && folderPath.startsWith(SOURCE_FOLDER)) ? SOURCE_EXT : (AUX_EXT || SOURCE_EXT);
     }
-    const raw = window.prompt(`New file in ${folderPath}`, 'Agent' + ext);
+    const raw = await glPrompt(`New file in ${folderPath}`, 'Agent' + ext);
     if (raw === null) return;
     let name = raw.trim();
     if (!name) return;
@@ -887,11 +887,11 @@
       name += ext;
     }
     if (!/^[A-Za-z0-9_.$/-]+$/.test(name)) {
-      window.alert('Invalid file name.'); return;
+      await glAlert('Invalid file name.'); return;
     }
     const path = folderPath + '/' + name;
     if (Object.prototype.hasOwnProperty.call(files, path)) {
-      window.alert('File already exists.'); return;
+      await glAlert('File already exists.'); return;
     }
     files[path] = name.endsWith(AUX_EXT) ? javaTemplate(path) : sourceTemplate(path);
     currentPath = path;
@@ -906,17 +906,17 @@
   window.__glDeleteFolder = deleteFolder;
   window.__glCreateFileInFolder = createFileInFolder;
 
-  function createFolder(parentPath) {
-    const raw = window.prompt('New folder name', 'newFolder');
+  async function createFolder(parentPath) {
+    const raw = await glPrompt('New folder name', 'newFolder');
     if (raw === null) return;
     const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
     if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
-      window.alert('Invalid folder name.'); return;
+      await glAlert('Invalid folder name.'); return;
     }
     const fp = parentPath + '/' + cleaned;
     const exists = Object.keys(files).some(p => p.startsWith(fp + '/'));
     if (exists || emptyFolders.has(fp)) {
-      window.alert('Folder already exists.'); return;
+      await glAlert('Folder already exists.'); return;
     }
     emptyFolders.add(fp);
     renderTree();
@@ -1295,9 +1295,9 @@
         }
       });
 
-      Promise.all(readers).then(() => {
+      Promise.all(readers).then(async () => {
         if (Object.keys(newFiles).length === 0) {
-          window.alert(`No ${SOURCE_EXT} files found in this folder.`);
+          await glAlert(`No ${SOURCE_EXT} files found in this folder.`);
           return;
         }
         // Stop any running execution before loading new project
@@ -1347,8 +1347,8 @@
   window.__glImportFolder = importFolder;
   window.__glSaveProject = saveToStorage;
 
-  function resetProject() {
-    if (!window.confirm('Start a new project? This will erase all current files and restore the default template.')) return;
+  async function resetProject() {
+    if (!(await glConfirm('Start a new project? This will erase all current files and restore the default template.'))) return;
     // Stop any running execution before resetting
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
     const newFiles = { [DEFAULT_FILE]: DEFAULT_SOURCE };
