@@ -756,9 +756,14 @@
       if (path === BUILD_FILE) return; // pom.xml sent separately
 
       if (FLAT_ROOT) {
-        // Flat root: map files by extension to server-expected directories
+        // Flat root: map files to server-expected directories
         const rel = path.replace(/^\//, '');
-        if (path.endsWith(SOURCE_EXT)) {
+
+        // If the file already has Maven/Gradle structure, send AS-IS
+        // (e.g. imported from a project with src/main/asl/... layout)
+        if (rel.startsWith('src/')) {
+          payload[rel] = content;
+        } else if (path.endsWith(SOURCE_EXT)) {
           payload[`${SERVER_ASL_DIR}/${rel}`] = content;
         } else if (path.endsWith(AUX_EXT)) {
           payload[`${SERVER_JAVA_DIR}/${rel}`] = content;
@@ -766,12 +771,14 @@
           // .mas2j files go at the project root on the server
           payload[rel] = content;
         } else {
-          // Any other file type: send at project root
-          payload[rel] = content;
+          // Any other file type (resources, configs, data):
+          // send to src/main/resources/ so the server accepts them
+          payload[`src/main/resources/${rel}`] = content;
         }
       } else if (PLATFORM === 'astra') {
         if (path.startsWith('/astra/')) payload[`src/main/astra/${path.slice('/astra/'.length)}`] = content;
         if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
+
       } else if (PLATFORM === 'jason') {
         if (path.startsWith('/asl/')) payload[`src/main/asl/${path.slice('/asl/'.length)}`] = content;
         if (path.startsWith('/java/')) payload[`src/main/java/${path.slice('/java/'.length)}`] = content;
@@ -1224,6 +1231,20 @@
   }
 
   // ── Open folder (import local project) ──────────────────
+  // Binary / build extensions to skip on import
+  const SKIP_EXTS = new Set([
+    '.class', '.jar', '.war', '.ear', '.zip', '.gz', '.tar', '.7z', '.rar',
+    '.png', '.jpg', '.jpeg', '.gif', '.ico', '.bmp', '.webp', '.tiff',
+    '.exe', '.dll', '.so', '.dylib', '.o', '.obj', '.lib',
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+    '.mp3', '.mp4', '.avi', '.mov', '.wav', '.flac',
+    '.woff', '.woff2', '.ttf', '.eot', '.otf',
+    '.pyc', '.pyo', '.DS_Store',
+  ]);
+  // Directory segments to skip (matched anywhere in path)
+  const SKIP_DIRS = ['/target/', '/build/', '/bin/', '/out/', '/node_modules/',
+                     '/.gradle/', '/.idea/', '/.vscode/', '/.git/', '/__pycache__/'];
+
   function importFolder() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -1238,8 +1259,11 @@
       Array.from(input.files).forEach(file => {
         // Get path relative to the selected folder
         const relPath = file.webkitRelativePath || file.name;
-        // Skip hidden and target dirs
-        if (relPath.includes('/.') || relPath.includes('/target/')) return;
+        // Skip hidden files and blocked directories
+        if (relPath.includes('/.') || SKIP_DIRS.some(d => relPath.includes(d))) return;
+        // Skip binary files by extension
+        const dotIdx = relPath.lastIndexOf('.');
+        if (dotIdx >= 0 && SKIP_EXTS.has(relPath.slice(dotIdx).toLowerCase())) return;
 
         // pom.xml at root
         const parts = relPath.split('/');
@@ -1249,13 +1273,14 @@
         }
 
         if (FLAT_ROOT) {
-          // Flat root: import .asl, .java, .mas2j from anywhere in the project
+          // Flat root: import ALL text files, preserving relative path from project root
           const name = parts.slice(1).join('/'); // remove top-level folder name
-          if (name.endsWith(SOURCE_EXT) || name.endsWith(AUX_EXT) || name.endsWith('.mas2j')) {
+          if (name && !name.startsWith('.')) {
             readers.push(file.text().then(text => { newFiles[`/${name}`] = text; }));
           }
         } else {
-          // ASTRA mode: structured import
+          // ASTRA mode: structured import — map src/main/astra/ and src/main/java/
+          const name = parts.slice(1).join('/'); // remove top-level folder name
           const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
           if (astraMatch) {
             readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
@@ -1266,6 +1291,7 @@
             readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
             return;
           }
+
         }
       });
 
