@@ -9,7 +9,7 @@
 (() => {
   'use strict';
 
-  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=3000&path=websockify';
+  const NOVNC_URL = 'https://code.generativelayers.com/novnc/vnc_lite.html?autoconnect=true&resize=scale&reconnect=true&reconnect_delay=5000&path=websockify';
   const PLATFORM = window.GL_PLATFORM || 'astra';
   const PLATFORM_LABEL = (window.GL_PLATFORM_CONFIG && window.GL_PLATFORM_CONFIG.label) || 'ASTRA';
 
