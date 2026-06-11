@@ -11,6 +11,11 @@
   <link rel="stylesheet" href="style.css?v=3.7">
   <script defer src="js/search.js?v=4"></script>
   <style>
+    html,
+    body {
+      overflow-x: auto !important;
+    }
+
     body .main {
       max-width: 1500px !important;
       width: 100% !important;
@@ -64,7 +69,11 @@
     .runner-frame-container {
       width: 100%;
       max-width: 100%;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
     }
 
     .runner-frame {
@@ -96,13 +105,16 @@
       }
 
       .runner-frame-container {
-        overflow: hidden !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
       }
 
       .runner-frame {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
+        width: 920px !important;
+        min-width: 920px !important;
+        max-width: none !important;
       }
     }
   </style>
@@ -142,7 +154,7 @@
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
-        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=mobile-scroll-6" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
@@ -152,6 +164,7 @@
   <script>
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const frameContainer = document.getElementById('frameContainer');
     document.querySelector('.menu-toggle').addEventListener('click', function () {
       sidebar.classList.toggle('open');
       sidebarBackdrop.classList.toggle('open');
@@ -164,10 +177,28 @@
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
     const frameSources = {
-      astra: 'runner-astra.html',
-      jason: 'runner-jason.html',
-      jacamo: 'runner-jacamo.html'
+      astra: 'runner-astra.html?v=mobile-scroll-6',
+      jason: 'runner-jason.html?v=mobile-scroll-6',
+      jacamo: 'runner-jacamo.html?v=mobile-scroll-6'
     };
+
+    function isMobileRunner() {
+      return window.matchMedia('(max-width:900px)').matches;
+    }
+
+    function syncFrameWidths() {
+      frames.forEach(frame => {
+        if (isMobileRunner()) {
+          frame.style.width = '920px';
+          frame.style.minWidth = '920px';
+          frame.style.maxWidth = 'none';
+        } else {
+          frame.style.width = '100%';
+          frame.style.minWidth = '100%';
+          frame.style.maxWidth = '';
+        }
+      });
+    }
 
     function activatePlatform(platform) {
       tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.platform === platform));
@@ -176,12 +207,15 @@
         frame.classList.toggle('active', isActive);
         if (isActive && !frame.src && frameSources[platform]) frame.src = frameSources[platform];
       });
+      syncFrameWidths();
       resizeFrames();
+      frameContainer.scrollLeft = 0;
     }
 
     tabs.forEach(tab => tab.addEventListener('click', () => activatePlatform(tab.dataset.platform)));
 
     function resizeFrames() {
+      syncFrameWidths();
       frames.forEach(frame => {
         if (!frame.classList.contains('active')) return;
         try {
@@ -197,6 +231,7 @@
     frames.forEach(frame => frame.addEventListener('load', () => setTimeout(resizeFrames, 250)));
     window.addEventListener('resize', resizeFrames);
     setInterval(resizeFrames, 2000);
+    resizeFrames();
 
     const urlParams = new URLSearchParams(window.location.search);
     const requestedPlatform = urlParams.get('platform');
@@ -206,14 +241,14 @@
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
       const jasonFrame = document.getElementById('frame-jason');
-      if (jasonFrame) jasonFrame.src = 'runner-jason.html#load=' + hash.slice('#load-jason='.length);
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=mobile-scroll-6#load=' + hash.slice('#load-jason='.length);
     } else if (hash.startsWith('#load-jacamo=')) {
       activatePlatform('jacamo');
       const jacamoFrame = document.getElementById('frame-jacamo');
-      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html#load=' + hash.slice('#load-jacamo='.length);
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=mobile-scroll-6#load=' + hash.slice('#load-jacamo='.length);
     } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      if (astraFrame) astraFrame.src = 'runner-astra.html' + hash;
+      if (astraFrame) astraFrame.src = 'runner-astra.html?v=mobile-scroll-6' + hash;
     }
   </script>
 </body>
