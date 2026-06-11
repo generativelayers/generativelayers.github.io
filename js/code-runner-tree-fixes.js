@@ -313,11 +313,84 @@
     setFilesCollapsed(collapsed);
   }
 
+  function getParentFrameContainer() {
+    try {
+      if (!window.parent || window.parent === window || !window.parent.document) return null;
+      const container = window.parent.document.getElementById('frameContainer');
+      if (container) {
+        container.style.overflowX = 'scroll';
+        container.style.overflowY = 'hidden';
+        container.style.webkitOverflowScrolling = 'touch';
+        container.style.touchAction = 'pan-x pan-y';
+      }
+      return container;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function installParentHorizontalSwipe() {
+    if (window.__glParentHorizontalSwipeInstalled) return;
+    window.__glParentHorizontalSwipeInstalled = true;
+
+    let active = false;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startScrollLeft = 0;
+
+    function canScroll(container) {
+      return !!container && container.scrollWidth > container.clientWidth + 2;
+    }
+
+    function begin(clientX, clientY) {
+      const container = getParentFrameContainer();
+      if (!canScroll(container)) return;
+      active = true;
+      dragging = false;
+      startX = clientX;
+      startY = clientY;
+      startScrollLeft = container.scrollLeft;
+    }
+
+    function move(clientX, clientY, event) {
+      if (!active) return;
+      const container = getParentFrameContainer();
+      if (!canScroll(container)) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      if (!dragging && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) dragging = true;
+      if (dragging) {
+        container.scrollLeft = startScrollLeft - dx;
+        if (event && event.cancelable) event.preventDefault();
+      }
+    }
+
+    function end() {
+      active = false;
+      dragging = false;
+    }
+
+    window.addEventListener('touchstart', event => {
+      if (!event.touches || !event.touches.length) return;
+      begin(event.touches[0].clientX, event.touches[0].clientY);
+    }, { capture: true, passive: true });
+
+    window.addEventListener('touchmove', event => {
+      if (!event.touches || !event.touches.length) return;
+      move(event.touches[0].clientX, event.touches[0].clientY, event);
+    }, { capture: true, passive: false });
+
+    window.addEventListener('touchend', end, { capture: true, passive: true });
+    window.addEventListener('touchcancel', end, { capture: true, passive: true });
+  }
+
   function patchTree() {
     addStyle();
     patchDeleteFolder();
     patchRootActions();
     patchFilesCollapseToggle();
+    installParentHorizontalSwipe();
   }
 
   function init() {
