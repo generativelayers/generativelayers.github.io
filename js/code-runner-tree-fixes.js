@@ -127,7 +127,8 @@
       .runner-project.files-collapsed .runner-files-head span,
       .runner-project.files-collapsed .runner-file-actions,
       .runner-project.files-collapsed #fileTree,
-      .runner-project.files-collapsed .runner-tree-toolbar {
+      .runner-project.files-collapsed .runner-tree-toolbar,
+      .runner-project.files-collapsed .runner-hsplitter {
         display: none !important;
       }
 
