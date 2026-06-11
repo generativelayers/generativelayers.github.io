@@ -82,11 +82,14 @@
       .gui-modal-backdrop {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.35);
         z-index: 9998;
         display: flex;
         align-items: center;
         justify-content: center;
+        /* Allow mouse events to pass through backdrop so drag works
+           when cursor moves outside the modal bounds */
+        pointer-events: none;
       }
       .gui-modal-backdrop[hidden] { display: none !important; }
 
@@ -100,6 +103,8 @@
         overflow: hidden;
         position: relative;
         transition: width 0.3s ease, height 0.3s ease;
+        /* Re-enable pointer events on the modal itself */
+        pointer-events: auto;
         /* Default size before we know the GUI dimensions */
         width: 90vw;
         max-width: 700px;
@@ -146,6 +151,10 @@
         border: 0;
         width: 100%;
         background: #0b1220;
+        /* Ensure noVNC iframe always receives mouse events */
+        pointer-events: auto;
+        position: relative;
+        z-index: 2;
       }
 
       .gui-status {
@@ -183,11 +192,14 @@
         align-items: center;
         justify-content: center;
         background: #0b1220;
-        z-index: 5;
+        z-index: 1; /* below iframe (z-index:2) when connected */
         color: #94a3b8;
         font-size: 15px;
         gap: 12px;
         transition: opacity 0.3s;
+      }
+      .gui-loading-overlay:not([hidden]) {
+        z-index: 6; /* above iframe when loading */
       }
       .gui-loading-overlay[hidden] { display: none !important; }
       .gui-loading-spinner {
@@ -245,9 +257,8 @@
 
     // Close handlers
     document.getElementById('guiModalClose').addEventListener('click', closeModal);
-    modalEl.addEventListener('click', (e) => {
-      if (e.target === modalEl) closeModal();
-    });
+    // Backdrop is now pointer-events:none, so no need for backdrop click handler.
+    // Just keep Escape key to close.
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isOpen) closeModal();
     });
@@ -406,17 +417,42 @@
       origTop = parseInt(modal.style.top, 10) || 0;
     });
 
-    document.addEventListener('mousemove', (e) => {
+    // Use window-level listeners so drag continues even when mouse
+    // leaves the iframe or modal bounds
+    window.addEventListener('mousemove', (e) => {
       if (!dragging) return;
       modal.style.left = (origLeft + e.clientX - startX) + 'px';
       modal.style.top = (origTop + e.clientY - startY) + 'px';
     });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (!dragging) return;
       dragging = false;
       document.body.classList.remove('gui-dragging');
     });
+
+    // Also listen on parent window for cross-iframe drag support
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.addEventListener('mousemove', (e) => {
+          if (!dragging) return;
+          // Translate parent coords to iframe coords
+          const iframe = window.frameElement;
+          if (iframe) {
+            const ir = iframe.getBoundingClientRect();
+            const cx = e.clientX - ir.left;
+            const cy = e.clientY - ir.top;
+            modal.style.left = (origLeft + cx - startX) + 'px';
+            modal.style.top = (origTop + cy - startY) + 'px';
+          }
+        });
+        window.parent.addEventListener('mouseup', () => {
+          if (!dragging) return;
+          dragging = false;
+          document.body.classList.remove('gui-dragging');
+        });
+      }
+    } catch (e) { /* cross-origin — ignore */ }
   }
 
   /* ── Resize handles ────────────────────────────────────── */
