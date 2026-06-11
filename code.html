@@ -9,8 +9,15 @@
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.7">
-  <script defer src="js/search.js?v=2"></script>
+  <script defer src="js/search.js?v=4"></script>
   <style>
+    html,
+    body {
+      overflow-x: auto !important;
+    }
+    body.sidebar-open {
+      overflow: hidden !important;
+    }
     body .main {
       max-width: 1500px !important;
       width: 100% !important;
@@ -63,12 +70,18 @@
 
     /* ── Iframe container ─────────────────────────── */
     .runner-frame-container {
+      display: block;
       width: 100%;
-      overflow-x: auto;
+      max-width: 100%;
+      overflow-x: scroll !important;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-x: contain;
       touch-action: pan-x pan-y;
+      scrollbar-width: thin;
+    }
+    .runner-frame-container.dragging {
+      cursor: grabbing;
     }
     .runner-frame {
       width: 100%;
@@ -86,10 +99,16 @@
       body .main { max-width: 100% !important }
       .platform-tab { padding: 10px 14px; font-size: 13px }
       .runner-frame-container {
-        scrollbar-width: thin;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: scroll !important;
+        overflow-y: hidden;
+        touch-action: pan-x pan-y;
       }
       .runner-frame {
-        min-width: 920px;
+        width: 920px !important;
+        min-width: 920px !important;
+        max-width: none !important;
       }
     }
   </style>
@@ -134,7 +153,7 @@
       </div>
 
       <!-- Isolated iframes -->
-      <div class="runner-frame-container" id="frameContainer">
+      <div class="runner-frame-container" id="frameContainer" aria-label="Swipe horizontally to view the full code runner">
         <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
@@ -166,6 +185,24 @@
       jacamo: 'runner-jacamo.html'
     };
 
+    function isMobileRunner() {
+      return window.matchMedia('(max-width: 900px)').matches;
+    }
+
+    function syncFrameWidths() {
+      frames.forEach(frame => {
+        if (isMobileRunner()) {
+          frame.style.width = '920px';
+          frame.style.minWidth = '920px';
+          frame.style.maxWidth = 'none';
+        } else {
+          frame.style.width = '100%';
+          frame.style.minWidth = '100%';
+          frame.style.maxWidth = '';
+        }
+      });
+    }
+
     function activatePlatform(platform) {
       tabs.forEach(t => {
         t.classList.toggle('active', t.dataset.platform === platform);
@@ -178,6 +215,7 @@
           f.src = frameSources[platform];
         }
         if (isActive) {
+          syncFrameWidths();
           enableFrameHorizontalSwipe(f);
           frameContainer.scrollLeft = 0;
         }
@@ -190,6 +228,7 @@
 
     // Auto-resize iframes to fit content
     function resizeFrames() {
+      syncFrameWidths();
       frames.forEach(f => {
         if (!f.classList.contains('active')) return;
         try {
@@ -202,36 +241,87 @@
       });
     }
 
+    function bindHorizontalSwipeSurface(surface, key) {
+      if (!surface || surface[key]) return;
+      surface[key] = true;
+
+      let pointerDown = false;
+      let horizontalDrag = false;
+      let startX = 0;
+      let startY = 0;
+      let startScrollLeft = 0;
+
+      function canScrollHorizontally() {
+        return frameContainer.scrollWidth > frameContainer.clientWidth + 2;
+      }
+
+      function begin(clientX, clientY) {
+        if (!canScrollHorizontally()) return;
+        pointerDown = true;
+        horizontalDrag = false;
+        startX = clientX;
+        startY = clientY;
+        startScrollLeft = frameContainer.scrollLeft;
+      }
+
+      function move(clientX, clientY, event) {
+        if (!pointerDown || !canScrollHorizontally()) return;
+        const deltaX = clientX - startX;
+        const deltaY = clientY - startY;
+
+        if (!horizontalDrag && Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          horizontalDrag = true;
+          frameContainer.classList.add('dragging');
+        }
+
+        if (horizontalDrag) {
+          frameContainer.scrollLeft = startScrollLeft - deltaX;
+          if (event && event.cancelable) event.preventDefault();
+        }
+      }
+
+      function end() {
+        pointerDown = false;
+        horizontalDrag = false;
+        frameContainer.classList.remove('dragging');
+      }
+
+      surface.addEventListener('touchstart', event => {
+        if (!event.touches.length) return;
+        begin(event.touches[0].clientX, event.touches[0].clientY);
+      }, { passive: true });
+
+      surface.addEventListener('touchmove', event => {
+        if (!event.touches.length) return;
+        move(event.touches[0].clientX, event.touches[0].clientY, event);
+      }, { passive: false });
+
+      surface.addEventListener('touchend', end, { passive: true });
+      surface.addEventListener('touchcancel', end, { passive: true });
+
+      surface.addEventListener('pointerdown', event => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        begin(event.clientX, event.clientY);
+      }, { passive: true });
+
+      surface.addEventListener('pointermove', event => {
+        move(event.clientX, event.clientY, event);
+      }, { passive: false });
+
+      surface.addEventListener('pointerup', end, { passive: true });
+      surface.addEventListener('pointercancel', end, { passive: true });
+    }
+
     // Let mobile users swipe horizontally even when the touch starts inside the same-origin iframe.
     function enableFrameHorizontalSwipe(frame) {
+      bindHorizontalSwipeSurface(frameContainer, '__glHorizontalSwipeBound');
+
       try {
         const doc = frame.contentDocument || frame.contentWindow.document;
-        if (!doc || doc.__glHorizontalSwipeBound) return;
-        doc.__glHorizontalSwipeBound = true;
-
-        let startX = 0;
-        let startY = 0;
-        let startScrollLeft = 0;
-
-        doc.addEventListener('touchstart', event => {
-          if (!event.touches.length) return;
-          startX = event.touches[0].clientX;
-          startY = event.touches[0].clientY;
-          startScrollLeft = frameContainer.scrollLeft;
-        }, { passive: true });
-
-        doc.addEventListener('touchmove', event => {
-          if (!event.touches.length) return;
-
-          const deltaX = event.touches[0].clientX - startX;
-          const deltaY = event.touches[0].clientY - startY;
-          const canScrollHorizontally = frameContainer.scrollWidth > frameContainer.clientWidth;
-
-          if (canScrollHorizontally && Math.abs(deltaX) > Math.abs(deltaY)) {
-            frameContainer.scrollLeft = startScrollLeft - deltaX;
-            event.preventDefault();
-          }
-        }, { passive: false });
+        if (!doc) return;
+        doc.documentElement.style.touchAction = 'pan-x pan-y';
+        doc.body.style.touchAction = 'pan-x pan-y';
+        bindHorizontalSwipeSurface(doc, '__glHorizontalSwipeBound');
       } catch (e) { /* iframe not ready */ }
     }
 
@@ -240,7 +330,10 @@
       setTimeout(resizeFrames, 200);
       enableFrameHorizontalSwipe(f);
     }));
+    window.addEventListener('resize', resizeFrames);
     setInterval(resizeFrames, 2000);
+    syncFrameWidths();
+    bindHorizontalSwipeSurface(frameContainer, '__glHorizontalSwipeBound');
 
     // Read ?platform= query param (from patterns.html "Run in Playground" links)
     const urlParams = new URLSearchParams(window.location.search);
