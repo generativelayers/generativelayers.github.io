@@ -64,9 +64,15 @@
     /* ── Iframe container ─────────────────────────── */
     .runner-frame-container {
       width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
     }
     .runner-frame {
       width: 100%;
+      min-width: 100%;
       min-height: 500px;
       height: 900px;
       border: none;
@@ -79,6 +85,12 @@
     @media(max-width:900px) {
       body .main { max-width: 100% !important }
       .platform-tab { padding: 10px 14px; font-size: 13px }
+      .runner-frame-container {
+        scrollbar-width: thin;
+      }
+      .runner-frame {
+        min-width: 920px;
+      }
     }
   </style>
 </head>
@@ -147,6 +159,7 @@
     // Platform tab switching
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
+    const frameContainer = document.getElementById('frameContainer');
     const frameSources = {
       astra: 'runner-astra.html',
       jason: 'runner-jason.html',
@@ -163,6 +176,10 @@
         // Lazy-load: only set src when first activated
         if (isActive && !f.src && frameSources[platform]) {
           f.src = frameSources[platform];
+        }
+        if (isActive) {
+          enableFrameHorizontalSwipe(f);
+          frameContainer.scrollLeft = 0;
         }
       });
     }
@@ -185,8 +202,44 @@
       });
     }
 
+    // Let mobile users swipe horizontally even when the touch starts inside the same-origin iframe.
+    function enableFrameHorizontalSwipe(frame) {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        if (!doc || doc.__glHorizontalSwipeBound) return;
+        doc.__glHorizontalSwipeBound = true;
+
+        let startX = 0;
+        let startY = 0;
+        let startScrollLeft = 0;
+
+        doc.addEventListener('touchstart', event => {
+          if (!event.touches.length) return;
+          startX = event.touches[0].clientX;
+          startY = event.touches[0].clientY;
+          startScrollLeft = frameContainer.scrollLeft;
+        }, { passive: true });
+
+        doc.addEventListener('touchmove', event => {
+          if (!event.touches.length) return;
+
+          const deltaX = event.touches[0].clientX - startX;
+          const deltaY = event.touches[0].clientY - startY;
+          const canScrollHorizontally = frameContainer.scrollWidth > frameContainer.clientWidth;
+
+          if (canScrollHorizontally && Math.abs(deltaX) > Math.abs(deltaY)) {
+            frameContainer.scrollLeft = startScrollLeft - deltaX;
+            event.preventDefault();
+          }
+        }, { passive: false });
+      } catch (e) { /* iframe not ready */ }
+    }
+
     // Resize on load and periodically (content may change during runs)
-    frames.forEach(f => f.addEventListener('load', () => setTimeout(resizeFrames, 200)));
+    frames.forEach(f => f.addEventListener('load', () => {
+      setTimeout(resizeFrames, 200);
+      enableFrameHorizontalSwipe(f);
+    }));
     setInterval(resizeFrames, 2000);
 
     // Read ?platform= query param (from patterns.html "Run in Playground" links)
