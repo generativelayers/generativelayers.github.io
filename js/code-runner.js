@@ -799,17 +799,17 @@
   // ── Folder operations (for tree-ui) ────────────────────
   async function renameFolder(folderPath) {
     saveCurrentFile();
-    let root, relative;
+    let root;
     if (FLAT_ROOT) {
       // In flat mode, find the parent path
       const lastSlash = folderPath.lastIndexOf('/');
       root = lastSlash > 0 ? folderPath.slice(0, lastSlash) : '';
-      relative = folderPath.replace(/^\//, '');
     } else {
       root = (SOURCE_FOLDER && folderPath.startsWith(SOURCE_FOLDER)) ? SOURCE_FOLDER : (AUX_FOLDER || SOURCE_FOLDER || '');
-      relative = folderPath.slice(root.length + 1);
     }
-    const raw = await glPrompt('Rename folder', relative);
+    // Show only the folder's own name (last segment), not the full path
+    const folderName = folderPath.split('/').pop();
+    const raw = await glPrompt('Rename folder', folderName);
     if (raw === null) return;
     const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
     if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
@@ -818,7 +818,8 @@
     const newFolder = root + '/' + cleaned;
     if (newFolder === folderPath) return;
     const affected = Object.keys(files).filter(p => p.startsWith(folderPath + '/'));
-    if (affected.length === 0) return;
+    const isEmptyFolder = emptyFolders.has(folderPath);
+    if (affected.length === 0 && !isEmptyFolder) return;
     for (const old of affected) {
       const np = newFolder + old.slice(folderPath.length);
       if (Object.prototype.hasOwnProperty.call(files, np) && !affected.includes(np)) {
