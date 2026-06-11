@@ -11,28 +11,26 @@
   <link rel="stylesheet" href="style.css?v=3.7">
   <script defer src="js/search.js?v=4"></script>
   <style>
-    html,
-    body {
-      overflow-x: auto !important;
-    }
-    body.sidebar-open {
-      overflow: hidden !important;
-    }
     body .main {
       max-width: 1500px !important;
       width: 100% !important;
       padding-left: 4px !important;
-      padding-right: 4px !important
+      padding-right: 4px !important;
     }
-    .main > h1 { padding-left: 60px }
 
-    /* ── Platform tab bar ──────────────────────────── */
+    .main > h1 {
+      padding-left: 60px;
+    }
+
     .platform-tabs {
       display: flex;
       gap: 0;
-      margin: 0 0 0;
+      margin: 0;
       border-bottom: 2px solid var(--color-border, #e5e7eb);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
+
     .platform-tab {
       display: inline-flex;
       align-items: center;
@@ -47,42 +45,28 @@
       cursor: pointer;
       transition: color 0.2s, border-color 0.2s;
       margin-bottom: -2px;
+      white-space: nowrap;
     }
+
     .platform-tab:hover {
       color: var(--color-text, #111827);
     }
+
     .platform-tab.active {
       color: #059669;
       border-bottom-color: #059669;
     }
+
     .platform-tab i {
       font-size: 16px;
     }
-    .platform-tab .tab-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(52, 211, 153, .12);
-      color: #059669;
-      letter-spacing: 0.5px;
-    }
 
-    /* ── Iframe container ─────────────────────────── */
     .runner-frame-container {
-      display: block;
       width: 100%;
       max-width: 100%;
-      overflow-x: scroll !important;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-x: contain;
-      touch-action: pan-x pan-y;
-      scrollbar-width: thin;
+      overflow: hidden;
     }
-    .runner-frame-container.dragging {
-      cursor: grabbing;
-    }
+
     .runner-frame {
       width: 100%;
       min-width: 100%;
@@ -91,24 +75,34 @@
       border: none;
       display: none;
     }
+
     .runner-frame.active {
       display: block;
     }
 
     @media(max-width:900px) {
-      body .main { max-width: 100% !important }
-      .platform-tab { padding: 10px 14px; font-size: 13px }
-      .runner-frame-container {
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: scroll !important;
-        overflow-y: hidden;
-        touch-action: pan-x pan-y;
+      body .main {
+        max-width: 100% !important;
       }
+
+      .main > h1 {
+        padding-left: 56px;
+      }
+
+      .platform-tab {
+        padding: 10px 14px;
+        font-size: 13px;
+        flex: 0 0 auto;
+      }
+
+      .runner-frame-container {
+        overflow: hidden !important;
+      }
+
       .runner-frame {
-        width: 920px !important;
-        min-width: 920px !important;
-        max-width: none !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
       }
     }
   </style>
@@ -116,54 +110,46 @@
 
 <body>
   <header class="top">
-    <div class="header-inner"><button class="menu-toggle" aria-label="Toggle menu"><i
-          class="fa-solid fa-bars"></i></button><img class="header-logo" src="/icon/logo.png" alt="Generative Layers"
-        width="36" height="36">
-      <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search"
-          placeholder="Search…" aria-label="Search"></div>
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
+      <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search" placeholder="Search…" aria-label="Search"></div>
     </div>
   </header>
+
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="layout">
     <aside class="side" id="sidebar">
-      <div class="side-label">Documentation</div><a href="index.html"><i
-          class="fa-solid fa-house"></i><span>Introduction</span></a><a href="getting-started.html"><i
-          class="fa-solid fa-rocket"></i><span>Getting Started</span></a><a href="framework.html"><i
-          class="fa-solid fa-layer-group"></i><span>Framework</span></a><a href="patterns.html"><i
-          class="fa-solid fa-shield-halved"></i><span>Patterns</span></a><a href="providers.html"><i
-          class="fa-solid fa-plug"></i><span>Providers</span></a><a class="active" href="code.html"><i
-          class="fa-solid fa-code"></i><span>Run Code</span></a><a href="research.html"><i
-          class="fa-solid fa-microscope"></i><span>Research</span></a><a href="repositories.html"><i
-          class="fa-brands fa-github"></i><span>Repositories</span></a>
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
+      <a href="providers.html"><i class="fa-solid fa-plug"></i><span>Providers</span></a>
+      <a class="active" href="code.html"><i class="fa-solid fa-code"></i><span>Run Code</span></a>
+      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
     </aside>
+
     <main class="main">
       <h1>Run Code</h1>
 
-      <!-- Platform tab bar -->
       <div class="platform-tabs" id="platformTabs">
-        <button class="platform-tab active" data-platform="astra" type="button">
-          <i class="fa-solid fa-robot"></i> ASTRA
-        </button>
-        <button class="platform-tab" data-platform="jason" type="button">
-          <i class="fa-solid fa-flask"></i> Jason
-        </button>
-        <button class="platform-tab" data-platform="jacamo" type="button">
-          <i class="fa-solid fa-cubes"></i> JaCaMo
-        </button>
+        <button class="platform-tab active" data-platform="astra" type="button"><i class="fa-solid fa-robot"></i> ASTRA</button>
+        <button class="platform-tab" data-platform="jason" type="button"><i class="fa-solid fa-flask"></i> Jason</button>
+        <button class="platform-tab" data-platform="jacamo" type="button"><i class="fa-solid fa-cubes"></i> JaCaMo</button>
       </div>
 
-      <!-- Isolated iframes -->
-      <div class="runner-frame-container" id="frameContainer" aria-label="Swipe horizontally to view the full code runner">
+      <div class="runner-frame-container" id="frameContainer">
         <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
-
     </main>
   </div>
 
   <script>
-    // Sidebar toggle
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     document.querySelector('.menu-toggle').addEventListener('click', function () {
@@ -175,174 +161,47 @@
       this.classList.remove('open');
     });
 
-    // Platform tab switching
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
-    const frameContainer = document.getElementById('frameContainer');
     const frameSources = {
       astra: 'runner-astra.html',
       jason: 'runner-jason.html',
       jacamo: 'runner-jacamo.html'
     };
 
-    function isMobileRunner() {
-      return window.matchMedia('(max-width: 900px)').matches;
-    }
-
-    function syncFrameWidths() {
-      frames.forEach(frame => {
-        if (isMobileRunner()) {
-          frame.style.width = '920px';
-          frame.style.minWidth = '920px';
-          frame.style.maxWidth = 'none';
-        } else {
-          frame.style.width = '100%';
-          frame.style.minWidth = '100%';
-          frame.style.maxWidth = '';
-        }
-      });
-    }
-
     function activatePlatform(platform) {
-      tabs.forEach(t => {
-        t.classList.toggle('active', t.dataset.platform === platform);
+      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.platform === platform));
+      frames.forEach(frame => {
+        const isActive = frame.dataset.platform === platform;
+        frame.classList.toggle('active', isActive);
+        if (isActive && !frame.src && frameSources[platform]) frame.src = frameSources[platform];
       });
-      frames.forEach(f => {
-        const isActive = f.dataset.platform === platform;
-        f.classList.toggle('active', isActive);
-        // Lazy-load: only set src when first activated
-        if (isActive && !f.src && frameSources[platform]) {
-          f.src = frameSources[platform];
-        }
-        if (isActive) {
-          syncFrameWidths();
-          enableFrameHorizontalSwipe(f);
-          frameContainer.scrollLeft = 0;
-        }
-      });
+      resizeFrames();
     }
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => activatePlatform(tab.dataset.platform));
-    });
+    tabs.forEach(tab => tab.addEventListener('click', () => activatePlatform(tab.dataset.platform)));
 
-    // Auto-resize iframes to fit content
     function resizeFrames() {
-      syncFrameWidths();
-      frames.forEach(f => {
-        if (!f.classList.contains('active')) return;
+      frames.forEach(frame => {
+        if (!frame.classList.contains('active')) return;
         try {
-          const doc = f.contentDocument || f.contentWindow.document;
+          const doc = frame.contentDocument || frame.contentWindow.document;
           if (doc && doc.body) {
             const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 500);
-            f.style.height = h + 'px';
+            frame.style.height = h + 'px';
           }
-        } catch (e) { /* cross-origin or not loaded yet */ }
+        } catch (_) {}
       });
     }
 
-    function bindHorizontalSwipeSurface(surface, key) {
-      if (!surface || surface[key]) return;
-      surface[key] = true;
-
-      let pointerDown = false;
-      let horizontalDrag = false;
-      let startX = 0;
-      let startY = 0;
-      let startScrollLeft = 0;
-
-      function canScrollHorizontally() {
-        return frameContainer.scrollWidth > frameContainer.clientWidth + 2;
-      }
-
-      function begin(clientX, clientY) {
-        if (!canScrollHorizontally()) return;
-        pointerDown = true;
-        horizontalDrag = false;
-        startX = clientX;
-        startY = clientY;
-        startScrollLeft = frameContainer.scrollLeft;
-      }
-
-      function move(clientX, clientY, event) {
-        if (!pointerDown || !canScrollHorizontally()) return;
-        const deltaX = clientX - startX;
-        const deltaY = clientY - startY;
-
-        if (!horizontalDrag && Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          horizontalDrag = true;
-          frameContainer.classList.add('dragging');
-        }
-
-        if (horizontalDrag) {
-          frameContainer.scrollLeft = startScrollLeft - deltaX;
-          if (event && event.cancelable) event.preventDefault();
-        }
-      }
-
-      function end() {
-        pointerDown = false;
-        horizontalDrag = false;
-        frameContainer.classList.remove('dragging');
-      }
-
-      surface.addEventListener('touchstart', event => {
-        if (!event.touches.length) return;
-        begin(event.touches[0].clientX, event.touches[0].clientY);
-      }, { passive: true });
-
-      surface.addEventListener('touchmove', event => {
-        if (!event.touches.length) return;
-        move(event.touches[0].clientX, event.touches[0].clientY, event);
-      }, { passive: false });
-
-      surface.addEventListener('touchend', end, { passive: true });
-      surface.addEventListener('touchcancel', end, { passive: true });
-
-      surface.addEventListener('pointerdown', event => {
-        if (event.pointerType === 'mouse' && event.button !== 0) return;
-        begin(event.clientX, event.clientY);
-      }, { passive: true });
-
-      surface.addEventListener('pointermove', event => {
-        move(event.clientX, event.clientY, event);
-      }, { passive: false });
-
-      surface.addEventListener('pointerup', end, { passive: true });
-      surface.addEventListener('pointercancel', end, { passive: true });
-    }
-
-    // Let mobile users swipe horizontally even when the touch starts inside the same-origin iframe.
-    function enableFrameHorizontalSwipe(frame) {
-      bindHorizontalSwipeSurface(frameContainer, '__glHorizontalSwipeBound');
-
-      try {
-        const doc = frame.contentDocument || frame.contentWindow.document;
-        if (!doc) return;
-        doc.documentElement.style.touchAction = 'pan-x pan-y';
-        doc.body.style.touchAction = 'pan-x pan-y';
-        bindHorizontalSwipeSurface(doc, '__glHorizontalSwipeBound');
-      } catch (e) { /* iframe not ready */ }
-    }
-
-    // Resize on load and periodically (content may change during runs)
-    frames.forEach(f => f.addEventListener('load', () => {
-      setTimeout(resizeFrames, 200);
-      enableFrameHorizontalSwipe(f);
-    }));
+    frames.forEach(frame => frame.addEventListener('load', () => setTimeout(resizeFrames, 250)));
     window.addEventListener('resize', resizeFrames);
     setInterval(resizeFrames, 2000);
-    syncFrameWidths();
-    bindHorizontalSwipeSurface(frameContainer, '__glHorizontalSwipeBound');
 
-    // Read ?platform= query param (from patterns.html "Run in Playground" links)
     const urlParams = new URLSearchParams(window.location.search);
     const requestedPlatform = urlParams.get('platform');
-    if (requestedPlatform && frameSources[requestedPlatform]) {
-      activatePlatform(requestedPlatform);
-    }
+    if (requestedPlatform && frameSources[requestedPlatform]) activatePlatform(requestedPlatform);
 
-    // Forward #load[-platform]= hash to the correct iframe
     const hash = window.location.hash;
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
