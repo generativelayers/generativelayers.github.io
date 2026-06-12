@@ -1,18 +1,11 @@
 /**
- * code-runner-archive-import.js v6
+ * code-runner-archive-import.js v7
  *
- * Extends the runner Open button with:
- * - Folder import: imports local projects through the same mapper as ZIP import.
- * - ZIP import: extracts locally in the browser using JSZip and maps files as
- *   the selected platform expects.
- * - ASTRA project-root detection: finds the folder that contains astra/, java/,
- *   resources/, src/main/astra, src/main/java, src/main/resources, and/or pom.xml.
- * - ASTRA resource support: resources and src/main/resources are stored as /resources
- *   and injected into src/main/resources at run time.
- * - Jason/JaCaMo flat imports: preserve text project files; the runner sends ordinary
- *   non-source files to src/main/resources.
- * - RAR import: detects and explains that RAR extraction is not supported.
- * - Single-file import: language-specific clean import with the runner default POM.
+ * No custom dialog. The runner exposes separate native openers:
+ * - Folder: native directory picker.
+ * - File/ZIP: native file picker that routes .zip, .astra, .asl, and .rar.
+ *
+ * This avoids the mobile overlay/modal bug and keeps the logic explicit.
  */
 (() => {
   'use strict';
@@ -26,104 +19,210 @@
   const AUX_EXT = (CFG.auxExt || '.java').toLowerCase();
   const ZIP_LIB_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 
+  const DEFAULT_POMS = {
+    astra: [
+      '<project xmlns="http://maven.apache.org/POM/4.0.0"',
+      '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+      '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">',
+      '',
+      '    <modelVersion>4.0.0</modelVersion>',
+      '',
+      '    <groupId>com.generativelayers.server</groupId>',
+      '    <artifactId>gl-astra-smoke</artifactId>',
+      '    <version>0.1.5</version>',
+      '',
+      '    <parent>',
+      '        <groupId>com.astralanguage</groupId>',
+      '        <artifactId>astra-base</artifactId>',
+      '        <version>2.0.13</version>',
+      '    </parent>',
+      '',
+      '    <properties>',
+      '        <maven.compiler.release>17</maven.compiler.release>',
+      '        <astra.main>Main</astra.main>',
+      '    </properties>',
+      '',
+      '    <dependencies>',
+      '        <dependency>',
+      '            <groupId>com.generativelayers</groupId>',
+      '            <artifactId>generative-layers-core</artifactId>',
+      '            <version>0.1.5</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-gui</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-protocols</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-cartago</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-eis-0.5</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-eis-0.7</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-langchain4j</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>com.astralanguage</groupId>',
+      '            <artifactId>astra-unittest</artifactId>',
+      '            <version>2.0.13</version>',
+      '        </dependency>',
+      '    </dependencies>',
+      '',
+      '    <build>',
+      '        <defaultGoal>clean compile astra:deploy</defaultGoal>',
+      '        <plugins>',
+      '            <plugin>',
+      '                <groupId>com.astralanguage</groupId>',
+      '                <artifactId>astra-maven-plugin</artifactId>',
+      '                <version>2.0.13</version>',
+      '            </plugin>',
+      '        </plugins>',
+      '    </build>',
+      '</project>'
+    ].join('\n'),
+    jason: [
+      '<project xmlns="http://maven.apache.org/POM/4.0.0">',
+      '    <modelVersion>4.0.0</modelVersion>',
+      '    <groupId>com.generativelayers.runner</groupId>',
+      '    <artifactId>jason-runner</artifactId>',
+      '    <version>0.1.5</version>',
+      '',
+      '    <properties>',
+      '        <maven.compiler.source>17</maven.compiler.source>',
+      '        <maven.compiler.target>17</maven.compiler.target>',
+      '        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>',
+      '    </properties>',
+      '',
+      '    <dependencies>',
+      '        <dependency>',
+      '            <groupId>com.generativelayers</groupId>',
+      '            <artifactId>generative-layers-core</artifactId>',
+      '            <version>0.1.5</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>io.github.jason-lang</groupId>',
+      '            <artifactId>jason-interpreter</artifactId>',
+      '            <version>3.2.0</version>',
+      '        </dependency>',
+      '    </dependencies>',
+      '',
+      '    <build>',
+      '        <resources>',
+      '            <resource>',
+      '                <directory>src/main/asl</directory>',
+      '                <targetPath>.</targetPath>',
+      '            </resource>',
+      '            <resource>',
+      '                <directory>src/main/resources</directory>',
+      '            </resource>',
+      '        </resources>',
+      '        <plugins>',
+      '            <plugin>',
+      '                <groupId>org.codehaus.mojo</groupId>',
+      '                <artifactId>exec-maven-plugin</artifactId>',
+      '                <version>3.1.0</version>',
+      '                <configuration>',
+      '                    <mainClass>gl.adapter.jason.MASLauncher</mainClass>',
+      '                </configuration>',
+      '            </plugin>',
+      '        </plugins>',
+      '    </build>',
+      '</project>'
+    ].join('\n'),
+    jacamo: [
+      '<project xmlns="http://maven.apache.org/POM/4.0.0">',
+      '    <modelVersion>4.0.0</modelVersion>',
+      '    <groupId>com.generativelayers.runner</groupId>',
+      '    <artifactId>jacamo-runner</artifactId>',
+      '    <version>0.1.5</version>',
+      '',
+      '    <properties>',
+      '        <maven.compiler.source>17</maven.compiler.source>',
+      '        <maven.compiler.target>17</maven.compiler.target>',
+      '        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>',
+      '    </properties>',
+      '',
+      '    <repositories>',
+      '        <repository>',
+      '            <id>jacamo-mvn-repo</id>',
+      '            <url>https://raw.githubusercontent.com/jacamo-lang/mvn-repo/master</url>',
+      '        </repository>',
+      '    </repositories>',
+      '',
+      '    <dependencies>',
+      '        <dependency>',
+      '            <groupId>com.generativelayers</groupId>',
+      '            <artifactId>generative-layers-core</artifactId>',
+      '            <version>0.1.5</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>io.github.jason-lang</groupId>',
+      '            <artifactId>jason-interpreter</artifactId>',
+      '            <version>3.2.0</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>org.jacamo</groupId>',
+      '            <artifactId>cartago</artifactId>',
+      '            <version>3.1</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>org.jacamo</groupId>',
+      '            <artifactId>jaca</artifactId>',
+      '            <version>3.1</version>',
+      '        </dependency>',
+      '        <dependency>',
+      '            <groupId>io.vertx</groupId>',
+      '            <artifactId>vertx-core</artifactId>',
+      '            <version>4.5.10</version>',
+      '        </dependency>',
+      '    </dependencies>',
+      '',
+      '    <build>',
+      '        <resources>',
+      '            <resource>',
+      '                <directory>src/agt</directory>',
+      '                <targetPath>.</targetPath>',
+      '            </resource>',
+      '        </resources>',
+      '        <plugins>',
+      '            <plugin>',
+      '                <groupId>org.codehaus.mojo</groupId>',
+      '                <artifactId>exec-maven-plugin</artifactId>',
+      '                <version>3.1.0</version>',
+      '                <configuration>',
+      '                    <mainClass>gl.adapter.jason.MASLauncher</mainClass>',
+      '                    <arguments>',
+      '                        <argument>default_project.mas2j</argument>',
+      '                    </arguments>',
+      '                </configuration>',
+      '            </plugin>',
+      '        </plugins>',
+      '    </build>',
+      '</project>'
+    ].join('\n')
+  };
+
   function alertBox(message) {
     if (typeof window.glAlert === 'function') return window.glAlert(message);
     window.alert(message);
     return Promise.resolve();
-  }
-
-  function promptBox(message, value) {
-    if (typeof window.glPrompt === 'function') return window.glPrompt(message, value || '');
-    return Promise.resolve(window.prompt(message, value || ''));
-  }
-
-  function addStyle() {
-    if (document.getElementById('gl-archive-import-style')) return;
-    const style = document.createElement('style');
-    style.id = 'gl-archive-import-style';
-    style.textContent = `
-      .gl-import-options{display:grid;gap:10px}
-      .gl-import-options button{border:1px solid rgba(52,211,153,.35);border-radius:10px;background:rgba(52,211,153,.10);color:#d1fae5;cursor:pointer;padding:12px 14px;text-align:left;font-weight:800}
-      .gl-import-options button:hover{background:#059669;color:white}
-      .gl-import-options small{display:block;color:#9ca3af;font-weight:500;margin-top:3px}
-      .gl-import-options button:hover small{color:#ecfdf5}
-    `;
-    document.head.appendChild(style);
-  }
-
-  function singleFileLabel() {
-    if (PLATFORM === 'astra') return 'Import one .astra file. Existing files are deleted; the default POM is kept.';
-    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') return 'Import one .asl file. Existing files are deleted; the default POM is kept.';
-    return 'Import one source file. Existing files are deleted; the default POM is kept.';
-  }
-
-  function chooseMode() {
-    return new Promise(resolve => {
-      addStyle();
-      const overlay = document.createElement('div');
-      overlay.className = 'gl-dialog-overlay';
-      const box = document.createElement('div');
-      box.className = 'gl-dialog-box';
-      const msg = document.createElement('div');
-      msg.className = 'gl-dialog-message';
-      msg.textContent = 'Open project';
-
-      const opts = document.createElement('div');
-      opts.className = 'gl-import-options';
-
-      const folder = document.createElement('button');
-      folder.type = 'button';
-      folder.innerHTML = '<i class="fa-solid fa-folder-open"></i> Folder<small>Select an unpacked local project directory.</small>';
-
-      const archive = document.createElement('button');
-      archive.type = 'button';
-      archive.innerHTML = '<i class="fa-solid fa-file-zipper"></i> ZIP / RAR file<small>ZIP is extracted in the browser. RAR shows a warning.</small>';
-
-      const single = document.createElement('button');
-      single.type = 'button';
-      single.innerHTML = '<i class="fa-regular fa-file-code"></i> Single file<small>' + singleFileLabel() + '</small>';
-
-      const buttons = document.createElement('div');
-      buttons.className = 'gl-dialog-buttons';
-      const cancel = document.createElement('button');
-      cancel.type = 'button';
-      cancel.className = 'gl-dialog-btn gl-dialog-btn-cancel';
-      cancel.textContent = 'Cancel';
-
-      opts.appendChild(folder);
-      opts.appendChild(archive);
-      opts.appendChild(single);
-      buttons.appendChild(cancel);
-      box.appendChild(msg);
-      box.appendChild(opts);
-      box.appendChild(buttons);
-      overlay.appendChild(box);
-
-      function close(value) {
-        overlay.style.opacity = '0';
-        overlay.style.transition = 'opacity .12s';
-        setTimeout(() => overlay.remove(), 120);
-        resolve(value);
-      }
-
-      folder.onclick = () => close('folder');
-      archive.onclick = () => close('archive');
-      single.onclick = () => close('single');
-      cancel.onclick = () => close(null);
-      overlay.onkeydown = e => { if (e.key === 'Escape') close(null); };
-      document.body.appendChild(overlay);
-      folder.focus();
-    });
-  }
-
-  function chooseFile(accept) {
-    return new Promise(resolve => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = accept;
-      input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
-      input.click();
-    });
   }
 
   function cleanPath(path) {
@@ -163,104 +262,53 @@
       || p.startsWith('resources/');
   }
 
-  function scoreRootForPlatform(paths, root) {
+  function scoreRoot(paths, root) {
     const rootPath = cleanPath(root);
     const rootTail = baseName(rootPath).toLowerCase();
-    const seen = new Set();
-    const info = {
-      root: rootPath,
-      score: 0,
-      count: 0,
-      hasPom: false,
-      hasAstraFolder: false,
-      hasJavaFolder: false,
-      hasResourcesFolder: false,
-      hasMavenAstra: false,
-      hasMavenJava: false,
-      hasMavenResources: false,
-      hasJasonSource: false
-    };
+    const info = { root: rootPath, score: 0, count: 0, hasPom: false, hasAstra: false, hasJava: false, hasResources: false, hasAsl: false };
 
     paths.forEach(path => {
       const p = cleanPath(path);
       if (rootPath && !(p === rootPath || p.startsWith(rootPath + '/'))) return;
       const rel = rootPath ? p.slice(rootPath.length + 1) : p;
       const low = rel.toLowerCase();
-      if (!rel || seen.has(rel) || !isInteresting(rel)) return;
-      seen.add(rel);
+      if (!rel || !isInteresting(rel)) return;
       info.count += 1;
-
+      if (low === 'pom.xml') { info.score += 50; info.hasPom = true; }
       if (PLATFORM === 'astra') {
-        if (low === 'pom.xml') { info.score += 50; info.hasPom = true; }
-        if (low.startsWith('astra/') && low.endsWith('.astra')) { info.score += 30; info.hasAstraFolder = true; }
-        if (low.startsWith('java/') && low.endsWith('.java')) { info.score += 24; info.hasJavaFolder = true; }
-        if (low.startsWith('resources/')) { info.score += 14; info.hasResourcesFolder = true; }
-        if (low.includes('src/main/astra/') && low.endsWith('.astra')) { info.score += 30; info.hasMavenAstra = true; }
-        if (low.includes('src/main/java/') && low.endsWith('.java')) { info.score += 24; info.hasMavenJava = true; }
-        if (low.includes('src/main/resources/')) { info.score += 14; info.hasMavenResources = true; }
-        if (low.endsWith('.astra')) info.score += 3;
-        if (low.endsWith('.java')) info.score += 2;
-      } else if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-        if (low === 'pom.xml') { info.score += 20; info.hasPom = true; }
-        if (low.endsWith('.asl')) { info.score += 20; info.hasJasonSource = true; }
-        if (low.endsWith('.mas2j')) info.score += 12;
-        if (low.includes('src/main/asl/') || low.includes('src/agt/')) info.score += 12;
-        if (low.endsWith('.java') || low.includes('src/main/java/')) info.score += 4;
-        if (low.includes('src/main/resources/') || low.startsWith('resources/')) info.score += 3;
+        if ((low.startsWith('astra/') || low.includes('src/main/astra/')) && low.endsWith('.astra')) { info.score += 30; info.hasAstra = true; }
+        if ((low.startsWith('java/') || low.includes('src/main/java/')) && low.endsWith('.java')) { info.score += 20; info.hasJava = true; }
+        if (low.startsWith('resources/') || low.includes('src/main/resources/')) { info.score += 12; info.hasResources = true; }
+        if (low.endsWith('.astra')) info.score += 2;
       } else {
-        info.score += 1;
+        if (low.endsWith('.asl')) { info.score += 24; info.hasAsl = true; }
+        if (low.endsWith('.mas2j')) info.score += 12;
+        if (low.endsWith('.java') || low.includes('src/main/java/')) info.score += 6;
+        if (low.includes('src/main/resources/') || low.startsWith('resources/')) info.score += 4;
       }
     });
 
     if (PLATFORM === 'astra') {
       if (rootTail === 'astra' || rootTail === 'java' || rootTail === 'resources') info.score -= 35;
-      if (/src\/main\/?$/i.test(rootPath)) info.score -= 10;
       if (/src\/main\/(astra|java|resources)$/i.test(rootPath)) info.score -= 35;
-      if ((info.hasAstraFolder || info.hasMavenAstra) && (info.hasJavaFolder || info.hasMavenJava)) info.score += 30;
-      if (info.hasPom && (info.hasAstraFolder || info.hasMavenAstra)) info.score += 30;
+      if (info.hasPom && info.hasAstra) info.score += 30;
+      if (info.hasAstra && info.hasJava) info.score += 20;
     }
-
     return info;
   }
 
-  function candidateRoots(paths) {
+  function bestRoot(entries) {
+    const paths = entries.map(e => e.name);
     const candidates = new Set(['']);
     paths.forEach(path => {
       const parts = pathSegments(path);
-      for (let i = 1; i < Math.min(parts.length, 6); i++) {
-        candidates.add(parts.slice(0, i).join('/'));
-      }
+      for (let i = 1; i < Math.min(parts.length, 6); i++) candidates.add(parts.slice(0, i).join('/'));
     });
-
-    return [...candidates]
-      .map(root => scoreRootForPlatform(paths, root))
+    const ranked = [...candidates]
+      .map(root => scoreRoot(paths, root))
       .filter(info => info.count > 0 && info.score > 0)
-      .sort((a, b) => b.score - a.score || a.root.length - b.root.length)
-      .slice(0, 12);
-  }
-
-  async function chooseRoot(entries) {
-    const roots = candidateRoots(entries.map(entry => entry.name));
-    if (roots.length === 0) return '';
-    if (roots.length === 1) return roots[0].root;
-
-    const top = roots[0];
-    const second = roots[1];
-    if (PLATFORM === 'astra') {
-      const topLooksLikeProjectRoot = top.hasPom && (top.hasAstraFolder || top.hasMavenAstra || top.hasJavaFolder || top.hasMavenJava || top.hasResourcesFolder || top.hasMavenResources);
-      const topLooksLikeTwoFolderRoot = (top.hasAstraFolder || top.hasMavenAstra) && (top.hasJavaFolder || top.hasMavenJava);
-      if (topLooksLikeProjectRoot || topLooksLikeTwoFolderRoot || top.score >= second.score + 40) return top.root;
-    }
-
-    const list = roots.map((info, index) => `${index + 1}. ${info.root || '(archive root)'}`).join('\n');
-    const raw = await promptBox('Select folder inside the project/archive:\n\n' + list, '1');
-    if (raw === null) return null;
-    const selected = Number(String(raw).trim());
-    if (!Number.isInteger(selected) || selected < 1 || selected > roots.length) {
-      await alertBox('Invalid folder selection.');
-      return null;
-    }
-    return roots[selected - 1].root;
+      .sort((a, b) => b.score - a.score || a.root.length - b.root.length);
+    return ranked[0] ? ranked[0].root : '';
   }
 
   function removeRoot(path, root) {
@@ -300,35 +348,13 @@
     return '/' + p;
   }
 
-  function mapSingleFilePath(filename) {
-    const name = baseName(filename);
-    const low = name.toLowerCase();
-
-    if (PLATFORM === 'astra') {
-      if (!low.endsWith('.astra')) return '';
-      return '/astra/' + name;
-    }
-
-    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-      if (!low.endsWith('.asl')) return '';
-      return '/' + name;
-    }
-
-    return '';
-  }
-
-  function readStoredProject() {
-    try {
-      if (typeof window.__glSaveProject === 'function') window.__glSaveProject();
-      const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      return state && state.files && typeof state.files === 'object' ? state.files : {};
-    } catch (_) {
-      return {};
-    }
+  function defaultPom() {
+    return DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
   }
 
   function writeProject(files, currentPath, notice) {
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+    if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = defaultPom();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, currentPath, emptyFolders: [] }));
     sessionStorage.setItem(STORAGE_KEY + '_notice', notice);
     window.location.reload();
@@ -365,67 +391,33 @@
     return entries;
   }
 
-  async function importEntries(entries, sourceName) {
-    const root = await chooseRoot(entries);
-    if (root === null) return;
-
+  async function importEntries(entries, label) {
+    const root = bestRoot(entries);
     const files = {};
     entries.forEach(entry => {
-      const rel = removeRoot(entry.name, root);
-      const mapped = mapPath(rel);
+      const mapped = mapPath(removeRoot(entry.name, root));
       if (mapped) files[mapped] = entry.text;
     });
-
     if (!Object.keys(files).length) {
-      await alertBox('No files matching this runner platform were found inside the selected project folder.');
+      await alertBox('No files matching this runner were found.');
       return;
     }
-
-    const previous = readStoredProject();
-    if (BUILD_FILE && !files[BUILD_FILE] && previous[BUILD_FILE]) files[BUILD_FILE] = previous[BUILD_FILE];
-
     const currentPath = Object.keys(files).find(path => path.toLowerCase().endsWith(SOURCE_EXT)) || Object.keys(files)[0];
-    const resourceCount = Object.keys(files).filter(path => path.startsWith('/resources/')).length;
-    const notice = `Imported ${Object.keys(files).length} files from ${sourceName}${root ? ' / ' + root : ''}${resourceCount ? ' including ' + resourceCount + ' resource file(s)' : ''}. Press Run Project to execute.`;
-    writeProject(files, currentPath, notice);
+    writeProject(files, currentPath, `Imported ${Object.keys(files).length} files from ${label}. Press Run Project to execute.`);
   }
 
-  async function importArchive() {
-    const file = await chooseFile('.zip,.rar,application/zip,application/x-zip-compressed,application/vnd.rar,application/x-rar-compressed');
-    if (!file) return;
-
-    if (/\.rar$/i.test(file.name)) {
-      await alertBox('RAR was detected, but this browser runner cannot extract RAR yet. Use a ZIP archive or Open → Folder.');
-      return;
-    }
-    if (!/\.zip$/i.test(file.name)) {
-      await alertBox('Please select a ZIP project archive.');
-      return;
-    }
-
-    const entries = await zipEntries(file);
-    if (!entries.length) {
-      await alertBox('No importable text files were found in this ZIP.');
-      return;
-    }
-
-    await importEntries(entries, file.name);
-  }
-
-  function importFolder() {
+  function openFolderNative() {
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
     input.addEventListener('change', async () => {
       if (!input.files || input.files.length === 0) return;
-      const rawFiles = Array.from(input.files).filter(file => {
-        const rel = file.webkitRelativePath || file.name;
-        return !skipPath(rel);
-      });
       const entries = [];
-      await Promise.all(rawFiles.map(file => file.text()
-        .then(text => entries.push({ name: cleanPath(file.webkitRelativePath || file.name), text }))
-        .catch(() => null)));
+      await Promise.all(Array.from(input.files)
+        .filter(file => !skipPath(file.webkitRelativePath || file.name))
+        .map(file => file.text()
+          .then(text => entries.push({ name: cleanPath(file.webkitRelativePath || file.name), text }))
+          .catch(() => null)));
       if (!entries.length) {
         await alertBox('No importable text files were found in this folder.');
         return;
@@ -435,34 +427,52 @@
     input.click();
   }
 
-  async function importSingleFile() {
-    const accept = PLATFORM === 'astra' ? '.astra,text/plain' : '.asl,text/plain';
-    const file = await chooseFile(accept);
+  async function openFileOrZipNative() {
+    const file = await new Promise(resolve => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.zip,.rar,.astra,.asl,application/zip,application/x-zip-compressed,application/vnd.rar,application/x-rar-compressed,text/plain';
+      input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
+      input.click();
+    });
     if (!file) return;
 
-    const mapped = mapSingleFilePath(file.name);
-    if (!mapped) {
-      if (PLATFORM === 'astra') {
-        await alertBox('ASTRA runner accepts only a single .astra file here. Use ZIP or Folder for full projects.');
-      } else if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-        await alertBox('Jason/JaCaMo runners accept only a single .asl file here. Use ZIP or Folder for full projects.');
-      } else {
-        await alertBox('This single-file type is not supported for the current runner.');
-      }
+    const name = file.name || '';
+    const low = name.toLowerCase();
+    if (low.endsWith('.rar')) {
+      await alertBox('RAR was detected, but browser extraction is not supported. Use ZIP or folder import.');
       return;
     }
-
-    const previous = readStoredProject();
-    const files = {};
-    files[mapped] = await file.text();
-    if (BUILD_FILE && previous[BUILD_FILE]) files[BUILD_FILE] = previous[BUILD_FILE];
-    const notice = `Imported ${file.name} as ${mapped}. Existing source files were removed and the default POM was kept. Press Run Project to execute.`;
-    writeProject(files, mapped, notice);
+    if (low.endsWith('.zip')) {
+      const entries = await zipEntries(file);
+      if (!entries.length) {
+        await alertBox('No importable text files were found in this ZIP.');
+        return;
+      }
+      await importEntries(entries, name);
+      return;
+    }
+    if (PLATFORM === 'astra') {
+      if (!low.endsWith('.astra')) {
+        await alertBox('ASTRA single-file import accepts only .astra files.');
+        return;
+      }
+      const mapped = '/astra/' + baseName(name);
+      writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
+      return;
+    }
+    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+      if (!low.endsWith('.asl')) {
+        await alertBox('Jason/JaCaMo single-file import accepts only .asl files.');
+        return;
+      }
+      const mapped = '/' + baseName(name);
+      writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
+    }
   }
 
   function installResourceFetchPatch() {
-    if (window.__glResourceFetchPatchInstalled) return;
-    if (typeof window.fetch !== 'function') return;
+    if (window.__glResourceFetchPatchInstalled || typeof window.fetch !== 'function') return;
     window.__glResourceFetchPatchInstalled = true;
     const originalFetch = window.fetch.bind(window);
     window.fetch = function patchedFetch(input, init) {
@@ -475,9 +485,7 @@
           body.files = body.files || {};
           Object.entries(storedFiles).forEach(([path, content]) => {
             if (path === BUILD_FILE) return;
-            if (path.startsWith('/resources/')) {
-              body.files['src/main/resources/' + path.slice('/resources/'.length)] = content;
-            }
+            if (path.startsWith('/resources/')) body.files['src/main/resources/' + path.slice('/resources/'.length)] = content;
           });
           init = Object.assign({}, init, { body: JSON.stringify(body) });
         }
@@ -498,22 +506,37 @@
     if (output) output.textContent = notice;
   }
 
+  function patchToolbar() {
+    const toolbar = document.querySelector('.runner-tree-toolbar');
+    if (!toolbar || toolbar.dataset.openersPatched === '1') return;
+    toolbar.dataset.openersPatched = '1';
+
+    const first = toolbar.querySelector('.runner-tree-btn');
+    if (first) {
+      first.title = 'Open project folder';
+      first.innerHTML = '<i class="fa-solid fa-folder-open"></i> Folder';
+      first.onclick = openFolderNative;
+    }
+
+    const fileBtn = document.createElement('button');
+    fileBtn.type = 'button';
+    fileBtn.className = 'runner-tree-btn';
+    fileBtn.title = 'Open .astra/.asl file or ZIP archive';
+    fileBtn.innerHTML = '<i class="fa-solid fa-file-zipper"></i> File/ZIP';
+    fileBtn.addEventListener('click', openFileOrZipNative);
+
+    if (first && first.nextSibling) toolbar.insertBefore(fileBtn, first.nextSibling);
+    else toolbar.insertBefore(fileBtn, toolbar.firstChild);
+  }
+
   function install() {
-    if (window.__glArchiveImportInstalled) return;
-    window.__glArchiveImportInstalled = true;
-
     installResourceFetchPatch();
-
-    window.__glImportArchive = importArchive;
-    window.__glImportSingleFile = importSingleFile;
-    window.__glImportFolder = async () => {
-      const mode = await chooseMode();
-      if (mode === 'folder') importFolder();
-      if (mode === 'archive') await importArchive();
-      if (mode === 'single') await importSingleFile();
-    };
-
+    window.__glImportFolder = openFolderNative;
+    window.__glImportFileOrZip = openFileOrZipNative;
     showNotice();
+    patchToolbar();
+    const observer = new MutationObserver(() => window.setTimeout(patchToolbar, 0));
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
