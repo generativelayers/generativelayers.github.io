@@ -1,12 +1,15 @@
 /**
- * code-runner-archive-import.js v2
+ * code-runner-archive-import.js v3
  *
  * Extends the runner Open button with:
  * - Folder import: delegates to the original runner folder importer.
  * - ZIP import: extracts locally in the browser using JSZip and maps files as
  *   the selected platform expects.
  * - RAR import: detects and explains that RAR extraction is not supported.
- * - Single-file import: imports one .astra/.asl/.java/.mas2j/pom.xml file.
+ * - Single-file import: language-specific clean import.
+ *   ASTRA accepts only .astra and imports it as /astra/<file>.
+ *   Jason/JaCaMo accept only .asl and import it as /<file>.
+ *   Single-file import replaces the whole current project state.
  */
 (() => {
   'use strict';
@@ -45,6 +48,12 @@
     document.head.appendChild(style);
   }
 
+  function singleFileLabel() {
+    if (PLATFORM === 'astra') return 'Import one .astra file. Existing files are deleted.';
+    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') return 'Import one .asl file. Existing files are deleted.';
+    return 'Import one source file. Existing files are deleted.';
+  }
+
   function chooseMode() {
     return new Promise(resolve => {
       addStyle();
@@ -69,7 +78,7 @@
 
       const single = document.createElement('button');
       single.type = 'button';
-      single.innerHTML = '<i class="fa-regular fa-file-code"></i> Single file<small>Import one .astra, .asl, .java, .mas2j, or pom.xml file.</small>';
+      single.innerHTML = '<i class="fa-regular fa-file-code"></i> Single file<small>' + singleFileLabel() + '</small>';
 
       const buttons = document.createElement('div');
       buttons.className = 'gl-dialog-buttons';
@@ -116,6 +125,10 @@
 
   function cleanPath(path) {
     return String(path || '').replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '');
+  }
+
+  function baseName(path) {
+    return cleanPath(path).split('/').pop();
   }
 
   function skipPath(path) {
@@ -190,8 +203,8 @@
       if (javaMaven) return '/java/' + javaMaven[1];
       if (low.startsWith('astra/') && low.endsWith('.astra')) return '/' + p;
       if (low.startsWith('java/') && low.endsWith('.java')) return '/' + p;
-      if (low.endsWith('.astra')) return '/astra/' + p.split('/').pop();
-      if (low.endsWith('.java')) return '/java/' + p.split('/').pop();
+      if (low.endsWith('.astra')) return '/astra/' + baseName(p);
+      if (low.endsWith('.java')) return '/java/' + baseName(p);
       return '';
     }
 
@@ -201,6 +214,23 @@
     }
 
     return '/' + p;
+  }
+
+  function mapSingleFilePath(filename) {
+    const name = baseName(filename);
+    const low = name.toLowerCase();
+
+    if (PLATFORM === 'astra') {
+      if (!low.endsWith('.astra')) return '';
+      return '/astra/' + name;
+    }
+
+    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+      if (!low.endsWith('.asl')) return '';
+      return '/' + name;
+    }
+
+    return '';
   }
 
   function readStoredProject() {
@@ -294,19 +324,26 @@
   }
 
   async function importSingleFile() {
-    const file = await chooseFile('.astra,.asl,.java,.mas2j,.xml,.properties,pom.xml,text/plain,text/xml,application/xml');
+    const accept = PLATFORM === 'astra' ? '.astra,text/plain' : '.asl,text/plain';
+    const file = await chooseFile(accept);
     if (!file) return;
-    const mapped = mapPath(file.name);
+
+    const mapped = mapSingleFilePath(file.name);
     if (!mapped) {
-      await alertBox('This file type is not mapped for the current runner platform.');
+      if (PLATFORM === 'astra') {
+        await alertBox('ASTRA runner accepts only a single .astra file here. Use ZIP or Folder for full projects.');
+      } else if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+        await alertBox('Jason/JaCaMo runners accept only a single .asl file here. Use ZIP or Folder for full projects.');
+      } else {
+        await alertBox('This single-file type is not supported for the current runner.');
+      }
       return;
     }
-    const files = readStoredProject();
+
+    const files = {};
     files[mapped] = await file.text();
-    if (BUILD_FILE && !files[BUILD_FILE] && mapped !== BUILD_FILE) files[BUILD_FILE] = readStoredProject()[BUILD_FILE] || '';
-    const currentPath = mapped;
-    const notice = `Imported ${file.name} as ${mapped}. Press Run Project to execute.`;
-    writeProject(files, currentPath, notice);
+    const notice = `Imported ${file.name} as ${mapped}. Existing files were removed. Press Run Project to execute.`;
+    writeProject(files, mapped, notice);
   }
 
   function showNotice() {
