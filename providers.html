@@ -83,17 +83,7 @@
 
       <section class="info-panel" id="providers">
         <h2><i class="fa-solid fa-plug" style="margin-right:8px;color:#06b6d4;"></i>Overview</h2>
-        <p>Generative Layers supports multiple LLM providers out of the box. The framework uses a <strong>unified architecture</strong> &mdash; one provider class handles all services that implement the Chat Completions API. Gemini uses Google's native API and has its own provider.</p>
-
-        <!-- Architecture Overview -->
-        <div class="card" style="padding:20px;border-left:3px solid #06b6d4;margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Architecture</div>
-          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-            <code>ChatCompletionsProvider</code> &mdash; One class handles <strong>all</strong> services using the Chat Completions API format (Groq, Cerebras, OpenAI, DeepSeek, and any custom endpoint).<br>
-            <code>GeminiProvider</code> &mdash; Separate class for Google's native Gemini API (different protocol).<br><br>
-            <strong>Adding a new provider requires zero framework changes.</strong> Just configure the model and call <code>use_provider</code>. For unlisted providers, also set the endpoint and API key environment variable.
-          </div>
-        </div>
+        <p>Generative Layers supports multiple LLM providers out of the box. Configure the model and call <code>use_provider</code> &mdash; no framework changes needed. For unlisted providers, also set the endpoint and API key environment variable.</p>
 
         <!-- Built-in Providers Table -->
         <div class="card" style="padding:20px;margin-bottom:16px;">
@@ -260,7 +250,7 @@ use_provider(<span class="string">"groq"</span>);</code></pre>
         <!-- Gemini (different protocol) -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #22c55e;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#22c55e;"><i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Native Google API)</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's own API protocol &mdash; <strong>not</strong> the Chat Completions format. It has its own dedicated provider class.</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's native API. Just call <code>use_provider("gemini")</code>.</div>
           <div class="tabs-container">
             <div class="tabs-header">
               <div class="tabs-buttons">
