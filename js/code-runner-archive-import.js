@@ -1,18 +1,18 @@
 /**
- * code-runner-archive-import.js v5
+ * code-runner-archive-import.js v6
  *
  * Extends the runner Open button with:
- * - Folder import: delegates to the original runner folder importer.
+ * - Folder import: imports local projects through the same mapper as ZIP import.
  * - ZIP import: extracts locally in the browser using JSZip and maps files as
  *   the selected platform expects.
- * - ASTRA ZIP root detection: finds the project root that contains astra/, java/,
- *   src/main/astra, src/main/java, and/or pom.xml, then injects those files into
- *   the ASTRA runner's /astra, /java, and /pom.xml locations.
+ * - ASTRA project-root detection: finds the folder that contains astra/, java/,
+ *   resources/, src/main/astra, src/main/java, src/main/resources, and/or pom.xml.
+ * - ASTRA resource support: resources and src/main/resources are stored as /resources
+ *   and injected into src/main/resources at run time.
+ * - Jason/JaCaMo flat imports: preserve text project files; the runner sends ordinary
+ *   non-source files to src/main/resources.
  * - RAR import: detects and explains that RAR extraction is not supported.
  * - Single-file import: language-specific clean import with the runner default POM.
- *   ASTRA accepts only .astra and imports it as /astra/<file>.
- *   Jason/JaCaMo accept only .asl and import it as /<file>.
- *   Single-file import replaces source files but keeps /pom.xml from the default runner state.
  */
 (() => {
   'use strict';
@@ -143,7 +143,7 @@
     if (!p || p.startsWith('__MACOSX/') || p.includes('/__MACOSX/')) return true;
     if (p.split('/').some(s => !s || s.startsWith('.'))) return true;
     if (/(^|\/)(target|build|bin|out|node_modules|__pycache__)(\/|$)/i.test(p)) return true;
-    if (/\.(class|jar|war|ear|png|jpg|jpeg|gif|ico|bmp|webp|pdf|docx?|xlsx?|pptx?|mp3|mp4|avi|mov|wav|woff2?|ttf|otf|exe|dll|so|dylib)$/i.test(p)) return true;
+    if (/\.(class|jar|war|ear|zip|gz|tar|7z|rar|png|jpg|jpeg|gif|ico|bmp|webp|pdf|docx?|xlsx?|pptx?|mp3|mp4|avi|mov|wav|woff2?|ttf|otf|exe|dll|so|dylib)$/i.test(p)) return true;
     return false;
   }
 
@@ -157,8 +157,10 @@
       || p.includes('src/main/asl/')
       || p.includes('src/agt/')
       || p.includes('src/main/java/')
+      || p.includes('src/main/resources/')
       || p.startsWith('astra/')
-      || p.startsWith('java/');
+      || p.startsWith('java/')
+      || p.startsWith('resources/');
   }
 
   function scoreRootForPlatform(paths, root) {
@@ -172,8 +174,10 @@
       hasPom: false,
       hasAstraFolder: false,
       hasJavaFolder: false,
+      hasResourcesFolder: false,
       hasMavenAstra: false,
       hasMavenJava: false,
+      hasMavenResources: false,
       hasJasonSource: false
     };
 
@@ -190,8 +194,10 @@
         if (low === 'pom.xml') { info.score += 50; info.hasPom = true; }
         if (low.startsWith('astra/') && low.endsWith('.astra')) { info.score += 30; info.hasAstraFolder = true; }
         if (low.startsWith('java/') && low.endsWith('.java')) { info.score += 24; info.hasJavaFolder = true; }
+        if (low.startsWith('resources/')) { info.score += 14; info.hasResourcesFolder = true; }
         if (low.includes('src/main/astra/') && low.endsWith('.astra')) { info.score += 30; info.hasMavenAstra = true; }
         if (low.includes('src/main/java/') && low.endsWith('.java')) { info.score += 24; info.hasMavenJava = true; }
+        if (low.includes('src/main/resources/')) { info.score += 14; info.hasMavenResources = true; }
         if (low.endsWith('.astra')) info.score += 3;
         if (low.endsWith('.java')) info.score += 2;
       } else if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
@@ -200,15 +206,16 @@
         if (low.endsWith('.mas2j')) info.score += 12;
         if (low.includes('src/main/asl/') || low.includes('src/agt/')) info.score += 12;
         if (low.endsWith('.java') || low.includes('src/main/java/')) info.score += 4;
+        if (low.includes('src/main/resources/') || low.startsWith('resources/')) info.score += 3;
       } else {
         info.score += 1;
       }
     });
 
     if (PLATFORM === 'astra') {
-      if (rootTail === 'astra' || rootTail === 'java') info.score -= 35;
+      if (rootTail === 'astra' || rootTail === 'java' || rootTail === 'resources') info.score -= 35;
       if (/src\/main\/?$/i.test(rootPath)) info.score -= 10;
-      if (/src\/main\/(astra|java)$/i.test(rootPath)) info.score -= 35;
+      if (/src\/main\/(astra|java|resources)$/i.test(rootPath)) info.score -= 35;
       if ((info.hasAstraFolder || info.hasMavenAstra) && (info.hasJavaFolder || info.hasMavenJava)) info.score += 30;
       if (info.hasPom && (info.hasAstraFolder || info.hasMavenAstra)) info.score += 30;
     }
@@ -240,13 +247,13 @@
     const top = roots[0];
     const second = roots[1];
     if (PLATFORM === 'astra') {
-      const topLooksLikeProjectRoot = top.hasPom && (top.hasAstraFolder || top.hasMavenAstra || top.hasJavaFolder || top.hasMavenJava);
+      const topLooksLikeProjectRoot = top.hasPom && (top.hasAstraFolder || top.hasMavenAstra || top.hasJavaFolder || top.hasMavenJava || top.hasResourcesFolder || top.hasMavenResources);
       const topLooksLikeTwoFolderRoot = (top.hasAstraFolder || top.hasMavenAstra) && (top.hasJavaFolder || top.hasMavenJava);
       if (topLooksLikeProjectRoot || topLooksLikeTwoFolderRoot || top.score >= second.score + 40) return top.root;
     }
 
     const list = roots.map((info, index) => `${index + 1}. ${info.root || '(archive root)'}`).join('\n');
-    const raw = await promptBox('Select folder inside the ZIP archive:\n\n' + list, '1');
+    const raw = await promptBox('Select folder inside the project/archive:\n\n' + list, '1');
     if (raw === null) return null;
     const selected = Number(String(raw).trim());
     if (!Number.isInteger(selected) || selected < 1 || selected > roots.length) {
@@ -273,17 +280,20 @@
     if (PLATFORM === 'astra') {
       const astraMaven = p.match(/(?:^|\/)src\/main\/astra\/(.+\.astra)$/i);
       const javaMaven = p.match(/(?:^|\/)src\/main\/java\/(.+\.java)$/i);
+      const resourcesMaven = p.match(/(?:^|\/)src\/main\/resources\/(.+)$/i);
       if (astraMaven) return '/astra/' + astraMaven[1];
       if (javaMaven) return '/java/' + javaMaven[1];
+      if (resourcesMaven) return '/resources/' + resourcesMaven[1];
       if (low.startsWith('astra/') && low.endsWith('.astra')) return '/' + p;
       if (low.startsWith('java/') && low.endsWith('.java')) return '/' + p;
+      if (low.startsWith('resources/')) return '/' + p;
       if (low.endsWith('.astra')) return '/astra/' + baseName(p);
       if (low.endsWith('.java')) return '/java/' + baseName(p);
       return '';
     }
 
     if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-      if (low.startsWith('src/') || low.endsWith('.asl') || low.endsWith('.java') || low.endsWith('.mas2j')) return '/' + p;
+      if (low.startsWith('src/') || low.endsWith('.asl') || low.endsWith('.java') || low.endsWith('.mas2j') || low.startsWith('resources/')) return '/' + p;
       return '';
     }
 
@@ -355,6 +365,31 @@
     return entries;
   }
 
+  async function importEntries(entries, sourceName) {
+    const root = await chooseRoot(entries);
+    if (root === null) return;
+
+    const files = {};
+    entries.forEach(entry => {
+      const rel = removeRoot(entry.name, root);
+      const mapped = mapPath(rel);
+      if (mapped) files[mapped] = entry.text;
+    });
+
+    if (!Object.keys(files).length) {
+      await alertBox('No files matching this runner platform were found inside the selected project folder.');
+      return;
+    }
+
+    const previous = readStoredProject();
+    if (BUILD_FILE && !files[BUILD_FILE] && previous[BUILD_FILE]) files[BUILD_FILE] = previous[BUILD_FILE];
+
+    const currentPath = Object.keys(files).find(path => path.toLowerCase().endsWith(SOURCE_EXT)) || Object.keys(files)[0];
+    const resourceCount = Object.keys(files).filter(path => path.startsWith('/resources/')).length;
+    const notice = `Imported ${Object.keys(files).length} files from ${sourceName}${root ? ' / ' + root : ''}${resourceCount ? ' including ' + resourceCount + ' resource file(s)' : ''}. Press Run Project to execute.`;
+    writeProject(files, currentPath, notice);
+  }
+
   async function importArchive() {
     const file = await chooseFile('.zip,.rar,application/zip,application/x-zip-compressed,application/vnd.rar,application/x-rar-compressed');
     if (!file) return;
@@ -374,27 +409,30 @@
       return;
     }
 
-    const root = await chooseRoot(entries);
-    if (root === null) return;
+    await importEntries(entries, file.name);
+  }
 
-    const files = {};
-    entries.forEach(entry => {
-      const rel = removeRoot(entry.name, root);
-      const mapped = mapPath(rel);
-      if (mapped) files[mapped] = entry.text;
+  function importFolder() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.webkitdirectory = true;
+    input.addEventListener('change', async () => {
+      if (!input.files || input.files.length === 0) return;
+      const rawFiles = Array.from(input.files).filter(file => {
+        const rel = file.webkitRelativePath || file.name;
+        return !skipPath(rel);
+      });
+      const entries = [];
+      await Promise.all(rawFiles.map(file => file.text()
+        .then(text => entries.push({ name: cleanPath(file.webkitRelativePath || file.name), text }))
+        .catch(() => null)));
+      if (!entries.length) {
+        await alertBox('No importable text files were found in this folder.');
+        return;
+      }
+      await importEntries(entries, 'folder');
     });
-
-    if (!Object.keys(files).length) {
-      await alertBox('No files matching this runner platform were found inside the selected ZIP folder.');
-      return;
-    }
-
-    const previous = readStoredProject();
-    if (BUILD_FILE && !files[BUILD_FILE] && previous[BUILD_FILE]) files[BUILD_FILE] = previous[BUILD_FILE];
-
-    const currentPath = Object.keys(files).find(path => path.toLowerCase().endsWith(SOURCE_EXT)) || Object.keys(files)[0];
-    const notice = `Imported ${Object.keys(files).length} files from ${file.name}${root ? ' / ' + root : ''}. Press Run Project to execute.`;
-    writeProject(files, currentPath, notice);
+    input.click();
   }
 
   async function importSingleFile() {
@@ -422,6 +460,32 @@
     writeProject(files, mapped, notice);
   }
 
+  function installResourceFetchPatch() {
+    if (window.__glResourceFetchPatchInstalled) return;
+    if (typeof window.fetch !== 'function') return;
+    window.__glResourceFetchPatchInstalled = true;
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = function patchedFetch(input, init) {
+      try {
+        const url = typeof input === 'string' ? input : (input && input.url) || '';
+        if (init && init.body && /\/api\/run-(astra|jason|jacamo)/.test(url)) {
+          const body = JSON.parse(init.body);
+          const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          const storedFiles = state && state.files && typeof state.files === 'object' ? state.files : {};
+          body.files = body.files || {};
+          Object.entries(storedFiles).forEach(([path, content]) => {
+            if (path === BUILD_FILE) return;
+            if (path.startsWith('/resources/')) {
+              body.files['src/main/resources/' + path.slice('/resources/'.length)] = content;
+            }
+          });
+          init = Object.assign({}, init, { body: JSON.stringify(body) });
+        }
+      } catch (_) {}
+      return originalFetch(input, init);
+    };
+  }
+
   function showNotice() {
     const notice = sessionStorage.getItem(STORAGE_KEY + '_notice');
     if (!notice) return;
@@ -438,12 +502,13 @@
     if (window.__glArchiveImportInstalled) return;
     window.__glArchiveImportInstalled = true;
 
-    const originalFolderImport = window.__glImportFolder;
+    installResourceFetchPatch();
+
     window.__glImportArchive = importArchive;
     window.__glImportSingleFile = importSingleFile;
     window.__glImportFolder = async () => {
       const mode = await chooseMode();
-      if (mode === 'folder' && typeof originalFolderImport === 'function') originalFolderImport();
+      if (mode === 'folder') importFolder();
       if (mode === 'archive') await importArchive();
       if (mode === 'single') await importSingleFile();
     };
