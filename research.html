@@ -194,6 +194,159 @@
         </div>
       </section>
 
+      <!-- References -->
+      <section class="info-panel" id="references">
+        <h2><i class="fa-solid fa-book" style="margin-right:8px;color:var(--color-green-700);font-size:20px;"></i>References</h2>
+        <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:16px;">
+          43 verified citations in IEEE format, ordered by academic source priority.
+        </p>
+
+        <!-- Top Journals -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-journals')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-star" style="font-size:13px;color:#eab308;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Top Journals <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">(AI, TOSEM, KER, MIS Quarterly) — 5 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-journals')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-journals" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="2" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>P. R. Cohen and H. J. Levesque, "Intention is choice with commitment," <em>Artif. Intell.</em>, vol. 42, pp. 213–261, 1990.</li>
+                <li>M. Wooldridge and N. R. Jennings, "Intelligent agents: Theory and practice," <em>Knowl. Eng. Rev.</em>, vol. 10, no. 2, pp. 115–152, 1995.</li>
+                <li>A. R. Hevner, S. T. March, J. Park, and S. Ram, "Design science in information systems research," <em>MIS Q.</em>, vol. 28, no. 1, pp. 75–105, 2004.</li>
+                <li>F. Zambonelli, N. R. Jennings, and M. Wooldridge, "Developing multiagent systems: The Gaia methodology," <em>ACM Trans. Softw. Eng. Methodol.</em>, vol. 12, no. 3, pp. 317–370, 2003.</li>
+                <li>Y. Wang et al., "Agents in software engineering: Survey, landscape, and vision," <em>Autom. Softw. Eng.</em>, vol. 32, no. 2, art. 70, 2025.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Journals -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-otherjournals')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-journal-whills" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Other Journals <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 6 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-otherjournals')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-otherjournals" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="7" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>M. E. Bratman, D. J. Israel, and M. E. Pollack, "Plans and resource-bounded practical reasoning," <em>Comput. Intell.</em>, vol. 4, pp. 349–355, 1988.</li>
+                <li>O. Boissier, R. H. Bordini, J. F. Hübner, A. Ricci, and A. Santi, "Multi-agent oriented programming with JaCaMo," <em>Sci. Comput. Program.</em>, vol. 78, no. 6, pp. 747–761, 2013.</li>
+                <li>S. Sardina and L. Padgham, "A BDI agent programming language with failure handling, declarative goals, and planning," <em>Auton. Agents Multi-Agent Syst.</em>, vol. 23, no. 1, pp. 18–70, 2011.</li>
+                <li>M. Dastani, "2APL: A practical agent programming language," <em>Auton. Agents Multi-Agent Syst.</em>, vol. 16, no. 3, pp. 214–248, 2008.</li>
+                <li>K. Peffers, T. Tuunanen, M. A. Rothenberger, and S. Chatterjee, "A design science research methodology for information systems research," <em>J. Manage. Inf. Syst.</em>, vol. 24, no. 3, pp. 45–77, 2007.</li>
+                <li>Z. Xi et al., "The rise and potential of large language model based agents: A survey," <em>Sci. China Inf. Sci.</em>, vol. 68, no. 2, art. 121101, 2025.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Books -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-books')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-book-open" style="font-size:13px;color:#a78bfa;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Books <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 1 ref</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-books')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-books" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="13" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>R. H. Bordini, J. F. Hübner, and M. Wooldridge, <em>Programming Multi-Agent Systems in AgentSpeak using Jason</em>. Chichester, UK: Wiley, 2007.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Conferences -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-topconf')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-award" style="font-size:13px;color:#f59e0b;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Top Conferences <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">(AAMAS, AAAI, ICMAS, NeurIPS) — 10 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-topconf')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-topconf" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="14" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>A. S. Rao and M. P. Georgeff, "BDI agents: From theory to practice," in <em>Proc. 1st Int. Conf. Multi-Agent Syst. (ICMAS-95)</em>, 1995, pp. 312–319.</li>
+                <li>M. P. Georgeff and A. L. Lansky, "Reactive reasoning and planning," in <em>Proc. AAAI-87</em>, 1987, pp. 677–682.</li>
+                <li>M. E. Pollack and M. Ringuette, "Introducing the Tileworld," in <em>Proc. AAAI-90</em>, 1990, pp. 183–189.</li>
+                <li>A. Vaswani et al., "Attention is all you need," in <em>Adv. Neural Inf. Process. Syst.</em>, vol. 30 (NIPS 2017), pp. 5998–6008.</li>
+                <li>P. Lewis et al., "Retrieval-augmented generation for knowledge-intensive NLP tasks," in <em>NeurIPS 2020</em>, pp. 9459–9474.</li>
+                <li>J. Wei et al., "Chain-of-thought prompting elicits reasoning in large language models," in <em>NeurIPS 2022</em>, pp. 24824–24837.</li>
+                <li>A. Madaan et al., "Self-Refine: Iterative refinement with self-feedback," in <em>NeurIPS 2023</em>, pp. 46534–46594.</li>
+                <li>A. Y. Ichida, F. Meneguzzi, and R. C. Cardoso, "BDI agents in natural language environments," in <em>AAMAS 2024</em>, pp. 880–888.</li>
+                <li>A. Gatti, V. Mascardi, and A. Ferrando, "ChatBDI: Think BDI, talk LLM," in <em>AAMAS 2025</em>, pp. 2541–2543.</li>
+                <li>A. Ricci et al., "The cognitive hourglass: Agent abstractions in the large models era," in <em>AAMAS 2024</em>, pp. 2706–2711.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Conferences, Workshops, Book Chapters -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-otherconf')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-users-rectangle" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Conferences, Workshops &amp; Book Chapters <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 11 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-otherconf')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-otherconf" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="24" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>A. S. Rao, "AgentSpeak(L): BDI agents speak out in a logical computable language," in <em>MAAMAW-96</em>, LNCS 1038, 1996, pp. 42–55.</li>
+                <li>R. W. Collier, S. E. Russell, and D. Lillis, "Reflecting on agent programming with AgentSpeak(L)," in <em>PRIMA 2015</em>, LNCS 9387, pp. 351–366.</li>
+                <li>R. Bordini and J. Hübner, "BDI agent programming in AgentSpeak using Jason," in <em>CLIMA VI</em>, LNAI 3900, 2006, pp. 143–164.</li>
+                <li>A. Ricci, R. H. Bordini, J. F. Hübner, and R. Collier, "AgentSpeak(ER): Enhanced encapsulation in agent plans," in <em>EMAS 2018</em>, LNAI 11375, 2019, pp. 34–51.</li>
+                <li>A. Ricci, M. Piunti, and M. Viroli, "Environment programming in multi-agent systems: An artifact-based perspective," <em>Auton. Agents Multi-Agent Syst.</em>, vol. 23, no. 2, pp. 158–192, 2011.</li>
+                <li>R. Collier, K. Beaumont, and A. Ciortea, "astra-langchain4j: Experiences combining LLMs and agent programming," in <em>EUMAS 2025</em>, LNCS 16258–16259. arXiv:2601.21879.</li>
+                <li>R. Collier, K. Beaumont, and A. Ciortea, "Towards a distinct programming style for AgentSpeak(L)," in <em>EUMAS 2025</em>, LNCS 16258–16259.</li>
+                <li>D. Briola, R. Collier, A. Ferrando, V. Mascardi, and A. Ricci, "Agent toolkits anno 2025," in <em>Agents and MAS Development</em>, Springer, 2025, ch. 1, pp. 1–25.</li>
+                <li>K. Beaumont and R. Collier, "Fully embedded learning in BDI agents programmed in ASTRA," in <em>Agents and MAS Development</em>, Springer, 2025, ch. 10, pp. 261–286.</li>
+                <li>A. Ferrando, A. Gatti, and V. Mascardi, "MEDiTATe: From BDI to neuroscience, and back," in <em>EMAS 2025</em>, LNAI 16407, pp. 117–140.</li>
+                <li>K. Beaumont, E. Yan, and R. Collier, "Towards an ontology for uniform representations of agent state," in <em>HyperAgents 2025</em>, CEUR-WS vol. 4084, pp. 103–116.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theses -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-theses')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-scroll" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Theses <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 1 ref</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-theses')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-theses" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="35" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>R. Battistini, "Exploiting GenAI for plan generation in BDI agents," M.S. thesis, Univ. Bologna, 2025.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Online, Preprints -->
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-online')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-globe" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Online, Preprints &amp; White Papers <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 6 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-online')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-ref-online" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
+              <ol start="36" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
+                <li>OpenAI, "GPT-4 technical report," arXiv:2303.08774, 2023.</li>
+                <li>Y. Shavit et al., "Practices for governing agentic AI systems," arXiv:2311.11445, 2023.</li>
+                <li>D. Amodei et al., "Concrete problems in AI safety," arXiv:1606.06565, 2016.</li>
+                <li>LangChain4j. [Online]. Available: <a href="https://docs.langchain4j.dev/" target="_blank" style="color:var(--color-green-700);">https://docs.langchain4j.dev/</a></li>
+                <li>ASTRA Language Guide. [Online]. Available: <a href="https://guide.astralanguage.com/en/latest/" target="_blank" style="color:var(--color-green-700);">https://guide.astralanguage.com/</a></li>
+                <li>Jason: AgentSpeak(L) interpreter. [Online]. Available: <a href="http://jason-lang.github.io/" target="_blank" style="color:var(--color-green-700);">http://jason-lang.github.io/</a></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -206,6 +359,24 @@
       document.getElementById('sidebar').classList.remove('open');
       this.classList.remove('open');
     });
+
+    // --- Toggle Detail (eye icon) ---
+    window.toggleDetail = function(id) {
+      var el = document.getElementById('detail-' + id);
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        el.style.maxHeight = '0';
+        el.style.overflow = 'hidden';
+        el.style.transition = 'max-height 0.3s ease';
+        requestAnimationFrame(function() {
+          el.style.maxHeight = el.scrollHeight + 'px';
+        });
+      } else {
+        el.style.maxHeight = '0';
+        setTimeout(function() { el.style.display = 'none'; }, 300);
+      }
+    };
   </script>
 
   <script defer src="js/static-highlight.js"></script>
