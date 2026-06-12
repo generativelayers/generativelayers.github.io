@@ -1,10 +1,13 @@
 /**
- * code-runner-archive-import.js v3
+ * code-runner-archive-import.js v4
  *
  * Extends the runner Open button with:
  * - Folder import: delegates to the original runner folder importer.
  * - ZIP import: extracts locally in the browser using JSZip and maps files as
  *   the selected platform expects.
+ * - ASTRA ZIP root detection: finds the project root that contains astra/, java/,
+ *   src/main/astra, src/main/java, and/or pom.xml, then injects those files into
+ *   the ASTRA runner's /astra, /java, and /pom.xml locations.
  * - RAR import: detects and explains that RAR extraction is not supported.
  * - Single-file import: language-specific clean import.
  *   ASTRA accepts only .astra and imports it as /astra/<file>.
@@ -131,6 +134,10 @@
     return cleanPath(path).split('/').pop();
   }
 
+  function pathSegments(path) {
+    return cleanPath(path).split('/').filter(Boolean);
+  }
+
   function skipPath(path) {
     const p = cleanPath(path);
     if (!p || p.startsWith('__MACOSX/') || p.includes('/__MACOSX/')) return true;
@@ -154,24 +161,94 @@
       || p.startsWith('java/');
   }
 
-  function candidateRoots(paths) {
-    const roots = new Map();
+  function scoreRootForPlatform(paths, root) {
+    const rootPath = cleanPath(root);
+    const rootTail = baseName(rootPath).toLowerCase();
+    const seen = new Set();
+    const info = {
+      root: rootPath,
+      score: 0,
+      count: 0,
+      hasPom: false,
+      hasAstraFolder: false,
+      hasJavaFolder: false,
+      hasMavenAstra: false,
+      hasMavenJava: false,
+      hasJasonSource: false
+    };
+
     paths.forEach(path => {
       const p = cleanPath(path);
-      const parts = p.split('/');
-      for (let i = 0; i < Math.min(parts.length, 5); i++) {
-        const root = i === 0 ? '' : parts.slice(0, i).join('/');
-        const rel = root ? p.slice(root.length + 1) : p;
-        if (isInteresting(rel)) roots.set(root, (roots.get(root) || 0) + 1);
+      if (rootPath && !(p === rootPath || p.startsWith(rootPath + '/'))) return;
+      const rel = rootPath ? p.slice(rootPath.length + 1) : p;
+      const low = rel.toLowerCase();
+      if (!rel || seen.has(rel) || !isInteresting(rel)) return;
+      seen.add(rel);
+      info.count += 1;
+
+      if (PLATFORM === 'astra') {
+        if (low === 'pom.xml') { info.score += 50; info.hasPom = true; }
+        if (low.startsWith('astra/') && low.endsWith('.astra')) { info.score += 30; info.hasAstraFolder = true; }
+        if (low.startsWith('java/') && low.endsWith('.java')) { info.score += 24; info.hasJavaFolder = true; }
+        if (low.includes('src/main/astra/') && low.endsWith('.astra')) { info.score += 30; info.hasMavenAstra = true; }
+        if (low.includes('src/main/java/') && low.endsWith('.java')) { info.score += 24; info.hasMavenJava = true; }
+        if (low.endsWith('.astra')) info.score += 3;
+        if (low.endsWith('.java')) info.score += 2;
+      } else if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+        if (low === 'pom.xml') { info.score += 20; info.hasPom = true; }
+        if (low.endsWith('.asl')) { info.score += 20; info.hasJasonSource = true; }
+        if (low.endsWith('.mas2j')) info.score += 12;
+        if (low.includes('src/main/asl/') || low.includes('src/agt/')) info.score += 12;
+        if (low.endsWith('.java') || low.includes('src/main/java/')) info.score += 4;
+      } else {
+        info.score += 1;
       }
     });
-    return [...roots.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map(entry => entry[0]);
+
+    // The ASTRA project root is the folder above astra/ and java/, not the
+    // astra/ or java/ folder itself. Penalise too-deep roots so ZIP import
+    // keeps /astra, /java, and /pom.xml together.
+    if (PLATFORM === 'astra') {
+      if (rootTail === 'astra' || rootTail === 'java') info.score -= 35;
+      if (/src\/main\/?$/i.test(rootPath)) info.score -= 10;
+      if (/src\/main\/(astra|java)$/i.test(rootPath)) info.score -= 35;
+      if ((info.hasAstraFolder || info.hasMavenAstra) && (info.hasJavaFolder || info.hasMavenJava)) info.score += 30;
+      if (info.hasPom && (info.hasAstraFolder || info.hasMavenAstra)) info.score += 30;
+    }
+
+    return info;
+  }
+
+  function candidateRoots(paths) {
+    const candidates = new Set(['']);
+    paths.forEach(path => {
+      const parts = pathSegments(path);
+      for (let i = 1; i < Math.min(parts.length, 6); i++) {
+        candidates.add(parts.slice(0, i).join('/'));
+      }
+    });
+
+    return [...candidates]
+      .map(root => scoreRootForPlatform(paths, root))
+      .filter(info => info.count > 0 && info.score > 0)
+      .sort((a, b) => b.score - a.score || a.root.length - b.root.length)
+      .slice(0, 12);
   }
 
   async function chooseRoot(entries) {
     const roots = candidateRoots(entries.map(entry => entry.name));
-    if (roots.length <= 1) return roots[0] || '';
-    const list = roots.map((root, index) => `${index + 1}. ${root || '(archive root)'}`).join('\n');
+    if (roots.length === 0) return '';
+    if (roots.length === 1) return roots[0].root;
+
+    const top = roots[0];
+    const second = roots[1];
+    if (PLATFORM === 'astra') {
+      const topLooksLikeProjectRoot = top.hasPom && (top.hasAstraFolder || top.hasMavenAstra || top.hasJavaFolder || top.hasMavenJava);
+      const topLooksLikeTwoFolderRoot = (top.hasAstraFolder || top.hasMavenAstra) && (top.hasJavaFolder || top.hasMavenJava);
+      if (topLooksLikeProjectRoot || topLooksLikeTwoFolderRoot || top.score >= second.score + 40) return top.root;
+    }
+
+    const list = roots.map((info, index) => `${index + 1}. ${info.root || '(archive root)'}`).join('\n');
     const raw = await promptBox('Select folder inside the ZIP archive:\n\n' + list, '1');
     if (raw === null) return null;
     const selected = Number(String(raw).trim());
@@ -179,7 +256,7 @@
       await alertBox('Invalid folder selection.');
       return null;
     }
-    return roots[selected - 1];
+    return roots[selected - 1].root;
   }
 
   function removeRoot(path, root) {
