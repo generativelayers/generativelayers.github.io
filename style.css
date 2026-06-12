@@ -1831,4 +1831,29 @@ pre code {
   .search {
     padding-right: 16px !important;
   }
+}
+
+/* ================================================================
+   Scroll Reveal — Entrance Animations
+   ================================================================ */
+.sr {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sr {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
