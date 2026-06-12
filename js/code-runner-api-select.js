@@ -1,28 +1,47 @@
 /**
- * code-runner-api-select.js  v4
+ * code-runner-api-select.js v9
  *
- * SMART PROVIDER DETECTION — reads ALL .astra files, detects every
- * provider referenced, and shows a key field for EACH one.
+ * Dynamic API-key HUD for the hosted runners.
  *
- * Rules:
- *   • Never rewrites the user's code
- *   • Shows key fields for ALL detected providers simultaneously
- *   • Supports multi-LLM patterns (cross-verification, majority-voting)
- *   • Re-scans when code changes (debounced)
- *   • Passes all filled keys to the server at run time
+ * Shows the HUD only when the current project actually uses Generative Layers
+ * generation calls or provider configuration. If the user edits the code and
+ * removes that usage, the HUD disappears and the Run button is free again.
  */
 (() => {
   'use strict';
 
+  if (window.__glApiSelectV9Initialized) return;
+  window.__glApiSelectV9Initialized = true;
+
   const PROVIDERS = {
-    cerebras:  { label: 'Cerebras',  env: 'CEREBRAS_API_KEY',  color: '#38bdf8', icon: 'fa-microchip' },
-    groq:      { label: 'Groq',      env: 'GROQ_API_KEY',      color: '#f97316', icon: 'fa-bolt' },
-    gemini:    { label: 'Gemini',    env: 'GEMINI_API_KEY',     color: '#a78bfa', icon: 'fa-gem' },
-    openai:    { label: 'OpenAI',    env: 'OPENAI_API_KEY',     color: '#34d399', icon: 'fa-robot' },
-    deepseek:  { label: 'DeepSeek',  env: 'DEEPSEEK_API_KEY',   color: '#60a5fa', icon: 'fa-water' }
+    cerebras: { label: 'Cerebras', env: 'CEREBRAS_API_KEY', color: '#38bdf8', icon: 'fa-microchip' },
+    groq: { label: 'Groq', env: 'GROQ_API_KEY', color: '#f97316', icon: 'fa-bolt' },
+    gemini: { label: 'Gemini', env: 'GEMINI_API_KEY', color: '#a78bfa', icon: 'fa-gem' },
+    openai: { label: 'OpenAI', env: 'OPENAI_API_KEY', color: '#34d399', icon: 'fa-robot' },
+    deepseek: { label: 'DeepSeek', env: 'DEEPSEEK_API_KEY', color: '#60a5fa', icon: 'fa-water' }
   };
 
-  /* ── CSS ─────────────────────────────────────────────────── */
+  const DEFAULT_MODELS = {
+    cerebras: 'gpt-oss-120b',
+    groq: 'llama-3.3-70b-versatile',
+    gemini: 'gemini-2.0-flash',
+    openai: 'gpt-4o',
+    deepseek: 'deepseek-chat'
+  };
+
+  const GENERATION_METHODS = [
+    'ask',
+    'ask_with_schema',
+    'multi_ask',
+    'invoke',
+    'invoke_with_beliefs'
+  ];
+
+  const PROVIDER_CONFIG_METHODS = [
+    'use_provider',
+    'configure'
+  ];
+
   const style = document.createElement('style');
   style.textContent = `
     .gl-keys-panel {
@@ -33,261 +52,223 @@
       margin: 14px 0 0;
     }
     .gl-keys-panel[hidden] { display: none !important; }
-
-    .gl-keys-header {
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 0 6px; font-size: 15px; font-weight: 800;
-      color: var(--color-text, #111827);
-    }
-    .gl-keys-header i { color: #d97706; }
-
-    .gl-keys-intro {
-      margin: 0 0 14px; color: #64748b; font-size: 13px; line-height: 1.55;
-    }
-
-    .gl-keys-grid {
-      display: flex; flex-direction: column; gap: 10px;
-    }
-
-    .gl-key-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: #fff;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .gl-key-row:focus-within {
-      border-color: #059669;
-      box-shadow: 0 0 0 3px rgba(5,150,105,.1);
-    }
-
-    .gl-key-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 4px 10px; border-radius: 6px;
-      font-size: 11px; font-weight: 900; letter-spacing: .5px;
-      color: #fff; white-space: nowrap; flex-shrink: 0;
-    }
-
-    .gl-key-env {
-      font-size: 12px; font-weight: 700; color: #64748b;
-      font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
-      min-width: 140px; flex-shrink: 0;
-    }
-
-    .gl-key-input {
-      flex: 1; min-width: 0;
-      border: 1px solid #cbd5e1; border-radius: 8px;
-      padding: 8px 12px; font-size: 13px;
-      background: #f8fafc; color: #111827;
-      transition: border-color .2s;
-    }
-    .gl-key-input:focus {
-      outline: none; border-color: #059669;
-      background: #fff;
-    }
-    .gl-key-input::placeholder { color: #94a3b8; }
-
-    .gl-key-status {
-      font-size: 14px; flex-shrink: 0; width: 20px; text-align: center;
-    }
-    .gl-key-status.filled { color: #059669; }
-    .gl-key-status.empty { color: #f59e0b; }
-
-    .gl-keys-none {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 14px; border-radius: 10px;
-      background: #f0fdf4; border: 1px solid #bbf7d0;
-      font-size: 13px; color: #166534; font-weight: 600;
-    }
-    .gl-keys-none i { color: #059669; }
-
-    .gl-keys-warn {
-      display: flex; align-items: flex-start; gap: 10px;
-      margin: 12px 0 0; padding: 10px 14px;
-      border: 1px solid #fde68a; border-left: 4px solid #f59e0b;
-      border-radius: 10px; background: #fffbeb;
-      color: #92400e; font-size: 13px; line-height: 1.5;
-    }
-    .gl-keys-warn[hidden] { display: none !important; }
-    .gl-keys-select-row {
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 0 12px;
-    }
-    .gl-keys-select-row label {
-      font-size: 13px; font-weight: 800; color: #334155; white-space: nowrap;
-    }
-    .gl-keys-select {
-      flex: 1; max-width: 260px;
-      border: 1px solid #cbd5e1; border-radius: 8px;
-      padding: 8px 12px; font-size: 13px; font-weight: 700;
-      background: #fff; color: #111827; cursor: pointer;
-      appearance: auto;
-    }
-    .gl-keys-select:focus {
-      outline: none; border-color: #059669;
-      box-shadow: 0 0 0 3px rgba(5,150,105,.1);
-    }
-    .gl-custom-grid {
-      display: grid; grid-template-columns: auto 1fr; gap: 6px 10px;
-      margin: 10px 0 0; padding: 12px 14px;
-      border: 1px solid #e2e8f0; border-radius: 10px; background: #fff;
-    }
-    .gl-custom-grid[hidden] { display: none !important; }
-    .gl-custom-grid label {
-      font-size: 12px; font-weight: 700; color: #64748b;
-      font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
-      align-self: center;
-    }
-    .gl-custom-grid input {
-      border: 1px solid #cbd5e1; border-radius: 6px;
-      padding: 6px 10px; font-size: 13px; background: #f8fafc; color: #111827;
-    }
-    .gl-custom-grid input:focus { outline: none; border-color: #059669; background: #fff; }
+    .gl-keys-header { display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:15px;font-weight:800;color:var(--color-text,#111827); }
+    .gl-keys-header i { color:#d97706; }
+    .gl-keys-intro { margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55; }
+    .gl-keys-grid { display:flex;flex-direction:column;gap:10px; }
+    .gl-key-row { display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;transition:border-color .2s,box-shadow .2s; }
+    .gl-key-row:focus-within { border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.1); }
+    .gl-key-badge { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;letter-spacing:.5px;color:#fff;white-space:nowrap;flex-shrink:0; }
+    .gl-key-env { font-size:12px;font-weight:700;color:#64748b;font-family:'Fira Code',ui-monospace,SFMono-Regular,Menlo,monospace;min-width:140px;flex-shrink:0; }
+    .gl-key-input { flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:13px;background:#f8fafc;color:#111827;transition:border-color .2s; }
+    .gl-key-input:focus { outline:none;border-color:#059669;background:#fff; }
+    .gl-key-input::placeholder { color:#94a3b8; }
+    .gl-key-status { font-size:14px;flex-shrink:0;width:20px;text-align:center; }
+    .gl-key-status.filled { color:#059669; }
+    .gl-key-status.empty { color:#f59e0b; }
+    .gl-keys-warn { display:flex;align-items:flex-start;gap:10px;margin:12px 0 0;padding:10px 14px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.5; }
+    .gl-keys-warn[hidden] { display:none !important; }
+    .gl-keys-select-row { display:flex;align-items:center;gap:10px;margin:0 0 12px; }
+    .gl-keys-select-row label { font-size:13px;font-weight:800;color:#334155;white-space:nowrap; }
+    .gl-keys-select { flex:1;max-width:260px;border:1px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;background:#fff;color:#111827;cursor:pointer;appearance:auto; }
+    .gl-keys-select:focus { outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.1); }
+    .gl-custom-grid { display:grid;grid-template-columns:auto 1fr;gap:6px 10px;margin:10px 0 0;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#fff; }
+    .gl-custom-grid[hidden] { display:none !important; }
+    .gl-custom-grid label { font-size:12px;font-weight:700;color:#64748b;font-family:'Fira Code',ui-monospace,SFMono-Regular,Menlo,monospace;align-self:center; }
+    .gl-custom-grid input { border:1px solid #cbd5e1;border-radius:6px;padding:6px 10px;font-size:13px;background:#f8fafc;color:#111827; }
+    .gl-custom-grid input:focus { outline:none;border-color:#059669;background:#fff; }
   `;
   document.head.appendChild(style);
 
-  /* ── State ───────────────────────────────────────────────── */
   let panelEl = null;
   let gridEl = null;
   let introEl = null;
   let warnEl = null;
   let selectEl = null;
-  let lastDetected = '';
+  let customGridEl = null;
+  let manualProvider = '';
+  let lastKey = null;
   let scanTimer = null;
-  let manualProvider = '';   // user-selected override
+  let currentProviders = [];
 
-  /* ── Detection ───────────────────────────────────────────── */
+  function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function escapeAttr(value) {
+    return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function stripComments(source) {
+    const s = String(source || '');
+    let out = '';
+    let i = 0;
+    let quote = '';
+    while (i < s.length) {
+      const ch = s[i];
+      const next = s[i + 1];
+
+      if (quote) {
+        out += ch;
+        if (ch === '\\' && i + 1 < s.length) {
+          out += s[i + 1];
+          i += 2;
+          continue;
+        }
+        if (ch === quote) quote = '';
+        i += 1;
+        continue;
+      }
+
+      if (ch === '"' || ch === "'") {
+        quote = ch;
+        out += ch;
+        i += 1;
+        continue;
+      }
+
+      if (ch === '/' && next === '/') {
+        while (i < s.length && s[i] !== '\n') i += 1;
+        out += '\n';
+        if (s[i] === '\n') i += 1;
+        continue;
+      }
+
+      if (ch === '/' && next === '*') {
+        i += 2;
+        while (i < s.length && !(s[i] === '*' && s[i + 1] === '/')) {
+          if (s[i] === '\n') out += '\n';
+          i += 1;
+        }
+        i += 2;
+        continue;
+      }
+
+      out += ch;
+      i += 1;
+    }
+    return out;
+  }
+
   function getAllProjectText() {
-    // Scan ALL files in the project for GL framework usage.
-    // The current editor content may not be saved yet, so we
-    // combine saved files (excluding the current one) with the
-    // live editor value for real-time detection.
     const editor = document.getElementById('fileEditor');
     const liveText = editor ? (editor.value || '') : '';
 
     if (typeof window.__glGetAllCode === 'function' && typeof window.__glCurrentPath === 'function') {
-      const curPath = window.__glCurrentPath();
-      // Get all file contents EXCEPT the current file (which may be stale)
-      const saved = window.__glGetAllCodeExcept ? window.__glGetAllCodeExcept(curPath) : window.__glGetAllCode();
+      const current = window.__glCurrentPath();
+      const saved = typeof window.__glGetAllCodeExcept === 'function'
+        ? window.__glGetAllCodeExcept(current)
+        : window.__glGetAllCode();
       return saved + '\n' + liveText;
     }
+
     if (typeof window.__glGetAllCode === 'function') {
       return window.__glGetAllCode() + '\n' + liveText;
     }
+
     return liveText;
   }
 
-  function stripComments(source) {
-    return String(source || '')
-      .replace(/\/\/.*$/gm, '')          // line comments
-      .replace(/\/\*[\s\S]*?\*\//g, '')  // block comments
-      .replace(/"(?:[^"\\]|\\.)*"/g, '""')   // strip double-quoted string contents
-      .replace(/'(?:[^'\\]|\\.)*'/g, "''");  // strip single-quoted string contents
+  function detectAliases(source) {
+    const aliases = new Set(['gl']);
+    const moduleRe = /\bmodule\s+gl\.(?:astra\.GL|adapter\.astra\.AstraAdapter)\s+([A-Za-z_]\w*)\s*;/gi;
+    let match;
+    while ((match = moduleRe.exec(source)) !== null) aliases.add(match[1]);
+    return [...aliases];
+  }
+
+  function hasAliasCall(source, aliases, methods) {
+    return aliases.some(alias => {
+      const a = escapeRegExp(alias);
+      return methods.some(method => new RegExp(`\\b${a}\\.${method}\\s*\\(`, 'i').test(source));
+    });
+  }
+
+  function usesGenerationLayer(source) {
+    const aliases = detectAliases(source);
+
+    if (hasAliasCall(source, aliases, GENERATION_METHODS)) return true;
+    if (hasAliasCall(source, aliases, PROVIDER_CONFIG_METHODS)) return true;
+
+    // Jason/JaCaMo direct references and artifact use.
+    const directPatterns = [
+      /\bgl\.jason\.GL\b/i,
+      /\bgl\.jacamo\.GL\b/i,
+      /\bmakeArtifact\s*\([^)]*gl\.jacamo\.GL/i,
+      /\buse_provider\s*\(/i,
+      /\bconfigure\s*\(\s*["']provider["']/i,
+      /\bsetting\s*\(\s*["']provider["']/i
+    ];
+
+    return directPatterns.some(re => re.test(source));
   }
 
   function detectProviders() {
     const raw = getAllProjectText();
     const clean = stripComments(raw);
 
-    // ── Stage 1: Does ANY file use the GL framework? ──
-    // These patterns cover all 3 platforms abstractly:
-    //   ASTRA:  use_provider(...), configure("provider",...), import gl.astra.GL
-    //   Jason:  gl.use_provider(...), gl.configure(...), gl.invoke(...)
-    //   JaCaMo: use_provider(...), makeArtifact("gl","gl.jacamo.GL",...), invoke(...)
-    const GL_FRAMEWORK_PATTERNS = [
-      /\buse_provider\s*\(/,                    // ASTRA + JaCaMo direct call
-      /\bgl\.use_provider\s*\(/,                // Jason gl. prefix
-      /\bgl\.configure\s*\(/,                   // Jason gl.configure
-      /\bgl\.invoke\s*\(/,                      // Jason gl.invoke
-      /\bgl\.providers\s*\(/,                   // Jason gl.providers
-      /\bmakeArtifact\s*\([^)]*gl\.jacamo\.GL/,  // JaCaMo artifact creation
-      /\bimport\s+gl\.\w+\.GL\b/,              // ASTRA import gl.astra.GL
-      /\bgl\.jason\.GL\b/,                     // Jason GL class reference
-      /\bgl\.jacamo\.GL\b/,                    // JaCaMo GL class reference
-      /\bgl\.astra\.GL\b/,                     // ASTRA GL class reference
-      /\bsetting\s*\(\s*["']provider["']/,     // Jason/JaCaMo setting("provider",...)
-      /\bconfigure\s*\(\s*["']provider["']/,   // ASTRA/JaCaMo configure("provider",...)
-    ];
+    if (!usesGenerationLayer(clean)) return [];
 
-    const usesGL = GL_FRAMEWORK_PATTERNS.some(re => re.test(clean));
-    if (!usesGL) {
-      // No GL framework usage detected → no LLM panel needed
-      return [];
-    }
-
-    // ── Stage 2: Which specific providers are referenced? ──
+    const aliases = detectAliases(clean);
     const found = [];
 
     Object.keys(PROVIDERS).forEach(key => {
       const p = PROVIDERS[key];
-      // Match across all platform syntaxes:
-      //   use_provider("key")       — ASTRA, JaCaMo
-      //   gl.use_provider("key")    — Jason
-      //   setting("provider","key") — Jason, JaCaMo
-      //   configure("provider","key") — ASTRA
-      //   ENV_VAR_NAME              — all
+      const quoted = `["']${escapeRegExp(key)}["']`;
+      const env = escapeRegExp(p.env);
       const patterns = [
-        new RegExp(`use_provider\\s*\\(\\s*["']${key}["']`, 'i'),
-        new RegExp(`["']provider["']\\s*,\\s*["']${key}["']`, 'i'),
-        new RegExp(p.env, 'i'),
-        new RegExp(`["']apiKeyEnv["']\\s*,\\s*["']${p.env}["']`, 'i'),
+        new RegExp(`\\buse_provider\\s*\\(\\s*${quoted}`, 'i'),
+        new RegExp(`\\bconfigure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
+        new RegExp(`\\bsetting\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
+        new RegExp(`["']provider["']\\s*,\\s*${quoted}`, 'i'),
+        new RegExp(`["']apiKeyEnv["']\\s*,\\s*["']${env}["']`, 'i'),
+        new RegExp(`\\b${env}\\b`, 'i')
       ];
 
-      if (patterns.some(re => re.test(clean))) {
-        found.push(key);
-      }
+      aliases.forEach(alias => {
+        const a = escapeRegExp(alias);
+        patterns.push(new RegExp(`\\b${a}\\.use_provider\\s*\\(\\s*${quoted}`, 'i'));
+        patterns.push(new RegExp(`\\b${a}\\.configure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'));
+      });
+
+      if (patterns.some(re => re.test(clean))) found.push(key);
     });
 
-    // Heuristic: detect by model name patterns
-    if (!found.includes('gemini')   && /gemini-[a-z0-9._-]+/i.test(clean)) found.push('gemini');
-    if (!found.includes('deepseek') && /deepseek-[a-z0-9._-]+/i.test(clean)) found.push('deepseek');
-    if (!found.includes('groq')     && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
-    if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
-    if (!found.includes('openai')   && /gpt-4|gpt-3\.5/i.test(clean)) found.push('openai');
+    if (!found.includes('cerebras') && /\bgpt-oss(?:-[0-9a-z._-]+)?\b/i.test(clean)) found.push('cerebras');
+    if (!found.includes('gemini') && /\bgemini-[a-z0-9._-]+\b/i.test(clean)) found.push('gemini');
+    if (!found.includes('deepseek') && /\bdeepseek-[a-z0-9._-]+\b/i.test(clean)) found.push('deepseek');
+    if (!found.includes('groq') && /\b(?:llama-3|llama3|mixtral|gemma)[a-z0-9._-]*\b/i.test(clean)) found.push('groq');
+    if (!found.includes('openai') && /\bgpt-(?:3\.5|4|4o|4\.1|5)(?:[a-z0-9._-]*)\b/i.test(clean)) found.push('openai');
 
-    // If GL is detected but no specific provider found, show panel with
-    // empty provider (user can select from dropdown)
-    if (found.length === 0) {
-      // GL framework detected but no explicit provider — still show panel
-      // so user can pick one from the dropdown
-      found.push('cerebras'); // default provider
-    }
+    // A generation call with no explicit provider still needs one. Default to Cerebras.
+    if (found.length === 0) found.push('cerebras');
 
     return [...new Set(found)];
   }
 
-  /* ── Default models per provider ──────────────────────── */
-  const DEFAULT_MODELS = {
-    cerebras:  'gpt-oss-120b',
-    groq:      'llama-3.3-70b-versatile',
-    gemini:    'gemini-2.0-flash',
-    openai:    'gpt-4o',
-    deepseek:  'deepseek-chat'
-  };
+  function activeProviders() {
+    const detected = detectProviders();
+    if (detected.length === 0) return [];
+    if (manualProvider === 'custom') return ['custom'];
+    if (manualProvider && PROVIDERS[manualProvider]) return [manualProvider];
+    return detected;
+  }
 
-  /* ── Apply provider selection to source code ────────────── */
   function applyProviderToSource(providerKey) {
     const editor = document.getElementById('fileEditor');
-    if (!editor) return;
+    if (!editor || !PROVIDERS[providerKey]) return;
 
-    const original = editor.value;
+    const original = editor.value || '';
     const model = DEFAULT_MODELS[providerKey] || providerKey;
     let src = original;
 
-    // 1. Replace use_provider("xxx") → use_provider("providerKey")  (all occurrences)
-    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
-
-    // 2. Replace setting("provider", "xxx")
-    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
-
-    // 3. Replace configure("provider", "xxx")
-    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${providerKey}$2`);
-
-    // 4. Replace configure("model", "xxx") → configure("model", "defaultModel")
+    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
+    src = src.replace(/(\.use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
+    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
+    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
+    src = src.replace(/(\.configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
     src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
-
-    // 5. Replace setting("model", "xxx")
+    src = src.replace(/(\.configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
     src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
 
     if (src !== original) {
@@ -298,30 +279,29 @@
     }
   }
 
-  /* ── Apply custom provider to source code ───────────────── */
   function applyCustomToSource() {
     const editor = document.getElementById('fileEditor');
     if (!editor) return;
 
-    const provName = (document.getElementById('glCustomProvider')?.value || 'chatcompletions').trim();
+    const providerName = (document.getElementById('glCustomProvider')?.value || 'chatcompletions').trim();
     const modelName = (document.getElementById('glCustomModel')?.value || 'grok-2').trim();
     const endpoint = (document.getElementById('glCustomEndpoint')?.value || '').trim();
 
-    const original = editor.value;
+    const original = editor.value || '';
     let src = original;
 
-    // Rewrite provider
-    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
-    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
-    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z]+(["']\s*\))/g, `$1${provName}$2`);
-
-    // Rewrite model
+    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
+    src = src.replace(/(\.use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
+    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
+    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
+    src = src.replace(/(\.configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
     src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
+    src = src.replace(/(\.configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
     src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
 
-    // Rewrite endpoint if present
     if (endpoint) {
       src = src.replace(/(configure\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
+      src = src.replace(/(\.configure\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
       src = src.replace(/(setting\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
     }
 
@@ -333,32 +313,27 @@
     }
   }
 
-  /* ── Build UI ────────────────────────────────────────────── */
   function init() {
-    // Remove old panel if it exists
+    document.getElementById('glKeysPanel')?.remove();
     const oldPanel = document.getElementById('apiKeyPanel');
     const oldEditor = document.getElementById('apiProviderEditor');
+    if (oldPanel) oldPanel.hidden = true;
+    if (oldEditor) oldEditor.hidden = true;
 
-    // Find the toolbar to insert before
     const toolbar = document.querySelector('.runner-toolbar');
     if (!toolbar) return;
 
-    // Build provider options for the dropdown
     const providerOptions = Object.keys(PROVIDERS).map(key => {
       const p = PROVIDERS[key];
       return `<option value="${key}">${p.label}</option>`;
     }).join('');
 
-    // Create new panel
     panelEl = document.createElement('div');
     panelEl.className = 'gl-keys-panel';
     panelEl.id = 'glKeysPanel';
     panelEl.hidden = true;
     panelEl.innerHTML = `
-      <div class="gl-keys-header">
-        <i class="fa-solid fa-key"></i>
-        <span>API Keys</span>
-      </div>
+      <div class="gl-keys-header"><i class="fa-solid fa-key"></i><span>API Keys</span></div>
       <div class="gl-keys-select-row">
         <label for="glProviderSelect">LLM Provider:</label>
         <select class="gl-keys-select" id="glProviderSelect">
@@ -367,9 +342,7 @@
           <option value="custom">Custom / unlisted endpoint</option>
         </select>
       </div>
-      <div class="gl-keys-intro" id="glKeysIntro">
-        Select a provider or let it auto-detect from your code.
-      </div>
+      <div class="gl-keys-intro" id="glKeysIntro">Select a provider or let it auto-detect from your code.</div>
       <div class="gl-keys-grid" id="glKeysGrid"></div>
       <div class="gl-custom-grid" id="glCustomGrid" hidden>
         <label>Provider</label><input id="glCustomProvider" value="chatcompletions" autocomplete="off">
@@ -379,141 +352,117 @@
         <label>Key value</label><input id="glCustomKey" type="password" placeholder="Paste key for this run" autocomplete="off">
       </div>
       <div class="gl-keys-warn" id="glKeysWarn" hidden>
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span id="glKeysWarnText"></span>
+        <i class="fa-solid fa-triangle-exclamation"></i><span id="glKeysWarnText"></span>
       </div>
     `;
 
     toolbar.parentNode.insertBefore(panelEl, toolbar);
 
-    // Hide old panel
-    if (oldPanel) oldPanel.hidden = true;
-    if (oldEditor) oldEditor.hidden = true;
-
     gridEl = document.getElementById('glKeysGrid');
     introEl = document.getElementById('glKeysIntro');
     warnEl = document.getElementById('glKeysWarn');
     selectEl = document.getElementById('glProviderSelect');
+    customGridEl = document.getElementById('glCustomGrid');
 
-    // Wire dropdown
-    const customGrid = document.getElementById('glCustomGrid');
-    if (selectEl) {
-      selectEl.addEventListener('change', () => {
-        manualProvider = selectEl.value;
-        lastDetected = '';  // force re-render
-        if (customGrid) customGrid.hidden = (manualProvider !== 'custom');
-        if (manualProvider && manualProvider !== 'custom') {
-          applyProviderToSource(manualProvider);
-        } else if (manualProvider === 'custom') {
-          applyCustomToSource();
+    selectEl?.addEventListener('change', () => {
+      manualProvider = selectEl.value;
+      lastKey = null;
+      if (manualProvider && manualProvider !== 'custom') applyProviderToSource(manualProvider);
+      if (manualProvider === 'custom') applyCustomToSource();
+      scan();
+    });
+
+    customGridEl?.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => {
+        if (manualProvider === 'custom') {
+          if (input.id !== 'glCustomKey') applyCustomToSource();
+          updateWarning(currentProviders);
         }
-        scan();
       });
-    }
+    });
 
-    // Wire events
     const editor = document.getElementById('fileEditor');
     if (editor) {
       editor.addEventListener('input', scheduleScan);
-      editor.addEventListener('blur', () => scan());
+      editor.addEventListener('blur', scan);
     }
 
-    // Watch file tab changes
     const currentFileEl = document.getElementById('currentFile');
     if (currentFileEl) {
-      new MutationObserver(() => { lastDetected = ''; scan(); })
+      new MutationObserver(() => { lastKey = null; scan(); })
         .observe(currentFileEl, { childList: true, characterData: true, subtree: true });
     }
 
-    // Initial scan
-    scan();
-
-    // Reset panel when New/Open/Load buttons are clicked (dynamic buttons)
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest && e.target.closest('.runner-tree-btn, .runner-mini-button');
-      if (btn) {
-        // A file tree action button was clicked — reset and re-scan
-        setTimeout(resetPanel, 200);
-      }
-    });
-
-    // Also watch for project loads from storage
     const fileTree = document.getElementById('fileTree');
     if (fileTree) {
-      new MutationObserver(() => {
-        lastDetected = '';
-        setTimeout(scan, 200);
-      }).observe(fileTree, { childList: true, subtree: true });
+      new MutationObserver(() => { lastKey = null; setTimeout(scan, 120); })
+        .observe(fileTree, { childList: true, subtree: true });
     }
+
+    document.addEventListener('click', event => {
+      const btn = event.target.closest && event.target.closest('.runner-tree-btn, .runner-mini-button');
+      if (btn) setTimeout(resetPanel, 180);
+    });
+
+    scan();
+  }
+
+  function scheduleScan() {
+    if (scanTimer) clearTimeout(scanTimer);
+    scanTimer = setTimeout(scan, 250);
   }
 
   function resetPanel() {
     manualProvider = '';
-    lastDetected = '';
+    lastKey = null;
     if (selectEl) selectEl.value = '';
-    if (panelEl) panelEl.hidden = true;
-    setTimeout(scan, 300);  // re-scan after project loads
+    if (customGridEl) customGridEl.hidden = true;
+    setTimeout(scan, 200);
   }
   window.__glResetApiPanel = resetPanel;
 
-  function scheduleScan() {
-    if (scanTimer) clearTimeout(scanTimer);
-    scanTimer = setTimeout(scan, 600);
-  }
-
   function scan() {
-    let providers;
-    if (manualProvider) {
-      // Manual selection — show that provider
-      providers = [manualProvider];
-    } else {
-      // Auto-detect from code
-      providers = detectProviders();
-    }
-    const key = providers.sort().join(',');
-
-    // Skip if nothing changed
-    if (key === lastDetected) return;
-    lastDetected = key;
-
+    const providers = activeProviders();
+    const key = providers.join(',') + '|' + manualProvider;
+    if (key === lastKey) return;
+    lastKey = key;
+    currentProviders = providers;
     render(providers);
   }
 
   function render(providers) {
+    if (!panelEl || !gridEl || !introEl || !warnEl) return;
+
     if (providers.length === 0) {
-      // No LLM detected — show minimal info
       panelEl.hidden = true;
+      gridEl.innerHTML = '';
+      if (warnEl) warnEl.hidden = true;
       return;
     }
 
     panelEl.hidden = false;
+    if (customGridEl) customGridEl.hidden = (manualProvider !== 'custom');
+    introEl.innerHTML = 'Detected Generative Layers provider usage. Get keys from <a href="providers.html#providers" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
 
-    introEl.innerHTML = 'Get your API key from <a href="providers.html#providers" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
+    if (providers[0] === 'custom') {
+      gridEl.innerHTML = '';
+      updateWarning(providers);
+      return;
+    }
 
     gridEl.innerHTML = providers.map(key => {
       const p = PROVIDERS[key];
-      // Preserve existing key value if re-rendering
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
       const existingValue = existingInput ? existingInput.value : '';
-
       return `
         <div class="gl-key-row">
-          <span class="gl-key-badge" style="background:${p.color}">
-            <i class="fa-solid ${p.icon}"></i>
-            ${p.label}
-          </span>
+          <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
           <span class="gl-key-env">${p.env}</span>
-          <input class="gl-key-input" data-gl-key="${key}" data-gl-env="${p.env}"
-                 type="password" autocomplete="off"
-                 placeholder="Paste ${p.label} key for this run"
-                 value="${escapeAttr(existingValue)}">
-          <span class="gl-key-status ${existingValue ? 'filled' : 'empty'}">
-            <i class="fa-solid ${existingValue ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
-          </span>
+          <input class="gl-key-input" data-gl-key="${key}" data-gl-env="${p.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
+          <span class="gl-key-status ${existingValue ? 'filled' : 'empty'}"><i class="fa-solid ${existingValue ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i></span>
         </div>`;
     }).join('');
 
-    // Wire key input events
     gridEl.querySelectorAll('.gl-key-input').forEach(input => {
       input.addEventListener('input', () => {
         const status = input.nextElementSibling;
@@ -527,52 +476,59 @@
     updateWarning(providers);
   }
 
-  function updateWarning(providers) {
-    const missing = providers.filter(key => {
+  function missingProviderLabels(providers) {
+    if (providers.length === 0) return [];
+
+    if (providers[0] === 'custom') {
+      const env = (document.getElementById('glCustomEnv')?.value || 'CUSTOM_API_KEY').trim();
+      const key = (document.getElementById('glCustomKey')?.value || '').trim();
+      return key ? [] : [`Custom (${env})`];
+    }
+
+    return providers.filter(key => {
       const input = document.querySelector(`[data-gl-key="${key}"]`);
       return !input || !input.value.trim();
-    });
+    }).map(key => `${PROVIDERS[key].label} (${PROVIDERS[key].env})`);
+  }
 
+  function updateWarning(providers) {
+    if (!warnEl) return;
+    const missing = missingProviderLabels(providers);
     if (missing.length === 0) {
       warnEl.hidden = true;
-    } else {
-      warnEl.hidden = false;
-      const names = missing.map(k => `${PROVIDERS[k].label} (${PROVIDERS[k].env})`).join(', ');
-      document.getElementById('glKeysWarnText').textContent = `Missing: ${names}. Fill before running.`;
+      return;
     }
+    warnEl.hidden = false;
+    const text = document.getElementById('glKeysWarnText');
+    if (text) text.textContent = `Missing: ${missing.join(', ')}. Fill before running.`;
   }
 
-  function escapeAttr(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-  }
-
-  /* ── Public API for code-runner.js ───────────────────────── */
-  // Override getApiKeyState so the runner sends all detected keys
   window.__glGetApiKeys = function () {
+    const providers = activeProviders();
     const keys = {};
+
+    if (providers[0] === 'custom') {
+      const env = (document.getElementById('glCustomEnv')?.value || '').trim();
+      const val = (document.getElementById('glCustomKey')?.value || '').trim();
+      if (env && val) keys[env] = val;
+      return keys;
+    }
+
     document.querySelectorAll('[data-gl-key]').forEach(input => {
       const env = input.dataset.glEnv;
       const value = input.value.trim();
       if (env && value) keys[env] = value;
     });
-    // Include custom provider key
-    if (manualProvider === 'custom') {
-      const env = (document.getElementById('glCustomEnv')?.value || '').trim();
-      const val = (document.getElementById('glCustomKey')?.value || '').trim();
-      if (env && val) keys[env] = val;
-    }
     return keys;
   };
 
   window.__glGetMissingProviders = function () {
-    const providers = detectProviders();
-    return providers.filter(key => {
-      const input = document.querySelector(`[data-gl-key="${key}"]`);
-      return !input || !input.value.trim();
-    }).map(k => `${PROVIDERS[k].label} (${PROVIDERS[k].env})`);
+    const providers = activeProviders();
+    currentProviders = providers;
+    render(providers);
+    return missingProviderLabels(providers);
   };
 
-  /* ── Boot ────────────────────────────────────────────────── */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
