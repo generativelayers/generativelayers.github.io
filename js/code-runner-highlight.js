@@ -310,7 +310,7 @@
         color: #D4D4D4;
         font-size: 13px;
         line-height: 1.55;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         white-space: pre;
         tab-size: 4;
         word-wrap: normal;

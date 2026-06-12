@@ -71,7 +71,7 @@
 
     .gl-key-env {
       font-size: 12px; font-weight: 700; color: #64748b;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
       min-width: 140px; flex-shrink: 0;
     }
 
@@ -136,7 +136,7 @@
     .gl-custom-grid[hidden] { display: none !important; }
     .gl-custom-grid label {
       font-size: 12px; font-weight: 700; color: #64748b;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
       align-self: center;
     }
     .gl-custom-grid input {
