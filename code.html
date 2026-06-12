@@ -34,11 +34,11 @@
       border-bottom: 2px solid var(--color-border, #e5e7eb);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
     .platform-tabs::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
+      display: none;
     }
 
     .platform-tab {
@@ -159,7 +159,7 @@
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
-        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=mobile-scroll-6" data-platform="astra"></iframe>
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=api-select-10" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
@@ -182,9 +182,9 @@
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
     const frameSources = {
-      astra: 'runner-astra.html?v=mobile-scroll-6',
-      jason: 'runner-jason.html?v=mobile-scroll-6',
-      jacamo: 'runner-jacamo.html?v=mobile-scroll-6'
+      astra: 'runner-astra.html?v=api-select-10',
+      jason: 'runner-jason.html?v=api-select-10',
+      jacamo: 'runner-jacamo.html?v=api-select-10'
     };
 
     function isMobileRunner() {
@@ -205,12 +205,44 @@
       });
     }
 
+    function injectApiHudLoader(frame) {
+      window.setTimeout(() => {
+        try {
+          const doc = frame.contentDocument || frame.contentWindow.document;
+          const win = frame.contentWindow;
+          if (!doc || !doc.head || !win) return;
+
+          const runScan = () => {
+            try {
+              const editor = doc.getElementById('fileEditor');
+              if (typeof win.__glResetApiPanel === 'function') win.__glResetApiPanel();
+              if (editor) editor.dispatchEvent(new win.Event('input', { bubbles: true }));
+            } catch (_) {}
+          };
+
+          if (!doc.getElementById('glApiSelectForcedLoader')) {
+            const script = doc.createElement('script');
+            script.id = 'glApiSelectForcedLoader';
+            script.src = 'js/code-runner-api-select.js?v=10';
+            script.onload = runScan;
+            doc.head.appendChild(script);
+          } else {
+            runScan();
+          }
+
+          window.setTimeout(runScan, 500);
+          window.setTimeout(runScan, 1200);
+        } catch (_) {}
+      }, 100);
+    }
+
     function activatePlatform(platform) {
       tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.platform === platform));
       frames.forEach(frame => {
         const isActive = frame.dataset.platform === platform;
         frame.classList.toggle('active', isActive);
         if (isActive && !frame.src && frameSources[platform]) frame.src = frameSources[platform];
+        if (isActive) injectApiHudLoader(frame);
       });
       syncFrameWidths();
       resizeFrames();
@@ -233,7 +265,11 @@
       });
     }
 
-    frames.forEach(frame => frame.addEventListener('load', () => setTimeout(resizeFrames, 250)));
+    frames.forEach(frame => frame.addEventListener('load', () => {
+      injectApiHudLoader(frame);
+      setTimeout(resizeFrames, 250);
+      setTimeout(resizeFrames, 1200);
+    }));
     window.addEventListener('resize', resizeFrames);
     setInterval(resizeFrames, 2000);
     resizeFrames();
@@ -246,14 +282,14 @@
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
       const jasonFrame = document.getElementById('frame-jason');
-      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=mobile-scroll-6#load=' + hash.slice('#load-jason='.length);
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=api-select-10#load=' + hash.slice('#load-jason='.length);
     } else if (hash.startsWith('#load-jacamo=')) {
       activatePlatform('jacamo');
       const jacamoFrame = document.getElementById('frame-jacamo');
-      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=mobile-scroll-6#load=' + hash.slice('#load-jacamo='.length);
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=api-select-10#load=' + hash.slice('#load-jacamo='.length);
     } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      if (astraFrame) astraFrame.src = 'runner-astra.html?v=mobile-scroll-6' + hash;
+      if (astraFrame) astraFrame.src = 'runner-astra.html?v=api-select-10' + hash;
     }
   </script>
 </body>
