@@ -1,5 +1,5 @@
 /**
- * code-runner-archive-import.js v4
+ * code-runner-archive-import.js v5
  *
  * Extends the runner Open button with:
  * - Folder import: delegates to the original runner folder importer.
@@ -9,10 +9,10 @@
  *   src/main/astra, src/main/java, and/or pom.xml, then injects those files into
  *   the ASTRA runner's /astra, /java, and /pom.xml locations.
  * - RAR import: detects and explains that RAR extraction is not supported.
- * - Single-file import: language-specific clean import.
+ * - Single-file import: language-specific clean import with the runner default POM.
  *   ASTRA accepts only .astra and imports it as /astra/<file>.
  *   Jason/JaCaMo accept only .asl and import it as /<file>.
- *   Single-file import replaces the whole current project state.
+ *   Single-file import replaces source files but keeps /pom.xml from the default runner state.
  */
 (() => {
   'use strict';
@@ -52,9 +52,9 @@
   }
 
   function singleFileLabel() {
-    if (PLATFORM === 'astra') return 'Import one .astra file. Existing files are deleted.';
-    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') return 'Import one .asl file. Existing files are deleted.';
-    return 'Import one source file. Existing files are deleted.';
+    if (PLATFORM === 'astra') return 'Import one .astra file. Existing files are deleted; the default POM is kept.';
+    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') return 'Import one .asl file. Existing files are deleted; the default POM is kept.';
+    return 'Import one source file. Existing files are deleted; the default POM is kept.';
   }
 
   function chooseMode() {
@@ -205,9 +205,6 @@
       }
     });
 
-    // The ASTRA project root is the folder above astra/ and java/, not the
-    // astra/ or java/ folder itself. Penalise too-deep roots so ZIP import
-    // keeps /astra, /java, and /pom.xml together.
     if (PLATFORM === 'astra') {
       if (rootTail === 'astra' || rootTail === 'java') info.score -= 35;
       if (/src\/main\/?$/i.test(rootPath)) info.score -= 10;
@@ -417,9 +414,11 @@
       return;
     }
 
+    const previous = readStoredProject();
     const files = {};
     files[mapped] = await file.text();
-    const notice = `Imported ${file.name} as ${mapped}. Existing files were removed. Press Run Project to execute.`;
+    if (BUILD_FILE && previous[BUILD_FILE]) files[BUILD_FILE] = previous[BUILD_FILE];
+    const notice = `Imported ${file.name} as ${mapped}. Existing source files were removed and the default POM was kept. Press Run Project to execute.`;
     writeProject(files, mapped, notice);
   }
 
