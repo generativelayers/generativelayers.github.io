@@ -8,23 +8,23 @@
 
 .framework-main #canonical-commands .commands-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(1) {
-  width: auto !important;
+  width: 38% !important;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(2) {
-  width: 110px !important;
+  width: 90px !important;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(3) {
-  width: 50% !important;
+  width: auto !important;
 }
 
 .framework-main #canonical-commands .commands-table col:nth-child(4) {
-  width: 90px !important;
+  width: 70px !important;
 }
 
 .framework-main #canonical-commands .commands-table th,
@@ -34,7 +34,7 @@
 
 .framework-main #canonical-commands .commands-table th:nth-child(4),
 .framework-main #canonical-commands .commands-table td:nth-child(4) {
-  min-width: 90px;
+  min-width: 70px;
   text-align: center;
   white-space: nowrap;
   padding-left: 8px;
@@ -49,16 +49,26 @@
   justify-content: center;
 }
 
+/* Allow command names to wrap at all screen sizes */
+.framework-main .cmd-name {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 1100px) {
   .framework-main #canonical-commands .table-container {
     overflow-x: auto;
   }
 }
 
-/* On mobile, allow command names to wrap since screen is narrow */
 @media (max-width: 768px) {
+  .framework-main #canonical-commands .commands-table col:nth-child(1) {
+    width: 45% !important;
+  }
   .framework-main .cmd-name {
-    white-space: normal;
-    word-break: break-word;
+    font-size: 12px;
   }
 }
