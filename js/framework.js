@@ -136,7 +136,7 @@
   function commandRow(command) {
     return `
       <tr class="cmd-row" id="row-${command.id}" data-group="${command.group}" onclick="toggleRow('${command.id}')">
-        <td><code class="cmd-name">${escapeHtml(command.command)}</code><i class="fa-solid fa-chevron-down chevron-icon"></i></td>
+        <td><code class="cmd-name">${escapeHtml(command.command)}</code></td>
         <td>${badge(command.type)}</td>
         <td>${command.description}</td>
         <td style="text-align:center"><button class="view-example-btn" type="button" title="View examples"><i class="fa-solid fa-eye"></i></button></td>
@@ -172,7 +172,7 @@
     table.innerHTML = `
       <table class="commands-table">
         <colgroup>
-          <col style="width:auto"><col style="width:110px"><col style="width:50%"><col style="width:90px">
+          <col style="width:38%"><col style="width:90px"><col style="width:auto"><col style="width:70px">
         </colgroup>
         <thead>
           <tr><th>Command</th><th>Return Type</th><th>Description</th><th style="text-align:center">Usage</th></tr>
