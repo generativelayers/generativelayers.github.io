@@ -171,12 +171,15 @@
       await Promise.all(Array.from(root.querySelectorAll('code[data-source]')).map(async block => {
         try { block.textContent = (await loadSource(block.dataset.source)).trim(); }
         catch (error) { block.textContent = 'Unable to load current source from examples repository.\n' + block.dataset.source; }
+        delete block.dataset.glHighlighted;
       }));
+      if (window.__glStaticHighlight) window.__glStaticHighlight();
+      setTimeout(() => { if (window.__glStaticHighlight) window.__glStaticHighlight(); }, 250);
       if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) window.GLRunCodeLinks.scan();
     }
     document.addEventListener('DOMContentLoaded', hydratePatterns);
   </script>
-  <script defer src="js/static-highlight.js"></script>
+  <script defer src="js/static-highlight.js?v=2"></script>
   <script defer src="js/scroll-reveal.js"></script>
 </body>
 </html>
