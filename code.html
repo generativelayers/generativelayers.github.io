@@ -159,7 +159,7 @@
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
-        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=api-select-10" data-platform="astra"></iframe>
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=archive-import-1" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
@@ -182,9 +182,9 @@
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
     const frameSources = {
-      astra: 'runner-astra.html?v=api-select-10',
-      jason: 'runner-jason.html?v=api-select-10',
-      jacamo: 'runner-jacamo.html?v=api-select-10'
+      astra: 'runner-astra.html?v=archive-import-1',
+      jason: 'runner-jason.html?v=archive-import-1',
+      jacamo: 'runner-jacamo.html?v=archive-import-1'
     };
 
     function isMobileRunner() {
@@ -205,6 +205,20 @@
       });
     }
 
+    function injectFrameScript(doc, id, src, onload) {
+      if (!doc || !doc.head) return;
+      const existing = doc.getElementById(id);
+      if (existing) {
+        if (typeof onload === 'function') onload();
+        return;
+      }
+      const script = doc.createElement('script');
+      script.id = id;
+      script.src = src;
+      if (typeof onload === 'function') script.onload = onload;
+      doc.head.appendChild(script);
+    }
+
     function injectApiHudLoader(frame) {
       window.setTimeout(() => {
         try {
@@ -220,15 +234,8 @@
             } catch (_) {}
           };
 
-          if (!doc.getElementById('glApiSelectForcedLoader')) {
-            const script = doc.createElement('script');
-            script.id = 'glApiSelectForcedLoader';
-            script.src = 'js/code-runner-api-select.js?v=10';
-            script.onload = runScan;
-            doc.head.appendChild(script);
-          } else {
-            runScan();
-          }
+          injectFrameScript(doc, 'glApiSelectForcedLoader', 'js/code-runner-api-select.js?v=10', runScan);
+          injectFrameScript(doc, 'glArchiveImportLoader', 'js/code-runner-archive-import.js?v=1');
 
           window.setTimeout(runScan, 500);
           window.setTimeout(runScan, 1200);
@@ -282,14 +289,14 @@
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
       const jasonFrame = document.getElementById('frame-jason');
-      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=api-select-10#load=' + hash.slice('#load-jason='.length);
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=archive-import-1#load=' + hash.slice('#load-jason='.length);
     } else if (hash.startsWith('#load-jacamo=')) {
       activatePlatform('jacamo');
       const jacamoFrame = document.getElementById('frame-jacamo');
-      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=api-select-10#load=' + hash.slice('#load-jacamo='.length);
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=archive-import-1#load=' + hash.slice('#load-jacamo='.length);
     } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      if (astraFrame) astraFrame.src = 'runner-astra.html?v=api-select-10' + hash;
+      if (astraFrame) astraFrame.src = 'runner-astra.html?v=archive-import-1' + hash;
     }
   </script>
 </body>
