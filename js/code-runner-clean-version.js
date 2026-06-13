@@ -3,21 +3,16 @@
     const editor = document.getElementById('fileEditor');
     if (!editor) return;
 
-    const replacements = [
-      ['// Generative Layers v0.1.2 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
-      ['// Generative Layers v0.1.3 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
-      ['// Generative Layers v0.1.4 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
-      ['// Generative Layers v0.2.0 short ASTRA alias.', '// Generative Layers short ASTRA alias.'],
-      ['C.println("Generative Layers v0.1.2 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
-      ['C.println("Generative Layers v0.1.3 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
-      ['C.println("Generative Layers v0.1.4 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'],
-      ['C.println("Generative Layers v0.2.0 ASTRA alias is loaded: module gl.astra.GL gl;");', 'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");']
-    ];
-
     let updated = editor.value;
-    for (const [oldText, newText] of replacements) {
-      updated = updated.split(oldText).join(newText);
-    }
+    // Strip any "vX.Y.Z" version from GL comments and println statements
+    updated = updated.replace(
+      /\/\/ Generative Layers v[\d.]+ short ASTRA alias\./g,
+      '// Generative Layers short ASTRA alias.'
+    );
+    updated = updated.replace(
+      /C\.println\("Generative Layers v[\d.]+ ASTRA alias is loaded: module gl\.astra\.GL gl;"\);/g,
+      'C.println("Generative Layers ASTRA alias is loaded: module gl.astra.GL gl;");'
+    );
 
     if (updated !== editor.value) {
       const start = editor.selectionStart || 0;
