@@ -11,6 +11,7 @@
   'use strict';
 
   const CFG = window.GL_PLATFORM_CONFIG || {};
+  const V = window.GL_VERSION || '0.2.0';
   const PLATFORM = window.GL_PLATFORM || CFG.id || 'astra';
   const FLAT_ROOT = !!CFG.flatRoot;
   const STORAGE_KEY = (CFG.storagePrefix || ('gl_runner_' + PLATFORM + '_')) + 'project';
@@ -29,7 +30,7 @@
       '',
       '    <groupId>com.generativelayers.server</groupId>',
       '    <artifactId>gl-astra-smoke</artifactId>',
-      '    <version>0.2.0</version>',
+      `    <version>${V}</version>`,
       '',
       '    <parent>',
       '        <groupId>com.astralanguage</groupId>',
@@ -46,7 +47,7 @@
       '        <dependency>',
       '            <groupId>com.generativelayers</groupId>',
       '            <artifactId>generative-layers-core</artifactId>',
-      '            <version>0.2.0</version>',
+      `            <version>${V}</version>`,
       '        </dependency>',
       '        <dependency>',
       '            <groupId>com.astralanguage</groupId>',
@@ -102,7 +103,7 @@
       '    <modelVersion>4.0.0</modelVersion>',
       '    <groupId>com.generativelayers.runner</groupId>',
       '    <artifactId>jason-runner</artifactId>',
-      '    <version>0.2.0</version>',
+      `    <version>${V}</version>`,
       '',
       '    <properties>',
       '        <maven.compiler.source>17</maven.compiler.source>',
@@ -114,7 +115,7 @@
       '        <dependency>',
       '            <groupId>com.generativelayers</groupId>',
       '            <artifactId>generative-layers-core</artifactId>',
-      '            <version>0.2.0</version>',
+      `            <version>${V}</version>`,
       '        </dependency>',
       '        <dependency>',
       '            <groupId>io.github.jason-lang</groupId>',
@@ -151,7 +152,7 @@
       '    <modelVersion>4.0.0</modelVersion>',
       '    <groupId>com.generativelayers.runner</groupId>',
       '    <artifactId>jacamo-runner</artifactId>',
-      '    <version>0.2.0</version>',
+      `    <version>${V}</version>`,
       '',
       '    <properties>',
       '        <maven.compiler.source>17</maven.compiler.source>',
@@ -170,7 +171,7 @@
       '        <dependency>',
       '            <groupId>com.generativelayers</groupId>',
       '            <artifactId>generative-layers-core</artifactId>',
-      '            <version>0.2.0</version>',
+      `            <version>${V}</version>`,
       '        </dependency>',
       '        <dependency>',
       '            <groupId>io.github.jason-lang</groupId>',
