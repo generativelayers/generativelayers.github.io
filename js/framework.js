@@ -183,7 +183,7 @@
           </div>
         </div>
         <div class="tab-content active" id="syntax-astra"><pre><code>agent Main {
-    module gl.adapter.astra.AstraAdapter gl;
+    module gl.astra.GL gl;
     module Console console;
     module System S;
 
