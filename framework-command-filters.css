@@ -1,0 +1,43 @@
+.framework-main #canonical-commands .cmd-row.filter-hidden,
+.framework-main #canonical-commands .cmd-details-row.filter-hidden,
+.framework-main #canonical-commands .cmd-constraints-row.filter-hidden,
+.framework-main #canonical-commands .commands-table tr[hidden] {
+  display: none !important;
+}
+
+.framework-main #canonical-commands .command-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 18px 0 22px;
+}
+
+.framework-main #canonical-commands .filter-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .framework-main #canonical-commands .commands-table tr.cmd-row.filter-hidden,
+  .framework-main #canonical-commands .commands-table tr.cmd-row[hidden] {
+    display: none !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-details-row:not(.open),
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row:not(.open) {
+    display: none !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-details-row.open,
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row.open {
+    display: block !important;
+  }
+
+  .framework-main #canonical-commands .command-filters {
+    gap: 8px;
+  }
+
+  .framework-main #canonical-commands .filter-btn {
+    padding: 9px 13px;
+    font-size: 13px;
+  }
+}
