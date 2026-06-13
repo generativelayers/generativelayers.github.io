@@ -43,6 +43,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=3.7">
+  <script src="js/gl-version.js"></script>
   <script defer src="js/search.js?v=2"></script>
 </head>
 <body>
@@ -96,14 +97,14 @@
             <pre><code>&lt;dependency&gt;
     &lt;groupId&gt;<span class="string">com.generativelayers</span>&lt;/groupId&gt;
     &lt;artifactId&gt;<span class="string">generative-layers-core</span>&lt;/artifactId&gt;
-    &lt;version&gt;<span class="string">0.2.0</span>&lt;/version&gt;
+    &lt;version&gt;<span class="string gl-ver"></span>&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
           </div>
         </div>
 
         <div id="install-gradle" class="install-block" style="display:none;">
           <div class="tabs-container" style="position:relative;margin:0;">
-            <pre><code>implementation '<span class="string">com.generativelayers</span>:<span class="string">generative-layers-core</span>:<span class="string">0.2.0</span>'</code></pre>
+            <pre><code>implementation '<span class="string">com.generativelayers</span>:<span class="string">generative-layers-core</span>:<span class="string gl-ver"></span>'</code></pre>
           </div>
         </div>
 
@@ -301,5 +302,11 @@ gl.accept(Cid, <span class="string">"valid classification"</span>, Did);
 
   <script defer src="js/static-highlight.js"></script>
   <script defer src="js/scroll-reveal.js"></script>
+  <script>
+    // Inject GL version from gl-version.js into all .gl-ver elements
+    document.querySelectorAll('.gl-ver').forEach(function(el) {
+      el.textContent = window.GL_VERSION || '0.2.0';
+    });
+  </script>
 </body>
 </html>
