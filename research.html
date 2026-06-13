@@ -178,16 +178,109 @@
         <h2><i class="fa-solid fa-scale-balanced" style="margin-right:8px;color:var(--color-green-700);font-size:20px;"></i>Scope and Limitations</h2>
 
         <p style="font-size:14.5px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:14px;">
-          Generative Layers can influence BDI reasoning, plan execution, intention flow, and agent behaviour <strong>when an agent program is explicitly designed to use generated candidate material</strong>. It does not, however, modify or extend the internal BDI reasoning cycle itself. Work in that direction is Riccardo Battistini's
+          <strong>1.</strong>&ensp;Generative Layers can influence BDI reasoning, plan execution, intention flow, and agent behaviour <strong>when an agent program is explicitly designed to use generated candidate material</strong>. It does not, however, modify or extend the internal BDI reasoning cycle itself. Work in that direction is Riccardo Battistini's
           <a href="https://amslaurea.unibo.it/id/eprint/35555/" target="_blank" rel="noopener noreferrer">
             <em>Exploiting GenAI for Plan Generation in BDI Agents</em>
           </a>.
           The role of Generative Layers is not to bypass the host agent platform, but to provide governed points at which external generative outputs may be requested, inspected, validated, rejected, refined, or adopted by the agent.
         </p>
 
-        <p style="font-size:14.5px;color:var(--color-text-secondary);line-height:1.7;margin:0;">
-          Consistent with the <a href="patterns.html#core-principle">acceptance patterns</a>, LLMs are tools, not decision-makers. The implemented patterns should be read as evaluation scenarios and design idioms, not as universal guarantees that generated outputs are correct, safe, or automatically suitable for adoption. They demonstrate concrete governance controls such as validation, inspection, confidence gating, cross-provider verification, peer review, belief-consistency checking, majority voting, and iterative refinement before candidate material affects agent state or behaviour.
+        <p style="font-size:14.5px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:14px;">
+          <strong>2.</strong>&ensp;Consistent with the <a href="patterns.html#core-principle">acceptance patterns</a>, LLMs are tools, not decision-makers. The implemented patterns should be read as evaluation scenarios and design idioms, not as universal guarantees that generated outputs are correct, safe, or automatically suitable for adoption. They demonstrate concrete governance controls such as validation, inspection, confidence gating, cross-provider verification, peer review, belief-consistency checking, majority voting, and iterative refinement before candidate material affects agent state or behaviour.
         </p>
+
+        <!-- 3. Missing Capabilities — expandable -->
+        <div class="card" style="padding:0;margin-top:4px;border-left:3px solid var(--color-green-700);cursor:pointer;" onclick="toggleDetail('missing-caps')">
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-puzzle-piece" style="font-size:13px;color:var(--color-green-700);flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;"><strong>3.</strong>&ensp;Apparent Missing Capabilities <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— Why they belong to the agent, not the framework</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('missing-caps')"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="pattern-detail" id="detail-missing-caps" style="display:none;" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 18px;border-top:1px solid var(--color-border-light);">
+
+              <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin:14px 0 16px;">
+                Four capabilities might appear absent from the Generative Layers framework: adaptive feedback, cost management, temporal validity, and deciding <em>when</em> to consult an LLM. These are not missing — they are deliberately excluded from the governance layer because they belong to the <strong>BDI agent's reasoning cycle</strong>. GL provides the governed infrastructure; the agent provides the reasoning about when and how to use it, using the same <a href="https://link.springer.com/chapter/10.1007/978-3-031-82035-0_12" target="_blank" rel="noopener">practical reasoning programming style</a> (Collier, Beaumont &amp; Ciortea, EUMAS 2025) it uses for any other domain.
+              </p>
+
+              <!-- 3.1 Feedback -->
+              <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.1&ensp;Adaptive Feedback</h4>
+              <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
+                If an agent consistently rejects candidates from a particular provider, it can track that experience as beliefs and adopt a goal to rebind — using standard BDI deliberation and means-end reasoning:
+              </p>
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Deliberation: too many rejections triggers a rebind goal</span>
++rejected(Provider) : count(rejected(Provider), N) &amp; N &gt; 3
+    &lt;- !rebound(Provider).
+
+<span style="color:#6A9955;">// Means-End Reasoning: rebind to an alternative provider</span>
++!rebound(Provider) : alternative(Provider, string Alt)
+    &lt;- gl.bind(agentId, Alt, "gpt-4o", "", string NewBid);
+       -+active_binding(NewBid).
+
+<span style="color:#6A9955;">// Serendipity: already rebound</span>
++!rebound(Provider) : active_binding(string Bid) &lt;- .</code></pre>
+
+              <!-- 3.2 Cost -->
+              <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.2&ensp;Cost &amp; Budget</h4>
+              <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
+                Budget tracking can be implemented as agent beliefs with context-guarded plan selection, or as a custom <code style="font-size:12px;">GovernancePolicy</code> via the pluggable SPI:
+              </p>
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Context guard: only call if budget remains</span>
++!classify(X) : budget(B) &amp; B &gt; 0
+    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
+       -+budget(B - 1).
+
+<span style="color:#6A9955;">// Budget exhausted — no LLM call</span>
++!classify(X) : budget(B) &amp; B &lt;= 0
+    &lt;- +budget_exhausted(X).</code></pre>
+
+              <!-- 3.3 Temporal -->
+              <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.3&ensp;Temporal Validity</h4>
+              <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
+                Whether a classification is stale depends on the domain — only the agent knows its own context. BDI plan contexts handle this naturally:
+              </p>
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Fresh belief exists — use it directly</span>
++!classify(X) : label(X, L) &amp; label_time(X, T) &amp;
+        system_time(Now) &amp; (Now - T) &lt; 300000
+    &lt;- .  <span style="color:#6A9955;">// serendipity: already known</span>
+
+<span style="color:#6A9955;">// No belief or stale — consult GL</span>
++!classify(X)
+    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
+       !accept_if_valid(Rid).</code></pre>
+
+              <!-- 3.4 When to Consult -->
+              <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.4&ensp;When to Consult the LLM</h4>
+              <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
+                This is the most fundamental BDI decision. Plan selection with context conditions determines when the agent reasons from its own beliefs versus consulting GL — no framework can or should dictate this:
+              </p>
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Agent already knows — GL is never consulted</span>
++!classify(X) : label(X, L) &lt;- .
+
+<span style="color:#6A9955;">// Agent doesn't know — governed LLM lifecycle</span>
++!classify(X)
+    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
+       string Cid = gl.candidate(Rid);
+       string Adm = gl.decide(Cid);
+       !maybe_accept(Cid, Adm).
+
+<span style="color:#6A9955;">// Means-End: accept if admissible</span>
++!maybe_accept(Cid, "ADMISSIBLE")
+    &lt;- gl.accept(Cid, "needed classification");
+       string Result = gl.get(Cid, "label");
+       +label(X, Result).  <span style="color:#6A9955;">// explicit belief adoption</span>
+
+<span style="color:#6A9955;">// Not admissible — agent decides how to proceed</span>
++!maybe_accept(Cid, Adm)
+    &lt;- +rejected_candidate(Cid, Adm).</code></pre>
+
+              <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:14px 0 0;border-top:1px solid var(--color-border-light);padding-top:14px;">
+                <strong>No additional framework is required.</strong> An ASTRA developer using Generative Layers has everything needed to implement adaptive, budget-aware, temporally-valid, selectively-governed LLM integration — using the same BDI programming model they already know. GL's contribution is to give the agent a governed, auditable, type-safe channel to generative resources — and then to <em>get out of the way</em> and let the BDI architecture do what it was designed to do.
+              </p>
+
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Cite This Work -->
