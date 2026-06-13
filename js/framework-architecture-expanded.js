@@ -7,7 +7,7 @@
       <p>The public commands are backed by the full framework architecture: native adapters, resource bodies, provider registry, request pipeline, candidate store, audit trace, and explicit agent adoption.</p>
       <div class="concept-card card" id="concept-platform-adapters" onclick="toggleConcept('platform-adapters')">
         <div class="concept-header"><div class="concept-title-group"><h3 class="concept-title">Platform Integration Adapters</h3><p class="concept-desc">ASTRA, Jason, and JaCaMo expose the same contract through native platform mechanisms.</p></div><button class="concept-toggle-btn" type="button"><i class="fa-solid fa-eye"></i></button></div>
-        <div class="concept-details"><ul><li>ASTRA uses a Java module imported as <code>module gl.adapter.astra.AstraAdapter gl;</code>.</li><li>Jason uses AgentSpeak internal actions with the <code>gl.</code> prefix.</li><li>JaCaMo uses a CArtAgO artifact focused by the agent.</li></ul></div>
+        <div class="concept-details"><ul><li>ASTRA uses a Java module imported as <code>module gl.astra.GL gl;</code>.</li><li>Jason uses AgentSpeak internal actions with the <code>gl.</code> prefix.</li><li>JaCaMo uses a CArtAgO artifact focused by the agent.</li></ul></div>
       </div>
       <div class="concept-card card" id="concept-bodies" onclick="toggleConcept('bodies')">
         <div class="concept-header"><div class="concept-title-group"><h3 class="concept-title">Generative Bodies &amp; Affordances</h3><p class="concept-desc">Registered body ids, affordance types, and candidate type mapping.</p></div><button class="concept-toggle-btn" type="button"><i class="fa-solid fa-eye"></i></button></div>
