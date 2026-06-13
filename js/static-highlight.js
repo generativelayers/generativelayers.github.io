@@ -86,7 +86,7 @@
   const CARTAGO_METHODS = new Set(['startService','makeArtifact','lookupArtifact','focus','link','operation','disposeArtifact','stopService','params']);
   const UNITTEST_METHODS = new Set(['assertEquals','assertArrayEquals','assertTrue','assertBelief','injectBelief','extractBelief','success','fail']);
   const HTTP_METHODS = new Set(['register','createResponse','sendResponse','setStatus','setContent','setType','setLocation','setHeader','myAddress']);
-  const GL_METHODS = new Set(['ask','configure','use_provider','accept','reject','field','candidate','valid','respond','multi_ask','ask_with_schema','parse_json','providers','invoke','invoke_with_beliefs']);
+  const GL_METHODS = new Set(['see','bind','call','result','candidate','check','get','judge','decide','accept','reject','knowledge','explain']);
 
   function getMethodColor(method) {
     if (SYSTEM_METHODS.has(method))      return C.fnSystem;
@@ -478,8 +478,8 @@
     if (/\b(agent|module|rule)\b/.test(t)) return 'astra';
     // Check for gl. calls — ASTRA
     if (/\bgl\.\w+/.test(t)) return 'astra';
-    // Check for configure/use_provider — ASTRA
-    if (/\b(configure|use_provider)\b/.test(t)) return 'astra';
+    // Check for bind/call — ASTRA
+    if (/\b(bind|call)\b/.test(t)) return 'astra';
     // Default to ASTRA for most code blocks
     return 'astra';
   }
