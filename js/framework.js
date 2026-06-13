@@ -3,91 +3,91 @@
     {
       id: 'see', group: 'lifecycle', command: 'see()', type: 'String',
       description: 'Discover available providers and their status.',
-      astra: 'rule +!discover() {\n    string providers = gl.see();\n    console.println("Providers: " + providers);\n}',
+      astra: 'rule +!discover() {\n    console.println(gl.see());\n}',
       jason: '+!discover <-\n    gl.see(X);\n    .print("Providers: ", X).',
       jacamo: '+!discover <-\n    see(X);\n    .print("Providers: ", X).'
     },
     {
       id: 'bind', group: 'lifecycle', command: 'bind(agent, provider, model, config)', type: 'String',
       description: 'Bind an agent to a provider/model with configuration. Returns a binding ID.',
-      astra: 'rule +!main(list args) {\n    string bid = gl.bind("agent1", "gemini", "gemini-2.5-flash", "");\n    !request_support(bid);\n}',
+      astra: 'rule +!main(list args) {\n    !request_support(gl.bind("agent1", "gemini", "gemini-2.5-flash", ""));\n}',
       jason: '+!main <-\n    gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);\n    !request_support(Bid).',
       jacamo: '+!main <-\n    bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);\n    !request_support(Bid).'
     },
     {
       id: 'call', group: 'invocation', command: 'call(bindingId, goal, body, affordance, prompt, fields, context)', type: 'String',
       description: 'Perform one governed LLM invocation. Returns a result ID.',
-      astra: 'rule +!request_support(string bid) {\n    string rid = gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "");\n    !decide_result(rid);\n}',
+      astra: 'rule +!request_support(string bid) {\n    !decide_result(gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", ""));\n}',
       jason: '+!request_support(Bid) <-\n    gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);\n    !decide_result(Rid).',
       jacamo: '+!request_support(Bid) <-\n    call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);\n    !decide_result(Rid).'
     },
     {
       id: 'result', group: 'invocation', command: 'result(resultId)', type: 'String',
       description: 'Inspect the invocation outcome: SUCCESS, INVALID_OUTPUT, PROVIDER_FAILED, or GOVERNANCE_DENIED.',
-      astra: 'rule +!check_result(string rid) {\n    string status = gl.result(rid);\n    console.println("Result: " + status);\n}',
+      astra: 'rule +!check_result(string rid) {\n    console.println("Result: " + gl.result(rid));\n}',
       jason: '+!check_result(Rid) <-\n    gl.result(Rid, R);\n    .print("Result: ", R).',
       jacamo: '+!check_result(Rid) <-\n    result(Rid, R);\n    .print("Result: ", R).'
     },
     {
       id: 'candidate', group: 'decision', command: 'candidate(resultId)', type: 'String',
       description: 'Get the candidate ID from a result. Crosses the ontological boundary into governed material.',
-      astra: 'rule +!decide_result(string rid) {\n    string cid = gl.candidate(rid);\n    !decide_candidate(cid);\n}',
+      astra: 'rule +!decide_result(string rid) {\n    !decide_candidate(gl.candidate(rid));\n}',
       jason: '+!decide_result(Rid) <-\n    gl.candidate(Rid, Cid);\n    !decide_candidate(Cid).',
       jacamo: '+!decide_result(Rid) <-\n    candidate(Rid, Cid);\n    !decide_candidate(Cid).'
     },
     {
       id: 'check', group: 'decision', command: 'check(refId)', type: 'String',
       description: 'Check governance state of a result or candidate (validation status, lifecycle status).',
-      astra: 'rule +!inspect(string rid) {\n    string status = gl.check(rid);\n    console.println("Status: " + status);\n}',
+      astra: 'rule +!inspect(string rid) {\n    console.println("Status: " + gl.check(rid));\n}',
       jason: '+!inspect(Rid) <-\n    gl.check(Rid, S);\n    .print("Status: ", S).',
       jacamo: '+!inspect(Rid) <-\n    check(Rid, S);\n    .print("Status: ", S).'
     },
     {
       id: 'get', group: 'decision', command: 'get(candidateId, field)', type: 'String',
       description: 'Extract a named field value from candidate material.',
-      astra: 'rule +!inspect_field(string cid) {\n    string label = gl.get(cid, "label");\n    console.println("Label: " + label);\n}',
+      astra: 'rule +!inspect_field(string cid) {\n    console.println("Label: " + gl.get(cid, "label"));\n}',
       jason: '+!inspect_field(Cid) <-\n    gl.get(Cid, "label", Label);\n    .print("Label: ", Label).',
       jacamo: '+!inspect_field(Cid) <-\n    get(Cid, "label", Label);\n    .print("Label: ", Label).'
     },
     {
       id: 'judge', group: 'decision', command: 'judge(candidateId, assessor, verdict, confidence, rationale)', type: 'String',
       description: 'Record evaluative evidence about a candidate. Returns an assessment ID.',
-      astra: 'rule +!review(string cid) {\n    string aid = gl.judge(cid, "reviewer", "APPROVE", "0.9", "looks correct");\n    console.println("Assessment: " + aid);\n}',
+      astra: 'rule +!review(string cid) {\n    console.println("Assessment: " + gl.judge(cid, "reviewer", "APPROVE", "0.9", "looks correct"));\n}',
       jason: '+!review(Cid) <-\n    gl.judge(Cid, "reviewer", "APPROVE", "0.9", "looks correct", Aid);\n    .print("Assessment: ", Aid).',
       jacamo: '+!review(Cid) <-\n    judge(Cid, "reviewer", "APPROVE", "0.9", "looks correct", Aid);\n    .print("Assessment: ", Aid).'
     },
     {
       id: 'decide', group: 'decision', command: 'decide(candidateId)', type: 'String',
       description: 'Compute admissibility (read-only preview). Returns ADMISSIBLE, INADMISSIBLE:reason, or FINAL:status.',
-      astra: 'rule +!check_admissibility(string cid) {\n    string adm = gl.decide(cid);\n    console.println("Admissibility: " + adm);\n}',
+      astra: 'rule +!check_admissibility(string cid) {\n    console.println("Admissibility: " + gl.decide(cid));\n}',
       jason: '+!check_admissibility(Cid) <-\n    gl.decide(Cid, Adm);\n    .print("Admissibility: ", Adm).',
       jacamo: '+!check_admissibility(Cid) <-\n    decide(Cid, Adm);\n    .print("Admissibility: ", Adm).'
     },
     {
       id: 'accept', group: 'decision', command: 'accept(candidateId, reason)', type: 'String',
       description: 'Record a positive decision. Requires admissibility. Returns a decision ID.',
-      astra: 'rule +!decide_candidate(string cid) {\n    string did = gl.accept(cid, "valid classification");\n    +accepted(cid);\n}',
+      astra: 'rule +!decide_candidate(string cid) {\n    gl.accept(cid, "valid classification");\n    +accepted(cid);\n}',
       jason: '+!decide_candidate(Cid) <-\n    gl.accept(Cid, "valid classification", Did);\n    +accepted(Cid).',
       jacamo: '+!decide_candidate(Cid) <-\n    accept(Cid, "valid classification", Did);\n    +accepted(Cid).'
     },
     {
       id: 'reject', group: 'decision', command: 'reject(candidateId, reason)', type: 'String',
       description: 'Record a negative decision. Always allowed. Returns a decision ID.',
-      astra: 'rule +!decide_candidate(string cid) {\n    string did = gl.reject(cid, "output is incorrect");\n    +rejected(cid);\n}',
+      astra: 'rule +!decide_candidate(string cid) {\n    gl.reject(cid, "output is incorrect");\n    +rejected(cid);\n}',
       jason: '+!decide_candidate(Cid) <-\n    gl.reject(Cid, "output is incorrect", Did);\n    +rejected(Cid).',
       jacamo: '+!decide_candidate(Cid) <-\n    reject(Cid, "output is incorrect", Did);\n    +rejected(Cid).'
     },
     {
       id: 'knowledge', group: 'decision', command: 'knowledge(agentId)', type: 'String',
       description: 'Retrieve all accepted GL-side knowledge for an agent. Can be passed as context to future calls.',
-      astra: 'rule +!get_knowledge() {\n    string k = gl.knowledge("agent1");\n    console.println(k);\n}',
+      astra: 'rule +!get_knowledge() {\n    console.println(gl.knowledge("agent1"));\n}',
       jason: '+!get_knowledge <-\n    gl.knowledge("agent1", K);\n    .print(K).',
       jacamo: '+!get_knowledge <-\n    knowledge("agent1", K);\n    .print(K).'
     },
     {
       id: 'explain', group: 'invocation', command: 'explain(refId)', type: 'String',
       description: 'Audit and trace any lifecycle object: result, candidate, assessment, decision, trace, or binding.',
-      astra: 'rule +!audit(string ref) {\n    string e = gl.explain(ref);\n    console.println(e);\n}',
+      astra: 'rule +!audit(string ref) {\n    console.println(gl.explain(ref));\n}',
       jason: '+!audit(Ref) <-\n    gl.explain(Ref, E);\n    .print(E).',
       jacamo: '+!audit(Ref) <-\n    explain(Ref, E);\n    .print(E).'
     }
@@ -188,12 +188,16 @@
     module System S;
 
     rule +!main(list args) {
-        string bid = gl.bind("agent1", "gemini", "gemini-2.5-flash", "");
-        string rid = gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "");
-        string cid = gl.candidate(rid);
-        string label = gl.get(cid, "label");
-        string did = gl.accept(cid, "valid classification");
-        console.println("Accepted: " + label);
+        !decided(gl.call(gl.bind("agent1", "gemini", "gemini-2.5-flash", ""), "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", ""));
+        !shutdown();
+    }
+
+    rule +!decided(string rid) {
+        gl.accept(gl.candidate(rid), "valid classification");
+        console.println("Accepted: " + gl.get(gl.candidate(rid), "label"));
+    }
+
+    rule +!shutdown() {
         S.exit();
     }
 }</code></pre></div>
