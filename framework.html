@@ -156,6 +156,25 @@
             </ul>
           </div>
         </div>
+
+        <div class='concept-card card' id='concept-modularity' onclick='toggleConcept("modularity")'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-sliders'></i> Governance Modularity</h3>
+              <p class='concept-desc'>Modular design vectors and parameter overrides for developers and researchers.</p>
+            </div>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
+          </div>
+          <div class='concept-details' onclick='event.stopPropagation()'>
+            <ul>
+              <li><strong>Model &amp; Provider Swapping</strong>: Easily swap model sizes (e.g. 8B vs 70B) or API providers to benchmark latency, accuracy, and cost.</li>
+              <li><strong>Structural Schemas</strong>: Tailor the exact CSV schema fields required for syntactic validation.</li>
+              <li><strong>Context Grounding</strong>: Inject pre-state agent beliefs directly into LLM prompt environments.</li>
+              <li><strong>Categorical &amp; Numeric Gating</strong>: Define qualitative tiers (high, medium, low) or numeric limits (score &ge; 0.85) to control acceptance.</li>
+              <li><strong>Consensus Dynamics</strong>: Modify quorum rules (majority vs. unanimity) in multi-agent environments.</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section class='info-panel' id='request-path'>
