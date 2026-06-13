@@ -24,7 +24,7 @@
     {
       id: 'result', group: 'invocation', command: 'result(resultId)', type: 'String',
       description: 'Inspect the invocation outcome: SUCCESS, INVALID_OUTPUT, PROVIDER_FAILED, or GOVERNANCE_DENIED.',
-      astra: 'rule +!check_result(string rid) {\n    !handle_outcome(gl.result(rid), rid);\n}',
+      astra: 'rule +!check_result(string rid) {\n    !process_outcome(gl.result(rid), rid);\n}',
       jason: '+!check_result(Rid) <-\n    gl.result(Rid, R);\n    .print("Result: ", R).',
       jacamo: '+!check_result(Rid) <-\n    result(Rid, R);\n    .print("Result: ", R).'
     },
@@ -38,14 +38,14 @@
     {
       id: 'check', group: 'decision', command: 'check(refId)', type: 'String',
       description: 'Check governance state of a result or candidate (validation status, lifecycle status).',
-      astra: 'rule +!inspect(string rid) {\n    !log_status(gl.check(rid), rid);\n}',
+      astra: 'rule +!inspect(string rid) {\n    !verify_governance(gl.check(rid), rid);\n}',
       jason: '+!inspect(Rid) <-\n    gl.check(Rid, S);\n    .print("Status: ", S).',
       jacamo: '+!inspect(Rid) <-\n    check(Rid, S);\n    .print("Status: ", S).'
     },
     {
       id: 'get', group: 'decision', command: 'get(candidateId, field)', type: 'String',
       description: 'Extract a named field value from candidate material.',
-      astra: 'rule +!inspect_field(string cid) {\n    +label(gl.get(cid, "label"));\n}',
+      astra: 'rule +!extract_label(string cid) {\n    +label(gl.get(cid, "label"));\n}',
       jason: '+!inspect_field(Cid) <-\n    gl.get(Cid, "label", Label);\n    .print("Label: ", Label).',
       jacamo: '+!inspect_field(Cid) <-\n    get(Cid, "label", Label);\n    .print("Label: ", Label).'
     },
@@ -80,7 +80,7 @@
     {
       id: 'knowledge', group: 'decision', command: 'knowledge(agentId)', type: 'String',
       description: 'Retrieve all accepted GL-side knowledge for an agent. Can be passed as context to future calls.',
-      astra: 'rule +!enrich_context(string bid) {\n    !decide_result(gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label", gl.knowledge("agent1")));\n}',
+      astra: 'rule +!classify_with_context(string bid) {\n    !decide_result(gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label", gl.knowledge("agent1")));\n}',
       jason: '+!get_knowledge <-\n    gl.knowledge("agent1", K);\n    .print(K).',
       jacamo: '+!get_knowledge <-\n    knowledge("agent1", K);\n    .print(K).'
     },
