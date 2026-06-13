@@ -68,7 +68,52 @@
   .framework-main #canonical-commands .commands-table col:nth-child(1) {
     width: 45% !important;
   }
+
   .framework-main .cmd-name {
     font-size: 12px;
+  }
+
+  /* Mobile command cards: keep the eye and shield as a real two-button action group.
+     This overrides the older negative-margin shield hack that made the shield drift
+     into the card body on phones. */
+  .framework-main #canonical-commands .commands-table tr.cmd-row {
+    grid-template-areas:
+      "name usage constraints"
+      "type usage constraints"
+      "desc desc desc" !important;
+    grid-template-columns: minmax(0, 1fr) 40px 40px !important;
+    gap: 8px 8px !important;
+    align-items: start !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-row td:nth-child(4),
+  .framework-main #canonical-commands .commands-table tr.cmd-row td:nth-child(5) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    justify-self: end !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-row td:nth-child(4) {
+    grid-area: usage !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-row td:nth-child(5) {
+    grid-area: constraints !important;
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .framework-main #canonical-commands .view-example-btn,
+  .framework-main #canonical-commands .view-constraints-btn {
+    width: 34px !important;
+    height: 34px !important;
+    margin: 0 !important;
+    flex: 0 0 34px !important;
   }
 }
