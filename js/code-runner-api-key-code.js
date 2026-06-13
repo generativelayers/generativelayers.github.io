@@ -16,12 +16,11 @@
     const found = [];
 
     Object.keys(PROVIDERS).forEach(provider => {
-      const directUseProvider = new RegExp(`\\buse_provider\\s*\\(\\s*["']${provider}["']`, 'i');
-      const configuredProvider = new RegExp(`["']provider["']\\s*,\\s*["']${provider}["']`, 'i');
-      const configureProvider = new RegExp(`configure\\s*\\(\\s*["']provider["']\\s*,\\s*["']${provider}["']`, 'i');
+      // v2: gl.bind("agent", "provider", "model") or bind("provider", ...)
+      const bindPattern = new RegExp(`\\bbind\\s*\\([^)]*["']${provider}["']`, 'i');
       const envName = PROVIDERS[provider].env.toLowerCase();
 
-      if (directUseProvider.test(clean) || configuredProvider.test(clean) || configureProvider.test(clean) || clean.includes(envName)) {
+      if (bindPattern.test(clean) || clean.includes(envName)) {
         found.push(provider);
       }
     });
@@ -35,82 +34,13 @@
     return [...new Set(found)];
   }
 
-  function hasApiKeyEnvFor(source, provider) {
-    const env = PROVIDERS[provider].env;
-    const quotedEnv = new RegExp(`["']${env}["']`);
-    const apiKeyEnv = /["']apiKeyEnv["']/;
-    return apiKeyEnv.test(source) && quotedEnv.test(source);
-  }
+  // v2: No automatic code injection needed — bind() handles provider + API key env.
+  // This file now only exposes detection for other scripts.
 
-  function insertApiKeyEnvBeforeUseProvider(source, provider) {
-    if (hasApiKeyEnvFor(source, provider)) return source;
-
-    const env = PROVIDERS[provider].env;
-    const lineMatcher = /^([ \t]*)gl\.use_provider\s*\([^;]*\)\s*;.*$/m;
-    const match = source.match(lineMatcher);
-
-    if (!match) return source;
-
-    const indent = match[1] || '';
-    const commandLine = `${indent}gl.configure("apiKeyEnv", "${env}");`;
-
-    // Do not duplicate any nearby apiKeyEnv command.
-    const beforeUseProvider = source.slice(0, match.index);
-    const nearby = beforeUseProvider.slice(Math.max(0, beforeUseProvider.length - 300));
-    if (nearby.includes('"apiKeyEnv"') || nearby.includes("'apiKeyEnv'")) return source;
-
-    return source.slice(0, match.index) + commandLine + '\n' + source.slice(match.index);
-  }
-
-  function ensureProviderCommands(source) {
-    let updated = String(source || '');
-    const providers = detectRequiredProvidersFromSource(updated);
-
-    providers.forEach(provider => {
-      updated = insertApiKeyEnvBeforeUseProvider(updated, provider);
-    });
-
-    return updated;
-  }
-
-  function currentFileIsAstra() {
-    const current = document.getElementById('currentFile');
-    const path = current ? current.textContent || '' : '';
-    return path.endsWith('.astra');
-  }
-
-  function syncEditorSource() {
-    const editor = document.getElementById('fileEditor');
-    if (!editor || !currentFileIsAstra()) return;
-
-    const updated = ensureProviderCommands(editor.value);
-    if (updated !== editor.value) {
-      const cursor = editor.selectionStart;
-      editor.value = updated;
-      editor.selectionStart = editor.selectionEnd = Math.min(cursor, editor.value.length);
-      editor.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  }
+  window.__glDetectProviders = detectRequiredProvidersFromSource;
 
   function init() {
-    // After examples are loaded from patterns/framework into /astra/Main.astra,
-    // make the provider API-key environment command visible in the actual source.
-    window.setTimeout(syncEditorSource, 150);
-    window.setTimeout(syncEditorSource, 600);
-
-    const runButton = document.getElementById('runAstraButton');
-    if (runButton) {
-      runButton.addEventListener('click', syncEditorSource, true);
-    }
-
-    const editor = document.getElementById('fileEditor');
-    if (editor) {
-      let timer = null;
-      editor.addEventListener('input', () => {
-        window.clearTimeout(timer);
-        timer = window.setTimeout(syncEditorSource, 900);
-      });
-    }
+    // No-op in v2 — the API key panel (code-runner-api-select.js) handles everything.
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

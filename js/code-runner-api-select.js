@@ -30,18 +30,11 @@
   };
 
   const GENERATION_METHODS = [
-    'call',
-    'ask',
-    'ask_with_schema',
-    'multi_ask',
-    'invoke',
-    'invoke_with_beliefs'
+    'call'
   ];
 
   const PROVIDER_CONFIG_METHODS = [
-    'bind',
-    'use_provider',
-    'configure'
+    'bind'
   ];
 
   const style = document.createElement('style');
@@ -197,10 +190,7 @@
       /\bgl\.jason\.GL\b/i,
       /\bgl\.jacamo\.GL\b/i,
       /\bmakeArtifact\s*\([^)]*gl\.jacamo\.GL/i,
-      /\bbind\s*\(/i,
-      /\buse_provider\s*\(/i,
-      /\bconfigure\s*\(\s*["']provider["']/i,
-      /\bsetting\s*\(\s*["']provider["']/i
+      /\bbind\s*\(/i
     ];
 
     return directPatterns.some(re => re.test(source));
@@ -221,10 +211,6 @@
       const env = escapeRegExp(p.env);
       const patterns = [
         new RegExp(`\\bbind\\s*\\([^)]*${quoted}`, 'i'),
-        new RegExp(`\\buse_provider\\s*\\(\\s*${quoted}`, 'i'),
-        new RegExp(`\\bconfigure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
-        new RegExp(`\\bsetting\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
-        new RegExp(`["']provider["']\\s*,\\s*${quoted}`, 'i'),
         new RegExp(`["']apiKeyEnv["']\\s*,\\s*["']${env}["']`, 'i'),
         new RegExp(`\\b${env}\\b`, 'i')
       ];
@@ -232,8 +218,6 @@
       aliases.forEach(alias => {
         const a = escapeRegExp(alias);
         patterns.push(new RegExp(`\\b${a}\\.bind\\s*\\([^)]*${quoted}`, 'i'));
-        patterns.push(new RegExp(`\\b${a}\\.use_provider\\s*\\(\\s*${quoted}`, 'i'));
-        patterns.push(new RegExp(`\\b${a}\\.configure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'));
       });
 
       if (patterns.some(re => re.test(clean))) found.push(key);
@@ -269,15 +253,6 @@
 
     // v2: bind(agent, provider, model, config) — replace provider arg
     src = src.replace(/(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["'])/g, `$1${providerKey}$2`);
-    // v1 legacy: use_provider/configure
-    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
-    src = src.replace(/(\.use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
-    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
-    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
-    src = src.replace(/(\.configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
-    src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
-    src = src.replace(/(\.configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
-    src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${model}$2`);
 
     if (src !== original) {
       const pos = editor.selectionStart || 0;
@@ -298,20 +273,10 @@
     const original = editor.value || '';
     let src = original;
 
-    src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
-    src = src.replace(/(\.use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
-    src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
-    src = src.replace(/(configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
-    src = src.replace(/(\.configure\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerName}$2`);
-    src = src.replace(/(configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
-    src = src.replace(/(\.configure\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
-    src = src.replace(/(setting\s*\(\s*["']model["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${modelName}$2`);
+    // v2: bind(agent, provider, model, config) — replace provider arg
+    src = src.replace(/(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["'])/g, `$1${providerName}$2`);
 
-    if (endpoint) {
-      src = src.replace(/(configure\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
-      src = src.replace(/(\.configure\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
-      src = src.replace(/(setting\s*\(\s*["']endpoint["']\s*,\s*["'])[^"']+(["']\s*\))/g, `$1${endpoint}$2`);
-    }
+    // v2: endpoint is part of the bind() config map — no source rewriting needed
 
     if (src !== original) {
       const pos = editor.selectionStart || 0;
