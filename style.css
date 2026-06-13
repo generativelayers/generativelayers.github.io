@@ -1623,8 +1623,70 @@ pre code {
 
 .constraints-body {
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.65;
   color: var(--color-text-secondary);
+}
+
+.constraints-body .c-section {
+  margin-bottom: 14px;
+}
+
+.constraints-body .c-section:last-child {
+  margin-bottom: 0;
+}
+
+.constraints-body .c-header {
+  margin-bottom: 5px;
+}
+
+.constraints-body .c-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.constraints-body .c-tag i {
+  font-size: 10px;
+}
+
+.c-pre  { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; }
+.c-post { background: #f0fdf4; border: 1px solid #d1fae5; color: #15803d; }
+.c-life { background: #faf5ff; border: 1px solid #f3e8ff; color: #6b21a8; }
+.c-err  { background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; }
+
+.constraints-body ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.constraints-body li {
+  position: relative;
+  padding-left: 2px;
+  margin-bottom: 4px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.constraints-body li:last-child {
+  margin-bottom: 0;
+}
+
+.constraints-body li::before {
+  content: '›';
+  position: absolute;
+  left: -14px;
+  color: #b45309;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .constraints-body strong {
@@ -1633,7 +1695,7 @@ pre code {
 }
 
 .constraints-body code {
-  font-size: 12.5px;
+  font-size: 12px;
   background: rgba(180, 83, 9, 0.06);
   border: 1px solid rgba(180, 83, 9, 0.15);
   color: #92400e;
