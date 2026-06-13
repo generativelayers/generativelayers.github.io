@@ -70,52 +70,52 @@
       <section class='info-panel' id='request-path'>
         <h2>Request path</h2>
         <div class='architecture'>
-          <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-see")' title='Click to view see()'>
             <div class='arch-text-wrapper'>
-              <i class='fa-solid fa-user-gear arch-icon-indicator'></i>
-              <span>1. Agent binds to a provider and calls for external support.</span>
+              <i class='fa-solid fa-binoculars arch-icon-indicator'></i>
+              <span>1. <code>see()</code> discovers available providers. <code>bind()</code> creates an isolated agent&ndash;provider context.</span>
             </div>
-            <span class='arch-phase-badge phase-initiation'>Initiation</span>
+            <span class='arch-phase-badge phase-initiation'>Discovery &amp; Binding</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-bind")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view call()'>
             <div class='arch-text-wrapper'>
-              <i class='fa-solid fa-diagram-project arch-icon-indicator'></i>
-              <span>2. Adapter creates a Generative Layers request.</span>
+              <i class='fa-solid fa-bolt arch-icon-indicator'></i>
+              <span>2. <code>call()</code> performs one governed invocation: policy gate &rarr; provider &rarr; validation &rarr; candidate creation.</span>
             </div>
-            <span class='arch-phase-badge phase-step-two'>Adapter</span>
+            <span class='arch-phase-badge phase-step-two'>Invocation</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-decide")' title='Click to view matching API command'>
-            <div class='arch-text-wrapper'>
-              <i class='fa-solid fa-shield-halved arch-icon-indicator'></i>
-              <span>3. Governance checks policy, limits, context, and audit requirements.</span>
-            </div>
-            <span class='arch-phase-badge phase-governance'>Governance</span>
-          </div>
-          <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view matching API command'>
-            <div class='arch-text-wrapper'>
-              <i class='fa-solid fa-server arch-icon-indicator'></i>
-              <span>4. Provider calls an LLM, tool, API, service, or module.</span>
-            </div>
-            <span class='arch-phase-badge phase-execution'>Provider</span>
-          </div>
-          <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-candidate")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-result")' title='Click to view result()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-cube arch-icon-indicator'></i>
-              <span>5. Result returns as candidate material.</span>
+              <span>3. <code>result()</code> inspects the outcome. <code>candidate()</code> crosses into governed material. <code>check()</code> and <code>get()</code> query content.</span>
             </div>
-            <span class='arch-phase-badge phase-material'>Material</span>
+            <span class='arch-phase-badge phase-material'>Inspection</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-accept")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-judge")' title='Click to view judge()'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-gavel arch-icon-indicator'></i>
+              <span>4. <code>judge()</code> records evaluative evidence. <code>decide()</code> computes admissibility from assessment verdicts.</span>
+            </div>
+            <span class='arch-phase-badge phase-governance'>Assessment</span>
+          </div>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand("row-accept")' title='Click to view accept()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-scale-balanced arch-icon-indicator'></i>
-              <span>6. Agent decides whether to adopt, verify, ignore, or reject it.</span>
+              <span>5. <code>accept()</code> adopts admissible material. <code>reject()</code> discards it. Both are terminal &mdash; no reversal.</span>
             </div>
             <span class='arch-phase-badge phase-decision'>Decision</span>
+          </div>
+          <div class='arch-arrow'>↓</div>
+          <div class='arch-box' onclick='scrollToCommand("row-knowledge")' title='Click to view knowledge()'>
+            <div class='arch-text-wrapper'>
+              <i class='fa-solid fa-brain arch-icon-indicator'></i>
+              <span>6. <code>knowledge()</code> retrieves accepted GL-side knowledge. <code>explain()</code> audits any lifecycle object.</span>
+            </div>
+            <span class='arch-phase-badge phase-execution'>Knowledge &amp; Audit</span>
           </div>
         </div>
       </section>
