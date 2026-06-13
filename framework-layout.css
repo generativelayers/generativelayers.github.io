@@ -58,6 +58,24 @@
   line-height: 1.5;
 }
 
+.framework-main #canonical-commands .cmd-row.filter-hidden,
+.framework-main #canonical-commands .cmd-details-row.filter-hidden,
+.framework-main #canonical-commands .cmd-constraints-row.filter-hidden,
+.framework-main #canonical-commands .commands-table tr[hidden] {
+  display: none !important;
+}
+
+.framework-main #canonical-commands .command-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 18px 0 22px;
+}
+
+.framework-main #canonical-commands .filter-btn {
+  white-space: nowrap;
+}
+
 @media (max-width: 1100px) {
   .framework-main #canonical-commands .table-container {
     overflow-x: auto;
@@ -84,6 +102,11 @@
     grid-template-columns: minmax(0, 1fr) 40px 40px !important;
     gap: 8px 8px !important;
     align-items: start !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-row.filter-hidden,
+  .framework-main #canonical-commands .commands-table tr.cmd-row[hidden] {
+    display: none !important;
   }
 
   .framework-main #canonical-commands .commands-table tr.cmd-row td:nth-child(4),
@@ -117,6 +140,16 @@
     flex: 0 0 34px !important;
   }
 
+  .framework-main #canonical-commands .commands-table tr.cmd-details-row:not(.open),
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row:not(.open) {
+    display: none !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-details-row.open,
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row.open {
+    display: block !important;
+  }
+
   .framework-main #canonical-commands .commands-table tr.cmd-row.constraints-open {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -127,7 +160,6 @@
   }
 
   .framework-main #canonical-commands .commands-table tr.cmd-constraints-row {
-    display: block !important;
     background: transparent !important;
     margin-bottom: 16px;
     border: none !important;
@@ -154,5 +186,14 @@
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
     box-shadow: var(--shadow-card);
+  }
+
+  .framework-main #canonical-commands .command-filters {
+    gap: 8px;
+  }
+
+  .framework-main #canonical-commands .filter-btn {
+    padding: 9px 13px;
+    font-size: 13px;
   }
 }
