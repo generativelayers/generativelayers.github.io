@@ -156,7 +156,7 @@
         <h2><i class="fa-solid fa-graduation-cap" style="margin-right:8px;color:var(--color-green-700);"></i>Composable Governance Patterns</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
           <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            BDI (Belief-Desire-Intention) agent-oriented programming is fundamentally about managing autonomous, goal-directed behavior. The integration patterns here are not hardcoded constraints; they represent <strong>emergent cognitive architectures</strong>. Because you can implement and orchestrate different <a href="framework.html#canonical-commands" style="color:var(--color-green-700);font-weight:600;">invocational commands</a> &mdash; such as asking for support, asserting active beliefs, checking state transitions, or auditing admissibility &mdash; in arbitrary combinations, the possibilities are unlimited. You are empowered to build any system you can conceive natively &mdash; entirely at the plan level without changing a single line of framework code.
+            BDI (Belief-Desire-Intention) agent-oriented programming is fundamentally about managing autonomous, goal-directed behavior. The integration patterns here are not hardcoded constraints; they represent <strong>emergent cognitive architectures</strong>. Because you can implement and orchestrate different <a href="framework.html#canonical-commands" style="color:var(--color-green-700);font-weight:600;">lifecycle commands</a> &mdash; such as binding providers, calling generative resources, inspecting candidate material, recording evaluative judgements, computing admissibility, and accepting or rejecting outputs &mdash; in arbitrary combinations, the possibilities are unlimited. You are empowered to build any system you can conceive natively &mdash; entirely at the plan level without changing a single line of framework code.
           </p>
         </div>
 
@@ -179,11 +179,11 @@
               <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized multi-agent cognitive system that simulates software engineering roles, cooperating through belief-sharing and automated feedback cycles to continuously produce and audit software assets.</div>
               <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Product Owner Agent:</strong> Receives raw specifications and calls <code>ask(requirements_schema)</code> to decompose the task into atomic user stories.</li>
-                <li><strong>Developer Agent:</strong> Takes a user story and calls <code>ask(code_schema)</code> to generate candidate Java code.</li>
-                <li><strong>Tester Agent:</strong> Generates corresponding unit tests, compiles the program, and uses <code>check(test_results)</code> to assert that the generated code compiles and all tests pass.</li>
-                <li><strong>Security Auditor Agent:</strong> Intercepts the code and calls <code>admissible(policy_rules)</code> to check for credentials leakage or SQL vulnerabilities.</li>
-                <li><strong>Governance Plan:</strong> If tests fail or the auditor flags a vulnerability, the agent calls <code>reject(candidate_code)</code> and feeds the error trace back into <code>ask</code> for a self-correcting retry loop. If all checks clear, the agent calls <code>accept(candidate_code)</code> and writes the code to the filesystem.</li>
+                <li><strong>Product Owner Agent:</strong> Receives raw specifications and uses <code>call(..., "ANSWER", prompt, "stories")</code> to decompose the task into atomic user stories.</li>
+                <li><strong>Developer Agent:</strong> Takes a user story and uses <code>call(..., "ANSWER", prompt, "code")</code> to generate candidate Java code, then <code>candidate(resId)</code> to isolate the output.</li>
+                <li><strong>Tester Agent:</strong> Generates corresponding unit tests, compiles the program, and uses <code>check(resId)</code> to verify the generated code compiles and all tests pass.</li>
+                <li><strong>Security Auditor Agent:</strong> Intercepts the candidate and calls <code>judge(candId, "auditor", "APPROVE", confidence, rationale)</code> to record whether the code passes security policies.</li>
+                <li><strong>Governance Plan:</strong> The agent calls <code>decide(candId)</code> to check admissibility. If inadmissible, it calls <code>reject(candId, "failed audit")</code> and feeds the error trace back into a new <code>call</code> for a self-correcting retry loop. If admissible, it calls <code>accept(candId, "all checks passed")</code> and writes the code to the filesystem.</li>
               </ul>
             </div>
           </div>
@@ -206,11 +206,11 @@
               <div style="margin-top:6px;"><strong>How it works:</strong> A safety-critical expert system that guards the agent's epistemic beliefs, validating external LLM propositions against verified medical repositories before allowing them to be adopted as internally active beliefs.</div>
               <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Triage Agent:</strong> Takes patient symptoms and calls <code>ask(symptom_summary_schema)</code> to generate optimal lookup keys for medical literature.</li>
-                <li><strong>Search Agent:</strong> Queries the database and asserts the retrieved clinical papers into the agent's belief base with <code>assert(retrieved_text)</code>.</li>
-                <li><strong>Diagnostic Agent:</strong> Synthesizes the patient data and research findings to generate a candidate diagnostic report.</li>
-                <li><strong>Admissibility Policy:</strong> A strict rule-checking pipeline running <code>admissible(medical_policies)</code> checks the generated diagnosis. It parses the citations in the candidate material, maps them to the actual papers stored in the agent's beliefs, and verifies that the dosage suggestions match established thresholds.</li>
-                <li><strong>Resolution Plan:</strong> If any dosage suggestion is outside safe bounds or a citation is unverified, <code>reject</code> is instantly triggered. Otherwise, the agent calls <code>accept</code> and populates the medical dashboard.</li>
+                <li><strong>Triage Agent:</strong> Takes patient symptoms and uses <code>call(..., "ANSWER", symptoms, "lookup_keys")</code> to generate optimal lookup keys for medical literature.</li>
+                <li><strong>Search Agent:</strong> Queries the database and asserts the retrieved clinical papers into the agent's belief base (BDI-level adoption, outside GL).</li>
+                <li><strong>Diagnostic Agent:</strong> Uses <code>call(..., "ANSWER", patient_data, "diagnosis,dosage,citations")</code> to generate a candidate diagnostic report, then <code>candidate(resId)</code> to isolate it.</li>
+                <li><strong>Safety Review:</strong> A strict rule-checking pipeline calls <code>judge(candId, "safety_auditor", verdict, confidence, rationale)</code> to evaluate the diagnosis. It uses <code>get(candId, "citations")</code> and <code>get(candId, "dosage")</code> to parse candidate fields, maps citations to papers in the agent's beliefs, and verifies dosage against established thresholds.</li>
+                <li><strong>Resolution Plan:</strong> The agent calls <code>decide(candId)</code>. If inadmissible, <code>reject(candId, "unsafe dosage")</code> is triggered. Otherwise, <code>accept(candId, "verified diagnosis")</code> populates the medical dashboard.</li>
               </ul>
             </div>
           </div>
@@ -233,10 +233,10 @@
               <div style="margin-top:6px;"><strong>How it works:</strong> An autonomous financial agent that uses utility-driven reasoning to scout markets, negotiate contracts with wholesale providers, and dynamic safety constraints to prevent balance depletion during high-frequency bidding.</div>
               <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Scouter Agent:</strong> Uses <code>ask(price_trends)</code> to predict demand and inventory values, then updates its beliefs using <code>assert(market_price(item, value))</code>.</li>
-                <li><strong>Negotiator Agent:</strong> Bids on supplier assets. It uses <code>ask</code> to generate a persuasive counter-offer, which is sent as candidate material.</li>
-                <li><strong>Safety Guard:</strong> Before sending any bid, the agent evaluates the candidate counter-offer against an admissibility policy: <code>admissible(max_budget_limit)</code>.</li>
-                <li><strong>Commit Plan:</strong> If the supplier's price falls below the agent's threshold (verified via <code>check</code>), the agent triggers <code>accept</code> and registers a belief: <code>assert(contract_finalized(supplier, item, price))</code>, executing an automated API payout.</li>
+                <li><strong>Scouter Agent:</strong> Uses <code>call(..., "ANSWER", market_query, "item,price,trend")</code> to predict demand and inventory values, then adopts accepted results into its beliefs (BDI-level).</li>
+                <li><strong>Negotiator Agent:</strong> Bids on supplier assets. It uses <code>call(..., "ANSWER", negotiation_prompt, "offer,price")</code> to generate a persuasive counter-offer as candidate material.</li>
+                <li><strong>Safety Guard:</strong> Before sending any bid, the agent calls <code>judge(candId, "budget_guard", verdict, confidence, rationale)</code> to evaluate the counter-offer against the maximum budget limit, then <code>decide(candId)</code> to check admissibility.</li>
+                <li><strong>Commit Plan:</strong> If the supplier's price falls below the agent's threshold (verified via <code>get(candId, "price")</code>), the agent triggers <code>accept(candId, "within budget")</code> and registers the contract in its belief base (BDI-level), executing an automated API payout.</li>
               </ul>
             </div>
           </div>
@@ -260,9 +260,9 @@
               <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Monitor Agent:</strong> Constantly receives telemetry. If an anomaly is registered, it triggers a goal to resolve the outage.</li>
-                <li><strong>Planner Agent:</strong> Uses <code>ask(grid_routing_schema)</code> to generate a candidate rerouting sequence around the damaged substation.</li>
-                <li><strong>Validation Guard:</strong> Runs a simulation to verify grid load. It checks if the candidate route is safe by calling <code>admissible(grid_capacity_thresholds)</code>.</li>
-                <li><strong>Decision Loop:</strong> If overloading is predicted, the plan triggers <code>reject</code> and prompts <code>ask</code> to generate a load-shedding route instead. Once a route is validated, <code>accept</code> commits the changes, triggering physical smart switches on the grid.</li>
+                <li><strong>Planner Agent:</strong> Uses <code>call(..., "ANSWER", anomaly_data, "route,load_estimate")</code> to generate a candidate rerouting sequence around the damaged substation, then <code>candidate(resId)</code> to isolate it.</li>
+                <li><strong>Validation Guard:</strong> Runs a simulation to verify grid load. It calls <code>judge(candId, "load_simulator", verdict, confidence, rationale)</code> to record whether the candidate route stays within capacity thresholds, then <code>decide(candId)</code> to check admissibility.</li>
+                <li><strong>Decision Loop:</strong> If inadmissible, the plan triggers <code>reject(candId, "overload predicted")</code> and issues a new <code>call</code> to generate a load-shedding route instead. Once admissible, <code>accept(candId, "safe route confirmed")</code> commits the changes, triggering physical smart switches on the grid.</li>
               </ul>
             </div>
           </div>
@@ -285,10 +285,10 @@
               <div style="margin-top:6px;"><strong>How it works:</strong> Virtual social agents equipped with distinct personality variables, social relationship beliefs, and dynamic dialogic generation plans, producing contextually coherent narrative interactions.</div>
               <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Perception Agent:</strong> Records player choices and stores them as memory beliefs: <code>assert(player_relation(NPC, player, hostile))</code>.</li>
-                <li><strong>Dialogue Agent:</strong> When the player approaches, the NPC calls <code>ask</code> to generate a dialogue draft based on its current mood, personality traits, and past memories.</li>
-                <li><strong>Lore Auditor:</strong> The game director agent calls <code>admissible(lore_guidelines)</code> to check that the draft dialogue does not conflict with established game lore or contain inappropriate speech.</li>
-                <li><strong>Adopt & Speak:</strong> If approved, the agent calls <code>accept</code> and uses <code>assert</code> to record the dialogue line into the narrative history before playing the voice line.</li>
+                <li><strong>Perception Agent:</strong> Records player choices and stores them as memory beliefs (BDI-level): e.g. <code>player_relation(NPC, player, hostile)</code>.</li>
+                <li><strong>Dialogue Agent:</strong> When the player approaches, the NPC uses <code>call(..., "ANSWER", context, "dialogue,tone")</code> to generate a dialogue draft based on its current mood, personality traits, and <code>knowledge(agentId)</code> from past accepted interactions.</li>
+                <li><strong>Lore Auditor:</strong> The game director agent calls <code>judge(candId, "lore_auditor", verdict, confidence, rationale)</code> to check that the draft dialogue does not conflict with established game lore or contain inappropriate speech, then <code>decide(candId)</code>.</li>
+                <li><strong>Adopt &amp; Speak:</strong> If admissible, the agent calls <code>accept(candId, "lore compliant")</code> and records the dialogue line into the narrative history (BDI-level) before playing the voice line.</li>
               </ul>
             </div>
           </div>
