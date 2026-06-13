@@ -24,7 +24,7 @@
     {
       id: 'result', group: 'invocation', command: 'result(resultId)', type: 'String',
       description: 'Inspect the invocation outcome: SUCCESS, INVALID_OUTPUT, PROVIDER_FAILED, or GOVERNANCE_DENIED.',
-      astra: 'rule +!check_result(string rid) {\n    console.println("Result: " + gl.result(rid));\n}',
+      astra: 'rule +!check_result(string rid) {\n    !handle_outcome(gl.result(rid), rid);\n}',
       jason: '+!check_result(Rid) <-\n    gl.result(Rid, R);\n    .print("Result: ", R).',
       jacamo: '+!check_result(Rid) <-\n    result(Rid, R);\n    .print("Result: ", R).'
     },
@@ -38,28 +38,28 @@
     {
       id: 'check', group: 'decision', command: 'check(refId)', type: 'String',
       description: 'Check governance state of a result or candidate (validation status, lifecycle status).',
-      astra: 'rule +!inspect(string rid) {\n    console.println("Status: " + gl.check(rid));\n}',
+      astra: 'rule +!inspect(string rid) {\n    !log_status(gl.check(rid), rid);\n}',
       jason: '+!inspect(Rid) <-\n    gl.check(Rid, S);\n    .print("Status: ", S).',
       jacamo: '+!inspect(Rid) <-\n    check(Rid, S);\n    .print("Status: ", S).'
     },
     {
       id: 'get', group: 'decision', command: 'get(candidateId, field)', type: 'String',
       description: 'Extract a named field value from candidate material.',
-      astra: 'rule +!inspect_field(string cid) {\n    console.println("Label: " + gl.get(cid, "label"));\n}',
+      astra: 'rule +!inspect_field(string cid) {\n    +label(gl.get(cid, "label"));\n}',
       jason: '+!inspect_field(Cid) <-\n    gl.get(Cid, "label", Label);\n    .print("Label: ", Label).',
       jacamo: '+!inspect_field(Cid) <-\n    get(Cid, "label", Label);\n    .print("Label: ", Label).'
     },
     {
       id: 'judge', group: 'decision', command: 'judge(candidateId, assessor, verdict, confidence, rationale)', type: 'String',
       description: 'Record evaluative evidence about a candidate. Returns an assessment ID.',
-      astra: 'rule +!review(string cid) {\n    console.println("Assessment: " + gl.judge(cid, "reviewer", "APPROVE", "0.9", "looks correct"));\n}',
+      astra: 'rule +!review(string cid) {\n    gl.judge(cid, "reviewer", "APPROVE", "0.9", "looks correct");\n}',
       jason: '+!review(Cid) <-\n    gl.judge(Cid, "reviewer", "APPROVE", "0.9", "looks correct", Aid);\n    .print("Assessment: ", Aid).',
       jacamo: '+!review(Cid) <-\n    judge(Cid, "reviewer", "APPROVE", "0.9", "looks correct", Aid);\n    .print("Assessment: ", Aid).'
     },
     {
       id: 'decide', group: 'decision', command: 'decide(candidateId)', type: 'String',
       description: 'Compute admissibility (read-only preview). Returns ADMISSIBLE, INADMISSIBLE:reason, or FINAL:status.',
-      astra: 'rule +!check_admissibility(string cid) {\n    console.println("Admissibility: " + gl.decide(cid));\n}',
+      astra: 'rule +!check_admissibility(string cid) {\n    !route_decision(gl.decide(cid), cid);\n}',
       jason: '+!check_admissibility(Cid) <-\n    gl.decide(Cid, Adm);\n    .print("Admissibility: ", Adm).',
       jacamo: '+!check_admissibility(Cid) <-\n    decide(Cid, Adm);\n    .print("Admissibility: ", Adm).'
     },
@@ -80,7 +80,7 @@
     {
       id: 'knowledge', group: 'decision', command: 'knowledge(agentId)', type: 'String',
       description: 'Retrieve all accepted GL-side knowledge for an agent. Can be passed as context to future calls.',
-      astra: 'rule +!get_knowledge() {\n    console.println(gl.knowledge("agent1"));\n}',
+      astra: 'rule +!enrich_context(string bid) {\n    !decide_result(gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label", gl.knowledge("agent1")));\n}',
       jason: '+!get_knowledge <-\n    gl.knowledge("agent1", K);\n    .print(K).',
       jacamo: '+!get_knowledge <-\n    knowledge("agent1", K);\n    .print(K).'
     },
