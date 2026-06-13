@@ -1560,6 +1560,92 @@ pre code {
   transform: scale(1.1);
 }
 
+/* --- View Constraints Shield Button --- */
+.view-constraints-btn {
+  background: white;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s var(--ease);
+}
+
+.view-constraints-btn:hover {
+  background: rgba(180, 83, 9, 0.08);
+  border-color: #b45309;
+  color: #b45309;
+  transform: scale(1.08);
+}
+
+.view-constraints-btn i {
+  font-size: 13px;
+  transition: transform 0.2s var(--ease);
+}
+
+.cmd-row.constraints-open .view-constraints-btn {
+  background: #b45309;
+  border-color: #b45309;
+  color: white;
+  box-shadow: 0 3px 8px rgba(180, 83, 9, 0.3);
+}
+
+.cmd-row.constraints-open .view-constraints-btn i {
+  transform: scale(1.1);
+}
+
+/* --- Constraints Expandable Panel --- */
+.cmd-constraints-row {
+  background: #fffbf5 !important;
+}
+
+.cmd-constraints-content {
+  overflow: hidden;
+  max-height: 0;
+  padding: 0 20px;
+  transition: all 0.3s var(--ease);
+  border-top: 1px dashed transparent;
+  border-bottom: 1px dashed transparent;
+}
+
+.cmd-constraints-row.open .cmd-constraints-content {
+  max-height: 600px;
+  padding: 20px;
+  border-top: 1px dashed #e5d5b0;
+  border-bottom: 1px dashed #e5d5b0;
+}
+
+.constraints-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.constraints-body strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.constraints-body code {
+  font-size: 12.5px;
+  background: rgba(180, 83, 9, 0.06);
+  border: 1px solid rgba(180, 83, 9, 0.15);
+  color: #92400e;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.constraints-body em {
+  color: #b45309;
+  font-weight: 500;
+}
+
 /* ================================================================
    Expandable Core Concepts Card
    ================================================================ */
@@ -1701,8 +1787,8 @@ pre code {
   .commands-table tr.cmd-row {
     display: grid !important;
     grid-template-areas:
-      "name usage"
-      "type usage"
+      "name btns"
+      "type btns"
       "desc desc";
     grid-template-columns: 1fr auto;
     gap: 8px 12px;
@@ -1749,12 +1835,19 @@ pre code {
     padding-top: 4px !important;
   }
 
-  .commands-table tr.cmd-row td:nth-child(4) {
-    grid-area: usage;
+  .commands-table tr.cmd-row td:nth-child(4),
+  .commands-table tr.cmd-row td:nth-child(5) {
+    grid-area: btns;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     align-self: center;
+  }
+
+  .commands-table tr.cmd-row td:nth-child(5) {
+    grid-area: unset;
+    margin-top: -32px;
+    margin-right: 40px;
   }
 
   /* When expanded on mobile, merge the card with the details row */
