@@ -75,8 +75,8 @@
   ]);
 
   // GL framework methods
-  const GL_METHODS = new Set(['ask', 'configure', 'use_provider', 'accept', 'reject', 'field',
-    'candidate', 'valid', 'respond', 'multi_ask', 'ask_with_schema', 'parse_json']);
+  const GL_METHODS = new Set(['see', 'bind', 'call', 'result', 'candidate', 'check', 'get',
+    'judge', 'decide', 'accept', 'reject', 'knowledge', 'explain']);
 
   /* ── Tokenizer ──────────────────────────────────────────── */
   function tokenize(source) {

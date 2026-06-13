@@ -30,6 +30,7 @@
   };
 
   const GENERATION_METHODS = [
+    'call',
     'ask',
     'ask_with_schema',
     'multi_ask',
@@ -38,6 +39,7 @@
   ];
 
   const PROVIDER_CONFIG_METHODS = [
+    'bind',
     'use_provider',
     'configure'
   ];
@@ -195,6 +197,7 @@
       /\bgl\.jason\.GL\b/i,
       /\bgl\.jacamo\.GL\b/i,
       /\bmakeArtifact\s*\([^)]*gl\.jacamo\.GL/i,
+      /\bbind\s*\(/i,
       /\buse_provider\s*\(/i,
       /\bconfigure\s*\(\s*["']provider["']/i,
       /\bsetting\s*\(\s*["']provider["']/i
@@ -217,6 +220,7 @@
       const quoted = `["']${escapeRegExp(key)}["']`;
       const env = escapeRegExp(p.env);
       const patterns = [
+        new RegExp(`\\bbind\\s*\\([^)]*${quoted}`, 'i'),
         new RegExp(`\\buse_provider\\s*\\(\\s*${quoted}`, 'i'),
         new RegExp(`\\bconfigure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
         new RegExp(`\\bsetting\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'),
@@ -227,6 +231,7 @@
 
       aliases.forEach(alias => {
         const a = escapeRegExp(alias);
+        patterns.push(new RegExp(`\\b${a}\\.bind\\s*\\([^)]*${quoted}`, 'i'));
         patterns.push(new RegExp(`\\b${a}\\.use_provider\\s*\\(\\s*${quoted}`, 'i'));
         patterns.push(new RegExp(`\\b${a}\\.configure\\s*\\(\\s*["']provider["']\\s*,\\s*${quoted}`, 'i'));
       });
@@ -262,6 +267,9 @@
     const model = DEFAULT_MODELS[providerKey] || providerKey;
     let src = original;
 
+    // v2: bind(agent, provider, model, config) — replace provider arg
+    src = src.replace(/(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["'])/g, `$1${providerKey}$2`);
+    // v1 legacy: use_provider/configure
     src = src.replace(/(use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
     src = src.replace(/(\.use_provider\s*\(\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
     src = src.replace(/(setting\s*\(\s*["']provider["']\s*,\s*["'])[a-zA-Z0-9._-]+(["']\s*\))/g, `$1${providerKey}$2`);
