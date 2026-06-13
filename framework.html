@@ -152,7 +152,7 @@
             <ul>
               <li><strong>Datatype Translation</strong>: Maps native agent datatypes, such as AgentSpeak terms, structures, and lists, to standard Java parameters and vice versa.</li>
               <li><strong>Syntactic Integration</strong>: Realizes the canonical API as native extensions, such as ASTRA Modules, Jason Internal Actions, or CArtAgO Artifacts.</li>
-              <li><strong>Asynchronous Lifecycle Binding</strong>: Manages request session tracking, binding asynchronous responses to the initiating agent context.</li>
+              <li><strong>Governed Lifecycle Binding</strong>: Creates isolated binding contexts per agent, each with its own governance kernel and body registry, while lifecycle stores remain globally shared so that any lifecycle ID is resolvable from any context.</li>
             </ul>
           </div>
         </div>
@@ -168,6 +168,7 @@
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
               <li><strong>Decoupled Safety Policies</strong>: Enforces budget rules, token limits, rate caps, and content boundaries completely outside agent logic.</li>
+              <li><strong>Assessment & Admissibility Gating</strong>: Candidates pass through an evidence-based assessment pipeline &mdash; evaluative verdicts recorded via <code>judge()</code> feed into an admissibility checker that gates whether <code>accept()</code> is permitted.</li>
               <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log request contexts, checked policies, and outbound results.</li>
               <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
             </ul>
@@ -202,6 +203,7 @@
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
               <li><strong>Isolated State Container</strong>: Exposes generated values to the agent without automatically modifying internal beliefs or plans.</li>
+              <li><strong>Lifecycle-Governed Status</strong>: Each candidate tracks its governance state through a lifecycle (<code>VALIDATED → ASSESSED → ACCEPTED / REJECTED</code>). State transitions gate which operations are valid &mdash; invalid candidates cannot be assessed, and final states cannot be reversed.</li>
               <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>check()</code> and <code>get()</code> so agents can inspect data before adoption.</li>
               <li><strong>Deliberated Incorporation</strong>: Candidate fields become GL-side knowledge only when the agent explicitly adopts the candidate through <code>accept(candidateId, reason)</code>.</li>
             </ul>
