@@ -70,15 +70,15 @@
       <section class='info-panel' id='request-path'>
         <h2>Request path</h2>
         <div class='architecture'>
-          <div class='arch-box' onclick='scrollToCommand("row-ask")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-user-gear arch-icon-indicator'></i>
-              <span>1. Agent asks for external support.</span>
+              <span>1. Agent binds to a provider and calls for external support.</span>
             </div>
             <span class='arch-phase-badge phase-initiation'>Initiation</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-use_provider")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-bind")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-diagram-project arch-icon-indicator'></i>
               <span>2. Adapter creates a Generative Layers request.</span>
@@ -86,7 +86,7 @@
             <span class='arch-phase-badge phase-step-two'>Adapter</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-admissible")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-decide")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-shield-halved arch-icon-indicator'></i>
               <span>3. Governance checks policy, limits, context, and audit requirements.</span>
@@ -94,7 +94,7 @@
             <span class='arch-phase-badge phase-governance'>Governance</span>
           </div>
           <div class='arch-arrow'>↓</div>
-          <div class='arch-box' onclick='scrollToCommand("row-invoke")' title='Click to view matching API command'>
+          <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view matching API command'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-server arch-icon-indicator'></i>
               <span>4. Provider calls an LLM, tool, API, service, or module.</span>
@@ -202,8 +202,8 @@
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
               <li><strong>Isolated State Container</strong>: Exposes generated values to the agent without automatically modifying internal beliefs or plans.</li>
-              <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>valid()</code> and <code>field()</code> so agents can inspect data before adoption.</li>
-              <li><strong>Deliberated Incorporation</strong>: Merges fields into the agent belief base only when the agent explicitly adopts the candidate through <code>accept()</code>.</li>
+              <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>check()</code> and <code>get()</code> so agents can inspect data before adoption.</li>
+              <li><strong>Deliberated Incorporation</strong>: Candidate fields become GL-side knowledge only when the agent explicitly adopts the candidate through <code>accept(candidateId, reason)</code>.</li>
             </ul>
           </div>
         </div>
@@ -211,7 +211,7 @@
 
       <section class='info-panel' id='canonical-commands'>
         <h2>Canonical commands</h2>
-        <p>The framework establishes a strict canonical contract of 16 core commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
+        <p>The framework establishes a strict canonical contract of 13 lifecycle commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
 
         <div class='command-filters'>
           <button class='filter-btn active' data-group='all'>All</button>
