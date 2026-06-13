@@ -206,7 +206,9 @@
               </div>
             </div>
             <div class="tab-content active" id="prov-cerebras-astra">
-              <pre><code>string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);</code></pre>
+              <pre><code><span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);
+}</code></pre>
             </div>
             <div class="tab-content" id="prov-cerebras-jason">
               <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
@@ -230,7 +232,9 @@
               </div>
             </div>
             <div class="tab-content active" id="prov-groq-astra">
-              <pre><code>string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>);</code></pre>
+              <pre><code><span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>);
+}</code></pre>
             </div>
             <div class="tab-content" id="prov-groq-jason">
               <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>, Bid);</code></pre>
@@ -254,7 +258,9 @@
               </div>
             </div>
             <div class="tab-content active" id="prov-gemini-astra">
-              <pre><code>string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>);</code></pre>
+              <pre><code><span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>);
+}</code></pre>
             </div>
             <div class="tab-content" id="prov-gemini-jason">
               <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>, Bid);</code></pre>
@@ -289,7 +295,9 @@
                 </div>
                 <div class="tab-content active" id="prov-custom-astra">
                   <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
-string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"your-model-name"</span>, <span class="string">"endpoint=https://api.your-provider.com/v1/chat/completions;apiKeyEnv=YOUR_API_KEY"</span>);</code></pre>
+<span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"your-model-name"</span>, <span class="string">"endpoint=https://api.your-provider.com/v1/chat/completions;apiKeyEnv=YOUR_API_KEY"</span>);
+}</code></pre>
                 </div>
                 <div class="tab-content" id="prov-custom-jason">
                   <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
@@ -305,10 +313,14 @@ bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions
                 <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;">
                   Set the API key as an environment variable (e.g. <code>export GROK_API_KEY="xai-..."</code>), then bind:
                   <pre style="background:#1e1e24;padding:10px;border-radius:5px;font-size:11px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// xAI Grok</span>
-string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"grok-2"</span>, <span class="string">"endpoint=https://api.x.ai/v1/chat/completions;apiKeyEnv=GROK_API_KEY"</span>);
+<span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"grok-2"</span>, <span class="string">"endpoint=https://api.x.ai/v1/chat/completions;apiKeyEnv=GROK_API_KEY"</span>);
+}
 
 <span class="comment">// Mistral</span>
-string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"mistral-large-latest"</span>, <span class="string">"endpoint=https://api.mistral.ai/v1/chat/completions;apiKeyEnv=MISTRAL_API_KEY"</span>);</code></pre>
+<span class="keyword">rule</span> +!bound(<span class="keyword">string</span> bid) {
+    bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"mistral-large-latest"</span>, <span class="string">"endpoint=https://api.mistral.ai/v1/chat/completions;apiKeyEnv=MISTRAL_API_KEY"</span>);
+}</code></pre>
                 </div>
               </div>
             </div>
@@ -327,13 +339,17 @@ string bid = gl.bind(<span class="string">"agent1"</span>, <span class="string">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
                 Providers can be switched at any point during execution. This enables patterns like <a href="patterns.html#pattern-cross-llm" style="color:var(--color-green-700);">Cross-LLM Verification</a>, where one LLM generates and another verifies.
               </p>
-              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// Bind to Gemini first</span>
-string bid1 = gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>);
-string rid = gl.call(bid1, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label"</span>, <span class="string">""</span>);
+              <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// Bind to Gemini first, then call</span>
+<span class="keyword">rule</span> +!classified(<span class="keyword">string</span> rid) {
+    <span class="keyword">string</span> bid1 = gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>);
+    rid = gl.call(bid1, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label"</span>, <span class="string">""</span>);
+}
 
 <span class="comment">// Then bind to Cerebras to verify</span>
-string bid2 = gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);
-string vrid = gl.call(bid2, <span class="string">"verify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Is apple = fruit correct?"</span>, <span class="string">"verdict"</span>, <span class="string">""</span>);</code></pre>
+<span class="keyword">rule</span> +!verified(<span class="keyword">string</span> vrid) {
+    <span class="keyword">string</span> bid2 = gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);
+    vrid = gl.call(bid2, <span class="string">"verify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Is apple = fruit correct?"</span>, <span class="string">"verdict"</span>, <span class="string">""</span>);
+}</code></pre>
             </div>
           </div>
         </div>
