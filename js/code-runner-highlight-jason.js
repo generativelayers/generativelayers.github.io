@@ -42,7 +42,7 @@
     namespace:    '#4EC9B0',  // begin/end namespace
     plain:        '#D4D4D4',  // default text
     // GL framework
-    glMethod:     '#DCDCAA',  // gl.ask, gl.configure etc
+    glMethod:     '#DCDCAA',  // gl.bind, gl.call etc
     glAlias:      '#9CDCFE',  // gl module alias
   };
 

@@ -745,7 +745,7 @@
     const found = [];
 
     Object.keys(PROVIDERS).forEach(provider => {
-      const exactProvider = new RegExp(`(?:use_provider|provider|set_provider|configure)\\s*\\(?.{0,80}["']${provider}["']`, 'i');
+      const exactProvider = new RegExp(`(?:bind)\\s*\\([^)]*["']${provider}["']`, 'i');
       const providerSetting = new RegExp(`["']provider["']\\s*,\\s*["']${provider}["']`, 'i');
       const envName = PROVIDERS[provider].env.toLowerCase();
       if (exactProvider.test(clean) || providerSetting.test(clean) || clean.includes(envName)) found.push(provider);
