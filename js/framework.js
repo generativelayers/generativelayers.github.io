@@ -80,7 +80,7 @@
     {
       id: 'knowledge', group: 'decision', command: 'knowledge(agentId)', type: 'String',
       description: 'Retrieve all accepted GL-side knowledge for an agent. Can be passed as context to future calls.',
-      astra: 'rule +!classify_with_context(string bid) {\n    !decide_result(gl.call(bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label", gl.knowledge("agent1")));\n}',
+      astra: 'rule +!recall(string agent) {\n    +context(gl.knowledge(agent));\n}',
       jason: '+!get_knowledge <-\n    gl.knowledge("agent1", K);\n    .print(K).',
       jacamo: '+!get_knowledge <-\n    knowledge("agent1", K);\n    .print(K).'
     },
