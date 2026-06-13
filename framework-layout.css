@@ -116,4 +116,43 @@
     margin: 0 !important;
     flex: 0 0 34px !important;
   }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-row.constraints-open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: transparent;
+    margin-bottom: 0;
+    box-shadow: none;
+    background: #fffbf5 !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row {
+    display: block !important;
+    background: transparent !important;
+    margin-bottom: 16px;
+    border: none !important;
+  }
+
+  .framework-main #canonical-commands .commands-table tr.cmd-constraints-row td {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .framework-main #canonical-commands .cmd-constraints-content {
+    border: 1px solid #e5d5b0 !important;
+    border-radius: var(--radius-md) !important;
+    background: #fffbf5;
+    transition: all 0.3s var(--ease);
+  }
+
+  .framework-main #canonical-commands .cmd-constraints-row.open .cmd-constraints-content {
+    padding: 16px !important;
+    margin-top: 0;
+    border-top: none !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    box-shadow: var(--shadow-card);
+  }
 }
