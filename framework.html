@@ -27,7 +27,7 @@
   <!-- Styles -->
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'>
   <link rel='stylesheet' href='style.css?v=3.8'>
-  <link rel='stylesheet' href='framework-layout.css?v=2'>
+  <link rel='stylesheet' href='framework-layout.css?v=4'>
   <script defer src='js/search.js?v=2'></script>
   <script defer src='js/run-code-links.js?v=3'></script>
 </head>
@@ -216,17 +216,20 @@
         <p>The framework establishes a strict canonical contract of 13 lifecycle commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
 
         <div class='command-filters'>
-          <button class='filter-btn active' data-group='all'>All</button>
-          <button class='filter-btn' data-group='lifecycle'>Lifecycle</button>
-          <button class='filter-btn' data-group='invocation'>Invocation</button>
-          <button class='filter-btn' data-group='decision'>Decision</button>
+          <button class='filter-btn active' type='button' data-group='all'>All</button>
+          <button class='filter-btn' type='button' data-group='discovery'>Discovery</button>
+          <button class='filter-btn' type='button' data-group='invocation'>Invocation</button>
+          <button class='filter-btn' type='button' data-group='inspection'>Inspection</button>
+          <button class='filter-btn' type='button' data-group='assessment'>Assessment</button>
+          <button class='filter-btn' type='button' data-group='decision'>Decision</button>
+          <button class='filter-btn' type='button' data-group='knowledge'>Knowledge / Audit</button>
         </div>
       </section>
     </main>
   </div>
 
   <script src='js/framework.js?v=2'></script>
-  <script src='js/framework-architecture-expanded.js?v=1'></script>
+  <script src='js/framework-architecture-expanded.js?v=2'></script>
   <script defer src='js/static-highlight.js'></script>
   <script defer src='js/scroll-reveal.js'></script>
 </body>
