@@ -11,7 +11,7 @@
   'use strict';
 
   const CFG = window.GL_PLATFORM_CONFIG || {};
-  const V = window.GL_VERSION || '0.2.0';
+  const V = window.GL_VERSION || '0.2.1';
   const PLATFORM = window.GL_PLATFORM || CFG.id || 'astra';
   const FLAT_ROOT = !!CFG.flatRoot;
   const STORAGE_KEY = (CFG.storagePrefix || ('gl_runner_' + PLATFORM + '_')) + 'project';

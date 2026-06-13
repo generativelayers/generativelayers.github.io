@@ -200,7 +200,7 @@
             <div style="padding:0 16px 18px;border-top:1px solid var(--color-border-light);">
 
               <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin:14px 0 16px;">
-                Four capabilities might appear absent from the Generative Layers framework: adaptive feedback, cost management, temporal validity, and deciding <em>when</em> to consult an LLM. These are not missing — they are deliberately excluded from the governance layer because they belong to the <strong>BDI agent's reasoning cycle</strong>. GL provides the governed infrastructure; the agent provides the reasoning about when and how to use it, using the same <a href="https://link.springer.com/chapter/10.1007/978-3-031-82035-0_12" target="_blank" rel="noopener">practical reasoning programming style</a> (Collier, Beaumont &amp; Ciortea, EUMAS 2025) it uses for any other domain.
+                Four capabilities might appear absent from the Generative Layers framework: adaptive feedback, cost management, temporal validity, and deciding <em>when</em> to consult an LLM. These are not missing — they are deliberately excluded from the governance layer because they belong to the <strong>BDI agent's reasoning cycle</strong>. GL provides the governed infrastructure; the agent provides the reasoning about when and how to use it, using the same practical reasoning programming style it uses for any other domain. The following examples are valid ASTRA programs that compile against the GL framework.
               </p>
 
               <!-- 3.1 Feedback -->
@@ -208,17 +208,25 @@
               <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
                 If an agent consistently rejects candidates from a particular provider, it can track that experience as beliefs and adopt a goal to rebind — using standard BDI deliberation and means-end reasoning:
               </p>
-              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Deliberation: too many rejections triggers a rebind goal</span>
-+rejected(Provider) : count(rejected(Provider), N) &amp; N &gt; 3
-    &lt;- !rebound(Provider).
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Deliberation: threshold hit, trigger rebind</span>
+rule +rejected(string provider) : rejection_count(int count) &amp; count &gt;= 3 {
+    -+rejection_count(count + 1);
+    !rebound(provider);
+}
 
-<span style="color:#6A9955;">// Means-End Reasoning: rebind to an alternative provider</span>
-+!rebound(Provider) : alternative(Provider, string Alt)
-    &lt;- gl.bind(agentId, Alt, "gpt-4o", "", string NewBid);
-       -+active_binding(NewBid).
+<span style="color:#6A9955;">// Below threshold, just count</span>
+rule +rejected(string provider) : rejection_count(int count) {
+    -+rejection_count(count + 1);
+}
+
+<span style="color:#6A9955;">// Means-End Reasoning: rebind to alternative</span>
+rule +!rebound(string provider) : ~rebound_done(provider) {
+    -+active_binding(gl.bind("feedback_agent", "gemini", "gemini-2.5-flash", ""));
+    +rebound_done(provider);
+}
 
 <span style="color:#6A9955;">// Serendipity: already rebound</span>
-+!rebound(Provider) : active_binding(string Bid) &lt;- .</code></pre>
+rule +!rebound(string provider) { }</code></pre>
 
               <!-- 3.2 Cost -->
               <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.2&ensp;Cost &amp; Budget</h4>
@@ -226,28 +234,37 @@
                 Budget tracking can be implemented as agent beliefs with context-guarded plan selection, or as a custom <code style="font-size:12px;">GovernancePolicy</code> via the pluggable SPI:
               </p>
               <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Context guard: only call if budget remains</span>
-+!classify(X) : budget(B) &amp; B &gt; 0
-    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
-       -+budget(B - 1).
+rule +!classify(string item) : budget(int b) &amp; b &gt; 0 &amp; active_binding(string bid) {
+    +last_result(gl.call(bid, "classify", "llm.answer", "CLASSIFY", item, "label", ""));
+    -+budget(b - 1);
+}
 
 <span style="color:#6A9955;">// Budget exhausted — no LLM call</span>
-+!classify(X) : budget(B) &amp; B &lt;= 0
-    &lt;- +budget_exhausted(X).</code></pre>
+rule +!classify(string item) : budget(int b) &amp; b &lt;= 0 {
+    +budget_exhausted(item);
+}</code></pre>
 
               <!-- 3.3 Temporal -->
               <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.3&ensp;Temporal Validity</h4>
               <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 10px;">
                 Whether a classification is stale depends on the domain — only the agent knows its own context. BDI plan contexts handle this naturally:
               </p>
-              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Fresh belief exists — use it directly</span>
-+!classify(X) : label(X, L) &amp; label_time(X, T) &amp;
-        system_time(Now) &amp; (Now - T) &lt; 300000
-    &lt;- .  <span style="color:#6A9955;">// serendipity: already known</span>
+              <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Serendipity: fresh belief exists — use it directly</span>
+rule +!classify(string item) : label(item, string lbl) &amp;
+        label_time(item, int t) &amp; t &gt; 0 {
+    <span style="color:#6A9955;">// already known and fresh — no GL call</span>
+}
 
 <span style="color:#6A9955;">// No belief or stale — consult GL</span>
-+!classify(X)
-    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
-       !accept_if_valid(Rid).</code></pre>
+rule +!classify(string item) : active_binding(string bid) {
+    !evaluate(gl.candidate(gl.call(bid, "classify",
+        "llm.answer", "CLASSIFY", item, "label", "")), item);
+}
+
+<span style="color:#6A9955;">// Evaluate candidate admissibility</span>
+rule +!evaluate(string cid, string item) {
+    !maybe_accept(cid, gl.decide(cid), item);
+}</code></pre>
 
               <!-- 3.4 When to Consult -->
               <h4 style="font-size:14px;margin:18px 0 6px;font-family:var(--font-heading);">3.4&ensp;When to Consult the LLM</h4>
@@ -255,24 +272,31 @@
                 This is the most fundamental BDI decision. Plan selection with context conditions determines when the agent reasons from its own beliefs versus consulting GL — no framework can or should dictate this:
               </p>
               <pre style="background:#1e1e24;color:#d4d4d4;padding:16px;border-radius:8px;font-size:12.5px;line-height:1.6;overflow-x:auto;margin-bottom:6px;"><code><span style="color:#6A9955;">// Agent already knows — GL is never consulted</span>
-+!classify(X) : label(X, L) &lt;- .
+rule +!classify(string item) : label(item, string lbl) {
+    <span style="color:#6A9955;">// serendipity: belief already held</span>
+}
 
 <span style="color:#6A9955;">// Agent doesn't know — governed LLM lifecycle</span>
-+!classify(X)
-    &lt;- gl.call(Bid, "classify", "llm.answer", "CLASSIFY", X, "label", "", string Rid);
-       string Cid = gl.candidate(Rid);
-       string Adm = gl.decide(Cid);
-       !maybe_accept(Cid, Adm).
+rule +!classify(string item) : active_binding(string bid) {
+    !evaluate(gl.candidate(gl.call(bid, "classify",
+        "llm.answer", "CLASSIFY", item, "label", "")), item);
+}
+
+<span style="color:#6A9955;">// Evaluate candidate admissibility</span>
+rule +!evaluate(string cid, string item) {
+    !maybe_accept(cid, gl.decide(cid), item);
+}
 
 <span style="color:#6A9955;">// Means-End: accept if admissible</span>
-+!maybe_accept(Cid, "ADMISSIBLE")
-    &lt;- gl.accept(Cid, "needed classification");
-       string Result = gl.get(Cid, "label");
-       +label(X, Result).  <span style="color:#6A9955;">// explicit belief adoption</span>
+rule +!maybe_accept(string cid, string adm, string item) : adm == "ADMISSIBLE" {
+    gl.accept(cid, "needed classification");
+    +label(item, gl.get(cid, "label"));  <span style="color:#6A9955;">// explicit belief adoption</span>
+}
 
 <span style="color:#6A9955;">// Not admissible — agent decides how to proceed</span>
-+!maybe_accept(Cid, Adm)
-    &lt;- +rejected_candidate(Cid, Adm).</code></pre>
+rule +!maybe_accept(string cid, string adm, string item) {
+    +rejected_candidate(item, adm);
+}</code></pre>
 
               <p style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.7;margin:14px 0 0;border-top:1px solid var(--color-border-light);padding-top:14px;">
                 <strong>No additional framework is required.</strong> An ASTRA developer using Generative Layers has everything needed to implement adaptive, budget-aware, temporally-valid, selectively-governed LLM integration — using the same BDI programming model they already know. GL's contribution is to give the agent a governed, auditable, type-safe channel to generative resources — and then to <em>get out of the way</em> and let the BDI architecture do what it was designed to do.
