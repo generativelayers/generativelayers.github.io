@@ -5,4 +5,4 @@
  * instead of hardcoding the string. When bumping to a new release,
  * update ONLY this file (and getting-started.html Maven/Gradle snippets).
  */
-window.GL_VERSION = '0.2.0';
+window.GL_VERSION = '0.2.1';
