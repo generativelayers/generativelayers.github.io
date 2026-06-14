@@ -234,6 +234,8 @@
       function syncFilesHeight() {
         if (!filesPanel) return;
         const ewH = editorWrap.getBoundingClientRect().height;
+        // Skip when iframe is hidden (height=0) to avoid collapsing the panel
+        if (ewH <= 0) return;
         filesPanel.style.maxHeight = ewH + 'px';
         filesPanel.style.overflowY = 'auto';
       }
