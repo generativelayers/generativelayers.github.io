@@ -1085,7 +1085,13 @@
         source: files[DEFAULT_FILE],
         files: serverFilesPayload(),
       };
-      if (BUILD_FILE && files[BUILD_FILE]) body.pom_xml = files[BUILD_FILE];
+      // Only send pom_xml when the user has modified it from the default
+      if (BUILD_FILE && files[BUILD_FILE]) {
+        const defaultPom = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
+        if (files[BUILD_FILE].trim() !== defaultPom.trim()) {
+          body.pom_xml = files[BUILD_FILE];
+        }
+      }
       // Jason/JaCaMo: auto-generate mas2j (unless user provided one)
       if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
         const userMas2j = Object.keys(files).find(p => p.endsWith('.mas2j'));
