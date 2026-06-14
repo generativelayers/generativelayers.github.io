@@ -14,7 +14,7 @@
         justify-content: flex-start !important;
       }
 
-      .runner-files-head span:last-child {
+      .runner-files-head span:nth-child(n+2):not(:last-child) {
         display: none !important;
       }
 
@@ -221,8 +221,14 @@
   }
 
   function patchHeader() {
-    const extra = document.querySelector('.runner-files-head span:last-child');
-    if (extra) extra.textContent = '';
+    // Only clear extra spans after the title (not the first span which is "Project files")
+    const head = document.querySelector('.runner-files-head');
+    if (!head) return;
+    const spans = head.querySelectorAll('span');
+    // If there are multiple spans, clear all but the first (title) one
+    for (let i = 1; i < spans.length; i++) {
+      spans[i].textContent = '';
+    }
   }
 
   function patchRootTitles() {
