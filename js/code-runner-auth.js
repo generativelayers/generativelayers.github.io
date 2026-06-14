@@ -2,7 +2,7 @@
  * code-runner-auth.js
  *
  * Integrates Google Sign-In (using the Google Identity Services SDK)
- * and stores the ID token in sessionStorage for iframe runner pages to access.
+ * and stores the ID token in localStorage and sessionStorage.
  */
 (() => {
   'use strict';
@@ -27,8 +27,6 @@
   window.handleGoogleLogin = function(response) {
     console.log("Google credential token:", response.credential);
 
-    // TEST ONLY: decode for display.
-    // Do not treat this as secure verification.
     const payload = parseJwt(response.credential);
     if (!payload) {
       showToast('Authentication failed', 'error');
@@ -43,6 +41,13 @@
       picture: payload.picture
     }));
 
+    // Persist in both localStorage and sessionStorage
+    localStorage.setItem('gl_user_token', response.credential);
+    localStorage.setItem('gl_user_profile', JSON.stringify({
+      name: payload.name,
+      email: payload.email,
+      picture: payload.picture
+    }));
     sessionStorage.setItem('gl_user_token', response.credential);
     sessionStorage.setItem('gl_user_profile', JSON.stringify({
       name: payload.name,
@@ -55,6 +60,8 @@
 
   function signOut() {
     localStorage.removeItem('gl_google_user');
+    localStorage.removeItem('gl_user_token');
+    localStorage.removeItem('gl_user_profile');
     sessionStorage.removeItem('gl_user_token');
     sessionStorage.removeItem('gl_user_profile');
     renderAuthPanel();
@@ -73,8 +80,8 @@
     const container = document.getElementById('glAuthPanel');
     if (!container) return;
 
-    const token = sessionStorage.getItem('gl_user_token');
-    const profileStr = sessionStorage.getItem('gl_user_profile');
+    const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
+    const profileStr = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
     let profile = null;
 
     if (token && profileStr) {
@@ -85,6 +92,8 @@
         } catch (_) {}
       } else {
         localStorage.removeItem('gl_google_user');
+        localStorage.removeItem('gl_user_token');
+        localStorage.removeItem('gl_user_profile');
         sessionStorage.removeItem('gl_user_token');
         sessionStorage.removeItem('gl_user_profile');
       }

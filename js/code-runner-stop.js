@@ -89,7 +89,7 @@
     if (!runId) return;
     try {
       const headers = { 'Content-Type': 'application/json' };
-      const token = sessionStorage.getItem('gl_user_token');
+      const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
       if (token) {
         headers['Authorization'] = 'Bearer ' + token;
       }
