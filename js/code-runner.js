@@ -22,6 +22,7 @@
   // so it can be sent as Authorization header on /run requests.
   let __glAuthToken = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token') || null;
   window.addEventListener('message', (event) => {
+    if (event.origin !== window.location.origin) return;
     if (event.data && event.data.type === 'gl_auth_token') {
       __glAuthToken = event.data.token || null;
     }

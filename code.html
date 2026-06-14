@@ -363,7 +363,7 @@
     function pushTokenToFrame(frame) {
       try {
         const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token') || null;
-        frame.contentWindow.postMessage({ type: 'gl_auth_token', token: token }, '*');
+        frame.contentWindow.postMessage({ type: 'gl_auth_token', token: token }, window.location.origin);
       } catch (_) {}
     }
     function pushTokenToAllFrames() {
