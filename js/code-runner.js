@@ -808,9 +808,14 @@
         if (rel.startsWith('src/')) {
           payload[rel] = content;
         } else if (path.endsWith(SOURCE_EXT)) {
-          payload[`${SERVER_ASL_DIR}/${rel}`] = content;
+          // Strip known source prefixes to avoid double-nesting
+          // e.g. "asl/ag1.asl" → "ag1.asl" (not "src/main/asl/asl/ag1.asl")
+          const stripped = rel.replace(/^asl\//, '');
+          payload[`${SERVER_ASL_DIR}/${stripped}`] = content;
         } else if (path.endsWith(AUX_EXT)) {
-          payload[`${SERVER_JAVA_DIR}/${rel}`] = content;
+          // Strip "java/" prefix to avoid "src/main/java/java/X.java"
+          const stripped = rel.replace(/^java\//, '');
+          payload[`${SERVER_JAVA_DIR}/${stripped}`] = content;
         } else if (path.endsWith('.mas2j')) {
           // .mas2j files go at the project root on the server
           payload[rel] = content;
