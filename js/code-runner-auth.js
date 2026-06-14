@@ -50,7 +50,6 @@
       picture: payload.picture
     }));
 
-    alert("Logged in as " + payload.email);
     renderAuthPanel();
   };
 
