@@ -605,7 +605,7 @@
     hintEl.textContent = '';
 
     var headers = { 'Content-Type': 'application/json' };
-    var token = sessionStorage.getItem('gl_user_token');
+    var token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
     if (token) {
       headers['Authorization'] = 'Bearer ' + token;
     }
