@@ -8,6 +8,7 @@
   'use strict';
 
   const CLIENT_ID = '814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com';
+  let initialRenderDone = false;
 
   function parseJwt(token) {
     try {
@@ -101,8 +102,14 @@
         </div>
       `;
       document.getElementById('glSignoutBtn').addEventListener('click', signOut);
+      initialRenderDone = true;
     } else {
-      // Dynamic insertion of Google sign-in tags
+      if (!initialRenderDone) {
+        initialRenderDone = true;
+        return; // Leave statically defined HTML untouched for GIS scanner
+      }
+
+      // Restoring sign-in elements after sign-out
       container.innerHTML = `
         <div id="g_id_onload"
              data-client_id="${CLIENT_ID}"
@@ -118,7 +125,7 @@
              data-logo_alignment="left">
         </div>
       `;
-      if (window.google && window.google.accounts) {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
         google.accounts.id.initialize({
           client_id: CLIENT_ID,
           callback: window.handleGoogleLogin
@@ -127,8 +134,6 @@
           document.getElementById('glAuthPanel'),
           { theme: 'outline', size: 'large', shape: 'rectangular', text: 'signin_with', logo_alignment: 'left' }
         );
-      } else {
-        setTimeout(renderAuthPanel, 200);
       }
     }
   }
