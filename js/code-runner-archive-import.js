@@ -305,10 +305,34 @@
       const parts = pathSegments(path);
       for (let i = 1; i < Math.min(parts.length, 6); i++) candidates.add(parts.slice(0, i).join('/'));
     });
+
+    // Detect common folder prefix shared by ALL entries.
+    // When a user opens folder "auction/", every path starts with "auction/".
+    // This common prefix should be stripped so files appear at root level.
+    let commonPrefix = '';
+    if (paths.length > 0) {
+      const firstParts = pathSegments(paths[0]);
+      for (let depth = 1; depth <= firstParts.length; depth++) {
+        const prefix = firstParts.slice(0, depth).join('/');
+        if (paths.every(p => p === prefix || p.startsWith(prefix + '/'))) {
+          commonPrefix = prefix;
+        } else {
+          break;
+        }
+      }
+    }
+
     const ranked = [...candidates]
       .map(root => scoreRoot(paths, root))
       .filter(info => info.count > 0 && info.score > 0)
-      .sort((a, b) => b.score - a.score || a.root.length - b.root.length);
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        // When scores are equal, prefer the common prefix (it strips the container folder)
+        const aIsCommon = a.root === commonPrefix ? 1 : 0;
+        const bIsCommon = b.root === commonPrefix ? 1 : 0;
+        if (bIsCommon !== aIsCommon) return bIsCommon - aIsCommon;
+        return a.root.length - b.root.length;
+      });
     return ranked[0] ? ranked[0].root : '';
   }
 
