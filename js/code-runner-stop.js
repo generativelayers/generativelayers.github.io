@@ -169,6 +169,15 @@
       try {
         const response = await nativeFetch(resource, nextOptions);
 
+        // Non-ok responses (4xx/5xx) are quick rejections — reset button immediately
+        if (!response.ok) {
+          activeController = null;
+          activeRunId = null;
+          stopRequested = false;
+          window.setTimeout(setRunButton, 0);
+          return response;
+        }
+
         // Wrap the response so that when the stream is fully consumed,
         // we reset the button. Monkey-patch the body so the reader
         // signals when done.
