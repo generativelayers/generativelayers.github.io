@@ -221,6 +221,8 @@
             headers: { 'Content-Type': 'application/json' }
           });
         }
+        // Network error — send cancel to clean up server-side process
+        notifyCancel(runId);
         throw error;
       }
     };

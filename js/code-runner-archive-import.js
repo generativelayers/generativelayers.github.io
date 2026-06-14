@@ -511,23 +511,8 @@
     const toolbar = document.querySelector('.runner-tree-toolbar');
     if (!toolbar || toolbar.dataset.openersPatched === '1') return;
     toolbar.dataset.openersPatched = '1';
-
-    const first = toolbar.querySelector('.runner-tree-btn');
-    if (first) {
-      first.title = 'Open project folder';
-      first.innerHTML = '<i class="fa-solid fa-folder-open"></i> Folder';
-      first.onclick = openFolderNative;
-    }
-
-    const fileBtn = document.createElement('button');
-    fileBtn.type = 'button';
-    fileBtn.className = 'runner-tree-btn';
-    fileBtn.title = 'Open .astra/.asl file or ZIP archive';
-    fileBtn.innerHTML = '<i class="fa-solid fa-file-zipper"></i> File/ZIP';
-    fileBtn.addEventListener('click', openFileOrZipNative);
-
-    if (first && first.nextSibling) toolbar.insertBefore(fileBtn, first.nextSibling);
-    else toolbar.insertBefore(fileBtn, toolbar.firstChild);
+    // UI buttons are handled by code-runner-one-open.js.
+    // This module only exposes __glImportFolder and __glImportFileOrZip.
   }
 
   function install() {

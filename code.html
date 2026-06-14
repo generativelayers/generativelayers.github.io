@@ -2,17 +2,20 @@
 <html lang="en">
 
 <head>
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Run Code | Generative Layers</title>
   <meta name="description" content="Run ASTRA, Jason, and JaCaMo code in the browser with Generative Layers.">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=3.7">
+  <link rel="stylesheet" href="style.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script defer src="js/gl-version.js?v=0.2.1-1"></script>
-  <script defer src="js/code-runner-auth.js?v=3"></script>
-  <script defer src="js/search.js?v=4"></script>
+  <script defer src="js/gl-version.js"></script>
+  <script defer src="js/code-runner-auth.js"></script>
+  <script defer src="js/search.js"></script>
   <style>
     html,
     body {
@@ -242,7 +245,7 @@
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
-        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=one-open-1" data-platform="astra"></iframe>
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
@@ -265,9 +268,9 @@
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
     const frameSources = {
-      astra: 'runner-astra.html?v=one-open-1',
-      jason: 'runner-jason.html?v=one-open-1',
-      jacamo: 'runner-jacamo.html?v=one-open-1'
+      astra: 'runner-astra.html',
+      jason: 'runner-jason.html',
+      jacamo: 'runner-jacamo.html'
     };
 
     function isMobileRunner() {
@@ -317,9 +320,9 @@
             } catch (_) {}
           };
 
-          injectFrameScript(doc, 'glApiSelectForcedLoader', 'js/code-runner-api-select.js?v=10', runScan);
-          injectFrameScript(doc, 'glArchiveImportLoader', 'js/code-runner-archive-import.js?v=7');
-          injectFrameScript(doc, 'glOneOpenLoader', 'js/code-runner-one-open.js?v=1');
+          injectFrameScript(doc, 'glApiSelectForcedLoader', 'js/code-runner-api-select.js', runScan);
+          injectFrameScript(doc, 'glArchiveImportLoader', 'js/code-runner-archive-import.js');
+          injectFrameScript(doc, 'glOneOpenLoader', 'js/code-runner-one-open.js');
 
           window.setTimeout(runScan, 500);
           window.setTimeout(runScan, 1200);
@@ -388,14 +391,14 @@
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
       const jasonFrame = document.getElementById('frame-jason');
-      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=one-open-1#load=' + hash.slice('#load-jason='.length);
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html#load=' + hash.slice('#load-jason='.length);
     } else if (hash.startsWith('#load-jacamo=')) {
       activatePlatform('jacamo');
       const jacamoFrame = document.getElementById('frame-jacamo');
-      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=one-open-1#load=' + hash.slice('#load-jacamo='.length);
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html#load=' + hash.slice('#load-jacamo='.length);
     } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      if (astraFrame) astraFrame.src = 'runner-astra.html?v=one-open-1' + hash;
+      if (astraFrame) astraFrame.src = 'runner-astra.html' + hash;
     }
   </script>
 </body>
