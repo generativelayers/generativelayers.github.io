@@ -61,11 +61,32 @@
   };
 
   function signOut() {
+    // Retrieve email before clearing storage (needed for revoke)
+    let email = null;
+    try {
+      const profileStr = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
+      if (profileStr) {
+        const p = JSON.parse(profileStr);
+        email = p.email;
+      }
+    } catch (_) {}
+
     localStorage.removeItem('gl_google_user');
     localStorage.removeItem('gl_user_token');
     localStorage.removeItem('gl_user_profile');
     sessionStorage.removeItem('gl_user_token');
     sessionStorage.removeItem('gl_user_profile');
+
+    // Tell Google Identity Services to forget the session
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      google.accounts.id.disableAutoSelect();
+      if (email) {
+        google.accounts.id.revoke(email, () => {
+          console.log('[Auth] Google credential revoked for', email);
+        });
+      }
+    }
+
     renderAuthPanel();
     // Clear token in runner iframes
     if (typeof window.__glPushTokenToFrames === 'function') window.__glPushTokenToFrames();
@@ -117,8 +138,8 @@
     } else {
       container.innerHTML = `
         <button class="gl-btn-signin" id="glSigninBtn" title="Sign in for unlimited runs and 20 min execution time">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-          <span>Sign in</span>
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Login</span>
         </button>
       `;
       document.getElementById('glSigninBtn').addEventListener('click', () => {

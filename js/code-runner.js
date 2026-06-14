@@ -1257,14 +1257,21 @@
 
     } catch (error) {
       if (error.name === 'AbortError') {
-        els.metaStatus.textContent = 'Stopped';
-        els.status.textContent = 'Stopped';
-        els.output.textContent += '\n\nExecution stopped by user.';
+        // stopExecution() already set status/output — only set if it hasn't
+        if (els.metaStatus.textContent !== 'Stopped') {
+          els.metaStatus.textContent = 'Stopped';
+          els.status.textContent = 'Stopped';
+          els.output.textContent += '\n\nExecution stopped by user.';
+        }
       } else {
-        els.metaStatus.textContent = 'Request failed';
+        // Network failure — the server process may still be running.
+        // Trigger stop/cancel so the server cleans up.
+        if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+        els.metaStatus.textContent = 'Connection lost';
         els.metaReturnCode.textContent = '—';
-        els.status.textContent = 'Failed';
+        els.status.textContent = 'Connection lost';
         els.output.textContent = 'The browser could not reach the hosted runner.\n\n' + error;
+        showRunnerToast('Connection to the runner was lost. The server process has been stopped.', 'warning');
       }
     } finally {
       if (window.__glElapsedTimer) { clearInterval(window.__glElapsedTimer); window.__glElapsedTimer = null; }
@@ -1328,78 +1335,87 @@
   const SKIP_DIRS = ['/target/', '/build/', '/bin/', '/out/', '/node_modules/',
                      '/.gradle/', '/.idea/', '/.vscode/', '/.git/', '/__pycache__/'];
 
+  function processFolderFiles(fileList) {
+    saveCurrentFile();
+    const newFiles = {};
+    let pomFound = false;
+    const readers = [];
+
+    Array.from(fileList).forEach(file => {
+      // Get path relative to the selected folder
+      const relPath = file.webkitRelativePath || file.name;
+      // Skip hidden files and blocked directories
+      if (relPath.includes('/.') || SKIP_DIRS.some(d => relPath.includes(d))) return;
+      // Skip binary files by extension
+      const dotIdx = relPath.lastIndexOf('.');
+      if (dotIdx >= 0 && SKIP_EXTS.has(relPath.slice(dotIdx).toLowerCase())) return;
+
+      // pom.xml at root
+      const parts = relPath.split('/');
+      if (parts.length === 2 && parts[1] === 'pom.xml') {
+        readers.push(file.text().then(text => { newFiles['/pom.xml'] = text; pomFound = true; }));
+        return;
+      }
+
+      if (FLAT_ROOT) {
+        // Flat root: import ALL text files, preserving relative path from project root
+        const name = parts.slice(1).join('/'); // remove top-level folder name
+        if (name && !name.startsWith('.')) {
+          readers.push(file.text().then(text => { newFiles[`/${name}`] = text; }));
+        }
+      } else {
+        // ASTRA mode: structured import — map src/main/astra/ and src/main/java/
+        const name = parts.slice(1).join('/'); // remove top-level folder name
+        const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
+        if (astraMatch) {
+          readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
+          return;
+        }
+        const javaMatch = relPath.match(/src\/main\/java\/(.+\.java)$/);
+        if (javaMatch) {
+          readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
+          return;
+        }
+
+      }
+    });
+
+    Promise.all(readers).then(async () => {
+      if (Object.keys(newFiles).length === 0) {
+        await glAlert(`No ${SOURCE_EXT} files found in this folder.`);
+        return;
+      }
+      // Stop any running execution before loading new project
+      if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+      if (!pomFound && BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
+      files = newFiles;
+      currentPath = Object.keys(files).find(p => p.endsWith(SOURCE_EXT)) || Object.keys(files)[0];
+      els.editor.value = files[currentPath] || '';
+      els.currentFile.textContent = currentPath;
+      renderTree();
+      updateApiKeyUI();
+      resetOutput();
+      els.status.textContent = 'Folder imported';
+      els.output.textContent = `Imported ${Object.keys(files).length} files. Press "Run Project" to execute.`;
+      saveToStorage();
+    });
+  }
+
   function importFolder() {
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
     input.addEventListener('change', () => {
       if (!input.files || input.files.length === 0) return;
-      saveCurrentFile();
-      const newFiles = {};
-      let pomFound = false;
-      const readers = [];
-
-      Array.from(input.files).forEach(file => {
-        // Get path relative to the selected folder
-        const relPath = file.webkitRelativePath || file.name;
-        // Skip hidden files and blocked directories
-        if (relPath.includes('/.') || SKIP_DIRS.some(d => relPath.includes(d))) return;
-        // Skip binary files by extension
-        const dotIdx = relPath.lastIndexOf('.');
-        if (dotIdx >= 0 && SKIP_EXTS.has(relPath.slice(dotIdx).toLowerCase())) return;
-
-        // pom.xml at root
-        const parts = relPath.split('/');
-        if (parts.length === 2 && parts[1] === 'pom.xml') {
-          readers.push(file.text().then(text => { newFiles['/pom.xml'] = text; pomFound = true; }));
-          return;
-        }
-
-        if (FLAT_ROOT) {
-          // Flat root: import ALL text files, preserving relative path from project root
-          const name = parts.slice(1).join('/'); // remove top-level folder name
-          if (name && !name.startsWith('.')) {
-            readers.push(file.text().then(text => { newFiles[`/${name}`] = text; }));
-          }
-        } else {
-          // ASTRA mode: structured import — map src/main/astra/ and src/main/java/
-          const name = parts.slice(1).join('/'); // remove top-level folder name
-          const astraMatch = relPath.match(/src\/main\/astra\/(.+\.astra)$/);
-          if (astraMatch) {
-            readers.push(file.text().then(text => { newFiles[`/astra/${astraMatch[1]}`] = text; }));
-            return;
-          }
-          const javaMatch = relPath.match(/src\/main\/java\/(.+\.java)$/);
-          if (javaMatch) {
-            readers.push(file.text().then(text => { newFiles[`/java/${javaMatch[1]}`] = text; }));
-            return;
-          }
-
-        }
-      });
-
-      Promise.all(readers).then(async () => {
-        if (Object.keys(newFiles).length === 0) {
-          await glAlert(`No ${SOURCE_EXT} files found in this folder.`);
-          return;
-        }
-        // Stop any running execution before loading new project
-        if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-        if (!pomFound && BUILD_FILE) newFiles[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
-        files = newFiles;
-        currentPath = Object.keys(files).find(p => p.endsWith(SOURCE_EXT)) || Object.keys(files)[0];
-        els.editor.value = files[currentPath] || '';
-        els.currentFile.textContent = currentPath;
-        renderTree();
-        updateApiKeyUI();
-        resetOutput();
-        els.status.textContent = 'Folder imported';
-        els.output.textContent = `Imported ${Object.keys(files).length} files. Press "Run Project" to execute.`;
-        saveToStorage();
-      });
+      processFolderFiles(input.files);
     });
     input.click();
   }
+
+  // Expose for tree-ui buttons and code-runner-one-open.js
+  window.__glImportFolder = importFolder;
+  window.__glImportFolderFiles = processFolderFiles;
+  window.__glSaveProject = saveToStorage;
 
   // ── localStorage persistence ──────────────────────────
   const STORAGE_KEY = STORAGE_KEY_CFG;
@@ -1426,9 +1442,6 @@
     return false;
   }
 
-  // Expose for tree-ui buttons
-  window.__glImportFolder = importFolder;
-  window.__glSaveProject = saveToStorage;
 
   async function resetProject() {
     if (!(await glConfirm('Start a new project? This will erase all current files and restore the default template.'))) return;
