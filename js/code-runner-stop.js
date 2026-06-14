@@ -88,11 +88,16 @@
   async function notifyCancel(runId) {
     if (!runId) return;
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      const token = sessionStorage.getItem('gl_user_token');
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+      }
       await nativeFetch(CANCEL_URL, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers,
         body: JSON.stringify({ run_id: runId })
       });
     } catch (_) {

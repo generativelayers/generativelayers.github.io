@@ -1116,11 +1116,17 @@
       }
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
 
+      const headers = { 'Content-Type': 'application/json' };
+      const token = sessionStorage.getItem('gl_user_token');
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+      }
+
       const response = await fetch(RUN_URL, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers,
         body: JSON.stringify(body)
       });
 
