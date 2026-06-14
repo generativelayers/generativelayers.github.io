@@ -6,3 +6,5 @@
  * update ONLY this file (and getting-started.html Maven/Gradle snippets).
  */
 window.GL_VERSION = '0.2.1';
+window.GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+

@@ -604,11 +604,17 @@
     setState('checking', 'Compiling…');
     hintEl.textContent = '';
 
+    var headers = { 'Content-Type': 'application/json' };
+    var token = sessionStorage.getItem('gl_user_token');
+    if (token) {
+      headers['Authorization'] = 'Bearer ' + token;
+    }
+
     fetch(CHECK_URL, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify({ source: source, filename: filename.split('/').pop() }),
       signal: abortCtrl.signal
     })
