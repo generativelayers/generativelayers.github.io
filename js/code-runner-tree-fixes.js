@@ -281,7 +281,7 @@
 
     window.dispatchEvent(new Event('resize'));
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'gl-runner-resize' }, '*');
+      window.parent.postMessage({ type: 'gl-runner-resize' }, window.location.origin);
     }
   }
 
