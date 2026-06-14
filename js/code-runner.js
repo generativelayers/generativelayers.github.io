@@ -1126,6 +1126,8 @@
           showRunnerToast('Free run limit reached (5/hour). Sign in with Google for unlimited runs.', 'warning');
         } else if (response.status === 401) {
           showRunnerToast('Session expired. Please sign in again.', 'warning');
+        } else if (response.status === 403) {
+          showRunnerToast('Sign in required for Java files and custom dependencies.', 'warning');
         }
         return;
       }
