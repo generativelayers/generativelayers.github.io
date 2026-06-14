@@ -1121,6 +1121,12 @@
         let data;
         try { data = JSON.parse(text); } catch { data = { output: text }; }
         renderResult({ status: 'failed', return_code: response.status, elapsed_seconds: null, output: data.message || data.output || text });
+        // Toast explanations for common errors
+        if (response.status === 429) {
+          showRunnerToast('Free run limit reached (5/hour). Sign in with Google for unlimited runs.', 'warning');
+        } else if (response.status === 401) {
+          showRunnerToast('Session expired. Please sign in again.', 'warning');
+        }
         return;
       }
 
@@ -1215,6 +1221,12 @@
       } else if (outputText.includes('--- Timed out')) {
         els.metaStatus.textContent = 'Timeout';
         els.status.textContent = 'Timed out';
+        const isLoggedIn = !!(localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token'));
+        if (!isLoggedIn) {
+          showRunnerToast('Execution timed out (1 min limit). Sign in with Google for up to 20 minutes.', 'warning');
+        } else {
+          showRunnerToast('Execution timed out after 20 minutes.', 'info');
+        }
       } else if (outputText.includes('--- Exited with code')) {
         const m = outputText.match(/Exited with code (\S+)/);
         els.metaStatus.textContent = 'Failed';
