@@ -110,47 +110,68 @@
         </div>
       `;
       document.getElementById('glSignoutBtn').addEventListener('click', signOut);
-      initialRenderDone = true;
     } else {
-      if (!initialRenderDone) {
-        initialRenderDone = true;
-        return; // Leave statically defined HTML untouched for GIS scanner
-      }
-
-      // Restoring sign-in elements after sign-out
       container.innerHTML = `
-        <div id="g_id_onload"
-             data-client_id="${CLIENT_ID}"
-             data-callback="handleGoogleLogin"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="signin_with"
-             data-shape="rectangular"
-             data-logo_alignment="left">
-        </div>
+        <button class="gl-btn-signin" id="glSigninBtn" title="Sign in for unlimited runs and 20 min execution time">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+          <span>Sign in</span>
+        </button>
       `;
-      if (window.google && window.google.accounts && window.google.accounts.id) {
-        google.accounts.id.initialize({
-          client_id: CLIENT_ID,
-          callback: window.handleGoogleLogin
-        });
-        google.accounts.id.renderButton(
-          document.getElementById('glAuthPanel'),
-          { theme: 'outline', size: 'large', shape: 'rectangular', text: 'signin_with', logo_alignment: 'left' }
-        );
-      }
+      document.getElementById('glSigninBtn').addEventListener('click', () => {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+              // Fallback: render the Google button in a hidden container and click it
+              let fallback = document.getElementById('glSigninFallback');
+              if (!fallback) {
+                fallback = document.createElement('div');
+                fallback.id = 'glSigninFallback';
+                fallback.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+                document.body.appendChild(fallback);
+              }
+              google.accounts.id.renderButton(fallback, {
+                theme: 'outline', size: 'large', type: 'standard'
+              });
+              setTimeout(() => {
+                const btn = fallback.querySelector('[role="button"]') || fallback.querySelector('div[style]');
+                if (btn) btn.click();
+              }, 100);
+            }
+          });
+        }
+      });
     }
+  }
+
+  // Ensure GIS is initialized before first render
+  function initGIS() {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.handleGoogleLogin
+      });
+    }
+    renderAuthPanel();
   }
 
   // Initial render
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderAuthPanel);
+    document.addEventListener('DOMContentLoaded', () => {
+      // GIS script may load after DOMContentLoaded, so retry
+      if (window.google && window.google.accounts) {
+        initGIS();
+      } else {
+        setTimeout(initGIS, 500);
+        setTimeout(initGIS, 1500);
+      }
+    });
   } else {
-    renderAuthPanel();
+    if (window.google && window.google.accounts) {
+      initGIS();
+    } else {
+      setTimeout(initGIS, 500);
+      setTimeout(initGIS, 1500);
+    }
   }
 
   window.glRenderAuthPanel = renderAuthPanel;

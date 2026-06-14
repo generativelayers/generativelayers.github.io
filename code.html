@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="style.css?v=3.7">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script defer src="js/gl-version.js?v=0.2.1-1"></script>
-  <script defer src="js/code-runner-auth.js?v=2"></script>
+  <script defer src="js/code-runner-auth.js?v=3"></script>
   <script defer src="js/search.js?v=4"></script>
   <style>
     html,
@@ -126,18 +126,47 @@
       }
     }
 
+    .runner-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px 8px;
+      min-height: 40px;
+    }
     .gl-auth-panel {
       display: flex;
       align-items: center;
-      margin-left: auto;
-      padding-right: 16px;
+    }
+    .gl-btn-signin {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      background: #f9fafb;
+      border: 1.5px solid #d1d5db;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .gl-btn-signin:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .gl-btn-signin i { font-size: 14px; }
+    .gl-btn-signin img {
+      width: 16px; height: 16px;
     }
     .gl-user-profile {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: var(--color-bg-secondary, #f3f4f6);
-      padding: 4px 12px;
+      padding: 3px 10px 3px 3px;
       border-radius: 9999px;
       border: 1px solid var(--color-border, #e5e7eb);
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -184,20 +213,10 @@
       <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
       <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
       <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search" placeholder="Search…" aria-label="Search"></div>
-      <div class="gl-auth-panel" id="glAuthPanel">
-        <div id="g_id_onload"
-             data-client_id="814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com"
-             data-callback="handleGoogleLogin"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="signin_with"
-             data-shape="rectangular"
-             data-logo_alignment="left">
-        </div>
+      <div id="g_id_onload"
+           data-client_id="814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com"
+           data-callback="handleGoogleLogin"
+           data-auto_prompt="false">
       </div>
     </div>
   </header>
@@ -224,6 +243,10 @@
         <button class="platform-tab active" data-platform="astra" type="button"><i class="fa-solid fa-robot"></i> ASTRA</button>
         <button class="platform-tab" data-platform="jason" type="button"><i class="fa-solid fa-flask"></i> Jason</button>
         <button class="platform-tab" data-platform="jacamo" type="button"><i class="fa-solid fa-cubes"></i> JaCaMo</button>
+      </div>
+
+      <div class="runner-toolbar">
+        <div class="gl-auth-panel" id="glAuthPanel"></div>
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
