@@ -17,6 +17,16 @@
   const SERVER_JAVA_DIR = CFG.serverJavaDir || 'src/main/java';
   const STORAGE_KEY_CFG = (CFG.storagePrefix || 'gl-astra-') + 'project';
 
+  // ── Auth token from parent page (via postMessage) ──────
+  // Parent page (code.html) pushes the Google token into the iframe
+  // so it can be sent as Authorization header on /run requests.
+  let __glAuthToken = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token') || null;
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'gl_auth_token') {
+      __glAuthToken = event.data.token || null;
+    }
+  });
+
   const RUN_URLS = {
     astra: 'https://code.generativelayers.com/api/run-astra',
     jason: 'https://code.generativelayers.com/api/run-jason',
@@ -1103,7 +1113,7 @@
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
 
       const headers = { 'Content-Type': 'application/json' };
-      const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
+      const token = __glAuthToken || localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
       if (token) {
         headers['Authorization'] = 'Bearer ' + token;
       }

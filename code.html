@@ -356,8 +356,23 @@
       });
     }
 
+    // Push auth token into iframe via postMessage
+    function pushTokenToFrame(frame) {
+      try {
+        const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token') || null;
+        frame.contentWindow.postMessage({ type: 'gl_auth_token', token: token }, '*');
+      } catch (_) {}
+    }
+    function pushTokenToAllFrames() {
+      frames.forEach(f => { try { pushTokenToFrame(f); } catch(_){} });
+    }
+    // Expose globally so code-runner-auth.js can call after login/logout
+    window.__glPushTokenToFrames = pushTokenToAllFrames;
+
     frames.forEach(frame => frame.addEventListener('load', () => {
       injectApiHudLoader(frame);
+      pushTokenToFrame(frame);
+      setTimeout(() => pushTokenToFrame(frame), 500);
       setTimeout(resizeFrames, 250);
       setTimeout(resizeFrames, 1200);
     }));
