@@ -119,25 +119,20 @@
       `;
       document.getElementById('glSigninBtn').addEventListener('click', () => {
         if (window.google && window.google.accounts && window.google.accounts.id) {
-          google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              // Fallback: render the Google button in a hidden container and click it
-              let fallback = document.getElementById('glSigninFallback');
-              if (!fallback) {
-                fallback = document.createElement('div');
-                fallback.id = 'glSigninFallback';
-                fallback.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
-                document.body.appendChild(fallback);
-              }
-              google.accounts.id.renderButton(fallback, {
-                theme: 'outline', size: 'large', type: 'standard'
-              });
-              setTimeout(() => {
-                const btn = fallback.querySelector('[role="button"]') || fallback.querySelector('div[style]');
-                if (btn) btn.click();
-              }, 100);
-            }
+          let fallback = document.getElementById('glSigninFallback');
+          if (!fallback) {
+            fallback = document.createElement('div');
+            fallback.id = 'glSigninFallback';
+            fallback.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+            document.body.appendChild(fallback);
+          }
+          google.accounts.id.renderButton(fallback, {
+            theme: 'outline', size: 'large', type: 'standard'
           });
+          setTimeout(() => {
+            const btn = fallback.querySelector('[role="button"]') || fallback.querySelector('div[style]');
+            if (btn) btn.click();
+          }, 100);
         }
       });
     }
