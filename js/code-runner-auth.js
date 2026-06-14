@@ -56,6 +56,8 @@
     }));
 
     renderAuthPanel();
+    // Push token to runner iframes
+    if (typeof window.__glPushTokenToFrames === 'function') window.__glPushTokenToFrames();
   };
 
   function signOut() {
@@ -65,6 +67,8 @@
     sessionStorage.removeItem('gl_user_token');
     sessionStorage.removeItem('gl_user_profile');
     renderAuthPanel();
+    // Clear token in runner iframes
+    if (typeof window.__glPushTokenToFrames === 'function') window.__glPushTokenToFrames();
     showToast('Signed out successfully', 'info');
   }
 
