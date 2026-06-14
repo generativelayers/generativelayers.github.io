@@ -357,70 +357,28 @@
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
     if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = defaultPom();
     const payload = JSON.stringify({ files, currentPath, emptyFolders: [] });
+
+    // Clear existing project data first to free quota for the new import.
+    // Also clear other platforms' projects since they share the same ~5 MB budget.
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    ['astra', 'jason', 'jacamo'].forEach(p => {
+      const key = 'gl_runner_' + p + '_project';
+      if (key !== STORAGE_KEY) try { localStorage.removeItem(key); } catch (_) {}
+    });
+
     try {
       localStorage.setItem(STORAGE_KEY, payload);
     } catch (e) {
-      // QuotaExceededError — project too large for localStorage
       const sizeMB = (payload.length / (1024 * 1024)).toFixed(1);
       throw new Error(
-        `Project is too large for browser storage (${sizeMB} MB). ` +
-        'Try removing large non-essential files before importing, ' +
-        'or use the online editor to add files individually.'
+        `Project is too large for browser storage (${sizeMB} MB, limit ~5 MB). ` +
+        'Try importing a smaller project or removing large non-essential files from the ZIP.'
       );
     }
     sessionStorage.setItem(STORAGE_KEY + '_notice', notice);
     window.location.reload();
   }
 
-  // Maximum per-file size to store (200 KB). Larger text files are skipped.
-  const MAX_FILE_SIZE = 200 * 1024;
-  // Target localStorage budget (4 MB, leaving headroom below the 5 MB limit)
-  const MAX_PROJECT_SIZE = 4 * 1024 * 1024;
-
-  function trimToFit(files) {
-    // Calculate total size
-    let total = 0;
-    const entries = Object.entries(files).map(([path, content]) => {
-      const size = content.length;
-      total += size;
-      return { path, content, size };
-    });
-    if (total <= MAX_PROJECT_SIZE) return files;
-
-    // Sort by size descending, but protect source files
-    const isSource = p => {
-      const low = p.toLowerCase();
-      return low.endsWith(SOURCE_EXT) || low.endsWith('.mas2j') || low === (BUILD_FILE || '/pom.xml');
-    };
-    entries.sort((a, b) => {
-      if (isSource(a.path) && !isSource(b.path)) return 1;  // sources last (protected)
-      if (!isSource(a.path) && isSource(b.path)) return -1;
-      return b.size - a.size;
-    });
-
-    // Drop largest non-source files until under budget
-    const kept = {};
-    let keptSize = 0;
-    const dropped = [];
-    // First pass: add all source files
-    entries.forEach(e => {
-      if (isSource(e.path)) { kept[e.path] = e.content; keptSize += e.size; }
-    });
-    // Second pass: add non-source until budget
-    entries.forEach(e => {
-      if (isSource(e.path)) return;
-      if (keptSize + e.size <= MAX_PROJECT_SIZE) {
-        kept[e.path] = e.content;
-        keptSize += e.size;
-      } else {
-        dropped.push(e.path);
-      }
-    });
-    if (dropped.length) {
-      console.warn('[GL] Dropped', dropped.length, 'files to fit storage:', dropped);
-    }
-    return kept;
-  }
   function loadScript(id, src) {
     return new Promise((resolve, reject) => {
       if (window.JSZip) { resolve(); return; }
@@ -443,30 +401,18 @@
     await loadScript('gl-jszip-loader', ZIP_LIB_URL);
     const zip = await window.JSZip.loadAsync(file);
     const entries = [];
-    const skippedLarge = [];
     const promises = [];
     zip.forEach((name, entry) => {
       if (entry.dir || skipPath(name)) return;
-      promises.push(
-        entry.async('text').then(text => {
-          if (text.length > MAX_FILE_SIZE) {
-            skippedLarge.push(cleanPath(name));
-            return;
-          }
-          entries.push({ name: cleanPath(name), text });
-        }).catch(() => null)
-      );
+      promises.push(entry.async('text').then(text => entries.push({ name: cleanPath(name), text })).catch(() => null));
     });
     await Promise.all(promises);
-    if (skippedLarge.length) {
-      console.warn('[GL] Skipped', skippedLarge.length, 'files exceeding 200 KB:', skippedLarge);
-    }
     return entries;
   }
 
   async function importEntries(entries, label) {
     const root = bestRoot(entries);
-    let files = {};
+    const files = {};
     entries.forEach(entry => {
       const mapped = mapPath(removeRoot(entry.name, root));
       if (mapped) files[mapped] = entry.text;
@@ -475,10 +421,8 @@
       await alertBox('No files matching this runner were found.');
       return;
     }
-    files = trimToFit(files);
-    const fileCount = Object.keys(files).length;
     const currentPath = Object.keys(files).find(path => path.toLowerCase().endsWith(SOURCE_EXT)) || Object.keys(files)[0];
-    writeProject(files, currentPath, `Imported ${fileCount} files from ${label}. Press Run Project to execute.`);
+    writeProject(files, currentPath, `Imported ${Object.keys(files).length} files from ${label}. Press Run Project to execute.`);
   }
 
   function openFolderNative() {
