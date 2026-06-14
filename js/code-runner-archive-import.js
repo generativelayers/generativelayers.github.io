@@ -429,46 +429,51 @@
   }
 
   async function openFileOrZipNative() {
-    const file = await new Promise(resolve => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.zip,.rar,.astra,.asl,application/zip,application/x-zip-compressed,application/vnd.rar,application/x-rar-compressed,text/plain';
-      input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
-      input.click();
-    });
-    if (!file) return;
+    try {
+      const file = await new Promise(resolve => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.zip,.rar,.astra,.asl,.java,.mas2j,application/zip,application/x-zip-compressed,application/vnd.rar,application/x-rar-compressed,text/plain';
+        input.onchange = () => resolve(input.files && input.files[0] ? input.files[0] : null);
+        input.click();
+      });
+      if (!file) return;
 
-    const name = file.name || '';
-    const low = name.toLowerCase();
-    if (low.endsWith('.rar')) {
-      await alertBox('RAR was detected, but browser extraction is not supported. Use ZIP or folder import.');
-      return;
-    }
-    if (low.endsWith('.zip')) {
-      const entries = await zipEntries(file);
-      if (!entries.length) {
-        await alertBox('No importable text files were found in this ZIP.');
+      const name = file.name || '';
+      const low = name.toLowerCase();
+      if (low.endsWith('.rar')) {
+        await alertBox('RAR was detected, but browser extraction is not supported. Use ZIP or folder import.');
         return;
       }
-      await importEntries(entries, name);
-      return;
-    }
-    if (PLATFORM === 'astra') {
-      if (!low.endsWith('.astra')) {
-        await alertBox('ASTRA single-file import accepts only .astra files.');
+      if (low.endsWith('.zip')) {
+        const entries = await zipEntries(file);
+        if (!entries.length) {
+          await alertBox('No importable text files were found in this ZIP.');
+          return;
+        }
+        await importEntries(entries, name);
         return;
       }
-      const mapped = '/astra/' + baseName(name);
-      writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
-      return;
-    }
-    if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-      if (!low.endsWith('.asl')) {
-        await alertBox('Jason/JaCaMo single-file import accepts only .asl files.');
+      if (PLATFORM === 'astra') {
+        if (!low.endsWith('.astra')) {
+          await alertBox('ASTRA single-file import accepts only .astra files.');
+          return;
+        }
+        const mapped = '/astra/' + baseName(name);
+        writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
         return;
       }
-      const mapped = '/' + baseName(name);
-      writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
+      if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
+        if (!low.endsWith('.asl') && !low.endsWith('.java') && !low.endsWith('.mas2j')) {
+          await alertBox('Jason/JaCaMo single-file import accepts .asl, .java, and .mas2j files.');
+          return;
+        }
+        const mapped = '/' + baseName(name);
+        writeProject({ [mapped]: await file.text(), [BUILD_FILE]: defaultPom() }, mapped, `Imported ${name} as ${mapped}. Default POM was used.`);
+      }
+    } catch (err) {
+      console.error('[GL] Import error:', err);
+      await alertBox('Import failed: ' + (err.message || String(err)));
     }
   }
 
