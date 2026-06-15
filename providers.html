@@ -103,23 +103,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Cerebras -->
-                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('cerebras')">
-                  <td style="padding:10px 12px;font-weight:600;"><a href="https://cloud.cerebras.ai" target="_blank" style="color:#ef4444;" onclick="event.stopPropagation();">Cerebras</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-oss-120b</code></td>
-                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
-                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('cerebras')"><i class="fa-solid fa-eye"></i></button></td>
-                </tr>
-                <tr id="setup-cerebras" style="display:none;">
-                  <td colspan="5" style="padding:0;">
-                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
-                      <strong style="color:#ef4444;">Cerebras</strong> &mdash; <a href="https://cloud.cerebras.ai" target="_blank" style="color:var(--color-green-700);">cloud.cerebras.ai</a><br>
-                      Sign up (no credit card) &rarr; API Keys &rarr; Export as <code>CEREBRAS_API_KEY</code>
-                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span></code></pre>
-                    </div>
-                  </td>
-                </tr>
                 <!-- Groq -->
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('groq')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://console.groq.com/keys" target="_blank" style="color:#f97316;" onclick="event.stopPropagation();">Groq</a></td>
@@ -134,6 +117,23 @@
                       <strong style="color:#f97316;">Groq</strong> &mdash; <a href="https://console.groq.com/keys" target="_blank" style="color:var(--color-green-700);">console.groq.com/keys</a><br>
                       Sign up (free) &rarr; Create API Key &rarr; Export as <code>GROQ_API_KEY</code>
                       <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export GROQ_API_KEY=<span class="string">"gsk_...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Cerebras -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('cerebras')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://cloud.cerebras.ai" target="_blank" style="color:#ef4444;" onclick="event.stopPropagation();">Cerebras</a></td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-oss-120b</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('cerebras')"><i class="fa-solid fa-eye"></i></button></td>
+                </tr>
+                <tr id="setup-cerebras" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#ef4444;">Cerebras</strong> &mdash; <a href="https://cloud.cerebras.ai" target="_blank" style="color:var(--color-green-700);">cloud.cerebras.ai</a><br>
+                      Sign up (no credit card) &rarr; API Keys &rarr; Export as <code>CEREBRAS_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span></code></pre>
                     </div>
                   </td>
                 </tr>
@@ -196,33 +196,9 @@
         <!-- Usage Examples -->
         <div style="font-size:15px;font-weight:700;margin:20px 0 12px;"><i class="fa-solid fa-code" style="margin-right:6px;color:#06b6d4;"></i>Usage Examples</div>
 
-        <!-- Cerebras -->
-        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#ef4444;"><i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras (Recommended Free Option)</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Provides low-latency wafer-scale inference. Accessible via a zero-cost API tier with no credit card registration, serving as an ideal environment for rapid prototyping and lifecycle testing.</div>
-          <div class="tabs-container">
-            <div class="tabs-header">
-              <div class="tabs-buttons">
-                <button class="tab-btn active" data-tab="prov-cerebras-astra">ASTRA</button>
-                <button class="tab-btn" data-tab="prov-cerebras-jason">Jason</button>
-                <button class="tab-btn" data-tab="prov-cerebras-jacamo">JaCaMo</button>
-              </div>
-            </div>
-            <div class="tab-content active" id="prov-cerebras-astra">
-              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);</code></pre>
-            </div>
-            <div class="tab-content" id="prov-cerebras-jason">
-              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
-            </div>
-            <div class="tab-content" id="prov-cerebras-jacamo">
-              <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
-            </div>
-          </div>
-        </div>
-
         <!-- Groq -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #f97316;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#f97316;"><i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#f97316;"><i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq (Recommended Free Option)</div>
           <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Offers high-throughput hardware-accelerated inference with a generous daily rate limit, suitable for executing multi-phase validation loops.</div>
           <div class="tabs-container">
             <div class="tabs-header">
@@ -240,6 +216,30 @@
             </div>
             <div class="tab-content" id="prov-groq-jacamo">
               <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>, Bid);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cerebras -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#ef4444;"><i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Provides low-latency wafer-scale inference. Accessible via a zero-cost API tier with no credit card registration, serving as an ideal environment for rapid prototyping and lifecycle testing.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-cerebras-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-cerebras-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-cerebras-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-cerebras-astra">
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-cerebras-jason">
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-cerebras-jacamo">
+              <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"cerebras"</span>, <span class="string">"gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
             </div>
           </div>
         </div>
@@ -341,7 +341,7 @@ gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompleti
         <div class="card" style="padding:16px;border-left:3px solid #06b6d4;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;color:#06b6d4;"></i>Auto-Detection</div>
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-            Omitting the provider parameter during binding triggers a fallback resolution sequence that scans the environment variables. The framework traverses the environment in a fixed priority hierarchy (<code>CEREBRAS_API_KEY</code> &rarr; <code>GROQ_API_KEY</code> &rarr; <code>GEMINI_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>) and automatically selects the first active key. If no external provider key is present, the framework falls back to a deterministic mock engine to support testing and local compilation without network dependencies.
+            Omitting the provider parameter during binding triggers a fallback resolution sequence that scans the environment variables. The framework traverses the environment in a fixed priority hierarchy (<code>GROQ_API_KEY</code> &rarr; <code>CEREBRAS_API_KEY</code> &rarr; <code>GEMINI_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>) and automatically selects the first active key. If no external provider key is present, the framework falls back to a deterministic mock engine to support testing and local compilation without network dependencies.
           </div>
         </div>
       </section>
