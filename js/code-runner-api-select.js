@@ -519,6 +519,24 @@
     });
 
     updateWarning(providers);
+
+    // If a saved key was loaded, trigger auto-detect to switch provider if needed
+    gridEl.querySelectorAll('.gl-key-input').forEach(input => {
+      const val = input.value.trim();
+      if (val) {
+        const providerKey = input.dataset.glKey;
+        const detected = detectProviderFromKey(val);
+        if (detected && detected !== providerKey) {
+          manualProvider = detected;
+          if (selectEl) selectEl.value = detected;
+          applyProviderToSource(detected);
+          lastKey = null;
+          // Defer re-scan to avoid recursion during render
+          setTimeout(scan, 0);
+          return;
+        }
+      }
+    });
   }
 
   function missingProviderLabels(providers) {
