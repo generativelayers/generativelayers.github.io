@@ -240,11 +240,16 @@
       if (patterns.some(re => re.test(clean))) found.push(key);
     });
 
-    if (!found.includes('cerebras') && /\bgpt-oss(?:-[0-9a-z._-]+)?\b/i.test(clean)) found.push('cerebras');
-    if (!found.includes('gemini') && /\bgemini-[a-z0-9._-]+\b/i.test(clean)) found.push('gemini');
-    if (!found.includes('deepseek') && /\bdeepseek-[a-z0-9._-]+\b/i.test(clean)) found.push('deepseek');
-    if (!found.includes('groq') && /\b(?:llama-3|llama3|mixtral|gemma)[a-z0-9._-]*\b/i.test(clean)) found.push('groq');
-    if (!found.includes('openai') && /\bgpt-(?:3\.5|4|4o|4\.1|5)(?:[a-z0-9._-]*)\b/i.test(clean)) found.push('openai');
+    // Model-name fallback: only if no explicit provider was found from bind() calls.
+    // Without this guard, a model name like "gemini-2.5-flash" used with a different
+    // provider (e.g. groq) would incorrectly also add gemini as a required provider.
+    if (found.length === 0) {
+      if (/\bgpt-oss(?:-[0-9a-z._-]+)?\b/i.test(clean)) found.push('cerebras');
+      if (/\bgemini-[a-z0-9._-]+\b/i.test(clean)) found.push('gemini');
+      if (/\bdeepseek-[a-z0-9._-]+\b/i.test(clean)) found.push('deepseek');
+      if (/\b(?:llama-3|llama3|mixtral|gemma)[a-z0-9._-]*\b/i.test(clean)) found.push('groq');
+      if (/\bgpt-(?:3\.5|4|4o|4\.1|5)(?:[a-z0-9._-]*)\b/i.test(clean)) found.push('openai');
+    }
 
     // A generation call with no explicit provider still needs one. Default to Cerebras.
     if (found.length === 0) found.push('cerebras');
