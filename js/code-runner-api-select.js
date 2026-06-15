@@ -113,6 +113,14 @@
     try { return localStorage.getItem('gl_api_last_key_used') || ''; } catch (_) { return ''; }
   }
 
+  function saveProviderKey(providerKey, value) {
+    try { localStorage.setItem('gl_api_key_' + providerKey, value); } catch (_) {}
+  }
+
+  function loadProviderKey(providerKey) {
+    try { return localStorage.getItem('gl_api_key_' + providerKey) || ''; } catch (_) { return ''; }
+  }
+
   function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
@@ -465,7 +473,7 @@
     gridEl.innerHTML = providers.map(key => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : loadLastKey();
+      const existingValue = existingInput ? existingInput.value : (loadProviderKey(key) || loadLastKey());
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
@@ -498,7 +506,9 @@
           statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
         }
 
-        // Save to localStorage
+        // Save to localStorage (per-provider and global fallback)
+        const provKey = input.dataset.glKey;
+        saveProviderKey(provKey, val);
         saveLastKey(val);
 
         // Auto-detect provider from key prefix and switch if mismatched
