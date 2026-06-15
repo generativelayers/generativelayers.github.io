@@ -105,12 +105,19 @@
     return null;
   }
 
-  function saveLastKey(value) {
-    try { localStorage.setItem('gl_api_last_key_used', value); } catch (_) {}
+  function loadKeysArray() {
+    try {
+      const raw = localStorage.getItem('gl_api_last_key_used');
+      if (!raw) return [''];
+      // Migrate from old single-string format
+      if (!raw.startsWith('[')) return [raw];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [''];
+    } catch (_) { return ['']; }
   }
 
-  function loadLastKey() {
-    try { return localStorage.getItem('gl_api_last_key_used') || ''; } catch (_) { return ''; }
+  function saveKeysArray(arr) {
+    try { localStorage.setItem('gl_api_last_key_used', JSON.stringify(arr)); } catch (_) {}
   }
 
   function escapeRegExp(value) {
@@ -462,15 +469,16 @@
       return;
     }
 
-    gridEl.innerHTML = providers.map(key => {
+    const savedKeys = loadKeysArray();
+    gridEl.innerHTML = providers.map((key, idx) => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : loadLastKey();
+      const existingValue = existingInput ? existingInput.value : (savedKeys[idx] || savedKeys[0] || '');
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
           <span class="gl-key-env">${p.env}</span>
-          <input class="gl-key-input" data-gl-key="${key}" data-gl-env="${p.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
+          <input class="gl-key-input" data-gl-key="${key}" data-gl-idx="${idx}" data-gl-env="${p.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
           <button class="gl-key-toggle" data-gl-toggle="${key}" title="Show/hide key" type="button"><i class="fa-solid fa-eye"></i></button>
           <span class="gl-key-status ${existingValue ? 'filled' : 'empty'}"><i class="fa-solid ${existingValue ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i></span>
         </div>`;
@@ -498,8 +506,12 @@
           statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
         }
 
-        // Save to localStorage
-        saveLastKey(val);
+        // Save to localStorage array by index
+        const idx = parseInt(input.dataset.glIdx || '0', 10);
+        const arr = loadKeysArray();
+        while (arr.length <= idx) arr.push('');
+        arr[idx] = val;
+        saveKeysArray(arr);
 
         // Auto-detect provider from key prefix and switch if mismatched
         if (filled) {
