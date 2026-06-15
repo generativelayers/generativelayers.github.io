@@ -101,6 +101,17 @@
     }
   }
 
+  function silentTokenRefresh() {
+    // Ask Google Identity Services to re-prompt for a fresh credential
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('[Auth] Silent re-auth not available, user may need to click sign-in');
+        }
+      });
+    }
+  }
+
   function renderAuthPanel() {
     const container = document.getElementById('glAuthPanel');
     if (!container) return;
@@ -108,20 +119,26 @@
     const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
     const profileStr = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
     let profile = null;
+    let tokenExpired = false;
 
-    if (token && profileStr) {
+    if (profileStr) {
+      try { profile = JSON.parse(profileStr); } catch (_) {}
+    }
+
+    if (token) {
       const payload = parseJwt(token);
-      if (payload && payload.exp * 1000 > Date.now()) {
-        try {
-          profile = JSON.parse(profileStr);
-        } catch (_) {}
-      } else {
-        localStorage.removeItem('gl_google_user');
+      if (!payload || payload.exp * 1000 <= Date.now()) {
+        tokenExpired = true;
+        // Clear the expired token but keep the profile so the user stays visually signed in
         localStorage.removeItem('gl_user_token');
-        localStorage.removeItem('gl_user_profile');
         sessionStorage.removeItem('gl_user_token');
-        sessionStorage.removeItem('gl_user_profile');
+        // Try to silently get a fresh token
+        silentTokenRefresh();
       }
+    } else if (profile) {
+      // Profile exists but no token — try silent refresh
+      tokenExpired = true;
+      silentTokenRefresh();
     }
 
     if (profile) {
@@ -172,7 +189,54 @@
       });
     }
     renderAuthPanel();
+    startTokenMonitor();
   }
+
+  // Periodically check JWT expiry and silently refresh before it expires
+  function startTokenMonitor() {
+    setInterval(() => {
+      const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
+      if (!token) return;
+      const payload = parseJwt(token);
+      if (!payload) return;
+      const expiresIn = payload.exp * 1000 - Date.now();
+      // Refresh 2 minutes before expiry (or if already expired)
+      if (expiresIn < 120000) {
+        console.log('[Auth] Token expiring/expired, refreshing silently...');
+        silentTokenRefresh();
+      }
+    }, 30000); // Check every 30 seconds
+  }
+
+  // Exposed globally so the run handler can call it on 401
+  window.__glRefreshTokenIfNeeded = function() {
+    return new Promise(resolve => {
+      const profile = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
+      if (!profile) { resolve(false); return; }
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        // Store original callback, wrap to resolve promise
+        const origCallback = window.handleGoogleLogin;
+        window.handleGoogleLogin = function(response) {
+          origCallback(response);
+          resolve(true);
+        };
+        google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          callback: window.handleGoogleLogin
+        });
+        google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            window.handleGoogleLogin = origCallback;
+            resolve(false);
+          }
+        });
+        // Timeout fallback
+        setTimeout(() => { window.handleGoogleLogin = origCallback; resolve(false); }, 5000);
+      } else {
+        resolve(false);
+      }
+    });
+  };
 
   // Initial render
   if (document.readyState === 'loading') {
