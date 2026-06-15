@@ -190,7 +190,23 @@
       event.stopPropagation();
       const activePre = getActivePreInScope(pre, scope);
       const activePlatform = activePre ? (detectPlatformFor(activePre) || platform) : platform;
-      openRunner(makeRunnable(textOf(activePre || pre), activePlatform), titleFor(activePre || pre), activePlatform);
+      const targetPre = activePre || pre;
+
+      // Check if the active panel has multiple files (multi-file pattern)
+      const panel = targetPre.closest('.tab-content');
+      const allPres = panel ? panel.querySelectorAll('pre[data-file-idx]') : [];
+      if (allPres.length > 1) {
+        // Multi-file: send raw source per file (each file keeps its own agent/class name)
+        const fileMap = {};
+        allPres.forEach(p => {
+          const code = p.querySelector('code');
+          const filename = code ? (code.dataset.filename || 'file' + p.dataset.fileIdx) : 'file' + p.dataset.fileIdx;
+          fileMap[filename] = textOf(p);
+        });
+        openRunnerMulti(fileMap, titleFor(targetPre), activePlatform);
+      } else {
+        openRunner(makeRunnable(textOf(targetPre), activePlatform), titleFor(targetPre), activePlatform);
+      }
     });
     return button;
   }
