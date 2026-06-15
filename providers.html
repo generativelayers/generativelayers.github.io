@@ -86,7 +86,7 @@
 
       <section class="info-panel" id="providers">
         <h2><i class="fa-solid fa-plug" style="margin-right:8px;color:#06b6d4;"></i>Overview</h2>
-        <p>Generative Layers decouples the agent's symbolic code from specific LLM endpoints. By calling <code>bind()</code>, you establish a governed boundary to any provider &mdash; swapping models or backends at runtime without modifying the agent's reasoning plans.</p>
+        <p>Traditional agent architectures couple prompt execution directly to specific API libraries, creating fragile systems and vendor lock-in. Generative Layers resolves this by decoupling the agent's symbolic reasoning from concrete neural endpoints. Through the <code>bind()</code> operator, agents establish a transactional governance boundary around any provider, allowing runtime model switching and out-of-band policy checks directly at the resource boundary.</p>
 
         <!-- Built-in Providers Table -->
         <div class="card" style="padding:20px;margin-bottom:16px;">
@@ -199,7 +199,7 @@
         <!-- Cerebras -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#ef4444;"><i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras (Recommended Free Option)</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">High-speed wafer-scale inference. Free tier with no credit card required. Best for development and testing.</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Provides low-latency wafer-scale inference. Accessible via a zero-cost API tier with no credit card registration, serving as an ideal environment for rapid prototyping and lifecycle testing.</div>
           <div class="tabs-container">
             <div class="tabs-header">
               <div class="tabs-buttons">
@@ -223,7 +223,7 @@
         <!-- Groq -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #f97316;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#f97316;"><i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Ultra-fast inference with generous free tier.</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Offers high-throughput hardware-accelerated inference with a generous daily rate limit, suitable for executing multi-phase validation loops.</div>
           <div class="tabs-container">
             <div class="tabs-header">
               <div class="tabs-buttons">
@@ -247,7 +247,7 @@
         <!-- Gemini (different protocol) -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #22c55e;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#22c55e;"><i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Native Google API)</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Gemini uses Google's native API. Just call <code>bind(agent, "gemini", model, "")</code>.</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Integrates with Google's foundation models via native API drivers, bypassing generic wrapper translations to support advanced multi-modal and structured reasoning workloads directly.</div>
           <div class="tabs-container">
             <div class="tabs-header">
               <div class="tabs-buttons">
@@ -278,9 +278,7 @@
           <div class="pattern-detail" id="detail-provider-custom" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
-                Any service implementing the Chat Completions API format works immediately &mdash; <strong>no framework update required</strong>. 
-                Just provide the endpoint, model name, and API key environment variable.
-                This includes Together AI, Fireworks, Ollama (local), LM Studio, Azure OpenAI, and any future provider.
+                Any endpoint conforming to the standard Chat Completions protocol is supported out of the box with zero framework modifications. Developers simply supply the target gateway URI, model identifier, and key environment variable, allowing immediate integration with Together AI, Fireworks, locally-hosted Ollama instances, LM Studio, Azure OpenAI, or custom model servers.
               </p>
               <div class="tabs-container">
                 <div class="tabs-header">
@@ -328,7 +326,7 @@ gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompleti
           <div class="pattern-detail" id="detail-provider-switching" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
-                Providers can be switched at any point during execution. This enables patterns like <a href="patterns.html#pattern-cross-llm" style="color:var(--color-green-700);">Cross-LLM Verification</a>, where one LLM generates and another verifies.
+                The binding context can be reassigned dynamically during execution, allowing the agent to target different models for distinct stages of a single transaction. This enables advanced architectures like <a href="patterns.html#pattern-cross-llm" style="color:var(--color-green-700);">Cross-LLM Verification</a>, where a candidate is generated by one provider and peer-reviewed by another.
               </p>
               <pre style="background:#1e1e24;padding:12px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// Bind to Gemini, then call</span>
 !classified(gl.call(gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>), <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label"</span>, <span class="string">""</span>));
@@ -343,7 +341,7 @@ gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompleti
         <div class="card" style="padding:16px;border-left:3px solid #06b6d4;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;color:#06b6d4;"></i>Auto-Detection</div>
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-            If no provider is specified in <code>bind()</code>, the framework auto-detects by checking which API key environment variables are set. Priority order: <code>CEREBRAS_API_KEY</code> &rarr; <code>GROQ_API_KEY</code> &rarr; <code>GEMINI_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>. Falls back to a deterministic fake provider for testing without any API key.
+            Omitting the provider parameter during binding triggers a fallback resolution sequence that scans the environment variables. The framework traverses the environment in a fixed priority hierarchy (<code>CEREBRAS_API_KEY</code> &rarr; <code>GROQ_API_KEY</code> &rarr; <code>GEMINI_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>) and automatically selects the first active key. If no external provider key is present, the framework falls back to a deterministic mock engine to support testing and local compilation without network dependencies.
           </div>
         </div>
       </section>
