@@ -210,12 +210,16 @@ $ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></cod
         <p>A governed invocation with the canonical lifecycle. See the full lifecycle across all three platforms in the <a href="framework.html#platform-syntax" style="color:var(--color-green-700);font-weight:600;">Platform syntax comparison</a>.</p>
         <div class="tabs-container" style="margin:12px 0;">
           <pre><code><span class="comment">// Jason — bind, call, validate, adopt</span>
-gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>, Bid);
-gl.call(Bid, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, <span class="string">""</span>, Rid);
-gl.candidate(Rid, Cid);
-gl.get(Cid, <span class="string">"label"</span>, Label);
-gl.accept(Cid, <span class="string">"valid classification"</span>, Did);
-.print(<span class="string">"Accepted: "</span>, Label).</code></pre>
+!start.
++!start
+   &lt;- gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>, Bid);
+      gl.call(Bid, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, <span class="string">""</span>, Rid);
+      !decided(Rid).
++!decided(Rid)
+   :  gl.candidate(Rid, Cid) &amp; gl.get(Cid, <span class="string">"label"</span>, Label)
+   &lt;- gl.accept(Cid, <span class="string">"valid classification"</span>, _);
+      .println(<span class="string">"Accepted: "</span>, Label);
+      .stopMAS.</code></pre>
         </div>
 
         <div class="card" style="padding:16px;margin-top:16px;border-left:3px solid var(--color-green-700);">
