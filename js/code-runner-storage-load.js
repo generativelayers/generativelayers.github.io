@@ -45,7 +45,18 @@
   }
 
   function loadIntoRunner(payload) {
-    if (!payload || !payload.source) return false;
+    if (!payload) return false;
+
+    // Multi-file payload: { title, files: { "main.asl": "...", "reviewer.asl": "..." } }
+    if (payload.files && typeof payload.files === 'object') {
+      if (typeof window.GLRunner !== 'undefined' && window.GLRunner.loadFiles) {
+        window.GLRunner.loadFiles(payload.files, payload.title);
+        return true;
+      }
+    }
+
+    // Single-file payload: { title, source: "..." }
+    if (!payload.source) return false;
 
     // Stop any running execution before loading new content
     if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
@@ -69,7 +80,7 @@
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
     if (currentFile) currentFile.textContent = '/astra/Main.astra';
-    if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press “Run Project”.`;
+    if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
     if (status) status.textContent = 'Example loaded';
     if (metaStatus) metaStatus.textContent = 'Loaded';
     if (metaReturnCode) metaReturnCode.textContent = '—';
