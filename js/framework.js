@@ -60,8 +60,8 @@
         err: ['<code>ERROR:not_found</code> — result does not exist', '<code>ERROR:no_candidate</code> — result exists but has no candidate']
       },
       astra: 'rule +!decide_result(string rid) {\n    !decide_candidate(gl.candidate(rid));\n}',
-      jason: '+!decide_result(Rid) <-\n    gl.candidate(Rid, Cid);\n    !decide_candidate(Cid).',
-      jacamo: '+!decide_result(Rid) <-\n    candidate(Rid, Cid);\n    !decide_candidate(Cid).'
+      jason: '+!decide_result(Rid)\n   :  gl.candidate(Rid, Cid)\n   <- !decide_candidate(Cid).',
+      jacamo: '+!decide_result(Rid)\n   :  candidate(Rid, Cid)\n   <- !decide_candidate(Cid).'
     },
     {
       id: 'check', group: 'decision', command: 'check(refId)', type: 'String',
@@ -304,22 +304,32 @@
         S.exit();
     }
 }</code></pre></div>
-        <div class="tab-content" id="syntax-jason"><pre><code>+!start <-
-    gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
-    gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
-    gl.candidate(Rid, Cid);
-    gl.get(Cid, "label", Label);
-    gl.accept(Cid, "valid classification", Did);
-    .print("Accepted: ", Label).</code></pre></div>
-        <div class="tab-content" id="syntax-jacamo"><pre><code>+!start <-
-    makeArtifact("gl", "gl.adapter.jacamo.JaCaMoAdapter", [], Id);
-    focus(Id);
-    bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
-    call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
-    candidate(Rid, Cid);
-    get(Cid, "label", Label);
-    accept(Cid, "valid classification", Did);
-    .print("Accepted: ", Label).</code></pre></div>
+        <div class="tab-content" id="syntax-jason"><pre><code>!start.
+
++!start
+   <- gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
+      gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
+      !decided(Rid).
+
++!decided(Rid)
+   :  gl.candidate(Rid, Cid) & gl.get(Cid, "label", Label)
+   <- gl.accept(Cid, "valid classification", _);
+      .println("Accepted: ", Label);
+      .stopMAS.</code></pre></div>
+        <div class="tab-content" id="syntax-jacamo"><pre><code>!start.
+
++!start
+   <- makeArtifact("gl", "gl.adapter.jacamo.JaCaMoArtifact", [], Id);
+      focus(Id);
+      gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
+      gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
+      !decided(Rid).
+
++!decided(Rid)
+   :  gl.candidate(Rid, Cid) & gl.get(Cid, "label", Label)
+   <- gl.accept(Cid, "valid classification", _);
+      .println("Accepted: ", Label);
+      .stopMAS.</code></pre></div>
       </div>`;
 
     main.appendChild(section);
