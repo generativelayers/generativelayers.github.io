@@ -298,7 +298,24 @@
     // A generation call with no explicit provider still needs one. Default to Cerebras.
     if (found.length === 0) found.push('cerebras');
 
-    return [...new Set(found)];
+    const uniqueFound = [...new Set(found)];
+
+    // Sort by order of appearance in the clean source code
+    const positions = {};
+    const lowerClean = clean.toLowerCase();
+    uniqueFound.forEach(key => {
+      const p = PROVIDERS[key];
+      const idxs = [
+        lowerClean.indexOf('"' + key + '"'),
+        lowerClean.indexOf("'" + key + "'"),
+        lowerClean.indexOf(p.env.toLowerCase())
+      ].filter(idx => idx >= 0);
+      positions[key] = idxs.length > 0 ? Math.min(...idxs) : Infinity;
+    });
+
+    uniqueFound.sort((a, b) => positions[a] - positions[b]);
+
+    return uniqueFound;
   }
 
   function activeProviders() {
