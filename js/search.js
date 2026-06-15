@@ -194,7 +194,7 @@ function installWebsiteCopyUpdates() {
 
   if (page === 'index.html') {
     setText('#purpose p:nth-of-type(1)', "Generative Layers keeps external generation separate from the agent's reasoning loop.");
-    setText('#purpose p:nth-of-type(2)', 'LLM, tool, API, and service outputs become candidate material: inspectable before the agent adopts, verifies, ignores, or rejects them.');
+    setText('#purpose p:nth-of-type(2)', 'External outputs are not used directly. Generative Layers first holds them as candidate material, so the agent can inspect, adopt, verify, ignore, or reject them.');
     setText('#inspirations .card p', 'BDI agent-oriented programming is about autonomous, goal-directed behaviour. These patterns are not hardcoded constraints; they emerge from agent programs composing lifecycle commands: binding resources, invoking them, inspecting candidates, recording judgements, computing admissibility, and accepting or rejecting outputs. The framework supplies the governed vocabulary; the agent program defines the architecture.');
   }
 
