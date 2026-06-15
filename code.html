@@ -385,7 +385,15 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const requestedPlatform = urlParams.get('platform');
+    const loadToken = urlParams.get('load');
     if (requestedPlatform && frameSources[requestedPlatform]) activatePlatform(requestedPlatform);
+
+    // Forward ?load= token to the correct platform's iframe
+    if (loadToken) {
+      const targetPlatform = requestedPlatform || 'astra';
+      const frame = document.getElementById('frame-' + targetPlatform);
+      if (frame) frame.src = frameSources[targetPlatform] + '?load=' + encodeURIComponent(loadToken);
+    }
 
     const hash = window.location.hash;
     if (hash.startsWith('#load-jason=')) {
