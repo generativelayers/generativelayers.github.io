@@ -1346,11 +1346,15 @@
       const payload = JSON.parse(decodeURIComponent(window.location.hash.slice(6)));
       if (!payload.source) return;
       // Stop any running execution before loading
-      if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
-      files = { [DEFAULT_FILE]: payload.source };
+      // Auto-rename agent class to match default filename (Main.astra)
+      let src = payload.source;
+      if (PLATFORM === 'astra' && /agent\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/.test(src)) {
+        src = src.replace(/agent\s+[A-Za-z_][A-Za-z0-9_]*/, 'agent Main');
+      }
+      files = { [DEFAULT_FILE]: src };
       if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
       currentPath = DEFAULT_FILE;
-      els.editor.value = payload.source;
+      els.editor.value = src;
       els.currentFile.textContent = currentPath;
       renderTree();
       updateApiKeyUI();
