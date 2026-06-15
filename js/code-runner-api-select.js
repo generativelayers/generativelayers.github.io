@@ -278,6 +278,8 @@
     const detected = detectProviders();
     if (detected.length === 0) return [];
     if (manualProvider === 'custom') return ['custom'];
+    // Multi-provider (cross-LLM): always return all detected providers
+    if (detected.length > 1) return detected;
     if (manualProvider && PROVIDERS[manualProvider]) return [manualProvider];
     return detected;
   }
@@ -386,7 +388,8 @@
     selectEl?.addEventListener('change', () => {
       manualProvider = selectEl.value;
       lastKey = null;
-      if (manualProvider && manualProvider !== 'custom') applyProviderToSource(manualProvider);
+      // Only rewrite source for single-provider patterns; cross-LLM uses intentionally different providers
+      if (manualProvider && manualProvider !== 'custom' && detectProviders().length <= 1) applyProviderToSource(manualProvider);
       if (manualProvider === 'custom') applyCustomToSource();
       scan();
     });
