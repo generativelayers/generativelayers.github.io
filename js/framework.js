@@ -316,20 +316,16 @@
    <- gl.accept(Cid, "valid classification", _);
       .println("Accepted: ", Label);
       .stopMAS.</code></pre></div>
-        <div class="tab-content" id="syntax-jacamo"><pre><code>!start.
-
-+!start
-   <- makeArtifact("gl", "gl.adapter.jacamo.JaCaMoAdapter", [], Id);
-      focus(Id);
-      gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
-      gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
-      !decided(Rid).
-
-+!decided(Rid)
-   :  gl.candidate(Rid, Cid) & gl.get(Cid, "label", Label)
-   <- gl.accept(Cid, "valid classification", _);
-      .println("Accepted: ", Label);
-      .stopMAS.</code></pre></div>
+        <div class="tab-content" id="syntax-jacamo"><pre><code>+!start <-
+    makeArtifact("gl", "gl.adapter.jacamo.JaCaMoAdapter", [], Id);
+    focus(Id);
+    bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
+    call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
+    candidate(Rid, Cid);
+    get(Cid, "label", Label);
+    accept(Cid, "valid classification", Did);
+    .print("Accepted: ", Label).
+    .stopMAS.</code></pre></div>
       </div>`;
 
     main.appendChild(section);
