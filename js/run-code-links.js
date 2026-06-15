@@ -165,6 +165,17 @@
     window.location.href = new URL('code.html#' + hashKey + '=' + encoded, window.location.href).toString();
   }
 
+  /** Open code runner with a multi-file project payload */
+  function openRunnerMulti(fileMap, title, platform) {
+    const payload = { title, files: fileMap };
+    const token = 'p' + Date.now();
+    try { sessionStorage.setItem('gl-runner-payload:' + token, JSON.stringify(payload)); } catch (_) {}
+    const page = platform === 'jason' ? 'code.html?platform=jason'
+               : platform === 'jacamo' ? 'code.html?platform=jacamo'
+               : 'code.html';
+    window.location.href = new URL(page + (page.includes('?') ? '&' : '?') + 'load=' + token, window.location.href).toString();
+  }
+
   // ── Button creation ─────────────────────────────────────────
 
   function makeRunButton(pre, scope, platform) {
@@ -370,8 +381,8 @@
     observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
   }
 
-  // Expose scan for dynamic content (patterns.html)
-  window.GLRunCodeLinks = { scan };
+  // Expose scan and openRunnerMulti for dynamic content (patterns.html)
+  window.GLRunCodeLinks = { scan, openRunnerMulti };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

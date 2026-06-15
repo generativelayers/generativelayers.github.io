@@ -1527,8 +1527,35 @@
       els.metaElapsed.textContent = '\u2014';
       saveToStorage();
     },
+    /** Load a multi-file project. fileMap = { "main.asl": "...", "reviewer.asl": "..." } */
+    loadFiles: function(fileMap, title) {
+      if (typeof window.__glStopExecution === 'function') window.__glStopExecution();
+      files = {};
+      const folder = SOURCE_FOLDER || '';
+      Object.entries(fileMap).forEach(([name, src]) => {
+        // Build the full path: e.g. /jason/main.asl or /astra/Main.astra
+        const path = folder ? folder + '/' + name : '/' + name;
+        files[path] = src;
+      });
+      if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
+      // Open the first source file
+      const firstSource = Object.keys(files).find(p => p.endsWith(SOURCE_EXT)) || Object.keys(files)[0];
+      currentPath = firstSource;
+      els.editor.value = files[currentPath] || '';
+      els.currentFile.textContent = currentPath;
+      renderTree();
+      updateApiKeyUI();
+      els.output.textContent = `Loaded: ${title || PLATFORM.toUpperCase() + ' example'}\nProject has ${Object.keys(fileMap).length} files. Press "Run Project" to execute.`;
+      els.status.textContent = 'Example loaded';
+      els.metaStatus.textContent = 'Loaded';
+      els.metaReturnCode.textContent = '\u2014';
+      els.metaElapsed.textContent = '\u2014';
+      saveToStorage();
+    },
     loadPayload: function(payload) {
-      if (payload && payload.source) {
+      if (payload && payload.files && typeof payload.files === 'object') {
+        this.loadFiles(payload.files, payload.title);
+      } else if (payload && payload.source) {
         this.loadSource(payload.source, payload.title);
       }
     }

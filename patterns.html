@@ -52,6 +52,10 @@
     .pattern-detail { overflow:hidden; transition:max-height 0.35s ease; }
     .pattern-detail[hidden] { display:none; }
     @media (max-width: 600px) { .tabs-header { overflow-x:auto; padding:0 10px; } .tab-btn { padding:12px 16px; } .tabs-container pre { padding:18px; font-size:13px; } }
+    .gl-file-pills { display:flex; gap:4px; padding:8px 12px 0; background:#0b1220; flex-wrap:wrap; }
+    .gl-file-pill { padding:5px 12px; border:1px solid #1f2937; border-bottom:none; border-radius:8px 8px 0 0; background:#111827; color:#94a3b8; font-size:12px; font-weight:700; font-family:'Fira Code',ui-monospace,monospace; cursor:pointer; transition:background .15s,color .15s; }
+    .gl-file-pill.active { background:#1e293b; color:#34d399; border-color:#34d399; }
+    .gl-file-pill:hover:not(.active) { color:#cbd5e1; background:#1a2332; }
   </style>
 </head>
 <body>
@@ -104,12 +108,13 @@
 
   <script>
     const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/examples/main/';
+    // files: string (single) or string[] (multi). Arrays keep display order; first file opens in editor.
     const PATTERNS = [
       { id:'simple-validation', title:'Pattern 1 - Simple Validation', icon:'fa-check-circle', description:'Accept valid schema-compliant output; reject invalid output. Baseline candidate lifecycle pattern.', checks:['Schema format','Candidate validity','Explicit accept/reject'], files:{ ASTRA:'astra/acceptance-patterns/pattern-1-simple-validation/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-1-simple-validation/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-1-simple-validation/src/agt/main.asl' } },
       { id:'content-inspection', title:'Pattern 2 - Content Inspection', icon:'fa-magnifying-glass', description:'Validate the output and then inspect the label against the agent\'s own known categories before adoption.', checks:['Schema validity','Known category','Reject unknown content'], files:{ ASTRA:'astra/acceptance-patterns/pattern-2-content-inspection/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-2-content-inspection/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-2-content-inspection/src/agt/main.asl' } },
       { id:'confidence-threshold', title:'Pattern 3 - Confidence Tier', icon:'fa-gauge-high', description:'Use a categorical confidence tier: high accepts, low rejects, and medium/unknown escalates.', checks:['confidence_tier field','High -> accept','Low -> reject','Other -> escalate'], files:{ ASTRA:'astra/acceptance-patterns/pattern-3-confidence-threshold/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-3-confidence-threshold/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-3-confidence-threshold/src/agt/main.asl' } },
       { id:'cross-llm', title:'Pattern 4 - Cross-LLM Verification', icon:'fa-code-compare', description:'Use a primary provider and a verifier provider; accept only when both candidates agree.', checks:['Primary provider','Verifier provider','Agreement required','Both candidates deliberated'], files:{ ASTRA:'astra/acceptance-patterns/pattern-4-cross-llm-verification/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-4-cross-llm-verification/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-4-cross-llm-verification/src/agt/main.asl' } },
-      { id:'agent-review', title:'Pattern 5 - Agent-to-Agent Review', icon:'fa-user-check', description:'A generating agent asks a reviewer agent before accepting the candidate.', checks:['Peer approval','Peer rejection','Timeout rejection'], files:{ ASTRA:'astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/main.asl' } },
+      { id:'agent-review', title:'Pattern 5 - Agent-to-Agent Review', icon:'fa-user-check', description:'A generating agent asks a reviewer agent before accepting the candidate.', checks:['Peer approval','Peer rejection','Timeout rejection'], files:{ ASTRA:['astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/Main.astra','astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/PatternRunner.astra','astra/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/astra/Reviewer.astra'], Jason:['jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/main.asl','jason/acceptance-patterns/pattern-5-agent-to-agent-review/src/main/asl/reviewer.asl'], JaCaMo:['jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/main.asl','jacamo/acceptance-patterns/pattern-5-agent-to-agent-review/src/agt/reviewer.asl'] } },
       { id:'belief-consistency', title:'Pattern 6 - Belief Consistency', icon:'fa-database', description:'Compare the LLM candidate with existing beliefs. Confirm matches, reject contradictions, adopt new facts only when no prior belief exists.', checks:['Existing belief match','Contradiction rejection','New fact adoption'], files:{ ASTRA:'astra/acceptance-patterns/pattern-6-belief-consistency/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-6-belief-consistency/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-6-belief-consistency/src/agt/main.asl' } },
       { id:'majority-voting', title:'Pattern 7 - Majority Voting', icon:'fa-scale-balanced', description:'Collect multiple candidate votes and accept the concrete candidates that form a majority.', checks:['Multiple votes','Candidate IDs retained','Majority winners accepted'], files:{ ASTRA:'astra/acceptance-patterns/pattern-7-majority-voting/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-7-majority-voting/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-7-majority-voting/src/agt/main.asl' } },
       { id:'iterative-refinement', title:'Pattern 8 - Iterative Refinement', icon:'fa-arrows-rotate', description:'Generate, check, refine, and accept only the final validated candidate. Free-text outputs use the framework\'s text field.', checks:['Draft text passed forward','Check text passed forward','Final candidate accepted'], files:{ ASTRA:'astra/acceptance-patterns/pattern-8-iterative-refinement/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-8-iterative-refinement/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-8-iterative-refinement/src/agt/main.asl' } }
@@ -118,10 +123,31 @@
     function escapeHtml(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
     async function loadSource(path) { const response = await fetch(RAW_BASE + path, { cache:'no-cache' }); if (!response.ok) throw new Error('Could not load ' + path); return response.text(); }
 
+    /** Normalize files entry to always be an array */
+    function toArray(val) { return Array.isArray(val) ? val : [val]; }
+    /** Extract filename from path */
+    function basename(path) { return path.split('/').pop(); }
+
     function renderPatternShell(pattern) {
       const checks = pattern.checks.map(item => `<li>${escapeHtml(item)}</li>`).join('');
       const buttons = Object.keys(pattern.files).map((name, i) => `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-pattern="${pattern.id}" data-platform="${name}">${name}</button>`).join('');
-      const panels = Object.entries(pattern.files).map(([name, path], i) => `<div class="tab-content ${i === 0 ? 'active' : ''}" id="${pattern.id}-${name}"><pre><code data-source="${escapeHtml(path)}">Loading ${name}...</code></pre></div>`).join('');
+
+      const panels = Object.entries(pattern.files).map(([name, paths], i) => {
+        const arr = toArray(paths);
+        // File pills (only if > 1 file)
+        let pills = '';
+        if (arr.length > 1) {
+          pills = '<div class="gl-file-pills">' + arr.map((p, fi) =>
+            `<button class="gl-file-pill ${fi === 0 ? 'active' : ''}" data-pattern="${pattern.id}" data-platform="${name}" data-file-idx="${fi}">${basename(p)}</button>`
+          ).join('') + '</div>';
+        }
+        // One code block per file; only first visible
+        const blocks = arr.map((p, fi) =>
+          `<pre ${fi > 0 ? 'hidden' : ''} data-file-idx="${fi}"><code data-source="${escapeHtml(p)}" data-filename="${escapeHtml(basename(p))}">Loading ${basename(p)}...</code></pre>`
+        ).join('');
+        return `<div class="tab-content ${i === 0 ? 'active' : ''}" id="${pattern.id}-${name}">${pills}${blocks}</div>`;
+      }).join('');
+
       return `<section class="info-panel" id="pattern-${pattern.id}">`
         + `<div class="pattern-header" onclick="togglePatternDetail('${pattern.id}')">`
         + `<div class="pattern-header-text">`
@@ -160,6 +186,8 @@
       const root = document.getElementById('patterns-root');
       if (!root) return;
       root.innerHTML = PATTERNS.map(renderPatternShell).join('');
+
+      // Platform tab switching
       root.addEventListener('click', event => {
         const button = event.target.closest('.tab-btn');
         if (!button) return;
@@ -171,6 +199,24 @@
         const panel = document.getElementById(`${patternId}-${platform}`);
         if (panel) panel.classList.add('active');
       });
+
+      // File pill switching (within a platform tab)
+      root.addEventListener('click', event => {
+        const pill = event.target.closest('.gl-file-pill');
+        if (!pill) return;
+        const panel = pill.closest('.tab-content');
+        if (!panel) return;
+        const idx = pill.dataset.fileIdx;
+        // Update pills
+        panel.querySelectorAll('.gl-file-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        // Show/hide code blocks
+        panel.querySelectorAll('pre[data-file-idx]').forEach(pre => {
+          pre.hidden = pre.dataset.fileIdx !== idx;
+        });
+      });
+
+      // Load all source files from GitHub
       await Promise.all(Array.from(root.querySelectorAll('code[data-source]')).map(async block => {
         try { block.textContent = (await loadSource(block.dataset.source)).trim(); }
         catch (error) { block.textContent = 'Unable to load current source from examples repository.\n' + block.dataset.source; }
