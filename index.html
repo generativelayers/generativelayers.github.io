@@ -170,7 +170,7 @@
           <div class="concept-header" style="padding:12px 16px;">
             <div style="display:flex;align-items:center;gap:10px;width:100%;">
               <i class="fa-solid fa-users-gear" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
-              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 1 &mdash; Multi-Agent Software Engineering Swarm (Autonomous Plan-Execution Loops)</span>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 1 &mdash; Multi-Agent Software Engineering Swarm (Governed Code Generation & Self-Correcting Execution Loops)</span>
               <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -178,15 +178,15 @@
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-              <div style="margin-top:10px;"><strong>Domain:</strong> Automated Code Generation & Quality Control.</div>
-              <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized multi-agent cognitive system that simulates software engineering roles, cooperating through belief-sharing and automated feedback cycles to continuously produce and audit software assets.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;"><strong>Domain:</strong> Governed Software Synthesis & Quality Verification.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized BDI swarm simulating developer roles, cooperating via belief sharing and automated compiler/linter feedback to continuously synthesize and verify software artifacts under transactional containment.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Neuro-Symbolic Lifecycle Flow:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Product Owner Agent:</strong> Receives raw specifications and uses <code>call(..., "ANSWER", prompt, "stories")</code> to decompose the task into atomic user stories.</li>
-                <li><strong>Developer Agent:</strong> Takes a user story and uses <code>call(..., "ANSWER", prompt, "code")</code> to generate candidate Java code, then <code>candidate(resId)</code> to isolate the output.</li>
-                <li><strong>Tester Agent:</strong> Generates corresponding unit tests, compiles the program, and uses <code>check(resId)</code> to verify the generated code compiles and all tests pass.</li>
-                <li><strong>Security Auditor Agent:</strong> Intercepts the candidate and calls <code>judge(candId, "auditor", "APPROVE", confidence, rationale)</code> to record whether the code passes security policies.</li>
-                <li><strong>Governance Plan:</strong> The agent calls <code>decide(candId)</code> to check admissibility. If inadmissible, it calls <code>reject(candId, "failed audit")</code> and feeds the error trace back into a new <code>call</code> for a self-correcting retry loop. If admissible, it calls <code>accept(candId, "all checks passed")</code> and writes the code to the filesystem.</li>
+                <li><strong>Product Owner Agent:</strong> Ingests specifications and calls <code>call()</code> to decompose requirements into structured backlog items.</li>
+                <li><strong>Developer Agent:</strong> Receives a backlog item and invokes a neural provider to generate candidate code, immediately quarantining the file contents inside a <code>candidate()</code> transaction.</li>
+                <li><strong>Tester Agent:</strong> Orchestrates execution-level testing, compiling the candidate and registering a <code>judge()</code> based on unit test success.</li>
+                <li><strong>Security Auditor Agent:</strong> Audits the quarantined candidate code for common vulnerability signatures, registering an independent safety <code>judge()</code>.</li>
+                <li><strong>Governance Decoupling:</strong> The host agent calls <code>decide()</code> to aggregate all peer judgments. If inadmissible, <code>reject()</code> is called, and the error trace triggers a self-correcting plan. If admissible, <code>accept()</code> commits the candidate code to the codebase.</li>
               </ul>
             </div>
           </div>
@@ -197,7 +197,7 @@
           <div class="concept-header" style="padding:12px 16px;">
             <div style="display:flex;align-items:center;gap:10px;width:100%;">
               <i class="fa-solid fa-stethoscope" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
-              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 2 &mdash; Self-Optimizing RAG-based Clinical Assistant (Safe Epistemic Foundations)</span>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 2 &mdash; Self-Optimizing RAG-based Clinical Assistant (Epistemic Governance & Safety-Critical Verification)</span>
               <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -205,15 +205,15 @@
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-              <div style="margin-top:10px;"><strong>Domain:</strong> Healthcare & Safety-Critical Diagnostics.</div>
-              <div style="margin-top:6px;"><strong>How it works:</strong> A safety-critical expert system that guards the agent's epistemic beliefs, validating external LLM propositions against verified medical repositories before allowing them to be adopted as internally active beliefs.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;"><strong>Domain:</strong> Clinical Decision Support & Epistemic Safety.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A diagnostic assistant that guards the agent's epistemic belief base, isolating and verifying generated medical recommendations against trusted scientific repositories before committing them as active beliefs.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Neuro-Symbolic Lifecycle Flow:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Triage Agent:</strong> Takes patient symptoms and uses <code>call(..., "ANSWER", symptoms, "lookup_keys")</code> to generate optimal lookup keys for medical literature.</li>
-                <li><strong>Search Agent:</strong> Queries the database and asserts the retrieved clinical papers into the agent's belief base (BDI-level adoption, outside GL).</li>
-                <li><strong>Diagnostic Agent:</strong> Uses <code>call(..., "ANSWER", patient_data, "diagnosis,dosage,citations")</code> to generate a candidate diagnostic report, then <code>candidate(resId)</code> to isolate it.</li>
-                <li><strong>Safety Review:</strong> A strict rule-checking pipeline calls <code>judge(candId, "safety_auditor", verdict, confidence, rationale)</code> to evaluate the diagnosis. It uses <code>get(candId, "citations")</code> and <code>get(candId, "dosage")</code> to parse candidate fields, maps citations to papers in the agent's beliefs, and verifies dosage against established thresholds.</li>
-                <li><strong>Resolution Plan:</strong> The agent calls <code>decide(candId)</code>. If inadmissible, <code>reject(candId, "unsafe dosage")</code> is triggered. Otherwise, <code>accept(candId, "verified diagnosis")</code> populates the medical dashboard.</li>
+                <li><strong>Triage Agent:</strong> Evaluates symptom profiles and invokes a neural provider to generate targeted query keys for medical databases.</li>
+                <li><strong>Diagnostic Agent:</strong> Dispatches patient telemetry through <code>call()</code> to draft a diagnostic report, immediately quarantining the recommendation as a raw <code>candidate()</code>.</li>
+                <li><strong>Safety Auditor Agent:</strong> Inspects specific sub-fields of the candidate using <code>get()</code>, extracting dosage recommendations and literature citations for out-of-band verification.</li>
+                <li><strong>Epistemic Validation:</strong> Cross-references dosage bounds and citations against localized clinical knowledge, registering a safety <code>judge()</code>.</li>
+                <li><strong>Symbolic Adoption:</strong> If <code>decide()</code> returns true, the agent runs <code>accept()</code> to merge the diagnosis into its active belief base. Otherwise, it executes <code>reject()</code> and logs the safety violation.</li>
               </ul>
             </div>
           </div>
@@ -224,7 +224,7 @@
           <div class="concept-header" style="padding:12px 16px;">
             <div style="display:flex;align-items:center;gap:10px;width:100%;">
               <i class="fa-solid fa-comments-dollar" style="font-size:14px;color:#ef4444;flex-shrink:0;"></i>
-              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 3 &mdash; E-Commerce Arbitrage & Negotiating Agent (Decentralized Game-Theoretic Plan Harmonization)</span>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 3 &mdash; E-Commerce Arbitrage & Negotiating Agent (Utility-Driven Bidding under Transaction Boundaries)</span>
               <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -232,14 +232,15 @@
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-              <div style="margin-top:10px;"><strong>Domain:</strong> Autonomous Trading & Game Theory.</div>
-              <div style="margin-top:6px;"><strong>How it works:</strong> An autonomous financial agent that uses utility-driven reasoning to scout markets, negotiate contracts with wholesale providers, and dynamic safety constraints to prevent balance depletion during high-frequency bidding.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;"><strong>Domain:</strong> Autonomous Financial Negotiation & Budget Enforcement.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> An automated trading agent that negotiates wholesale supplier contracts, enforcing hard financial spending limits to prevent capital depletion during high-frequency bidding.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Neuro-Symbolic Lifecycle Flow:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Scouter Agent:</strong> Uses <code>call(..., "ANSWER", market_query, "item,price,trend")</code> to predict demand and inventory values, then adopts accepted results into its beliefs (BDI-level).</li>
-                <li><strong>Negotiator Agent:</strong> Bids on supplier assets. It uses <code>call(..., "ANSWER", negotiation_prompt, "offer,price")</code> to generate a persuasive counter-offer as candidate material.</li>
-                <li><strong>Safety Guard:</strong> Before sending any bid, the agent calls <code>judge(candId, "budget_guard", verdict, confidence, rationale)</code> to evaluate the counter-offer against the maximum budget limit, then <code>decide(candId)</code> to check admissibility.</li>
-                <li><strong>Commit Plan:</strong> If the supplier's price falls below the agent's threshold (verified via <code>get(candId, "price")</code>), the agent triggers <code>accept(candId, "within budget")</code> and registers the contract in its belief base (BDI-level), executing an automated API payout.</li>
+                <li><strong>Scouter Agent:</strong> Analyzes demand indicators and uses <code>call()</code> to extract market price trends, validating the output before updating inventory estimates.</li>
+                <li><strong>Negotiator Agent:</strong> Conducts bargaining rounds, prompting a model to draft a counter-offer that is immediately quarantined as a <code>candidate()</code>.</li>
+                <li><strong>Budget Monitor Agent:</strong> Parses the proposed bidding amount with <code>get()</code> and runs a check against the agent's current liquid capital.</li>
+                <li><strong>Governance Verification:</strong> Registers a budget-compliance <code>judge()</code>. If the bid violates financial limits, it triggers <code>reject()</code>, reverting the agent to a more conservative negotiation plan.</li>
+                <li><strong>Contract Execution:</strong> Once <code>decide()</code> confirms admissibility, the agent calls <code>accept()</code>, committing the offer to memory and initiating the external transaction.</li>
               </ul>
             </div>
           </div>
@@ -250,7 +251,7 @@
           <div class="concept-header" style="padding:12px 16px;">
             <div style="display:flex;align-items:center;gap:10px;width:100%;">
               <i class="fa-solid fa-bolt-lightning" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
-              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 4 &mdash; Autonomous Incident Response Grid (Self-Healing Cyber-Physical Systems)</span>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 4 &mdash; Autonomous Incident Response Grid (Smart-Grid Load Routing & Simulator-in-the-Loop Validation)</span>
               <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -258,14 +259,15 @@
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-              <div style="margin-top:10px;"><strong>Domain:</strong> IoT, Energy Logistics, & Emergency Mitigation.</div>
-              <div style="margin-top:6px;"><strong>How it works:</strong> A self-healing grid-management system modeled using BDI agents, coordinating dynamically to identify cyber-physical anomalies, draft load-routing configurations, and execute plans to bypass physical line faults safely.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;"><strong>Domain:</strong> Cyber-Physical Resilience & Real-Time Incident Response.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A smart-grid logistics platform where BDI agents detect electrical faults, generate alternative load-routing configurations, and validate them in simulations before enacting physical grid changes.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Neuro-Symbolic Lifecycle Flow:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Monitor Agent:</strong> Constantly receives telemetry. If an anomaly is registered, it triggers a goal to resolve the outage.</li>
-                <li><strong>Planner Agent:</strong> Uses <code>call(..., "ANSWER", anomaly_data, "route,load_estimate")</code> to generate a candidate rerouting sequence around the damaged substation, then <code>candidate(resId)</code> to isolate it.</li>
-                <li><strong>Validation Guard:</strong> Runs a simulation to verify grid load. It calls <code>judge(candId, "load_simulator", verdict, confidence, rationale)</code> to record whether the candidate route stays within capacity thresholds, then <code>decide(candId)</code> to check admissibility.</li>
-                <li><strong>Decision Loop:</strong> If inadmissible, the plan triggers <code>reject(candId, "overload predicted")</code> and issues a new <code>call</code> to generate a load-shedding route instead. Once admissible, <code>accept(candId, "safe route confirmed")</code> commits the changes, triggering physical smart switches on the grid.</li>
+                <li><strong>Telemetry Monitor Agent:</strong> Detects physical grid anomalies and triggers an emergency recovery plan to bypass the damaged sector.</li>
+                <li><strong>Logistics Planner Agent:</strong> Dispatches the fault telemetry through <code>call()</code> to generate a candidate rerouting sequence, isolating the raw plan as a <code>candidate()</code>.</li>
+                <li><strong>Grid Simulator Agent:</strong> Simulates the electrical load distribution of the proposed route, evaluating whether lines will exceed safety limits.</li>
+                <li><strong>Admissibility Auditing:</strong> Submits the simulator outcomes as a <code>judge()</code>. If <code>decide()</code> rejects the path, the agent calls <code>reject()</code> and falls back to a load-shedding plan.</li>
+                <li><strong>Physical Commitment:</strong> Upon successful validation, the agent runs <code>accept()</code> and translates the committed configuration into physical smart-switch command signals.</li>
               </ul>
             </div>
           </div>
@@ -276,7 +278,7 @@
           <div class="concept-header" style="padding:12px 16px;">
             <div style="display:flex;align-items:center;gap:10px;width:100%;">
               <i class="fa-solid fa-gamepad" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
-              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 5 &mdash; Interactive NPC Dynamic Dialogue System (Emergent Narrative & Social Interaction)</span>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 5 &mdash; Interactive NPC Dialogue Engine (Emergent Narrative & Lore Consistency Auditing)</span>
               <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
                 <i class="fa-solid fa-eye"></i>
               </button>
@@ -284,14 +286,15 @@
           </div>
           <div class="concept-details" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-              <div style="margin-top:10px;"><strong>Domain:</strong> Gaming & Creative Entertainment.</div>
-              <div style="margin-top:6px;"><strong>How it works:</strong> Virtual social agents equipped with distinct personality variables, social relationship beliefs, and dynamic dialogic generation plans, producing contextually coherent narrative interactions.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;"><strong>Domain:</strong> Emergent Narrative & Interactive Agents.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> Virtual game characters with distinct personality profiles and social beliefs, generating contextually appropriate dialogue while auditing responses to ensure compliance with established world lore and behavioral bounds.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Neuro-Symbolic Lifecycle Flow:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
-                <li><strong>Perception Agent:</strong> Records player choices and stores them as memory beliefs (BDI-level): e.g. <code>player_relation(NPC, player, hostile)</code>.</li>
-                <li><strong>Dialogue Agent:</strong> When the player approaches, the NPC uses <code>call(..., "ANSWER", context, "dialogue,tone")</code> to generate a dialogue draft based on its current mood, personality traits, and <code>knowledge(agentId)</code> from past accepted interactions.</li>
-                <li><strong>Lore Auditor:</strong> The game director agent calls <code>judge(candId, "lore_auditor", verdict, confidence, rationale)</code> to check that the draft dialogue does not conflict with established game lore or contain inappropriate speech, then <code>decide(candId)</code>.</li>
-                <li><strong>Adopt &amp; Speak:</strong> If admissible, the agent calls <code>accept(candId, "lore compliant")</code> and records the dialogue line into the narrative history (BDI-level) before playing the voice line.</li>
+                <li><strong>Perception Agent:</strong> Observes player behavior and updates social relationship beliefs (e.g., trust metrics, historical interactions) within the BDI belief base.</li>
+                <li><strong>Dialogue Agent:</strong> Generates a character-appropriate response draft via <code>call()</code>, immediately isolating the unstructured speech string in a <code>candidate()</code> container.</li>
+                <li><strong>Lore Monitor Agent:</strong> Checks the candidate's speech text against the world database to prevent anachronisms or breaks in narrative consistency.</li>
+                <li><strong>Content Safety Checker:</strong> Validates that the response conforms to toxicity and family-friendly thresholds, submitting its verdict as a <code>judge()</code>.</li>
+                <li><strong>Speech Committal:</strong> The agent calls <code>decide()</code>. If admissible, <code>accept()</code> transitions the text to active dialogue; otherwise, <code>reject()</code> discards the draft, prompting a silent conversational retry.</li>
               </ul>
             </div>
           </div>
