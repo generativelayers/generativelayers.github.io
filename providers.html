@@ -86,7 +86,7 @@
 
       <section class="info-panel" id="providers">
         <h2><i class="fa-solid fa-plug" style="margin-right:8px;color:#06b6d4;"></i>Overview</h2>
-        <p>Generative Layers supports multiple LLM providers out of the box. Call <code>bind(agent, provider, model, config)</code> to activate a provider &mdash; no framework changes needed. For unlisted providers, also set the endpoint and API key environment variable.</p>
+        <p>Generative Layers decouples the agent's symbolic code from specific LLM endpoints. By calling <code>bind()</code>, you establish a governed boundary to any provider &mdash; swapping models or backends at runtime without modifying the agent's reasoning plans.</p>
 
         <!-- Built-in Providers Table -->
         <div class="card" style="padding:20px;margin-bottom:16px;">
