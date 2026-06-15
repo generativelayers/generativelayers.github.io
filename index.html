@@ -77,7 +77,7 @@
       <section class="info-panel" id="purpose">
         <h2>Purpose</h2>
         <p>Traditional agent systems are fragile because they directly commit unpredictable LLM outputs to internal state.</p>
-        <p>Generative Layers solves this by treating LLM interactions as isolated, multi-phase transactions. Unstructured outputs are sandboxed as candidate material (<code>cand_</code>), which are only committed (accepted) once they satisfy the agent's symbolic logic and safety constraints.</p>
+        <p>Generative Layers solves this by treating LLM interactions as isolated, multi-phase transactions. Unstructured outputs are sandboxed as candidate material (<code>cand_</code>), which are only committed (accepted) once they satisfy the agent's symbolic logic and safety constraints. This ensures that hallucinations are rejected at the gate, keeping the system deterministic and secure.</p>
       </section>
 
       <section class="info-panel" id="target-platforms">
