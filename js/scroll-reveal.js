@@ -32,6 +32,11 @@
     if (contribution) {
       contribution.textContent = 'A Java framework boundary between agent execution and external generative resource use.';
     }
+
+    const rq3 = document.querySelector('#research-questions .card:nth-child(3) p');
+    if (rq3) {
+      rq3.textContent = 'Can the same governed resource-layer model work across different MAS frameworks?';
+    }
   }
 
   // Selectors to animate
