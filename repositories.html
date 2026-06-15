@@ -1,24 +1,73 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Repositories | Generative Layers</title>
+  <meta name="description" content="Generative Layers framework, examples, and documentation repositories.">
+  <meta name="keywords" content="github repos, source code, agent examples, jason runtime, astra framework, JaCaMo, CArtAgO">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/repositories.html">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Generative Layers">
+  <meta property="og:title" content="Repositories | Generative Layers">
+  <meta property="og:description" content="Generative Layers framework, examples, and documentation repositories.">
+  <meta property="og:url" content="https://www.generativelayers.com/repositories.html">
+  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Repositories | Generative Layers">
+  <meta name="twitter:description" content="Generative Layers framework, examples, and documentation repositories.">
+  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Generative Layers GitHub Repositories",
+    "description": "A curated collection of framework, examples, and documentation source repositories.",
+    "url": "https://www.generativelayers.com/repositories.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Generative Layers",
+      "url": "https://www.generativelayers.com/"
+    }
+  }
+  </script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js"></script>
 </head>
 <body>
+
+  <!-- Header -->
   <header class="top">
     <div class="header-inner">
-      <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
       <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
-      <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search" placeholder="Search…" aria-label="Search"></div>
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search…" aria-label="Search">
+      </div>
     </div>
   </header>
+
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="layout">
+    <!-- Sidebar -->
     <aside class="side" id="sidebar">
       <div class="side-label">Documentation</div>
       <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
@@ -29,22 +78,80 @@
       <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
       <a class="active" href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
     </aside>
+
+    <!-- Main -->
     <main class="main">
       <h1>Repositories</h1>
+
       <h2 style="margin-top:24px"><i class="fa-brands fa-github" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Core Repositories</h2>
+
       <div class="repo-grid" id="github-repositories">
         <a class="repo-card" href="https://github.com/generativelayers/framework">
-          <div class="repo-card-header"><h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3><span class="badge-lang badge-java">Java</span></div>
+          <div class="repo-card-header">
+            <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
+            <span class="badge-lang badge-java">Java</span>
+          </div>
           <p>The core Java framework containing the transactional governance kernel, the out-of-band policy engine, and integration adapters.</p>
-          <div class="repo-card-footer"><span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span><span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span></div>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
+            <span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span>
+          </div>
         </a>
         <a class="repo-card" href="https://github.com/generativelayers/examples">
-          <div class="repo-card-header"><h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3><span class="badge-lang badge-agentspeak">AgentSpeak</span></div>
+          <div class="repo-card-header">
+            <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
+            <span class="badge-lang badge-agentspeak">AgentSpeak</span>
+          </div>
           <p>A suite of multi-agent BDI system examples demonstrating implementation across multiple runtime environments.</p>
-          <div class="repo-card-footer"><span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span><span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span></div>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
+            <span class="repo-meta"><i class="fa-solid fa-code-fork"></i> main</span>
+          </div>
         </a>
       </div>
+
+      <!-- Companion Tools -->
+      <h2 style="margin-top:48px"><i class="fa-solid fa-screwdriver-wrench" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Companion Tools</h2>
+      <p class="lead" style="font-size: 15px; margin-bottom: 20px; color: var(--color-text-secondary);">To support agent development under transactional governance constraints, lightweight static analysis tools were built to audit ASTRA and Jason codebase specifications. These companion tools perform real-time verification of AgentSpeak syntax and BDI reasoning rules.</p>
+
+      <div class="repo-grid">
+        <a class="repo-card" href="https://gitlab.com/kyriakidis.demetrios/astra-diagnostics-vscode" style="border-left-color:#e24329">
+          <div class="repo-card-header">
+            <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> astra-diagnostics</h3>
+            <span class="badge-lang badge-vscode">VS Code</span>
+          </div>
+          <p>Provides static analysis, syntactic validation, and real-time schema linting for ASTRA agent source files, mapping 121 checks across 31 rulesets.</p>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> MIT</span>
+            <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
+          </div>
+        </a>
+        <a class="repo-card" href="https://gitlab.com/kyriakidis.demetrios/jason-diagnostics-vscode" style="border-left-color:#e24329">
+          <div class="repo-card-header">
+            <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> jason-diagnostics</h3>
+            <span class="badge-lang badge-vscode">VS Code</span>
+          </div>
+          <p>Provides real-time AST linting, AgentSpeak semantics checking, and BDI belief/goal flow validation for Jason (.asl) source files across 135 checks.</p>
+          <div class="repo-card-footer">
+            <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> MIT</span>
+            <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
+          </div>
+        </a>
+      </div>
+
     </main>
   </div>
+
+  <script>
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarBackdrop').classList.toggle('open');
+    });
+    document.getElementById('sidebarBackdrop').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.remove('open');
+      this.classList.remove('open');
+    });
+  </script>
+
 </body>
 </html>
