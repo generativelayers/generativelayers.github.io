@@ -76,8 +76,8 @@
 
       <section class="info-panel" id="purpose">
         <h2>Purpose</h2>
-        <p>Traditional agent programming relies on deterministic, goal-directed symbolic state—a model that clashes directly with the unpredictable, probabilistic nature of LLMs.</p>
-        <p>When agents directly commit raw LLM outputs to memory, they suffer state pollution, breaking execution invariants and safety guarantees. Generative Layers solves this by quarantining LLM interactions inside isolated, multi-phase transactions. Unstructured outputs are sandboxed as uncommitted candidate material (<code>cand_</code>) and are only adopted once they satisfy the agent's symbolic logic and admissibility constraints. This ensures that hallucinations and formatting anomalies are rejected at the gate, keeping the host agent's reasoning loop deterministic and secure.</p>
+        <p>In BDI systems, communication has strict, formal semantics based on Speech Act Theory: when Agent A sends a message like <code>tell(belief)</code> to Agent B, the receiver knows Agent A believes that proposition.</p>
+        <p>Communicating with probabilistic neural models breaks this foundation. Directly committing raw LLM text to memory violates the agent's epistemic integrity, causing plan selection and execution failures. Generative Layers solves this by introducing a mediated neuro-symbolic communication protocol. Unstructured outputs are quarantined as uncommitted candidate material (<code>cand_</code>). This allows the agent to act as a symbolic gatekeeper—adopting neural suggestions only after evaluating them against its internal logical invariants and safety constraints.</p>
       </section>
 
       <section class="info-panel" id="target-platforms">
