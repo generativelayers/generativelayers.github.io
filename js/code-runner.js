@@ -1126,6 +1126,7 @@
       }
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
 
+      let retried = false;
       const headers = { 'Content-Type': 'application/json' };
       const token = __glAuthToken || localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
       if (token) {
@@ -1141,19 +1142,55 @@
       });
 
       if (!response.ok) {
-        const text = await response.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = { output: text }; }
-        renderResult({ status: 'failed', return_code: response.status, elapsed_seconds: null, output: data.message || data.output || text });
-        // Toast explanations for common errors
-        if (response.status === 429) {
-          showRunnerToast('Free run limit reached (5/hour). Sign in with Google for unlimited runs.', 'warning');
-        } else if (response.status === 401) {
-          showRunnerToast('Session expired. Please sign in again.', 'warning');
-        } else if (response.status === 403) {
-          showRunnerToast('Sign in required for Java files and custom dependencies.', 'warning');
+        // On 401, try silent token refresh and retry once
+        if (response.status === 401 && !retried && typeof window.__glRefreshTokenIfNeeded === 'function') {
+          els.status.textContent = 'Refreshing session…';
+          const refreshed = await window.__glRefreshTokenIfNeeded();
+          if (refreshed) {
+            // Update token and retry
+            const newToken = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
+            if (newToken) {
+              headers['Authorization'] = 'Bearer ' + newToken;
+              retried = true;
+              const retryResponse = await fetch(RUN_URL, {
+                method: 'POST', mode: 'cors', cache: 'no-store',
+                headers: headers,
+                body: JSON.stringify(body)
+              });
+              if (retryResponse.ok) {
+                response = retryResponse;
+                // Fall through to stream handling below
+              } else {
+                const text2 = await retryResponse.text();
+                let data2;
+                try { data2 = JSON.parse(text2); } catch { data2 = { output: text2 }; }
+                renderResult({ status: 'failed', return_code: retryResponse.status, elapsed_seconds: null, output: data2.message || data2.output || text2 });
+                showRunnerToast('Session expired. Please sign in again.', 'warning');
+                return;
+              }
+            }
+          } else {
+            const text = await response.text();
+            let data;
+            try { data = JSON.parse(text); } catch { data = { output: text }; }
+            renderResult({ status: 'failed', return_code: response.status, elapsed_seconds: null, output: data.message || data.output || text });
+            showRunnerToast('Session expired. Please sign in again.', 'warning');
+            return;
+          }
+        } else {
+          const text = await response.text();
+          let data;
+          try { data = JSON.parse(text); } catch { data = { output: text }; }
+          renderResult({ status: 'failed', return_code: response.status, elapsed_seconds: null, output: data.message || data.output || text });
+          if (response.status === 429) {
+            showRunnerToast('Free run limit reached (5/hour). Sign in with Google for unlimited runs.', 'warning');
+          } else if (response.status === 401) {
+            showRunnerToast('Session expired. Please sign in again.', 'warning');
+          } else if (response.status === 403) {
+            showRunnerToast('Sign in required for Java files and custom dependencies.', 'warning');
+          }
+          return;
         }
-        return;
       }
 
       // Stream response line by line
