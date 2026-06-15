@@ -319,7 +319,7 @@
         <div class="tab-content" id="syntax-jacamo"><pre><code>!start.
 
 +!start
-   <- makeArtifact("gl", "gl.adapter.jacamo.JaCaMoArtifact", [], Id);
+   <- makeArtifact("gl", "gl.adapter.jacamo.JaCaMoAdapter", [], Id);
       focus(Id);
       gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);
       gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);
