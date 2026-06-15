@@ -188,15 +188,24 @@
             const reader = origGetReader();
             const origRead = reader.read.bind(reader);
             reader.read = async function() {
-              const result = await origRead();
-              if (result.done) {
-                // Stream finished — reset to Run button
+              try {
+                const result = await origRead();
+                if (result.done) {
+                  // Stream finished — reset to Run button
+                  activeController = null;
+                  activeRunId = null;
+                  stopRequested = false;
+                  window.setTimeout(setRunButton, 0);
+                }
+                return result;
+              } catch (err) {
+                // Abort or network error during read — reset state
                 activeController = null;
                 activeRunId = null;
                 stopRequested = false;
                 window.setTimeout(setRunButton, 0);
+                throw err;
               }
-              return result;
             };
             return reader;
           };
