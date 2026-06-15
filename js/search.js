@@ -196,7 +196,6 @@ function installProviderOrdering() {
   const groqRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'groq\')"]');
   const groqSetup = document.getElementById('setup-groq');
   const cerebrasRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'cerebras\')"]');
-  const cerebrasSetup = document.getElementById('setup-cerebras');
   const tbody = groqRow?.parentElement;
 
   if (tbody && groqRow && cerebrasRow) {
@@ -228,6 +227,15 @@ function installProviderOrdering() {
     replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
     replaceAllTextNodes('"gpt-oss-120b"', '"llama-3.3-70b-versatile"', switchingExample);
   }
+}
+
+function hideReferenceCounts() {
+  if (currentPageName() !== 'research.html') return;
+
+  document.querySelectorAll('#references span span').forEach(span => {
+    span.textContent = span.textContent.replace(/\s*—\s*\d+\s*refs?/gi, '').trim();
+    if (!span.textContent) span.remove();
+  });
 }
 
 function installWebsiteCopyUpdates() {
@@ -280,6 +288,7 @@ function installWebsiteCopyUpdates() {
       'Whether to consult an LLM is a practical-reasoning decision: one plan may use existing beliefs, while another may call Generative Layers when information is missing or insufficient.',
       'These examples are not complete solutions to adaptation, budgeting, temporal validity, or selective consultation. They show that such behaviours can be expressed in the agent program when they depend on domain context and practical reasoning. Generative Layers contributes the governed resource boundary: external output can be requested, inspected, assessed, traced, accepted, or rejected before use. Decisions about when to call a resource, rely on existing beliefs, or react to failure remain with the agent architecture.'
     ]);
+    hideReferenceCounts();
   }
 
   if (page === 'getting-started.html') {
