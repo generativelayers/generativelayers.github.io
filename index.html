@@ -76,8 +76,8 @@
 
       <section class="info-panel" id="purpose">
         <h2>Purpose</h2>
-        <p>Traditional agent systems are fragile because they directly commit unpredictable LLM outputs to internal state.</p>
-        <p>Generative Layers solves this by treating LLM interactions as isolated, multi-phase transactions. Unstructured outputs are sandboxed as candidate material (<code>cand_</code>), which are only committed (accepted) once they satisfy the agent's symbolic logic and safety constraints. This ensures that hallucinations are rejected at the gate, keeping the system deterministic and secure.</p>
+        <p>Traditional agent programming relies on deterministic, goal-directed symbolic state—a model that clashes directly with the unpredictable, probabilistic nature of LLMs.</p>
+        <p>When agents directly commit raw LLM outputs to memory, they suffer state pollution, breaking execution invariants and safety guarantees. Generative Layers solves this by quarantining LLM interactions inside isolated, multi-phase transactions. Unstructured outputs are sandboxed as uncommitted candidate material (<code>cand_</code>) and are only adopted once they satisfy the agent's symbolic logic and admissibility constraints. This ensures that hallucinations and formatting anomalies are rejected at the gate, keeping the host agent's reasoning loop deterministic and secure.</p>
       </section>
 
       <section class="info-panel" id="target-platforms">
@@ -159,7 +159,7 @@
         <h2><i class="fa-solid fa-graduation-cap" style="margin-right:8px;color:var(--color-green-700);"></i>Composable Governance Patterns</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
           <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            Rather than hardcoding security policies, Generative Layers introduces Neuro-Symbolic Transactions. By decoupling LLM queries into a governed lifecycle—binding providers, invoking resources, quarantining candidates, registering evaluation judgments, and verifying admissibility—the framework allows developers to orchestrate custom cognitive boundaries. This enables agents to arbitrate and filter neural suggestions using pure symbolic logic before committing them to active state.
+            Rather than hardcoding security policies, Generative Layers introduces Neuro-Symbolic Transactions. By structuring LLM queries into a formal lifecycle—binding providers, invoking resources, sandboxing candidates, registering judgements, and verifying admissibility—the framework allows developers to orchestrate custom cognitive boundaries. This enables BDI agents to arbitrate neural suggestions using pure symbolic logic before committing them to active state.
           </p>
         </div>
 
