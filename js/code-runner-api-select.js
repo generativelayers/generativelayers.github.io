@@ -70,6 +70,8 @@
     .gl-key-status { font-size:14px;flex-shrink:0;width:20px;text-align:center; }
     .gl-key-status.filled { color:#059669; }
     .gl-key-status.empty { color:#f59e0b; }
+    .gl-key-toggle { border:none;background:none;cursor:pointer;padding:4px;font-size:14px;color:#94a3b8;flex-shrink:0;transition:color .2s; }
+    .gl-key-toggle:hover { color:#334155; }
     .gl-keys-warn { display:flex;align-items:flex-start;gap:10px;margin:12px 0 0;padding:10px 14px;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:10px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.5; }
     .gl-keys-warn[hidden] { display:none !important; }
     .gl-keys-select-row { display:flex;align-items:center;gap:10px;margin:0 0 12px; }
@@ -101,6 +103,14 @@
       if (key.startsWith(prefix)) return provider;
     }
     return null;
+  }
+
+  function saveKeyToStorage(providerKey, value) {
+    try { localStorage.setItem('gl_api_key_' + providerKey, value); } catch (_) {}
+  }
+
+  function loadKeyFromStorage(providerKey) {
+    try { return localStorage.getItem('gl_api_key_' + providerKey) || ''; } catch (_) { return ''; }
   }
 
   function escapeRegExp(value) {
@@ -455,43 +465,53 @@
     gridEl.innerHTML = providers.map(key => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : '';
+      const existingValue = existingInput ? existingInput.value : loadKeyFromStorage(key);
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
           <span class="gl-key-env">${p.env}</span>
           <input class="gl-key-input" data-gl-key="${key}" data-gl-env="${p.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
+          <button class="gl-key-toggle" data-gl-toggle="${key}" title="Show/hide key" type="button"><i class="fa-solid fa-eye"></i></button>
           <span class="gl-key-status ${existingValue ? 'filled' : 'empty'}"><i class="fa-solid ${existingValue ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i></span>
         </div>`;
     }).join('');
+
+    // Eye toggle: show/hide key
+    gridEl.querySelectorAll('.gl-key-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.glToggle;
+        const input = document.querySelector(`[data-gl-key="${key}"]`);
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        btn.innerHTML = `<i class="fa-solid ${isPassword ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+      });
+    });
 
     gridEl.querySelectorAll('.gl-key-input').forEach(input => {
       input.addEventListener('input', () => {
         const val = input.value.trim();
         const filled = val.length > 0;
-        const status = input.nextElementSibling;
-        status.className = 'gl-key-status ' + (filled ? 'filled' : 'empty');
-        status.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
+        const statusEl = input.closest('.gl-key-row').querySelector('.gl-key-status');
+        if (statusEl) {
+          statusEl.className = 'gl-key-status ' + (filled ? 'filled' : 'empty');
+          statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
+        }
+
+        // Save to localStorage
+        const providerKey = input.dataset.glKey;
+        saveKeyToStorage(providerKey, val);
 
         // Auto-detect provider from key prefix and switch if mismatched
         if (filled) {
-          const currentKey = input.dataset.glKey;
           const detected = detectProviderFromKey(val);
-          if (detected && detected !== currentKey) {
-            // Switch to the detected provider
+          if (detected && detected !== providerKey) {
+            saveKeyToStorage(detected, val);
             manualProvider = detected;
             if (selectEl) selectEl.value = detected;
             applyProviderToSource(detected);
             lastKey = null;
             scan();
-            // Move the key value to the new provider's input after re-render
-            setTimeout(() => {
-              const newInput = document.querySelector(`[data-gl-key="${detected}"]`);
-              if (newInput && !newInput.value) {
-                newInput.value = val;
-                newInput.dispatchEvent(new Event('input', { bubbles: true }));
-              }
-            }, 50);
             return;
           }
         }
