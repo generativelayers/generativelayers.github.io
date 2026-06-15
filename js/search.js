@@ -243,7 +243,7 @@ function installWebsiteCopyUpdates() {
 
   if (page === 'getting-started.html') {
     setText('main > p.lead', 'Install Generative Layers from Maven Central and add governed generative resources to BDI agents.');
-    setText('#quick-example > p', 'A governed invocation with the canonical lifecycle. See the full lifecycle in the Platform syntax comparison.');
+    setText('#quick-example > p', 'A governed invocation with the canonical lifecycle.');
     setText('#quick-example ol li:nth-child(5)', 'accept — recorded the candidate as accepted GL-side knowledge with a reason.');
     replaceAllTextNodes('Architecture, core concepts, the 13-command lifecycle, and platform syntax comparison.', 'Architecture, core concepts, lifecycle commands, and platform syntax comparison.');
   }
