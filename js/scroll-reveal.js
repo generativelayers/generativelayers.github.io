@@ -37,6 +37,19 @@
     if (rq3) {
       rq3.textContent = 'Can the same governed resource-layer model work across different MAS frameworks?';
     }
+
+    const scopeParagraphs = document.querySelectorAll('#scope-limitations > p');
+    if (scopeParagraphs[0]) {
+      scopeParagraphs[0].innerHTML = 'Generative Layers can influence BDI reasoning, plan execution, intention flow, and agent behaviour <strong>when an agent program is explicitly designed to use generated candidate material</strong>. It does not, however, modify or extend the internal BDI reasoning cycle itself. Work in that direction is Riccardo Battistini\'s <a href="https://amslaurea.unibo.it/id/eprint/35555/" target="_blank" rel="noopener noreferrer"><em>Exploiting GenAI for Plan Generation in BDI Agents</em></a>. The role of Generative Layers is not to bypass the host agent platform, but to provide governed points at which external generative outputs may be requested, inspected, validated, rejected, refined, or adopted by the agent.';
+    }
+    if (scopeParagraphs[1]) {
+      scopeParagraphs[1].innerHTML = 'Consistent with the <a href="patterns.html#core-principle">acceptance patterns</a>, LLMs are tools, not decision-makers. The implemented patterns should be read as evaluation scenarios and design idioms, not as universal guarantees that generated outputs are correct, safe, or automatically suitable for adoption. They demonstrate concrete governance controls such as validation, inspection, confidence gating, cross-provider verification, peer review, belief-consistency checking, majority voting, and iterative refinement before candidate material affects agent state or behaviour.';
+    }
+
+    const designBoundaryCard = document.querySelector('#scope-limitations .card[onclick*="missing-caps"]');
+    if (designBoundaryCard) {
+      designBoundaryCard.remove();
+    }
   }
 
   // Selectors to animate
