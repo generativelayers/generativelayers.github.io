@@ -268,8 +268,12 @@
     const model = DEFAULT_MODELS[providerKey] || providerKey;
     let src = original;
 
-    // v2: bind(agent, provider, model, config) — replace provider arg
-    src = src.replace(/(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["'])/g, `$1${providerKey}$2`);
+    // bind(agent, provider, model, config) — replace provider (2nd arg) and model (3rd arg)
+    // Match: bind( "agent1" , "oldProvider" , "oldModel" , ...
+    src = src.replace(
+      /(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["']\s*,\s*["'])[a-zA-Z0-9._-]+(["'])/g,
+      `$1${providerKey}$2${model}$3`
+    );
 
     if (src !== original) {
       const pos = editor.selectionStart || 0;
@@ -290,8 +294,11 @@
     const original = editor.value || '';
     let src = original;
 
-    // v2: bind(agent, provider, model, config) — replace provider arg
-    src = src.replace(/(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["'])/g, `$1${providerName}$2`);
+    // bind(agent, provider, model, config) — replace provider and model args
+    src = src.replace(
+      /(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["']\s*,\s*["'])[a-zA-Z0-9._-]+(["'])/g,
+      `$1${providerName}$2${modelName}$3`
+    );
 
     // v2: endpoint is part of the bind() config map — no source rewriting needed
 
