@@ -29,6 +29,15 @@
     deepseek: 'deepseek-chat'
   };
 
+  // Key prefix → provider mapping for auto-detection
+  const KEY_PREFIXES = [
+    { prefix: 'gsk_',    provider: 'groq' },
+    { prefix: 'csk-',    provider: 'cerebras' },
+    { prefix: 'AIzaSy',  provider: 'gemini' },
+    { prefix: 'sk-proj-', provider: 'openai' },
+    { prefix: 'sk-',     provider: 'deepseek' }
+  ];
+
   const GENERATION_METHODS = [
     'call'
   ];
@@ -85,6 +94,14 @@
   let lastKey = null;
   let scanTimer = null;
   let currentProviders = [];
+
+  function detectProviderFromKey(key) {
+    if (!key) return null;
+    for (const { prefix, provider } of KEY_PREFIXES) {
+      if (key.startsWith(prefix)) return provider;
+    }
+    return null;
+  }
 
   function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -438,10 +455,34 @@
 
     gridEl.querySelectorAll('.gl-key-input').forEach(input => {
       input.addEventListener('input', () => {
+        const val = input.value.trim();
+        const filled = val.length > 0;
         const status = input.nextElementSibling;
-        const filled = input.value.trim().length > 0;
         status.className = 'gl-key-status ' + (filled ? 'filled' : 'empty');
         status.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
+
+        // Auto-detect provider from key prefix and switch if mismatched
+        if (filled) {
+          const currentKey = input.dataset.glKey;
+          const detected = detectProviderFromKey(val);
+          if (detected && detected !== currentKey) {
+            // Switch to the detected provider
+            manualProvider = detected;
+            if (selectEl) selectEl.value = detected;
+            applyProviderToSource(detected);
+            lastKey = null;
+            scan();
+            // Move the key value to the new provider's input after re-render
+            setTimeout(() => {
+              const newInput = document.querySelector(`[data-gl-key="${detected}"]`);
+              if (newInput && !newInput.value) {
+                newInput.value = val;
+                newInput.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }, 50);
+            return;
+          }
+        }
         updateWarning(providers);
       });
     });
