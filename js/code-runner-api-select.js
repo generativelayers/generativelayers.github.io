@@ -473,7 +473,7 @@
     gridEl.innerHTML = providers.map((key, idx) => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : (savedKeys[idx] || savedKeys[0] || '');
+      const existingValue = existingInput ? existingInput.value : (savedKeys[idx] || '');
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
@@ -514,7 +514,8 @@
         saveKeysArray(arr);
 
         // Auto-detect provider from key prefix and switch if mismatched
-        if (filled) {
+        // Only for single-provider mode — skip for multi-provider (cross-LLM)
+        if (filled && providers.length === 1) {
           const providerKey = input.dataset.glKey;
           const detected = detectProviderFromKey(val);
           if (detected && detected !== providerKey) {
@@ -533,23 +534,26 @@
     updateWarning(providers);
 
     // If a saved key was loaded, ensure provider + model are correct
-    gridEl.querySelectorAll('.gl-key-input').forEach(input => {
-      const val = input.value.trim();
-      if (val) {
-        const providerKey = input.dataset.glKey;
-        const detected = detectProviderFromKey(val);
-        const targetProvider = detected || providerKey;
-        // Always apply to fix model name, and switch provider if mismatched
-        applyProviderToSource(targetProvider);
-        if (detected && detected !== providerKey) {
-          manualProvider = detected;
-          if (selectEl) selectEl.value = detected;
-          lastKey = null;
-          setTimeout(scan, 0);
-          return;
+    // Only for single-provider mode — multi-provider code already specifies its providers
+    if (providers.length === 1) {
+      gridEl.querySelectorAll('.gl-key-input').forEach(input => {
+        const val = input.value.trim();
+        if (val) {
+          const providerKey = input.dataset.glKey;
+          const detected = detectProviderFromKey(val);
+          const targetProvider = detected || providerKey;
+          // Always apply to fix model name, and switch provider if mismatched
+          applyProviderToSource(targetProvider);
+          if (detected && detected !== providerKey) {
+            manualProvider = detected;
+            if (selectEl) selectEl.value = detected;
+            lastKey = null;
+            setTimeout(scan, 0);
+            return;
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   function missingProviderLabels(providers) {
