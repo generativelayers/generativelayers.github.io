@@ -20,6 +20,20 @@
       p.includes('runner-jacamo') ||
       p.includes('404')) return;
 
+  function applyResearchCopy() {
+    if (!p.includes('research.html')) return;
+
+    const problem = document.querySelector('#problem p');
+    if (problem) {
+      problem.textContent = 'Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.';
+    }
+
+    const contribution = document.querySelector('#contribution p');
+    if (contribution) {
+      contribution.textContent = 'A Java framework boundary between agent execution and external generative resource use.';
+    }
+  }
+
   // Selectors to animate
   const SELECTORS = [
     '.main > h1',
@@ -42,6 +56,8 @@
   const MAX_DELAY  = 400;  // cap
 
   function init() {
+    applyResearchCopy();
+
     const els = document.querySelectorAll(SELECTORS);
     if (!els.length) return;
 
