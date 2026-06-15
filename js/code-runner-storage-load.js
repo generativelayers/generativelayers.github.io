@@ -60,7 +60,12 @@
 
     if (!editor) return false;
 
-    editor.value = payload.source;
+    // Auto-rename agent class to match default filename (Main.astra)
+    let src = payload.source;
+    if (/agent\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/.test(src)) {
+      src = src.replace(/agent\s+[A-Za-z_][A-Za-z0-9_]*/, 'agent Main');
+    }
+    editor.value = src;
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
     if (currentFile) currentFile.textContent = '/astra/Main.astra';
