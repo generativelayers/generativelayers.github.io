@@ -105,19 +105,46 @@
     return null;
   }
 
-  function loadKeysArray() {
+  function loadKeysMap() {
+    try {
+      const raw = localStorage.getItem('gl_api_keys_by_provider');
+      if (raw) {
+        const map = JSON.parse(raw);
+        if (map && typeof map === 'object' && !Array.isArray(map)) return map;
+      }
+    } catch (_) {}
+
+    // Backwards compatibility migration from array-based storage
     try {
       const raw = localStorage.getItem('gl_api_last_key_used');
-      if (!raw) return [''];
-      // Migrate from old single-string format
-      if (!raw.startsWith('[')) return [raw];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [''];
-    } catch (_) { return ['']; }
+      if (raw) {
+        if (raw.startsWith('[')) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            const map = {};
+            arr.forEach(val => {
+              if (val) {
+                const detected = detectProviderFromKey(val);
+                if (detected) map[detected] = val;
+              }
+            });
+            return map;
+          }
+        } else {
+          const val = raw.trim();
+          if (val) {
+            const detected = detectProviderFromKey(val);
+            if (detected) return { [detected]: val };
+          }
+        }
+      }
+    } catch (_) {}
+
+    return {};
   }
 
-  function saveKeysArray(arr) {
-    try { localStorage.setItem('gl_api_last_key_used', JSON.stringify(arr)); } catch (_) {}
+  function saveKeysMap(map) {
+    try { localStorage.setItem('gl_api_keys_by_provider', JSON.stringify(map)); } catch (_) {}
   }
 
   function escapeRegExp(value) {
@@ -472,11 +499,11 @@
       return;
     }
 
-    const savedKeys = loadKeysArray();
+    const savedKeys = loadKeysMap();
     gridEl.innerHTML = providers.map((key, idx) => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : (savedKeys[idx] || '');
+      const existingValue = existingInput ? existingInput.value : (savedKeys[key] || '');
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
@@ -509,12 +536,11 @@
           statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
         }
 
-        // Save to localStorage array by index
-        const idx = parseInt(input.dataset.glIdx || '0', 10);
-        const arr = loadKeysArray();
-        while (arr.length <= idx) arr.push('');
-        arr[idx] = val;
-        saveKeysArray(arr);
+        // Save to localStorage map by provider key
+        const providerKey = input.dataset.glKey;
+        const map = loadKeysMap();
+        map[providerKey] = val;
+        saveKeysMap(map);
 
         // Auto-detect provider from key prefix and switch if mismatched
         // Only for single-provider mode — skip for multi-provider (cross-LLM)
