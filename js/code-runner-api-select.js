@@ -95,7 +95,7 @@
   let manualProvider = '';
   let lastKey = null;
   let scanTimer = null;
-  let currentProviders = [];
+  let currentBinds = [];
 
   function detectProviderFromKey(key) {
     if (!key) return null;
@@ -110,7 +110,23 @@
       const raw = localStorage.getItem('gl_api_keys_by_provider');
       if (raw) {
         const map = JSON.parse(raw);
-        if (map && typeof map === 'object' && !Array.isArray(map)) return map;
+        if (map && typeof map === 'object' && !Array.isArray(map)) {
+          // Perform in-memory migration from provider keys to env vars if needed
+          let migrated = false;
+          Object.keys(map).forEach(key => {
+            if (PROVIDERS[key]) {
+              const env = PROVIDERS[key].env;
+              if (!map[env]) {
+                map[env] = map[key];
+                migrated = true;
+              }
+            }
+          });
+          if (migrated) {
+            saveKeysMap(map);
+          }
+          return map;
+        }
       }
     } catch (_) {}
 
@@ -125,7 +141,11 @@
             arr.forEach(val => {
               if (val) {
                 const detected = detectProviderFromKey(val);
-                if (detected) map[detected] = val;
+                if (detected) {
+                  map[detected] = val;
+                  const p = PROVIDERS[detected];
+                  if (p) map[p.env] = val;
+                }
               }
             });
             return map;
@@ -134,7 +154,12 @@
           const val = raw.trim();
           if (val) {
             const detected = detectProviderFromKey(val);
-            if (detected) return { [detected]: val };
+            if (detected) {
+              const map = { [detected]: val };
+              const p = PROVIDERS[detected];
+              if (p) map[p.env] = val;
+              return map;
+            }
           }
         }
       }
@@ -257,6 +282,66 @@
     return directPatterns.some(re => re.test(source));
   }
 
+  function detectBinds(source) {
+    const clean = stripComments(source);
+    const binds = [];
+    const BIND_REGEX = /\bbind\s*\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']\s*,\s*["']([^"']+)["'](?:\s*,\s*["']([^"']*)["'])?/gi;
+    let match;
+    while ((match = BIND_REGEX.exec(clean)) !== null) {
+      const agent = match[1];
+      const provider = match[2];
+      const model = match[3];
+      const config = match[4] || '';
+
+      let env = '';
+      const envMatch = /apiKeyEnv\s*=\s*([A-Za-z0-9_-]+)/.exec(config);
+      if (envMatch) {
+        env = envMatch[1];
+      } else {
+        env = PROVIDERS[provider]?.env || (provider.toUpperCase() + '_API_KEY');
+      }
+
+      binds.push({
+        agent,
+        provider,
+        model,
+        env
+      });
+    }
+    return binds;
+  }
+
+  function activeBinds() {
+    const raw = getAllProjectText();
+    const clean = stripComments(raw);
+
+    if (!usesGenerationLayer(clean)) return [];
+
+    if (manualProvider === 'custom') {
+      const customEnv = (document.getElementById('glCustomEnv')?.value || 'CUSTOM_API_KEY').trim();
+      return [{
+        agent: '',
+        provider: 'custom',
+        model: '',
+        env: customEnv
+      }];
+    }
+
+    const binds = detectBinds(clean);
+    if (binds.length > 0) {
+      return binds;
+    }
+
+    // Fallback if no explicit bind() calls found (use detected providers and create a pseudo-bind for each)
+    const detected = detectProviders();
+    return detected.map(provider => ({
+      agent: '',
+      provider: provider,
+      model: DEFAULT_MODELS[provider] || '',
+      env: PROVIDERS[provider]?.env || (provider.toUpperCase() + '_API_KEY')
+    }));
+  }
+
   function detectProviders() {
     const raw = getAllProjectText();
     const clean = stripComments(raw);
@@ -284,9 +369,6 @@
       if (patterns.some(re => re.test(clean))) found.push(key);
     });
 
-    // Model-name fallback: only if no explicit provider was found from bind() calls.
-    // Without this guard, a model name like "gemini-2.5-flash" used with a different
-    // provider (e.g. groq) would incorrectly also add gemini as a required provider.
     if (found.length === 0) {
       if (/\bgpt-oss(?:-[0-9a-z._-]+)?\b/i.test(clean)) found.push('cerebras');
       if (/\bgemini-[a-z0-9._-]+\b/i.test(clean)) found.push('gemini');
@@ -295,12 +377,10 @@
       if (/\bgpt-(?:3\.5|4|4o|4\.1|5)(?:[a-z0-9._-]*)\b/i.test(clean)) found.push('openai');
     }
 
-    // A generation call with no explicit provider still needs one. Default to Cerebras.
     if (found.length === 0) found.push('cerebras');
 
     const uniqueFound = [...new Set(found)];
 
-    // Sort by order of appearance in the clean source code
     const positions = {};
     const lowerClean = clean.toLowerCase();
     uniqueFound.forEach(key => {
@@ -318,16 +398,6 @@
     return uniqueFound;
   }
 
-  function activeProviders() {
-    const detected = detectProviders();
-    if (detected.length === 0) return [];
-    if (manualProvider === 'custom') return ['custom'];
-    // Multi-provider (cross-LLM): always return all detected providers
-    if (detected.length > 1) return detected;
-    if (manualProvider && PROVIDERS[manualProvider]) return [manualProvider];
-    return detected;
-  }
-
   function applyProviderToSource(providerKey) {
     const editor = document.getElementById('fileEditor');
     if (!editor || !PROVIDERS[providerKey]) return;
@@ -336,8 +406,6 @@
     const model = DEFAULT_MODELS[providerKey] || providerKey;
     let src = original;
 
-    // bind(agent, provider, model, config) — replace provider (2nd arg) and model (3rd arg)
-    // Match: bind( "agent1" , "oldProvider" , "oldModel" , ...
     src = src.replace(
       /(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["']\s*,\s*["'])[a-zA-Z0-9._-]+(["'])/g,
       `$1${providerKey}$2${model}$3`
@@ -357,18 +425,14 @@
 
     const providerName = (document.getElementById('glCustomProvider')?.value || 'chatcompletions').trim();
     const modelName = (document.getElementById('glCustomModel')?.value || 'grok-2').trim();
-    const endpoint = (document.getElementById('glCustomEndpoint')?.value || '').trim();
 
     const original = editor.value || '';
     let src = original;
 
-    // bind(agent, provider, model, config) — replace provider and model args
     src = src.replace(
       /(bind\s*\([^,]*,\s*["'])[a-zA-Z0-9._-]+(["']\s*,\s*["'])[a-zA-Z0-9._-]+(["'])/g,
       `$1${providerName}$2${modelName}$3`
     );
-
-    // v2: endpoint is part of the bind() config map — no source rewriting needed
 
     if (src !== original) {
       const pos = editor.selectionStart || 0;
@@ -432,7 +496,6 @@
     selectEl?.addEventListener('change', () => {
       manualProvider = selectEl.value;
       lastKey = null;
-      // Only rewrite source for single-provider patterns; cross-LLM uses intentionally different providers
       if (manualProvider && manualProvider !== 'custom' && detectProviders().length <= 1) applyProviderToSource(manualProvider);
       if (manualProvider === 'custom') applyCustomToSource();
       scan();
@@ -442,7 +505,7 @@
       input.addEventListener('input', () => {
         if (manualProvider === 'custom') {
           if (input.id !== 'glCustomKey') applyCustomToSource();
-          updateWarning(currentProviders);
+          updateWarning(currentBinds);
         }
       });
     });
@@ -488,18 +551,18 @@
   window.__glResetApiPanel = resetPanel;
 
   function scan() {
-    const providers = activeProviders();
-    const key = providers.join(',') + '|' + manualProvider;
+    const binds = activeBinds();
+    const key = binds.map(b => `${b.provider}:${b.agent}:${b.env}`).join(',') + '|' + manualProvider;
     if (key === lastKey) return;
     lastKey = key;
-    currentProviders = providers;
-    render(providers);
+    currentBinds = binds;
+    render(binds);
   }
 
-  function render(providers) {
+  function render(binds) {
     if (!panelEl || !gridEl || !introEl || !warnEl) return;
 
-    if (providers.length === 0) {
+    if (binds.length === 0) {
       panelEl.hidden = true;
       gridEl.innerHTML = '';
       if (warnEl) warnEl.hidden = true;
@@ -510,32 +573,33 @@
     if (customGridEl) customGridEl.hidden = (manualProvider !== 'custom');
     introEl.innerHTML = 'Detected Generative Layers provider usage. Get keys from <a href="providers.html#providers" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
 
-    if (providers[0] === 'custom') {
+    if (binds[0].provider === 'custom') {
       gridEl.innerHTML = '';
-      updateWarning(providers);
+      updateWarning(binds);
       return;
     }
 
     const savedKeys = loadKeysMap();
-    gridEl.innerHTML = providers.map((key, idx) => {
-      const p = PROVIDERS[key];
-      const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : (savedKeys[key] || '');
+    gridEl.innerHTML = binds.map((bind, idx) => {
+      const p = PROVIDERS[bind.provider] || { label: bind.provider, env: bind.env, color: '#64748b', icon: 'fa-server' };
+      const existingInput = document.querySelector(`[data-gl-env="${bind.env}"]`);
+      const existingValue = existingInput ? existingInput.value : (savedKeys[bind.env] || savedKeys[bind.provider] || '');
+      const badgeLabel = bind.agent ? `${p.label} (${bind.agent})` : p.label;
+
       return `
         <div class="gl-key-row">
-          <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
-          <span class="gl-key-env">${p.env}</span>
-          <input class="gl-key-input" data-gl-key="${key}" data-gl-idx="${idx}" data-gl-env="${p.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
-          <button class="gl-key-toggle" data-gl-toggle="${key}" title="Show/hide key" type="button"><i class="fa-solid fa-eye"></i></button>
+          <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${badgeLabel}</span>
+          <span class="gl-key-env">${bind.env}</span>
+          <input class="gl-key-input" data-gl-provider="${bind.provider}" data-gl-agent="${bind.agent}" data-gl-idx="${idx}" data-gl-env="${bind.env}" type="password" autocomplete="off" placeholder="Paste ${p.label} key for this run" value="${escapeAttr(existingValue)}">
+          <button class="gl-key-toggle" data-gl-toggle-idx="${idx}" title="Show/hide key" type="button"><i class="fa-solid fa-eye"></i></button>
           <span class="gl-key-status ${existingValue ? 'filled' : 'empty'}"><i class="fa-solid ${existingValue ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i></span>
         </div>`;
     }).join('');
 
-    // Eye toggle: show/hide key
     gridEl.querySelectorAll('.gl-key-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
-        const key = btn.dataset.glToggle;
-        const input = document.querySelector(`[data-gl-key="${key}"]`);
+        const idx = btn.dataset.glToggleIdx;
+        const input = gridEl.querySelector(`input[data-gl-idx="${idx}"]`);
         if (!input) return;
         const isPassword = input.type === 'password';
         input.type = isPassword ? 'text' : 'password';
@@ -547,24 +611,29 @@
       input.addEventListener('input', () => {
         const val = input.value.trim();
         const filled = val.length > 0;
-        const statusEl = input.closest('.gl-key-row').querySelector('.gl-key-status');
-        if (statusEl) {
-          statusEl.className = 'gl-key-status ' + (filled ? 'filled' : 'empty');
-          statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
-        }
+        const env = input.dataset.glEnv;
+        const provider = input.dataset.glProvider;
 
-        // Save to localStorage map by provider key
-        const providerKey = input.dataset.glKey;
-        const detected = detectProviderFromKey(val);
-        const saveKey = detected || providerKey;
+        gridEl.querySelectorAll(`input[data-gl-env="${env}"]`).forEach(otherInput => {
+          otherInput.value = input.value;
+          const row = otherInput.closest('.gl-key-row');
+          const statusEl = row ? row.querySelector('.gl-key-status') : null;
+          if (statusEl) {
+            statusEl.className = 'gl-key-status ' + (filled ? 'filled' : 'empty');
+            statusEl.innerHTML = `<i class="fa-solid ${filled ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>`;
+          }
+        });
+
         const map = loadKeysMap();
-        map[saveKey] = val;
+        map[env] = val;
+        if (PROVIDERS[provider]) {
+          map[provider] = val;
+        }
         saveKeysMap(map);
 
-        // Auto-detect provider from key prefix and switch if mismatched
-        // Only for single-provider mode — skip for multi-provider (cross-LLM)
-        if (filled && providers.length === 1) {
-          if (detected && detected !== providerKey) {
+        if (filled && binds.length === 1) {
+          const detected = detectProviderFromKey(val);
+          if (detected && detected !== provider) {
             manualProvider = detected;
             if (selectEl) selectEl.value = detected;
             applyProviderToSource(detected);
@@ -573,24 +642,21 @@
             return;
           }
         }
-        updateWarning(providers);
+        updateWarning(binds);
       });
     });
 
-    updateWarning(providers);
+    updateWarning(binds);
 
-    // If a saved key was loaded, ensure provider + model are correct
-    // Only for single-provider mode — multi-provider code already specifies its providers
-    if (providers.length === 1) {
+    if (binds.length === 1) {
       gridEl.querySelectorAll('.gl-key-input').forEach(input => {
         const val = input.value.trim();
         if (val) {
-          const providerKey = input.dataset.glKey;
+          const provider = input.dataset.glProvider;
           const detected = detectProviderFromKey(val);
-          const targetProvider = detected || providerKey;
-          // Always apply to fix model name, and switch provider if mismatched
+          const targetProvider = detected || provider;
           applyProviderToSource(targetProvider);
-          if (detected && detected !== providerKey) {
+          if (detected && detected !== provider) {
             manualProvider = detected;
             if (selectEl) selectEl.value = detected;
             lastKey = null;
@@ -602,24 +668,35 @@
     }
   }
 
-  function missingProviderLabels(providers) {
-    if (providers.length === 0) return [];
+  function missingProviderLabels(binds) {
+    if (binds.length === 0) return [];
 
-    if (providers[0] === 'custom') {
+    if (binds[0].provider === 'custom') {
       const env = (document.getElementById('glCustomEnv')?.value || 'CUSTOM_API_KEY').trim();
       const key = (document.getElementById('glCustomKey')?.value || '').trim();
       return key ? [] : [`Custom (${env})`];
     }
 
-    return providers.filter(key => {
-      const input = document.querySelector(`[data-gl-key="${key}"]`);
-      return !input || !input.value.trim();
-    }).map(key => `${PROVIDERS[key].label} (${PROVIDERS[key].env})`);
+    const missing = [];
+    const seenEnvs = new Set();
+    binds.forEach(bind => {
+      if (seenEnvs.has(bind.env)) return;
+
+      const input = gridEl ? gridEl.querySelector(`input[data-gl-env="${bind.env}"]`) : null;
+      const val = input ? input.value.trim() : '';
+      if (!val) {
+        seenEnvs.add(bind.env);
+        const p = PROVIDERS[bind.provider];
+        const label = p ? p.label : bind.provider;
+        missing.push(`${label} (${bind.env})`);
+      }
+    });
+    return missing;
   }
 
-  function updateWarning(providers) {
+  function updateWarning(binds) {
     if (!warnEl) return;
-    const missing = missingProviderLabels(providers);
+    const missing = missingProviderLabels(binds);
     if (missing.length === 0) {
       warnEl.hidden = true;
       return;
@@ -630,17 +707,17 @@
   }
 
   window.__glGetApiKeys = function () {
-    const providers = activeProviders();
+    const binds = activeBinds();
     const keys = {};
 
-    if (providers[0] === 'custom') {
+    if (binds.length > 0 && binds[0].provider === 'custom') {
       const env = (document.getElementById('glCustomEnv')?.value || '').trim();
       const val = (document.getElementById('glCustomKey')?.value || '').trim();
       if (env && val) keys[env] = val;
       return keys;
     }
 
-    document.querySelectorAll('[data-gl-key]').forEach(input => {
+    document.querySelectorAll('[data-gl-env]').forEach(input => {
       const env = input.dataset.glEnv;
       const value = input.value.trim();
       if (env && value) keys[env] = value;
@@ -649,10 +726,10 @@
   };
 
   window.__glGetMissingProviders = function () {
-    const providers = activeProviders();
-    currentProviders = providers;
-    render(providers);
-    return missingProviderLabels(providers);
+    const binds = activeBinds();
+    currentBinds = binds;
+    render(binds);
+    return missingProviderLabels(binds);
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
