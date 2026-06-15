@@ -113,19 +113,42 @@
       '}'
     ].join('\n'),
     jason: [
-      '// Jason Hello World with Generative Layers',
+      '// Jason + Generative Layers – Classify food',
       '!start.',
+      '',
       '+!start',
-      '   <- .println("Hello from Jason on code.generativelayers.com");',
-      '      .stopMAS.'
+      '   <- gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);',
+      '      gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);',
+      '      !decided(Rid).',
+      '',
+      '+!decided(Rid)',
+      '   :  gl.candidate(Rid, Cid) & gl.get(Cid, "label", Label)',
+      '   <- gl.accept(Cid, "valid classification", _);',
+      '      .println("Accepted: ", Label);',
+      '      .stopMAS.',
+      '',
+      '-!start <- .println("Classification failed."); .stopMAS.',
+      '-!decided(Rid) <- .println("Deliberation failed for ", Rid); .stopMAS.'
     ].join('\n'),
     jacamo: [
-      '// JaCaMo Hello World with Generative Layers + CArtAgO',
+      '// JaCaMo + Generative Layers – Classify food with CArtAgO',
       '!start.',
+      '',
       '+!start',
-      '   <- .println("Hello from JaCaMo on code.generativelayers.com");',
-      '      .println("[CArtAgO] Environment active");',
-      '      .stopMAS.'
+      '   <- makeArtifact("gl", "gl.adapter.jacamo.JaCaMoArtifact", [], Id);',
+      '      focus(Id);',
+      '      gl.bind("agent1", "gemini", "gemini-2.5-flash", "", Bid);',
+      '      gl.call(Bid, "classify", "llm.answer", "ANSWER", "Classify: apple", "label,confidence", "", Rid);',
+      '      !decided(Rid).',
+      '',
+      '+!decided(Rid)',
+      '   :  gl.candidate(Rid, Cid) & gl.get(Cid, "label", Label)',
+      '   <- gl.accept(Cid, "valid classification", _);',
+      '      .println("Accepted: ", Label);',
+      '      .stopMAS.',
+      '',
+      '-!start <- .println("Classification failed."); .stopMAS.',
+      '-!decided(Rid) <- .println("Deliberation failed for ", Rid); .stopMAS.'
     ].join('\n')
   };
   const DEFAULT_SOURCE = DEFAULT_SOURCES[PLATFORM] || DEFAULT_SOURCES.astra;
