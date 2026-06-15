@@ -105,12 +105,12 @@
     return null;
   }
 
-  function saveKeyToStorage(providerKey, value) {
-    try { localStorage.setItem('gl_api_key_' + providerKey, value); } catch (_) {}
+  function saveLastKey(value) {
+    try { localStorage.setItem('gl_api_last_key_used', value); } catch (_) {}
   }
 
-  function loadKeyFromStorage(providerKey) {
-    try { return localStorage.getItem('gl_api_key_' + providerKey) || ''; } catch (_) { return ''; }
+  function loadLastKey() {
+    try { return localStorage.getItem('gl_api_last_key_used') || ''; } catch (_) { return ''; }
   }
 
   function escapeRegExp(value) {
@@ -465,7 +465,7 @@
     gridEl.innerHTML = providers.map(key => {
       const p = PROVIDERS[key];
       const existingInput = document.querySelector(`[data-gl-key="${key}"]`);
-      const existingValue = existingInput ? existingInput.value : loadKeyFromStorage(key);
+      const existingValue = existingInput ? existingInput.value : loadLastKey();
       return `
         <div class="gl-key-row">
           <span class="gl-key-badge" style="background:${p.color}"><i class="fa-solid ${p.icon}"></i>${p.label}</span>
@@ -499,14 +499,13 @@
         }
 
         // Save to localStorage
-        const providerKey = input.dataset.glKey;
-        saveKeyToStorage(providerKey, val);
+        saveLastKey(val);
 
         // Auto-detect provider from key prefix and switch if mismatched
         if (filled) {
+          const providerKey = input.dataset.glKey;
           const detected = detectProviderFromKey(val);
           if (detected && detected !== providerKey) {
-            saveKeyToStorage(detected, val);
             manualProvider = detected;
             if (selectEl) selectEl.value = detected;
             applyProviderToSource(detected);
