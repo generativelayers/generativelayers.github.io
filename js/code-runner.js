@@ -1059,11 +1059,11 @@
     // Only block if there are detected providers with missing keys
     if (keyState.missing.length > 0) {
       const missingText = Array.isArray(keyState.missing) ? keyState.missing.join(', ') : String(keyState.missing);
-      els.metaStatus.textContent = 'API key missing';
+      els.metaStatus.textContent = 'API key required';
       els.metaReturnCode.textContent = '—';
       els.metaElapsed.textContent = '—';
-      els.status.textContent = 'API key missing';
-      els.output.textContent = `Missing API keys: ${missingText}. Fill them in the panel above, then try again.`;
+      els.status.textContent = 'API key required';
+      els.output.textContent = `Please configure the required API key(s) in the fields above: ${missingText}.`;
       const keysPanel = document.getElementById('glKeysPanel');
       if (keysPanel) keysPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;

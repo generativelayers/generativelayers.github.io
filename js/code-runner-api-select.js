@@ -555,15 +555,15 @@
 
         // Save to localStorage map by provider key
         const providerKey = input.dataset.glKey;
+        const detected = detectProviderFromKey(val);
+        const saveKey = detected || providerKey;
         const map = loadKeysMap();
-        map[providerKey] = val;
+        map[saveKey] = val;
         saveKeysMap(map);
 
         // Auto-detect provider from key prefix and switch if mismatched
         // Only for single-provider mode — skip for multi-provider (cross-LLM)
         if (filled && providers.length === 1) {
-          const providerKey = input.dataset.glKey;
-          const detected = detectProviderFromKey(val);
           if (detected && detected !== providerKey) {
             manualProvider = detected;
             if (selectEl) selectEl.value = detected;
@@ -626,7 +626,7 @@
     }
     warnEl.hidden = false;
     const text = document.getElementById('glKeysWarnText');
-    if (text) text.textContent = `Missing: ${missing.join(', ')}. Fill before running.`;
+    if (text) text.textContent = `Please enter the required API key(s) in the fields above: ${missing.join(', ')}.`;
   }
 
   window.__glGetApiKeys = function () {
