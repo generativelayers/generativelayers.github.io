@@ -25,11 +25,13 @@
       }
     });
 
-    if (!found.includes('gemini') && /gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
-    if (!found.includes('openai') && /gpt-(?:3|4|4o|5|o)/i.test(clean)) found.push('openai');
-    if (!found.includes('deepseek') && /deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
-    if (!found.includes('groq') && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
-    if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
+    if (found.length === 0) {
+      if (/gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
+      if (/gpt-(?:3|4|4o|5|o)/i.test(clean)) found.push('openai');
+      if (/deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
+      if (/(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
+      if (/gpt-oss/i.test(clean)) found.push('cerebras');
+    }
 
     return [...new Set(found)];
   }

@@ -749,10 +749,12 @@
       if (exactProvider.test(clean) || providerSetting.test(clean) || clean.includes(envName)) found.push(provider);
     });
 
-    if (!found.includes('gemini') && /gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
-    if (!found.includes('deepseek') && /deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
-    if (!found.includes('groq') && /(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
-    if (!found.includes('cerebras') && /gpt-oss/i.test(clean)) found.push('cerebras');
+    if (found.length === 0) {
+      if (/gemini-[a-z0-9_.-]+/i.test(clean)) found.push('gemini');
+      if (/deepseek-[a-z0-9_.-]+/i.test(clean)) found.push('deepseek');
+      if (/(llama-3|llama3|mixtral|gemma)/i.test(clean)) found.push('groq');
+      if (/gpt-oss/i.test(clean)) found.push('cerebras');
+    }
 
     return [...new Set(found)];
   }
