@@ -333,7 +333,7 @@
       const warning = document.createElement('div');
       warning.id = 'gl-key-warning';
       warning.className = 'gl-key-warning';
-      warning.innerHTML = '<i class="fa-solid fa-key"></i><div><strong>Provider examples need the correct API key.</strong> Before running LLM/provider examples, check <a href="providers.html#providers">Built-in Providers and API key setup</a>.</div>';
+      warning.innerHTML = '<i class="fa-solid fa-key"></i><div><strong>Provider examples need the correct API key.</strong> Before running LLM/provider examples, check <a href="providers.html#providers" target="_top">Built-in Providers and API key setup</a>.</div>';
       const h1 = document.querySelector('main.main h1');
       if (h1) h1.insertAdjacentElement('afterend', warning);
     }
