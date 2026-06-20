@@ -571,7 +571,7 @@
 
     panelEl.hidden = false;
     if (customGridEl) customGridEl.hidden = (manualProvider !== 'custom');
-    introEl.innerHTML = 'Detected Generative Layers provider usage. Get keys from <a href="providers.html#providers" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
+    introEl.innerHTML = 'Detected Generative Layers provider usage. Get keys from <a href="providers.html#providers" target="_top" style="color:#059669;font-weight:800;text-decoration:underline">Built-in Providers</a>.';
 
     if (binds[0].provider === 'custom') {
       gridEl.innerHTML = '';
