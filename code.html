@@ -129,6 +129,31 @@
       }
     }
 
+    /* Android Chrome Desktop site: keep touch devices using the wide runner canvas. */
+    @media (hover: none) and (pointer: coarse) and (min-width: 901px) {
+      body .main {
+        max-width: none !important;
+        width: calc(100vw - 240px) !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+      }
+
+      .runner-frame-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+      }
+
+      .runner-frame {
+        width: 920px !important;
+        min-width: 920px !important;
+        max-width: none !important;
+      }
+    }
+
     .gl-auth-panel {
       display: flex;
       align-items: center;
@@ -273,8 +298,12 @@
       jacamo: 'runner-jacamo.html'
     };
 
+    function isTouchDesktopRunner() {
+      return window.matchMedia('(hover: none) and (pointer: coarse)').matches && window.innerWidth > 900;
+    }
+
     function isMobileRunner() {
-      return window.matchMedia('(max-width:900px)').matches;
+      return window.matchMedia('(max-width:900px)').matches || isTouchDesktopRunner();
     }
 
     function syncFrameWidths() {
