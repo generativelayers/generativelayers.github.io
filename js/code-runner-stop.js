@@ -14,7 +14,7 @@
     return document.getElementById('runAstraButton');
   }
 
-  function setText(id, value) {
+  function updateRunnerText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   }
@@ -127,12 +127,12 @@
     }
     if (window.__glRunStartTime) {
       const secs = ((Date.now() - window.__glRunStartTime) / 1000).toFixed(1);
-      setText('metaElapsed', `${secs}s`);
+      updateRunnerText('metaElapsed', `${secs}s`);
     }
 
-    setText('runnerStatus', 'Stopped');
-    setText('metaStatus', 'Stopped');
-    setText('metaReturnCode', '—');
+    updateRunnerText('runnerStatus', 'Stopped');
+    updateRunnerText('metaStatus', 'Stopped');
+    updateRunnerText('metaReturnCode', '—');
     output('Execution stopped by user.');
 
     // Hide GUI button and close modal
