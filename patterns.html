@@ -117,7 +117,7 @@
         <h2><i class="fa-solid fa-graduation-cap" style="margin-right:8px;color:var(--color-green-700);"></i>Application-Level Governance Blueprints</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
           <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            The implemented acceptance patterns above are the reusable code examples. The blueprints below are conceptual application designs, not implemented example projects in the repository. They use abbreviated pseudo-code to show how a developer could compose Generative Layers lifecycle commands into larger BDI agent architectures. In concrete code, <code>call</code> follows the form <code>call(bindingId, goalId, bodyId, affordance, prompt, requiredFields, context)</code>; <code>candidate(resultId)</code> retrieves the candidate identifier created by the call; <code>check(refId)</code> only inspects GL result or candidate status. External checks such as compilation, evidence review, budget checking, simulation, or lore auditing are domain operations implemented by the host application and then recorded through <code>judge</code>, <code>decide</code>, <code>accept</code>, <code>reject</code>, and explicit BDI/domain actions.
+            The implemented acceptance patterns above are the reusable code examples. The blueprints below are conceptual application designs, not implemented ASTRA, Jason, or JaCaMo example projects in the repository. Their command combinations document how a developer or future research implementation could compose Generative Layers lifecycle commands into larger BDI agent architectures. In concrete code, <code>call</code> follows the form <code>call(bindingId, goalId, bodyId, affordance, prompt, requiredFields, context)</code>; <code>candidate(resultId)</code> retrieves the candidate identifier created by the call; <code>check(refId)</code> only inspects GL result or candidate status. External checks such as compilation, evidence review, budget checking, simulation, or lore auditing are domain operations implemented by the host application and then recorded through <code>judge</code>, <code>decide</code>, <code>accept</code>, <code>reject</code>, and explicit BDI/domain actions.
           </p>
         </div>
 
@@ -138,7 +138,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Automated Code Generation & Quality Control.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized multi-agent BDI system simulating software engineering roles, cooperating through belief-sharing and self-correcting feedback cycles to continuously produce and audit code assets.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Product Owner Agent:</strong> Uses <code>call(poBind, "backlog", "llm.answer", "ANSWER", specPrompt, "stories", projectContext)</code> to draft backlog material; <code>candidate(storyRes)</code> retrieves the candidate and <code>get(storyCand, "stories")</code> extracts the generated stories.</li>
                 <li><strong>Developer Agent:</strong> Uses <code>call(devBind, "implement_story", "llm.answer", "ANSWER", storyPrompt, "code,language", devContext)</code> to produce candidate code, then resolves the candidate with <code>candidate(codeRes)</code>.</li>
@@ -165,7 +165,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Healthcare & Safety-Critical Diagnostics.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A diagnostic support system that guards the agent's epistemic belief base, isolating and verifying generated clinical support material against trusted scientific repositories before committing it as active beliefs.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Triage Agent:</strong> Uses <code>call(triageBind, "clinical_lookup", "llm.answer", "ANSWER", symptomsPrompt, "lookup_keys", "")</code> to generate search terms; <code>candidate(keyRes)</code> and <code>get(keyCand, "lookup_keys")</code> expose them to the search plan.</li>
                 <li><strong>Search Agent:</strong> Queries trusted clinical repositories outside GL and may assert retrieved papers into the local BDI belief base through normal host-agent adoption logic.</li>
@@ -192,7 +192,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Autonomous Trading & Game Theory.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> An automated trading agent that negotiates wholesale supplier contracts, enforcing hard financial spending limits to prevent capital depletion during high-frequency bidding.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Scouter Agent:</strong> Uses <code>call(scoutBind, "market_scan", "llm.answer", "ANSWER", marketPrompt, "item,price,trend", marketContext)</code>, resolves <code>candidate(marketRes)</code>, and extracts opportunity fields with <code>get</code>.</li>
                 <li><strong>Negotiator Agent:</strong> Uses <code>call(negotiatorBind, "counter_offer", "llm.answer", "ANSWER", negotiationPrompt, "offer,price", negotiationContext)</code> to draft a candidate counter-offer.</li>
@@ -218,7 +218,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> IoT, Energy Logistics, & Emergency Mitigation.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A self-healing grid-management system modeled using BDI agents, coordinating dynamically to identify cyber-physical anomalies, draft load-routing configurations, and execute plans to bypass physical line faults safely.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Monitor Agent:</strong> Receives real-time telemetry from smart sensors and updates BDI beliefs or recovery goals outside GL.</li>
                 <li><strong>Planner Agent:</strong> Uses <code>call(plannerBind, "route_plan", "llm.answer", "ANSWER", anomalyPrompt, "route,load_estimate", gridContext)</code> to generate a candidate routing plan and resolves it with <code>candidate(routeRes)</code>.</li>
@@ -244,7 +244,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Gaming & Creative Entertainment.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> Virtual game characters with distinct personality profiles and social beliefs, generating contextually appropriate dialogue while auditing responses to ensure compliance with established world lore and behavioral bounds.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Perception Agent:</strong> Records player choices and updates social relationship beliefs within the BDI belief base outside GL, for example <code>player_relation(NPC, player, hostile)</code>.</li>
                 <li><strong>Dialogue Agent:</strong> Uses <code>call(dialogueBind, "npc_dialogue", "llm.answer", "ANSWER", dialoguePrompt, "dialogue,tone", sceneContext)</code> to generate a candidate dialogue line and resolves it with <code>candidate(dialogueRes)</code>.</li>
