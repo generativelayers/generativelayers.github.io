@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acceptance Patterns | Generative Layers</title>
-  <meta name="description" content="Governance patterns for accepting, rejecting, reviewing, and refining LLM candidate output in BDI agents using ASTRA, Jason, and JaCaMo.">
+  <meta name="description" content="Governance patterns and application-level blueprints for accepting, rejecting, reviewing, and refining LLM candidate output in BDI agents using ASTRA, Jason, and JaCaMo.">
   <meta name="keywords" content="acceptance patterns, governance, BDI agents, LLM verification, candidate material, Generative Layers, ASTRA, Jason, JaCaMo">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.generativelayers.com/patterns.html">
@@ -15,19 +15,19 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Generative Layers">
   <meta property="og:title" content="Acceptance Patterns | Generative Layers">
-  <meta property="og:description" content="Practical BDI patterns for governing LLM candidate output.">
+  <meta property="og:description" content="Practical BDI patterns and developer-composed governance blueprints for governing LLM candidate output.">
   <meta property="og:url" content="https://www.generativelayers.com/patterns.html">
   <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Acceptance Patterns | Generative Layers">
-  <meta name="twitter:description" content="Practical BDI patterns for governing LLM candidate output.">
+  <meta name="twitter:description" content="Practical BDI patterns and developer-composed governance blueprints for governing LLM candidate output.">
   <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "Acceptance Patterns for Governed LLM Integration",
-    "description": "Patterns for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
+    "description": "Patterns and application-level blueprints for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
     "url": "https://www.generativelayers.com/patterns.html",
     "isPartOf": { "@type": "WebSite", "name": "Generative Layers", "url": "https://www.generativelayers.com/" }
   }
@@ -100,13 +100,180 @@
         </div>
       </section>
 
+      <section class="info-panel" id="implemented-patterns">
+        <h2><i class="fa-solid fa-puzzle-piece" style="margin-right:8px;color:var(--color-green-700);"></i>Implemented Acceptance Patterns</h2>
+        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
+          <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
+            The following patterns are reusable implementation patterns. They show concrete ways to validate, inspect, review, refine, compare, accept, or reject candidate material using the same governance lifecycle across ASTRA, Jason, and JaCaMo.
+          </p>
+        </div>
+      </section>
+
       <div id="patterns-root" class="patterns-root">
         <div class="load-state">Loading current pattern examples from GitHub...</div>
       </div>
+
+      <section class="info-panel" id="application-blueprints">
+        <h2><i class="fa-solid fa-graduation-cap" style="margin-right:8px;color:var(--color-green-700);"></i>Application-Level Governance Blueprints</h2>
+        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
+          <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
+            The implemented acceptance patterns above are the reusable building blocks. The blueprints below show how a developer can compose those solved patterns and Generative Layers lifecycle commands into larger BDI agent architectures. They are not additional primitive patterns and they are not turnkey applications. Each domain still needs the developer to define the agent roles, domain rules, trusted evidence sources, safety thresholds, retry strategy, and final acceptance logic. The command combinations are kept explicit so the path from architecture to implementation remains visible.
+          </p>
+        </div>
+
+        <div style="font-size:15px;font-weight:700;margin-top:20px;margin-bottom:12px;color:var(--color-green-700);"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>Architectural Paradigms & Diverse Research Directions</div>
+        
+        <!-- Project 1 -->
+        <div class="concept-card card" id="concept-proj-swarm" style="margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleConcept('proj-swarm')">
+          <div class="concept-header" style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;width:100%;">
+              <i class="fa-solid fa-users-gear" style="font-size:14px;color:#22c55e;flex-shrink:0;"></i>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 1 &mdash; Multi-Agent Software Engineering Swarm (Autonomous Plan-Execution Loops)</span>
+              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              <div style="margin-top:10px;"><strong>Domain:</strong> Automated Code Generation & Quality Control.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized multi-agent BDI system simulating software engineering roles, cooperating through belief-sharing and self-correcting feedback cycles to continuously produce and audit code assets.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong>Product Owner Agent:</strong> Receives raw specifications and calls <code>call(..., "ANSWER", prompt, "stories")</code> to decompose the requirement into a structured backlog of user stories.</li>
+                <li><strong>Developer Agent:</strong> Receives a user story and invokes a model via <code>call(..., "ANSWER", prompt, "code")</code>, immediately quarantining the output inside a <code>candidate(resId)</code> transaction.</li>
+                <li><strong>Tester Agent:</strong> Generates corresponding unit tests, compiles the program, and uses <code>check(resId)</code> to verify build integrity and plan execution correctness.</li>
+                <li><strong>Security Auditor Agent:</strong> Audits the sandboxed file and registers a policy compliance rating via <code>judge(candId, "auditor", "APPROVE", confidence, rationale)</code>.</li>
+                <li><strong>Governance Plan:</strong> Evaluates <code>decide(candId)</code> to check admissibility. If inadmissible, it calls <code>reject(candId, "failed audit")</code>, feeding compiler/linter errors back into a new <code>call</code> for a self-correcting retry loop. If admissible, it runs <code>accept(candId, "all checks passed")</code> to commit the code.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="concept-card card" id="concept-proj-clinical" style="margin-top:12px;border-left:3px solid #3b82f6;cursor:pointer;" onclick="toggleConcept('proj-clinical')">
+          <div class="concept-header" style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;width:100%;">
+              <i class="fa-solid fa-stethoscope" style="font-size:14px;color:#3b82f6;flex-shrink:0;"></i>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 2 &mdash; Self-Optimizing RAG-based Clinical Assistant (Safe Epistemic Foundations)</span>
+              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              <div style="margin-top:10px;"><strong>Domain:</strong> Healthcare & Safety-Critical Diagnostics.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A diagnostic support system that guards the agent's epistemic belief base, isolating and verifying generated medical recommendations against trusted scientific repositories before committing them as active beliefs.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong>Triage Agent:</strong> Ingests patient symptoms and calls <code>call(..., "ANSWER", symptoms, "lookup_keys")</code> to generate optimal query terms for clinical databases.</li>
+                <li><strong>Search Agent:</strong> Queries the database and asserts the retrieved clinical papers into the agent's local belief base (BDI-level adoption, outside GL).</li>
+                <li><strong>Diagnostic Agent:</strong> Dispatches patient telemetry via <code>call(..., "ANSWER", patient_data, "diagnosis,dosage,citations")</code> to draft a diagnostic report, immediately calling <code>candidate(resId)</code> to quarantine it.</li>
+                <li><strong>Safety Review:</strong> A strict rule-checking pipeline parses quarantined sub-fields with <code>get(candId, "citations")</code> and <code>get(candId, "dosage")</code>, cross-referencing values against safe medical thresholds and registering a clinical <code>judge(candId, "safety_auditor", verdict, confidence, rationale)</code>.</li>
+                <li><strong>Resolution Plan:</strong> Deliberates over <code>decide(candId)</code>. If inadmissible, it triggers <code>reject(candId, "unsafe dosage")</code> to block state pollution; otherwise, it calls <code>accept(candId, "verified diagnosis")</code> to commit the report.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="concept-card card" id="concept-proj-commerce" style="margin-top:12px;border-left:3px solid #ef4444;cursor:pointer;" onclick="toggleConcept('proj-commerce')">
+          <div class="concept-header" style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;width:100%;">
+              <i class="fa-solid fa-comments-dollar" style="font-size:14px;color:#ef4444;flex-shrink:0;"></i>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 3 &mdash; E-Commerce Arbitrage & Negotiating Agent (Decentralized Game-Theoretic Plan Harmonization)</span>
+              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              <div style="margin-top:10px;"><strong>Domain:</strong> Autonomous Trading & Game Theory.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> An automated trading agent that negotiates wholesale supplier contracts, enforcing hard financial spending limits to prevent capital depletion during high-frequency bidding.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong>Scouter Agent:</strong> Dispatches market trends using <code>call(..., "ANSWER", market_query, "item,price,trend")</code> to identify arbitrage opportunities, asserting validated findings into its beliefs.</li>
+                <li><strong>Negotiator Agent:</strong> Negotiates contract bids, calling <code>call(..., "ANSWER", negotiation_prompt, "offer,price")</code> to draft a counter-offer as quarantined candidate material.</li>
+                <li><strong>Safety Guard:</strong> Extracts the bid value and invokes <code>judge(candId, "budget_guard", verdict, confidence, rationale)</code> to audit the proposal against the agent's maximum budget limit, then evaluates <code>decide(candId)</code> to verify admissibility.</li>
+                <li><strong>Commit Plan:</strong> Verifies the final supplier price with <code>get(candId, "price")</code>. If inadmissible, it triggers <code>reject(candId)</code>; if admissible, it runs <code>accept(candId, "within budget")</code> to commit the contract.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="concept-card card" id="concept-proj-incident" style="margin-top:12px;border-left:3px solid #f59e0b;cursor:pointer;" onclick="toggleConcept('proj-incident')">
+          <div class="concept-header" style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;width:100%;">
+              <i class="fa-solid fa-bolt-lightning" style="font-size:14px;color:#f59e0b;flex-shrink:0;"></i>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 4 &mdash; Autonomous Incident Response Grid (Self-Healing Cyber-Physical Systems)</span>
+              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              <div style="margin-top:10px;"><strong>Domain:</strong> IoT, Energy Logistics, & Emergency Mitigation.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> A self-healing grid-management system modeled using BDI agents, coordinating dynamically to identify cyber-physical anomalies, draft load-routing configurations, and execute plans to bypass physical line faults safely.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong>Monitor Agent:</strong> Receives real-time telemetry from smart sensors, triggering recovery goals upon registering physical line anomalies.</li>
+                <li><strong>Planner Agent:</strong> Formulates alternative load-routing sequences around damaged substations using <code>call(..., "ANSWER", anomaly_data, "route,load_estimate")</code>, quarantining the draft via <code>candidate(resId)</code>.</li>
+                <li><strong>Validation Guard:</strong> Runs a grid simulation of the proposed path, registering a <code>judge(candId, "load_simulator", verdict, confidence, rationale)</code> to verify that the route remains within safe capacity limits before evaluating <code>decide(candId)</code>.</li>
+                <li><strong>Decision Loop:</strong> If <code>decide(candId)</code> fails, the plan triggers <code>reject(candId, "overload predicted")</code> and issues a new <code>call</code> to generate a load-shedding route. Once admissible, <code>accept(candId, "safe route confirmed")</code> commits the changes, triggering physical switches.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 5 -->
+        <div class="concept-card card" id="concept-proj-npc" style="margin-top:12px;border-left:3px solid #ec4899;cursor:pointer;" onclick="toggleConcept('proj-npc')">
+          <div class="concept-header" style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;width:100%;">
+              <i class="fa-solid fa-gamepad" style="font-size:14px;color:#ec4899;flex-shrink:0;"></i>
+              <span style="font-weight:600;font-size:14px;flex:1;text-align:left;">Project 5 &mdash; Interactive NPC Dynamic Dialogue System (Emergent Narrative & Social Interaction)</span>
+              <button class="concept-toggle-btn" aria-label="Expand Details" style="flex-shrink:0;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="concept-details" onclick="event.stopPropagation()">
+            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              <div style="margin-top:10px;"><strong>Domain:</strong> Gaming & Creative Entertainment.</div>
+              <div style="margin-top:6px;"><strong>How it works:</strong> Virtual game characters with distinct personality profiles and social beliefs, generating contextually appropriate dialogue while auditing responses to ensure compliance with established world lore and behavioral bounds.</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
+                <li><strong>Perception Agent:</strong> Records player choices and updates social relationship beliefs within the BDI belief base (e.g. <code>player_relation(NPC, player, hostile)</code>).</li>
+                <li><strong>Dialogue Agent:</strong> Generates dialogue drafts based on mood and traits via <code>call(..., "ANSWER", context, "dialogue,tone")</code>, quarantining the speech string.</li>
+                <li><strong>Lore Auditor:</strong> Evaluates response compliance against established world lore and content guidelines, registering an independent <code>judge(candId, "lore_auditor", verdict, confidence, rationale)</code> before running <code>decide(candId)</code>.</li>
+                <li><strong>Adopt &amp; Speak:</strong> If admissible, the agent calls <code>accept(candId, "lore compliant")</code> and records the dialogue line into the narrative history before playing the voice line; otherwise, it triggers <code>reject(candId)</code> and runs a conversational retry.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
   <script>
+    // --- Mobile sidebar toggle ---
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    if (menuToggle && sidebar && sidebarBackdrop) {
+      menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+        sidebarBackdrop.classList.toggle('open');
+      });
+      sidebarBackdrop.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        this.classList.remove('open');
+      });
+    }
+
     const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/examples/main/';
     // files: string (single) or string[] (multi). Arrays keep display order; first file opens in editor.
     const PATTERNS = [
@@ -179,6 +346,17 @@
         el.style.overflow = 'hidden';
         requestAnimationFrame(() => { el.style.maxHeight = '0'; });
         setTimeout(() => { el.hidden = true; el.style.maxHeight = ''; el.style.overflow = ''; }, 350);
+      }
+    };
+
+    window.toggleConcept = function(conceptId) {
+      const card = document.getElementById('concept-' + conceptId);
+      if (!card) return;
+      const isExpanded = card.classList.contains('expanded');
+      if (isExpanded) {
+        card.classList.remove('expanded');
+      } else {
+        card.classList.add('expanded');
       }
     };
 
