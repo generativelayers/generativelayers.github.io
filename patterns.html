@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acceptance Patterns | Generative Layers</title>
-  <meta name="description" content="Governance patterns and application-level blueprints for accepting, rejecting, reviewing, and refining LLM candidate output in BDI agents using ASTRA, Jason, and JaCaMo.">
+  <meta name="description" content="Governance patterns and conceptual application-level blueprints for accepting, rejecting, reviewing, and refining LLM candidate output in BDI agents using ASTRA, Jason, and JaCaMo.">
   <meta name="keywords" content="acceptance patterns, governance, BDI agents, LLM verification, candidate material, Generative Layers, ASTRA, Jason, JaCaMo">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.generativelayers.com/patterns.html">
@@ -15,19 +15,19 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Generative Layers">
   <meta property="og:title" content="Acceptance Patterns | Generative Layers">
-  <meta property="og:description" content="Practical BDI patterns and developer-composed governance blueprints for governing LLM candidate output.">
+  <meta property="og:description" content="Practical BDI patterns and conceptual developer-composed governance blueprints for governing LLM candidate output.">
   <meta property="og:url" content="https://www.generativelayers.com/patterns.html">
   <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Acceptance Patterns | Generative Layers">
-  <meta name="twitter:description" content="Practical BDI patterns and developer-composed governance blueprints for governing LLM candidate output.">
+  <meta name="twitter:description" content="Practical BDI patterns and conceptual developer-composed governance blueprints for governing LLM candidate output.">
   <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "Acceptance Patterns for Governed LLM Integration",
-    "description": "Patterns and application-level blueprints for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
+    "description": "Patterns and conceptual application-level blueprints for accepting or rejecting LLM output in BDI agent systems using Generative Layers.",
     "url": "https://www.generativelayers.com/patterns.html",
     "isPartOf": { "@type": "WebSite", "name": "Generative Layers", "url": "https://www.generativelayers.com/" }
   }
@@ -117,11 +117,11 @@
         <h2><i class="fa-solid fa-graduation-cap" style="margin-right:8px;color:var(--color-green-700);"></i>Application-Level Governance Blueprints</h2>
         <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
           <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            The implemented acceptance patterns above are the reusable building blocks. The blueprints below show how a developer can compose those solved patterns and Generative Layers lifecycle commands into larger BDI agent architectures. They are not additional primitive patterns and they are not turnkey applications. Each domain still needs the developer to define the agent roles, domain rules, trusted evidence sources, safety thresholds, retry strategy, and final acceptance logic. The command combinations are kept explicit so the path from architecture to implementation remains visible.
+            The implemented acceptance patterns above are the reusable code examples. The blueprints below are conceptual application designs, not implemented example projects in the repository. They show how a developer could compose Generative Layers lifecycle commands into larger BDI agent architectures. Each domain still needs the developer to implement the agents, plans, domain rules, evidence sources, safety thresholds, retry strategy, and final acceptance logic. The command lists are kept explicit as possible implementation routes, not as completed runnable examples.
           </p>
         </div>
 
-        <div style="font-size:15px;font-weight:700;margin-top:20px;margin-bottom:12px;color:var(--color-green-700);"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>Architectural Paradigms & Diverse Research Directions</div>
+        <div style="font-size:15px;font-weight:700;margin-top:20px;margin-bottom:12px;color:var(--color-green-700);"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>Conceptual Architecture Blueprints & Research Directions</div>
         
         <!-- Project 1 -->
         <div class="concept-card card" id="concept-proj-swarm" style="margin-top:12px;border-left:3px solid #22c55e;cursor:pointer;" onclick="toggleConcept('proj-swarm')">
@@ -138,7 +138,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Automated Code Generation & Quality Control.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A decentralized multi-agent BDI system simulating software engineering roles, cooperating through belief-sharing and self-correcting feedback cycles to continuously produce and audit code assets.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Product Owner Agent:</strong> Receives raw specifications and calls <code>call(..., "ANSWER", prompt, "stories")</code> to decompose the requirement into a structured backlog of user stories.</li>
                 <li><strong>Developer Agent:</strong> Receives a user story and invokes a model via <code>call(..., "ANSWER", prompt, "code")</code>, immediately quarantining the output inside a <code>candidate(resId)</code> transaction.</li>
@@ -165,7 +165,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Healthcare & Safety-Critical Diagnostics.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A diagnostic support system that guards the agent's epistemic belief base, isolating and verifying generated medical recommendations against trusted scientific repositories before committing them as active beliefs.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Triage Agent:</strong> Ingests patient symptoms and calls <code>call(..., "ANSWER", symptoms, "lookup_keys")</code> to generate optimal query terms for clinical databases.</li>
                 <li><strong>Search Agent:</strong> Queries the database and asserts the retrieved clinical papers into the agent's local belief base (BDI-level adoption, outside GL).</li>
@@ -192,7 +192,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Autonomous Trading & Game Theory.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> An automated trading agent that negotiates wholesale supplier contracts, enforcing hard financial spending limits to prevent capital depletion during high-frequency bidding.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Scouter Agent:</strong> Dispatches market trends using <code>call(..., "ANSWER", market_query, "item,price,trend")</code> to identify arbitrage opportunities, asserting validated findings into its beliefs.</li>
                 <li><strong>Negotiator Agent:</strong> Negotiates contract bids, calling <code>call(..., "ANSWER", negotiation_prompt, "offer,price")</code> to draft a counter-offer as quarantined candidate material.</li>
@@ -218,7 +218,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> IoT, Energy Logistics, & Emergency Mitigation.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> A self-healing grid-management system modeled using BDI agents, coordinating dynamically to identify cyber-physical anomalies, draft load-routing configurations, and execute plans to bypass physical line faults safely.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Monitor Agent:</strong> Receives real-time telemetry from smart sensors, triggering recovery goals upon registering physical line anomalies.</li>
                 <li><strong>Planner Agent:</strong> Formulates alternative load-routing sequences around damaged substations using <code>call(..., "ANSWER", anomaly_data, "route,load_estimate")</code>, quarantining the draft via <code>candidate(resId)</code>.</li>
@@ -244,7 +244,7 @@
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
               <div style="margin-top:10px;"><strong>Domain:</strong> Gaming & Creative Entertainment.</div>
               <div style="margin-top:6px;"><strong>How it works:</strong> Virtual game characters with distinct personality profiles and social beliefs, generating contextually appropriate dialogue while auditing responses to ensure compliance with established world lore and behavioral bounds.</div>
-              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Command Combinations:</div>
+              <div style="margin-top:10px;font-weight:700;color:var(--color-text-primary);">Possible Command Composition:</div>
               <ul style="margin:4px 0 0;padding-left:20px;line-height:1.8;">
                 <li><strong>Perception Agent:</strong> Records player choices and updates social relationship beliefs within the BDI belief base (e.g. <code>player_relation(NPC, player, hostile)</code>).</li>
                 <li><strong>Dialogue Agent:</strong> Generates dialogue drafts based on mood and traits via <code>call(..., "ANSWER", context, "dialogue,tone")</code>, quarantining the speech string.</li>
