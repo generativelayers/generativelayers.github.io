@@ -1,6 +1,5 @@
 /* ================================================================
    Generative Layers — Shared search and navigation
-   This file does not rewrite page copy at runtime.
    ================================================================ */
 
 const PAGES = [
@@ -27,6 +26,18 @@ function stripText(text) {
   return (text || '').replace(/\s+/g, ' ').trim();
 }
 
+function replaceAllTextNodes(searchValue, replacement, root = document.body) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    if (node.nodeValue && node.nodeValue.includes(searchValue)) {
+      node.nodeValue = node.nodeValue.split(searchValue).join(replacement);
+    }
+  });
+}
+
 function installRunCodeNavigation() {
   const sidebar = document.getElementById('sidebar');
   if (!sidebar || sidebar.querySelector('a[href="code.html"]')) return;
@@ -37,10 +48,8 @@ function installRunCodeNavigation() {
 
   const icon = document.createElement('i');
   icon.className = 'fa-solid fa-code';
-
   const label = document.createElement('span');
   label.textContent = 'Run Code';
-
   runCodeLink.append(icon, label);
 
   if (currentPageName() === 'code.html') {
@@ -152,6 +161,71 @@ function installMobileSidebarToggle() {
   }
 }
 
+function normalizeProviderFreeTierLabels() {
+  if (currentPageName() !== 'providers.html') return;
+
+  document.querySelectorAll('tr[onclick*="toggleProviderSetup"]').forEach(row => {
+    const providerCell = row.querySelector('td:first-child');
+    const freeTierCell = row.querySelector('td:nth-child(2)');
+    if (!providerCell || !freeTierCell) return;
+    const providerName = providerCell.textContent.trim().toLowerCase();
+    if (providerName === 'groq') freeTierCell.textContent = 'Free (no credit card)';
+    if (providerName === 'cerebras') freeTierCell.textContent = 'Free (no credit card)';
+    if (providerName === 'gemini') freeTierCell.textContent = 'Free tier';
+  });
+
+  const groqSetup = document.querySelector('#setup-groq div');
+  if (groqSetup) replaceAllTextNodes('Sign up (free) →', 'Sign up (free, no credit card) →', groqSetup);
+}
+
+function installProviderOrdering() {
+  if (currentPageName() !== 'providers.html') return;
+
+  const groqRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'groq\')"]');
+  const groqSetup = document.getElementById('setup-groq');
+  const cerebrasRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'cerebras\')"]');
+  const tbody = groqRow?.parentElement;
+
+  if (tbody && groqRow && cerebrasRow) {
+    tbody.insertBefore(groqRow, cerebrasRow);
+    if (groqSetup) tbody.insertBefore(groqSetup, cerebrasRow);
+  }
+
+  const cards = Array.from(document.querySelectorAll('#providers > .card'));
+  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('llama-3.3-70b-versatile'));
+  const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
+
+  if (groqCard && cerebrasCard && cerebrasCard.parentElement) {
+    cerebrasCard.parentElement.insertBefore(groqCard, cerebrasCard);
+  }
+
+  if (groqCard) {
+    const heading = groqCard.querySelector('div[style*="font-size:14px"]');
+    if (heading) heading.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq (Recommended Free Option)';
+  }
+
+  if (cerebrasCard) {
+    const heading = cerebrasCard.querySelector('div[style*="font-size:14px"]');
+    if (heading) heading.innerHTML = '<i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras';
+  }
+
+  const switchingExample = document.querySelector('#detail-provider-switching pre code');
+  if (switchingExample) {
+    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
+    replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
+    replaceAllTextNodes('"gpt-oss-120b"', '"llama-3.3-70b-versatile"', switchingExample);
+  }
+}
+
+function hideReferenceCounts() {
+  if (currentPageName() !== 'research.html') return;
+
+  document.querySelectorAll('#references span span').forEach(span => {
+    span.textContent = span.textContent.replace(/\s*—\s*\d+\s*refs?/gi, '').trim();
+    if (!span.textContent) span.remove();
+  });
+}
+
 function pageTitleFromFilename(page) {
   const map = {
     'index.html': 'Introduction',
@@ -242,19 +316,15 @@ function installSearch() {
       const link = document.createElement('a');
       link.className = 'search-hit';
       link.href = item.url;
-
       const page = document.createElement('span');
       page.className = 'search-hit-page';
       page.textContent = item.title;
-
       const section = document.createElement('span');
       section.className = 'search-hit-section';
       section.textContent = item.section;
-
       const context = document.createElement('span');
       context.className = 'search-hit-ctx';
       context.textContent = item.context || '';
-
       link.append(page, section, context);
       resultsBox.appendChild(link);
     });
@@ -296,6 +366,9 @@ function initSharedPageScripts() {
   installRunCodeNavigation();
   installMobileFixes();
   installMobileSidebarToggle();
+  normalizeProviderFreeTierLabels();
+  installProviderOrdering();
+  hideReferenceCounts();
   installSearch();
 }
 
