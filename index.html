@@ -76,8 +76,8 @@
 
       <section class="info-panel" id="purpose">
         <h2>Purpose</h2>
-        <p>In BDI systems, communication has strict, formal semantics based on Speech Act Theory: when Agent A sends a message like <code>tell(belief)</code> to Agent B, the receiver knows Agent A believes that proposition.</p>
-        <p>Communicating with probabilistic neural models breaks this foundation. Directly committing raw LLM text to memory violates the agent's epistemic integrity, causing plan selection and execution failures. Generative Layers solves this by introducing a mediated neuro-symbolic communication protocol. Unstructured outputs are quarantined as uncommitted candidate material (<code>cand_</code>). This allows the agent to act as a symbolic gatekeeper—adopting neural suggestions only after evaluating them against its internal logical invariants and safety constraints.</p>
+        <p>Generative Layers keeps external generation separate from the agent's reasoning loop by placing it inside a governed lifecycle.</p>
+        <p>External outputs are not used directly. They are first held as candidate material, so the agent can inspect, validate, review, compare, accept, reject, retry, or ignore them before they affect beliefs, actions, or downstream decisions.</p>
       </section>
 
       <section class="info-panel" id="target-platforms">
