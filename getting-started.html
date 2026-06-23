@@ -227,9 +227,9 @@ $ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></cod
           <ol style="font-size:13px;color:var(--color-text-secondary);margin:0;padding-left:20px;line-height:1.7;">
             <li><strong>bind</strong> &mdash; Establishes an isolated connection context between the host agent and the provider.</li>
             <li><strong>call</strong> &mdash; Executes a governed out-of-band invocation, evaluating policies before query dispatch.</li>
-            <li><strong>candidate</strong> &mdash; Sandboxes the validated response, quarantining it outside the agent's active memory.</li>
+            <li><strong>candidate</strong> &mdash; Holds the validated response as quarantined candidate material outside the host agent&rsquo;s belief base.</li>
             <li><strong>get</strong> &mdash; Projects and extracts specific structured fields from the quarantined candidate.</li>
-            <li><strong>accept</strong> &mdash; Commits the sandboxed candidate material to the agent's active belief base.</li>
+            <li><strong>accept</strong> &mdash; Records the agent&rsquo;s final decision to adopt the candidate; inserting accepted material into beliefs remains a separate explicit step.</li>
           </ol>
         </div>
       </section>
