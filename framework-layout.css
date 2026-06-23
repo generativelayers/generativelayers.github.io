@@ -197,3 +197,116 @@
     font-size: 13px;
   }
 }
+
+/* ── Diagram viewer (Panzoom) ─────────────────────────────────── */
+
+.diagram-viewer {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  background: #0d1117;
+  margin-top: 20px;
+}
+
+.diagram-canvas {
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diagram-canvas:active {
+  cursor: grabbing;
+}
+
+.diagram-canvas img {
+  max-width: none;
+  max-height: none;
+  width: auto;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.diagram-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.diagram-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #c9d1d9;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.diagram-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.diagram-btn:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Fullscreen mode */
+.diagram-viewer.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  border-radius: 0;
+  border: none;
+  margin: 0;
+}
+
+.diagram-viewer.fullscreen .diagram-canvas {
+  height: 100vh;
+}
+
+.diagram-viewer.fullscreen .diagram-toolbar {
+  top: 16px;
+  right: 16px;
+}
+
+@media (max-width: 768px) {
+  .diagram-canvas {
+    height: 340px;
+  }
+
+  .diagram-toolbar {
+    top: 8px;
+    right: 8px;
+  }
+
+  .diagram-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
