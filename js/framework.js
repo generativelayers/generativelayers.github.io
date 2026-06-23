@@ -439,6 +439,9 @@
     renderCommands();
     renderSyntaxComparison();
     renderArchitectureInternals();
+    // Move lifecycle diagram to end (after JS-injected sections)
+    var diag = document.getElementById('lifecycle-diagram');
+    if (diag && diag.parentElement) diag.parentElement.appendChild(diag);
     installFilters();
     installTabHandlers();
   }
