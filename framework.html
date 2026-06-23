@@ -83,7 +83,7 @@
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Autonomous Control</strong>: Deliberates over active goals and plans, acting as the final arbiter that evaluates and commits neural suggestions to symbolic state.</li>
+              <li><strong>Autonomous Control</strong>: Deliberates over active goals and plans, acting as the final arbiter that evaluates generated suggestions before any host-side materialisation.</li>
               <li><strong>Asynchronous Triggers</strong>: Inquires external support asynchronously, maintaining internal stability while waiting for generative responses.</li>
               <li><strong>Context-Guarded Decision</strong>: Employs native agent guard conditions to decide whether to adopt, verify, ignore, or reject the candidate material.</li>
             </ul>
@@ -152,7 +152,7 @@
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Isolated Sandbox</strong>: Quarantines raw LLM outputs as candidate material (<code>cand_</code>), tracking them through VALIDATED, ASSESSED, and DECIDED states to prevent uncommitted text from polluting memory.</li>
+              <li><strong>Isolated Sandbox</strong>: Quarantines raw LLM outputs as candidate material (<code>cand_</code>), tracking them through lifecycle statuses such as VALIDATED, ASSESSED, ACCEPTED_BY_AGENT, and REJECTED_BY_AGENT.</li>
               <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>check()</code> and <code>get()</code> so agents can inspect data before adoption.</li>
               <li><strong>Deliberated Incorporation</strong>: Candidate fields become GL-side knowledge only when the agent explicitly adopts the candidate through <code>accept(candidateId, reason)</code>.</li>
             </ul>
@@ -193,7 +193,7 @@
           <div class='arch-box' onclick='scrollToCommand("row-call")' title='Click to view call()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-bolt arch-icon-indicator'></i>
-              <span>2. <code>call()</code> starts an out-of-band transaction: policy checks &rarr; query dispatch &rarr; syntax validation &rarr; sandboxed candidate.</span>
+              <span>2. <code>call()</code> starts an out-of-band transaction: policy checks &rarr; query dispatch &rarr; syntax validation &rarr; sandboxed candidate creation.</span>
             </div>
             <span class='arch-phase-badge phase-step-two'>Invocation</span>
           </div>
@@ -201,7 +201,7 @@
           <div class='arch-box' onclick='scrollToCommand("row-result")' title='Click to view result()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-cube arch-icon-indicator'></i>
-              <span>3. <code>candidate()</code> quarantines the output. <code>check()</code> and <code>get()</code> allow read-only inspection of the uncommitted state.</span>
+              <span>3. <code>candidate()</code> resolves the candidate ID. <code>check()</code> and <code>get()</code> allow read-only inspection of candidate status and fields.</span>
             </div>
             <span class='arch-phase-badge phase-material'>Inspection</span>
           </div>
@@ -209,7 +209,7 @@
           <div class='arch-box' onclick='scrollToCommand("row-judge")' title='Click to view judge()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-gavel arch-icon-indicator'></i>
-              <span>4. <code>judge()</code> and <code>decide()</code> evaluate candidate admissibility against logical constraints.</span>
+              <span>4. <code>judge()</code> records evaluative evidence. <code>decide()</code> previews admissibility from candidate status and assessments.</span>
             </div>
             <span class='arch-phase-badge phase-governance'>Assessment</span>
           </div>
@@ -217,7 +217,7 @@
           <div class='arch-box' onclick='scrollToCommand("row-accept")' title='Click to view accept()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-scale-balanced arch-icon-indicator'></i>
-              <span>5. <code>accept()</code> commits the candidate to agent active memory; <code>reject()</code> discards the transaction.</span>
+              <span>5. <code>accept()</code> records final adoption; <code>reject()</code> records final non-adoption. Host belief insertion remains separate and explicit.</span>
             </div>
             <span class='arch-phase-badge phase-decision'>Decision</span>
           </div>
@@ -225,7 +225,7 @@
           <div class='arch-box' onclick='scrollToCommand("row-knowledge")' title='Click to view knowledge()'>
             <div class='arch-text-wrapper'>
               <i class='fa-solid fa-brain arch-icon-indicator'></i>
-              <span>6. <code>knowledge()</code> retrieves committed knowledge; <code>explain()</code> audits transaction logs and traces.</span>
+              <span>6. <code>knowledge()</code> retrieves accepted GL-side candidate fields; <code>explain()</code> audits lifecycle records and traces.</span>
             </div>
             <span class='arch-phase-badge phase-execution'>Knowledge &amp; Audit</span>
           </div>
@@ -234,7 +234,7 @@
 
       <section class='info-panel' id='canonical-commands'>
         <h2>Canonical commands</h2>
-        <p>The framework establishes a strict canonical contract of 13 lifecycle commands that behave identically across all target platforms. The contract is defined in the Java <code>ResourceActions</code> interface, ensuring full functional parity across integrations.</p>
+        <p>The framework establishes a canonical contract of 13 lifecycle commands exposed across target platforms. Platform adapters preserve the same lifecycle semantics, while syntax and return-value style may differ.</p>
 
         <div class='command-filters'>
           <button class='filter-btn active' type='button' data-group='all'>All</button>
