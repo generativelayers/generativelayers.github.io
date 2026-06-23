@@ -51,8 +51,8 @@
       jacamo: '+!check_result(Rid) <-\n    result(Rid, R);\n    .print("Result: ", R).'
     },
     {
-      id: 'candidate', group: 'decision', command: 'candidate(resultId)', type: 'String',
-      description: 'Get the candidate ID from a result. Crosses the ontological boundary into governed material.',
+      id: 'candidate', group: 'invocation', command: 'candidate(resultId)', type: 'String',
+      description: 'Resolve the candidate ID created by call().',
       constraints: {
         pre: ['<code>resultId</code> must exist AND have produced a non-blank candidate ID.'],
         post: ['Returns <code>cand_*</code> ID.', 'A result without a candidate means the provider failed or governance denied <em>before</em> material was produced.'],
@@ -64,7 +64,7 @@
       jacamo: '+!decide_result(Rid)\n   :  candidate(Rid, Cid)\n   <- !decide_candidate(Cid).'
     },
     {
-      id: 'check', group: 'decision', command: 'check(refId)', type: 'String',
+      id: 'check', group: 'inspection', command: 'check(refId)', type: 'String',
       description: 'Check governance state of a result or candidate (validation status, lifecycle status).',
       constraints: {
         pre: ['<code>refId</code> must start with <code>res_</code> or <code>cand_</code>.'],
@@ -77,7 +77,7 @@
       jacamo: '+!inspect(Rid) <-\n    check(Rid, S);\n    .print("Status: ", S).'
     },
     {
-      id: 'get', group: 'decision', command: 'get(candidateId, field)', type: 'String',
+      id: 'get', group: 'inspection', command: 'get(candidateId, field)', type: 'String',
       description: 'Extract a named field value from candidate material.',
       constraints: {
         pre: ['<code>candidateId</code> must exist.', '<code>field</code> must be non-blank.'],
@@ -85,12 +85,12 @@
         life: ['Read-only — extracts but does not modify candidate.'],
         err: ['<code>ERROR:missing_candidate_id</code>', '<code>ERROR:missing_field_name</code>', '<code>ERROR:not_found</code>', '<code>ERROR:missing_field</code>']
       },
-      astra: 'rule +!extract_label(string cid) {\n    +label(gl.get(cid, "label"));\n}',
+      astra: 'rule +!extract_label(string cid) {\n    console.println(gl.get(cid, "label"));\n}',
       jason: '+!inspect_field(Cid) <-\n    gl.get(Cid, "label", Label);\n    .print("Label: ", Label).',
       jacamo: '+!inspect_field(Cid) <-\n    get(Cid, "label", Label);\n    .print("Label: ", Label).'
     },
     {
-      id: 'judge', group: 'decision', command: 'judge(candidateId, assessor, verdict, confidence, rationale)', type: 'String',
+      id: 'judge', group: 'assessment', command: 'judge(candidateId, assessor, verdict, confidence, rationale)', type: 'String',
       description: 'Record evaluative evidence about a candidate. Returns an assessment ID.',
       constraints: {
         pre: ['Candidate must exist and NOT be in a final state (<code>ACCEPTED_BY_AGENT</code> / <code>REJECTED_BY_AGENT</code>).', '<code>INVALID</code> candidates cannot be assessed — they must be rejected, not rehabilitated.', '<code>verdict</code> must be: <code>APPROVE</code>, <code>WARN</code>, <code>REJECT_VERDICT</code>, or <code>UNCERTAIN</code>.', '<code>confidence</code> must be in <code>[0.0, 1.0]</code>.', '<code>rationale</code> must be non-blank.'],
@@ -103,11 +103,11 @@
       jacamo: '+!review(Cid) <-\n    judge(Cid, "reviewer", "APPROVE", "0.9", "looks correct", Aid);\n    .print("Assessment: ", Aid).'
     },
     {
-      id: 'decide', group: 'decision', command: 'decide(candidateId)', type: 'String',
-      description: 'Compute admissibility (read-only preview). Returns ADMISSIBLE, INADMISSIBLE:reason, or FINAL:status.',
+      id: 'decide', group: 'assessment', command: 'decide(candidateId)', type: 'String',
+      description: 'Compute admissibility as a read-only preview. Returns ADMISSIBLE or INADMISSIBLE:reason.',
       constraints: {
         pre: ['Candidate must exist.'],
-        post: ['If undecided: returns <code>ADMISSIBLE</code> or <code>INADMISSIBLE:reason</code>.', 'If already decided: returns <code>FINAL:status:decisionId</code>.'],
+        post: ['Returns <code>ADMISSIBLE</code> or <code>INADMISSIBLE:reason</code>.', 'Already rejected candidates return <code>INADMISSIBLE:already_rejected</code>.'],
         life: ['<em>Read-only — does not modify state.</em>', 'Admissibility rules: (1) candidate must be <code>VALIDATED</code> or <code>ASSESSED</code>, (2) any assessment with <code>REJECT_VERDICT</code> and confidence ≥ 0.5 blocks admissibility, (3) otherwise admissible.']
       },
       astra: 'rule +!check_admissibility(string cid) {\n    !route_decision(gl.decide(cid), cid);\n}',
@@ -141,7 +141,7 @@
       jacamo: '+!decide_candidate(Cid) <-\n    reject(Cid, "output is incorrect", Did);\n    +rejected(Cid).'
     },
     {
-      id: 'knowledge', group: 'decision', command: 'knowledge(agentId)', type: 'String',
+      id: 'knowledge', group: 'knowledge', command: 'knowledge(agentId)', type: 'String',
       description: 'Retrieve all accepted GL-side knowledge for an agent. Can be passed as context to future calls.',
       constraints: {
         pre: ['None — returns <code>EMPTY</code> for unknown or blank agent IDs.'],
@@ -153,7 +153,7 @@
       jacamo: '+!get_knowledge <-\n    knowledge("agent1", K);\n    .print(K).'
     },
     {
-      id: 'explain', group: 'invocation', command: 'explain(refId)', type: 'String',
+      id: 'explain', group: 'knowledge', command: 'explain(refId)', type: 'String',
       description: 'Audit and trace any lifecycle object: result, candidate, assessment, decision, trace, or binding.',
       constraints: {
         pre: ['<code>refId</code> must start with a known prefix.'],
