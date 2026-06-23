@@ -130,13 +130,13 @@
           <div class='concept-header'>
             <div class='concept-title-group'>
               <h3 class='concept-title'><i class='fa-solid fa-server'></i> Provider</h3>
-              <p class='concept-desc'>The abstract connector to an LLM, tool, API, service, or module.</p>
+              <p class='concept-desc'>The abstract connector to an LLM endpoint.</p>
             </div>
             <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Resource Abstraction</strong>: Standardizes heterogeneous LLM and tool interfaces into a uniform, swappable execution target.</li>
+              <li><strong>Resource Abstraction</strong>: Standardizes LLM provider interfaces into a uniform, swappable execution target.</li>
               <li><strong>Resilience &amp; Networking</strong>: Encapsulates HTTP requests and provider-specific retry handling behind the provider abstraction.</li>
               <li><strong>Unified Interface</strong>: Simplifies provider switching, such as swapping model endpoints or mock providers, with zero changes to agent logic.</li>
             </ul>

@@ -25,7 +25,7 @@
 
     const problem = document.querySelector('#problem p');
     if (problem) {
-      problem.textContent = 'Agent programs need access to LLMs, tools, APIs, and services without allowing those outputs to silently become beliefs, intentions, plans, or actions.';
+      problem.textContent = 'Agent programs need access to LLMs and external generative resources without allowing those outputs to silently become beliefs, intentions, plans, or actions.';
     }
 
     const contribution = document.querySelector('#contribution p');

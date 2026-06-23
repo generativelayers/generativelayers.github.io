@@ -17,7 +17,7 @@
       constraints: {
         pre: ['<code>agent</code> and <code>provider</code> must be non-blank.', 'Provider must exist in <code>ProviderRegistry</code>.'],
         post: ['Creates an isolated <code>ProviderBinding</code> with its own <code>GovernanceKernel</code> and standard body registry.', 'Returns <code>bind_*</code> ID.'],
-        life: ['Creates new binding record. All 6 standard bodies are registered automatically.'],
+        life: ['Creates new binding record. The \u003ccode\u003ellm.answer\u003c/code\u003e body is registered automatically.'],
         err: ['<code>ERROR:missing_agent_id</code>', '<code>ERROR:missing_provider</code>', '<code>ERROR:unknown_provider</code>']
       },
       astra: 'rule +!main(list args) {\n    !request_support(gl.bind("agent1", "gemini", "gemini-2.5-flash", ""));\n}',
