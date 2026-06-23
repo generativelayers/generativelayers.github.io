@@ -118,8 +118,8 @@
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
               <li><strong>Decoupled Safety Policies</strong>: Out-of-band enforcement of budgets, rate limits, and content policies, shielding the host agent’s reasoning state from raw LLM interactions.</li>
-              <li><strong>Assessment & Admissibility Gating</strong>: Gates candidate acceptance through an evidence-based pipeline, where peer judgments (<code>judge()</code>) feed into an admissibility checker (<code>decide()</code>).</li>
-              <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log request contexts, checked policies, and outbound results.</li>
+              <li><strong>Assessment &amp; Admissibility Gating</strong>: Gates candidate acceptance through an evidence-based pipeline, where peer judgments (<code>judge()</code>) feed into an admissibility checker (<code>decide()</code>).</li>
+              <li><strong>Audit Logging &amp; Tracing</strong>: Automatically generates globally unique trace IDs to log request contexts, checked policies, and outbound results.</li>
               <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
             </ul>
           </div>
@@ -152,9 +152,9 @@
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Isolated Sandbox</strong>: Quarantines raw LLM outputs as candidate material (<code>cand_</code>), tracking them through lifecycle statuses such as VALIDATED, ASSESSED, ACCEPTED_BY_AGENT, and REJECTED_BY_AGENT.</li>
+              <li><strong>Isolated Sandbox</strong>: Quarantines raw LLM outputs as candidate material (<code>cand_</code>), tracking them through lifecycle statuses such as VALIDATED, INVALID, ASSESSED, ACCEPTED_BY_AGENT, and REJECTED_BY_AGENT.</li>
               <li><strong>Structured Inspections</strong>: Provides safe query boundaries through <code>check()</code> and <code>get()</code> so agents can inspect data before adoption.</li>
-              <li><strong>Deliberated Incorporation</strong>: Candidate fields become GL-side knowledge only when the agent explicitly adopts the candidate through <code>accept(candidateId, reason)</code>.</li>
+              <li><strong>Deliberated Incorporation</strong>: Candidate fields become GL-side knowledge only when the agent explicitly adopts the candidate through <code>accept(candidateId, reason)</code>; host belief insertion remains a separate explicit agent-program step.</li>
             </ul>
           </div>
         </div>
@@ -228,6 +228,43 @@
               <span>6. <code>knowledge()</code> retrieves accepted GL-side candidate fields; <code>explain()</code> audits lifecycle records and traces.</span>
             </div>
             <span class='arch-phase-badge phase-execution'>Knowledge &amp; Audit</span>
+          </div>
+        </div>
+      </section>
+
+      <section class='info-panel' id='state-machine'>
+        <h2>Candidate states and constraints</h2>
+        <p>GL treats generated output as candidate material with an explicit lifecycle. Admissibility is a read-only permission to accept; acceptance or rejection is a separate final decision recorded by the agent.</p>
+        <div class='table-container'>
+          <table class='commands-table'>
+            <thead>
+              <tr><th>State</th><th>How it is reached</th><th>Allowed next operations</th><th>Constraint</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>PROPOSED</code></td><td>Reserved initial lifecycle state.</td><td>Implementation-dependent transition into validation.</td><td>Not normally exposed by the public <code>call()</code> path.</td></tr>
+              <tr><td><code>VALIDATED</code></td><td><code>call()</code> produced output that passed schema validation.</td><td><code>judge()</code>, <code>decide()</code>, <code>accept()</code>, or <code>reject()</code>.</td><td>Can be accepted only when <code>decide()</code> returns <code>ADMISSIBLE</code>.</td></tr>
+              <tr><td><code>INVALID</code></td><td><code>call()</code> produced output that failed validation.</td><td><code>check()</code>, <code>explain()</code>, or <code>reject()</code>.</td><td>Cannot be judged or accepted; it must be rejected or ignored.</td></tr>
+              <tr><td><code>ASSESSED</code></td><td><code>judge()</code> recorded evaluative evidence over a candidate.</td><td><code>judge()</code>, <code>decide()</code>, <code>accept()</code>, or <code>reject()</code>.</td><td>A <code>REJECT_VERDICT</code> with confidence &ge; 0.5 makes the candidate inadmissible.</td></tr>
+              <tr><td><code>ACCEPTED_BY_AGENT</code></td><td><code>accept(candidateId, reason)</code> succeeded.</td><td><code>check()</code>, <code>get()</code>, <code>knowledge()</code>, or <code>explain()</code>.</td><td>Final state. No later <code>judge()</code>, second <code>accept()</code>, or <code>reject()</code>.</td></tr>
+              <tr><td><code>REJECTED_BY_AGENT</code></td><td><code>reject(candidateId, reason)</code> succeeded.</td><td><code>check()</code> or <code>explain()</code>.</td><td>Final state. No later <code>judge()</code>, <code>accept()</code>, or second <code>reject()</code>.</td></tr>
+              <tr><td><code>ESCALATED</code></td><td>Reserved for escalation-oriented governance paths.</td><td>Audit and policy-specific handling.</td><td>Used to represent material that should not proceed through ordinary acceptance.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class='concept-card card' id='concept-platform-return' onclick='toggleConcept("platform-return")'>
+          <div class='concept-header'>
+            <div class='concept-title-group'>
+              <h3 class='concept-title'><i class='fa-solid fa-code-branch'></i> Adapter return-value discipline</h3>
+              <p class='concept-desc'>The lifecycle semantics are shared; native platform execution style differs.</p>
+            </div>
+            <button class='concept-toggle-btn' aria-label='Expand Details'><i class='fa-solid fa-eye'></i></button>
+          </div>
+          <div class='concept-details' onclick='event.stopPropagation()'>
+            <ul>
+              <li><strong>ASTRA</strong>: <code>accept()</code> and <code>reject()</code> are boolean actions; if the framework returns <code>ERROR:...</code>, the action fails and the following plan statements do not continue.</li>
+              <li><strong>Jason / JaCaMo</strong>: decision operations return a string into an output argument. Agent programs should guard with <code>decide(...)</code> or check the returned decision id before adding local beliefs such as <code>+accepted(Cid)</code>.</li>
+              <li><strong>Belief adoption</strong>: GL records lifecycle decisions; selected fields enter the host belief base only through explicit host-language updates such as <code>+classified(...)</code>.</li>
+            </ul>
           </div>
         </div>
       </section>
