@@ -33,6 +33,7 @@
   <link rel='stylesheet' href='framework-layout.css'>
   <script defer src='js/search.js'></script>
   <script defer src='js/run-code-links.js'></script>
+  <script src='https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js'></script>
 </head>
 <body>
 
@@ -283,6 +284,23 @@
           <button class='filter-btn' type='button' data-group='knowledge'>Knowledge / Audit</button>
         </div>
       </section>
+
+      <section class='info-panel' id='lifecycle-diagram'>
+        <h2>Lifecycle diagram</h2>
+        <p>Interactive view of the complete GL v2 governed lifecycle — all 13 commands, 7 candidate statuses, the 5-stage invocation pipeline, retry/recovery, belief-RAG, conversation context, admissibility rules, finality guards, and the host-agent belief boundary. Scroll to zoom, drag to pan.</p>
+
+        <div class='diagram-viewer' id='diagramViewer'>
+          <div class='diagram-toolbar'>
+            <button class='diagram-btn' id='diagramZoomIn' title='Zoom in'><i class='fa-solid fa-magnifying-glass-plus'></i></button>
+            <button class='diagram-btn' id='diagramZoomOut' title='Zoom out'><i class='fa-solid fa-magnifying-glass-minus'></i></button>
+            <button class='diagram-btn' id='diagramReset' title='Reset view'><i class='fa-solid fa-crosshairs'></i></button>
+            <button class='diagram-btn' id='diagramFullscreen' title='Fullscreen'><i class='fa-solid fa-expand'></i></button>
+          </div>
+          <div class='diagram-canvas' id='diagramCanvas'>
+            <img id='diagramImage' src='icon/gl-v2-complete-lifecycle.png' alt='GL v2 Complete Lifecycle Diagram' draggable='false'>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -290,5 +308,60 @@
   <script src='js/framework-architecture-expanded.js'></script>
   <script defer src='js/static-highlight.js'></script>
   <script defer src='js/scroll-reveal.js'></script>
+
+  <!-- Diagram Panzoom -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var img = document.getElementById('diagramImage');
+    if (!img || typeof Panzoom === 'undefined') return;
+
+    var pz = Panzoom(img, {
+      maxScale: 8,
+      minScale: 0.3,
+      contain: false,
+      cursor: 'grab',
+      canvas: true
+    });
+
+    var canvas = document.getElementById('diagramCanvas');
+    canvas.addEventListener('wheel', function(e) {
+      pz.zoomWithWheel(e);
+    });
+
+    document.getElementById('diagramZoomIn').addEventListener('click', function() {
+      pz.zoomIn();
+    });
+
+    document.getElementById('diagramZoomOut').addEventListener('click', function() {
+      pz.zoomOut();
+    });
+
+    document.getElementById('diagramReset').addEventListener('click', function() {
+      pz.reset({ animate: true });
+    });
+
+    var viewer = document.getElementById('diagramViewer');
+    var fsBtn = document.getElementById('diagramFullscreen');
+
+    fsBtn.addEventListener('click', function() {
+      viewer.classList.toggle('fullscreen');
+      var icon = fsBtn.querySelector('i');
+      if (viewer.classList.contains('fullscreen')) {
+        icon.className = 'fa-solid fa-compress';
+      } else {
+        icon.className = 'fa-solid fa-expand';
+        pz.reset({ animate: true });
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && viewer.classList.contains('fullscreen')) {
+        viewer.classList.remove('fullscreen');
+        fsBtn.querySelector('i').className = 'fa-solid fa-expand';
+        pz.reset({ animate: true });
+      }
+    });
+  });
+  </script>
 </body>
 </html>
