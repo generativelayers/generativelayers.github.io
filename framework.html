@@ -344,18 +344,18 @@
     var fsBtn = document.getElementById('diagramFullscreen');
 
     fsBtn.addEventListener('click', function() {
-      viewer.classList.toggle('fullscreen');
-      var icon = fsBtn.querySelector('i');
-      if (viewer.classList.contains('fullscreen')) {
-        icon.className = 'fa-solid fa-compress';
+      if (!document.fullscreenElement) {
+        viewer.requestFullscreen().then(function() {
+          viewer.classList.add('fullscreen');
+          fsBtn.querySelector('i').className = 'fa-solid fa-compress';
+        }).catch(function() {});
       } else {
-        icon.className = 'fa-solid fa-expand';
-        pz.reset({ animate: true });
+        document.exitFullscreen();
       }
     });
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && viewer.classList.contains('fullscreen')) {
+    document.addEventListener('fullscreenchange', function() {
+      if (!document.fullscreenElement) {
         viewer.classList.remove('fullscreen');
         fsBtn.querySelector('i').className = 'fa-solid fa-expand';
         pz.reset({ animate: true });
