@@ -117,7 +117,7 @@
           </div>
           <div class='concept-details' onclick='event.stopPropagation()'>
             <ul>
-              <li><strong>Decoupled Safety Policies</strong>: Out-of-band enforcement of budgets, rate limits, and content policies, shielding agent memory from raw LLM interactions.</li>
+              <li><strong>Decoupled Safety Policies</strong>: Out-of-band enforcement of budgets, rate limits, and content policies, shielding the host agent’s reasoning state from raw LLM interactions.</li>
               <li><strong>Assessment & Admissibility Gating</strong>: Gates candidate acceptance through an evidence-based pipeline, where peer judgments (<code>judge()</code>) feed into an admissibility checker (<code>decide()</code>).</li>
               <li><strong>Audit Logging & Tracing</strong>: Automatically generates globally unique trace IDs to log request contexts, checked policies, and outbound results.</li>
               <li><strong>Pre-Adoption Verification</strong>: Intercepts responses, validating schemas and active rules before exposing candidate material to the agent.</li>
