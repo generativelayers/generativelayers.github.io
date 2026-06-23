@@ -11,7 +11,7 @@
       </div>
       <div class="concept-card card" id="concept-bodies" onclick="toggleConcept('bodies')">
         <div class="concept-header"><div class="concept-title-group"><h3 class="concept-title">Generative Bodies &amp; Affordances</h3><p class="concept-desc">Registered body ids, affordance types, and candidate type mapping.</p></div><button class="concept-toggle-btn" type="button"><i class="fa-solid fa-eye"></i></button></div>
-        <div class="concept-details"><p><code>llm.answer</code>, <code>rag.ground</code>, <code>planner.decompose</code>, <code>tool.propose</code>, <code>memory.retrieve</code>, and <code>reflect.critique</code> are internal body examples.</p></div>
+        <div class="concept-details"><p><code>llm.answer</code> is the standard generative body that produces governed candidate material. It supports the ANSWER, CLASSIFY, and SUMMARISE affordances.</p></div>
       </div>
       <div class="concept-card card" id="concept-provider-registry" onclick="toggleConcept('provider-registry')">
         <div class="concept-header"><div class="concept-title-group"><h3 class="concept-title">Provider Registry</h3><p class="concept-desc">Built-in and custom providers are selected without changing the agent program structure.</p></div><button class="concept-toggle-btn" type="button"><i class="fa-solid fa-eye"></i></button></div>
