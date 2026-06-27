@@ -181,39 +181,57 @@ function normalizeProviderFreeTierLabels() {
 function installProviderOrdering() {
   if (currentPageName() !== 'providers.html') return;
 
-  const groqRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'groq\')"]');
-  const groqSetup = document.getElementById('setup-groq');
-  const cerebrasRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'cerebras\')"]');
-  const tbody = groqRow?.parentElement;
+  const priority = ['gemini', 'cerebras', 'groq', 'openai', 'deepseek'];
+  const tbody = document.querySelector('tr[onclick*="toggleProviderSetup"]')?.parentElement;
 
-  if (tbody && groqRow && cerebrasRow) {
-    tbody.insertBefore(groqRow, cerebrasRow);
-    if (groqSetup) tbody.insertBefore(groqSetup, cerebrasRow);
+  if (tbody) {
+    priority.forEach(provider => {
+      const row = document.querySelector(`tr[onclick*="toggleProviderSetup('${provider}')"]`);
+      const setup = document.getElementById(`setup-${provider}`);
+      if (row) tbody.appendChild(row);
+      if (setup) tbody.appendChild(setup);
+    });
   }
 
   const cards = Array.from(document.querySelectorAll('#providers > .card'));
-  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('llama-3.3-70b-versatile'));
-  const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
+  const providerCards = {
+    gemini: cards.find(card => card.textContent.includes('Gemini') && card.textContent.includes('gemini-2.5-flash')),
+    cerebras: cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b')),
+    groq: cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('llama-3.3-70b-versatile'))
+  };
+  const firstProviderCard = providerCards.groq || providerCards.cerebras || providerCards.gemini;
+  const parent = firstProviderCard?.parentElement;
 
-  if (groqCard && cerebrasCard && cerebrasCard.parentElement) {
-    cerebrasCard.parentElement.insertBefore(groqCard, cerebrasCard);
+  if (parent && firstProviderCard) {
+    priority.forEach(provider => {
+      const card = providerCards[provider];
+      if (card) parent.insertBefore(card, firstProviderCard);
+    });
   }
 
-  if (groqCard) {
-    const heading = groqCard.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq (Recommended Free Option)';
+  if (providerCards.gemini) {
+    const heading = providerCards.gemini.querySelector('div[style*="font-size:14px"]');
+    if (heading) heading.innerHTML = '<i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Primary Option)';
   }
 
-  if (cerebrasCard) {
-    const heading = cerebrasCard.querySelector('div[style*="font-size:14px"]');
+  if (providerCards.groq) {
+    const heading = providerCards.groq.querySelector('div[style*="font-size:14px"]');
+    if (heading) heading.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq';
+  }
+
+  if (providerCards.cerebras) {
+    const heading = providerCards.cerebras.querySelector('div[style*="font-size:14px"]');
     if (heading) heading.innerHTML = '<i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras';
   }
 
   const switchingExample = document.querySelector('#detail-provider-switching pre code');
   if (switchingExample) {
-    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
-    replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
-    replaceAllTextNodes('"gpt-oss-120b"', '"llama-3.3-70b-versatile"', switchingExample);
+    replaceAllTextNodes('Bind to Groq, then verify', 'Bind to Gemini, then verify', switchingExample);
+    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Gemini, then verify', switchingExample);
+    replaceAllTextNodes('"groq"', '"gemini"', switchingExample);
+    replaceAllTextNodes('"cerebras"', '"gemini"', switchingExample);
+    replaceAllTextNodes('"llama-3.3-70b-versatile"', '"gemini-2.5-flash"', switchingExample);
+    replaceAllTextNodes('"gpt-oss-120b"', '"gemini-2.5-flash"', switchingExample);
   }
 }
 
