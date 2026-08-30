@@ -23,7 +23,7 @@
 
   const DEFAULT_MODELS = {
     cerebras: 'gpt-oss-120b',
-    groq: 'llama-3.3-70b-versatile',
+    groq: 'openai/gpt-oss-120b',
     gemini: 'gemini-2.0-flash',
     openai: 'gpt-4o',
     deepseek: 'deepseek-chat'

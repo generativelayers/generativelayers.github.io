@@ -194,13 +194,8 @@ function installProviderOrdering() {
   }
 
   const cards = Array.from(document.querySelectorAll('#providers > .card'));
-  const providerCards = {
-    gemini: cards.find(card => card.textContent.includes('Gemini') && card.textContent.includes('gemini-2.5-flash')),
-    cerebras: cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b')),
-    groq: cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('llama-3.3-70b-versatile'))
-  };
-  const firstProviderCard = providerCards.groq || providerCards.cerebras || providerCards.gemini;
-  const parent = firstProviderCard?.parentElement;
+  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('openai/gpt-oss-120b'));
+  const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
 
   if (parent && firstProviderCard) {
     priority.forEach(provider => {
@@ -226,12 +221,9 @@ function installProviderOrdering() {
 
   const switchingExample = document.querySelector('#detail-provider-switching pre code');
   if (switchingExample) {
-    replaceAllTextNodes('Bind to Groq, then verify', 'Bind to Gemini, then verify', switchingExample);
-    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Gemini, then verify', switchingExample);
-    replaceAllTextNodes('"groq"', '"gemini"', switchingExample);
-    replaceAllTextNodes('"cerebras"', '"gemini"', switchingExample);
-    replaceAllTextNodes('"llama-3.3-70b-versatile"', '"gemini-2.5-flash"', switchingExample);
-    replaceAllTextNodes('"gpt-oss-120b"', '"gemini-2.5-flash"', switchingExample);
+    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
+    replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
+    replaceAllTextNodes('"gpt-oss-120b"', '"openai/gpt-oss-120b"', switchingExample);
   }
 }
 
