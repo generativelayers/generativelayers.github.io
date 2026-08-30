@@ -192,7 +192,7 @@ function installProviderOrdering() {
   }
 
   const cards = Array.from(document.querySelectorAll('#providers > .card'));
-  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('llama-3.3-70b-versatile'));
+  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('openai/gpt-oss-120b'));
   const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
 
   if (groqCard && cerebrasCard && cerebrasCard.parentElement) {
@@ -213,7 +213,7 @@ function installProviderOrdering() {
   if (switchingExample) {
     replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
     replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
-    replaceAllTextNodes('"gpt-oss-120b"', '"llama-3.3-70b-versatile"', switchingExample);
+    replaceAllTextNodes('"gpt-oss-120b"', '"openai/gpt-oss-120b"', switchingExample);
   }
 }
 

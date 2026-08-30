@@ -107,7 +107,7 @@
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('groq')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://console.groq.com/keys" target="_blank" style="color:#f97316;" onclick="event.stopPropagation();">Groq</a></td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);">30 req/min, 14,400/day</td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>llama-3.3-70b-versatile</code></td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>openai/gpt-oss-120b</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('groq')"><i class="fa-solid fa-eye"></i></button></td>
                 </tr>
@@ -209,13 +209,13 @@
               </div>
             </div>
             <div class="tab-content active" id="prov-groq-astra">
-              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>);</code></pre>
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"openai/gpt-oss-120b"</span>, <span class="string">""</span>);</code></pre>
             </div>
             <div class="tab-content" id="prov-groq-jason">
-              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>, Bid);</code></pre>
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"openai/gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
             </div>
             <div class="tab-content" id="prov-groq-jacamo">
-              <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"llama-3.3-70b-versatile"</span>, <span class="string">""</span>, Bid);</code></pre>
+              <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"openai/gpt-oss-120b"</span>, <span class="string">""</span>, Bid);</code></pre>
             </div>
           </div>
         </div>
