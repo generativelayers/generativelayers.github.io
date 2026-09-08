@@ -333,166 +333,60 @@ rule +!maybe_accept(string cid, string adm, string item) {
       <section class="info-panel" id="references">
         <h2><i class="fa-solid fa-book" style="margin-right:8px;color:var(--color-green-700);font-size:20px;"></i>References</h2>
         <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:16px;">
-          Academic references supporting the theoretical and technical basis of Generative Layers. ACM Reference Format (AAMAS style). Numbering [1]–[42].
+          Academic references supporting the theoretical and technical basis of Generative Layers. ACM Reference Format (AAMAS style). Sorted alphabetically [1]–[42].
         </p>
 
-        <!-- Own Project -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid var(--color-green-700);cursor:pointer;" onclick="toggleDetail('ref-project')">
+        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid var(--color-green-700);cursor:pointer;" onclick="toggleDetail('ref-all')">
           <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-cube" style="font-size:13px;color:var(--color-green-700);flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Own Project <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 1 ref</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-project')"><i class="fa-solid fa-eye"></i></button>
+            <i class="fa-solid fa-book" style="font-size:13px;color:var(--color-green-700);flex-shrink:0;"></i>
+            <span style="font-weight:600;font-size:14px;flex:1;">Full Bibliography <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">(alphabetical) — 42 refs</span></span>
+            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-all')"><i class="fa-solid fa-eye"></i></button>
           </div>
-          <div class="pattern-detail" id="detail-ref-project" style="display:none;" onclick="event.stopPropagation()">
+          <div class="pattern-detail" id="detail-ref-all" style="display:none;" onclick="event.stopPropagation()">
             <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
               <ol start="1" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>D. Kyriakidis and R. Collier. 2026. Generative Layers. <a href="https://www.generativelayers.com/" target="_blank" style="color:var(--color-green-700);">https://www.generativelayers.com/</a></li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Journals -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-journals')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-star" style="font-size:13px;color:#eab308;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Top Journals <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">(AI, TOSEM, KER, MIS Quarterly) — 5 refs</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-journals')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-journals" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="2" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>P. R. Cohen and H. J. Levesque. 1990. Intention is Choice with Commitment. <em>Artificial Intelligence</em> 42, 2–3, 213–261.</li>
-                <li>M. Wooldridge and N. R. Jennings. 1995. Intelligent Agents: Theory and Practice. <em>The Knowledge Engineering Review</em> 10, 2, 115–152.</li>
-                <li>A. R. Hevner, S. T. March, J. Park, and S. Ram. 2004. Design Science in Information Systems Research. <em>MIS Quarterly</em> 28, 1, 75–105.</li>
-                <li>F. Zambonelli, N. R. Jennings, and M. Wooldridge. 2003. Developing Multiagent Systems: The Gaia Methodology. <em>ACM Trans. Softw. Eng. Methodol.</em> 12, 3, 317–370.</li>
-                <li>Y. Wang, W. Zhong, Y. Huang, E. Shi, M. Yang, J. Chen, H. Li, Y. Ma, Q. Wang, and Z. Zheng. 2025. Agents in Software Engineering: Survey, Landscape, and Vision. <em>Autom. Softw. Eng.</em> 32, 2, art. 70.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Other Journals -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-otherjournals')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-journal-whills" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Other Journals <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 6 refs</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-otherjournals')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-otherjournals" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="7" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>M. E. Bratman, D. J. Israel, and M. E. Pollack. 1988. Plans and Resource-Bounded Practical Reasoning. <em>Computational Intelligence</em> 4, 349–355.</li>
-                <li>O. Boissier, R. H. Bordini, J. F. Hübner, A. Ricci, and A. Santi. 2013. Multi-agent Oriented Programming with JaCaMo. <em>Sci. Comput. Program.</em> 78, 6, 747–761.</li>
-                <li>S. Sardina and L. Padgham. 2011. A BDI Agent Programming Language with Failure Handling, Declarative Goals, and Planning. <em>Auton. Agents Multi-Agent Syst.</em> 23, 1, 18–70.</li>
-                <li>M. Dastani. 2008. 2APL: A Practical Agent Programming Language. <em>Auton. Agents Multi-Agent Syst.</em> 16, 3, 214–248.</li>
-                <li>K. Peffers, T. Tuunanen, M. A. Rothenberger, and S. Chatterjee. 2007. A Design Science Research Methodology for Information Systems Research. <em>J. Manage. Inf. Syst.</em> 24, 3, 45–77.</li>
-                <li>Z. Xi, W. Chen, X. Guo, W. He, Y. Ding, B. Hong, M. Zhang, J. Wang, S. Jin, E. Zhou, R. Zheng, X. Fan, X. Wang, L. Xiong, Y. Zhou, W. Wang, C. Jiang, Y. Zou, X. Liu, Z. Yin, S. Dou, R. Weng, W. Qin, Y. Zheng, X. Qiu, X. Huang, Q. Zhang, and T. Gui. 2025. The Rise and Potential of Large Language Model Based Agents: A Survey. <em>Sci. China Inf. Sci.</em> 68, 2, art. 121101.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Books -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-books')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-book-open" style="font-size:13px;color:#a78bfa;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Books <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 1 ref</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-books')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-books" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="13" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>R. H. Bordini, J. F. Hübner, and M. Wooldridge. 2007. <em>Programming Multi-Agent Systems in AgentSpeak using Jason</em>. Wiley, Chichester, UK.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Conferences -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-topconf')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-award" style="font-size:13px;color:#f59e0b;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Top Conferences <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">(AAMAS, AAAI, ICMAS, NeurIPS) — 10 refs</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-topconf')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-topconf" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="14" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>A. S. Rao and M. P. Georgeff. 1995. BDI Agents: From Theory to Practice. In <em>Proc. 1st Int. Conf. Multi-Agent Systems (ICMAS-95)</em>. 312–319.</li>
-                <li>M. P. Georgeff and A. L. Lansky. 1987. Reactive Reasoning and Planning. In <em>Proc. AAAI-87</em>. 677–682.</li>
-                <li>M. E. Pollack and M. Ringuette. 1990. Introducing the Tileworld. In <em>Proc. AAAI-90</em>. 183–189.</li>
-                <li>A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin. 2017. Attention Is All You Need. In <em>Advances in Neural Information Processing Systems</em> 30 (NeurIPS 2017). 6000–6010.</li>
-                <li>P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. Küttler, M. Lewis, W. Yih, T. Rocktäschel, S. Riedel, and D. Kiela. 2020. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. In <em>Advances in Neural Information Processing Systems</em> 33 (NeurIPS 2020). 9459–9474.</li>
-                <li>J. Wei, X. Wang, D. Schuurmans, M. Bosma, B. Ichter, F. Xia, E. Chi, Q. V. Le, and D. Zhou. 2022. Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. In <em>Advances in Neural Information Processing Systems</em> 35 (NeurIPS 2022). 24824–24837.</li>
-                <li>A. Madaan, N. Tandon, P. Gupta, S. Hallinan, L. Gao, S. Wiegreffe, U. Alon, N. Dziri, S. Prabhumoye, Y. Yang, S. Gupta, B. P. Majumder, K. Hermann, S. Welleck, A. Yazdanbakhsh, and P. Clark. 2023. Self-Refine: Iterative Refinement with Self-Feedback. In <em>Advances in Neural Information Processing Systems</em> 36 (NeurIPS 2023). 46534–46594.</li>
-                <li>A. Y. Ichida, F. Meneguzzi, and R. C. Cardoso. 2024. BDI Agents in Natural Language Environments. In <em>Proc. AAMAS 2024</em>. IFAAMAS, 880–888.</li>
-                <li>A. Gatti, V. Mascardi, and A. Ferrando. 2025. ChatBDI: Think BDI, Talk LLM. In <em>Proc. AAMAS 2025</em>. IFAAMAS/ACM, 2541–2543.</li>
-                <li>A. Ricci, S. Mariani, F. Zambonelli, S. Burattini, and C. Castelfranchi. 2024. The Cognitive Hourglass: Agent Abstractions in the Large Models Era. In <em>Proc. AAMAS 2024</em>. IFAAMAS, 2706–2711.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Other Conferences, Workshops, Book Chapters -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-otherconf')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-users-rectangle" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Conferences, Workshops &amp; Book Chapters <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 11 refs</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-otherconf')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-otherconf" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="24" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>A. S. Rao. 1996. AgentSpeak(L): BDI Agents Speak Out in a Logical Computable Language. In <em>MAAMAW 1996</em> (LNAI 1038). Springer, 42–55.</li>
-                <li>R. W. Collier, S. E. Russell, and D. Lillis. 2015. Reflecting on Agent Programming with AgentSpeak(L). In <em>PRIMA 2015</em> (LNCS 9387). Springer, 351–366.</li>
-                <li>R. H. Bordini and J. F. Hübner. 2006. BDI Agent Programming in AgentSpeak using Jason. In <em>CLIMA VI</em> (LNAI 3900). Springer, 143–164.</li>
-                <li>A. Ricci, R. H. Bordini, J. F. Hübner, and R. Collier. 2019. AgentSpeak(ER): Enhanced Encapsulation in Agent Plans. In <em>EMAS 2018</em> (LNAI 11375). Springer, 34–51.</li>
-                <li>A. Ricci, M. Piunti, and M. Viroli. 2011. Environment Programming in Multi-Agent Systems: An Artifact-Based Perspective. <em>Auton. Agents Multi-Agent Syst.</em> 23, 2, 158–192.</li>
-                <li>R. Collier, K. Beaumont, and A. Ciortea. 2026. astra-langchain4j: Experiences Combining LLMs and Agent Programming. In <em>EUMAS 2025</em> (LNCS 16258–16259). Springer. arXiv:2601.21879.</li>
-                <li>R. Collier, K. Beaumont, and A. Ciortea. 2026. Towards a Distinct Programming Style for AgentSpeak(L). In <em>EUMAS 2025</em> (LNCS 16258–16259). Springer.</li>
-                <li>D. Briola, R. Collier, A. Ferrando, V. Mascardi, and A. Ricci. 2025. Agent Toolkits Anno 2025: Where We Are, Where We Go. In <em>Agents and MAS Development</em>. Springer, Ch. 1, 1–25.</li>
-                <li>K. Beaumont and R. Collier. 2025. Fully Embedded Learning in BDI Agents Programmed in ASTRA. In <em>Agents and MAS Development</em>. Springer, Ch. 10, 261–286.</li>
-                <li>A. Ferrando, A. Gatti, and V. Mascardi. 2025. MEDiTATe: From BDI to Neuroscience, and Back. In <em>EMAS 2025</em> (LNAI 16407). 117–140.</li>
-                <li>K. Beaumont, E. Yan, and R. Collier. 2025. Towards an Ontology for Uniform Representations of Agent State. In <em>HyperAgents Workshop 2025</em> (CEUR-WS vol. 4084). 103–116.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Theses -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-theses')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-scroll" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Theses <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 1 ref</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-theses')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-theses" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="35" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
                 <li>R. Battistini. 2025. Exploiting GenAI for Plan Generation in BDI Agents. M.S. thesis. Univ. Bologna, Italy.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- Online, Preprints -->
-        <div class="card" style="padding:0;margin-bottom:12px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('ref-online')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-globe" style="font-size:13px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Online, Preprints &amp; White Papers <span style="color:var(--color-text-muted);font-weight:400;font-size:12px;margin-left:6px;">— 7 refs</span></span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('ref-online')"><i class="fa-solid fa-eye"></i></button>
-          </div>
-          <div class="pattern-detail" id="detail-ref-online" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <ol start="36" style="font-size:13px;line-height:1.8;color:var(--color-text-secondary);padding-left:24px;margin:12px 0 0;">
-                <li>OpenAI. 2023. GPT-4 Technical Report. arXiv:2303.08774.</li>
-                <li>Y. Shavit, S. Agarwal, M. Brundage, S. Adler, C. O'Keefe, R. Campbell, T. Lee, P. Mishkin, T. Eloundou, A. Hickey, K. Slama, L. Ahmad, P. McMillan, A. Beutel, A. Passos, and D. G. Robinson. 2023. Practices for Governing Agentic AI Systems. OpenAI White Paper.</li>
-                <li>LangChain4j. 2024. LangChain4j Documentation. <a href="https://docs.langchain4j.dev/" target="_blank" style="color:var(--color-green-700);">https://docs.langchain4j.dev/</a></li>
-                <li>R. Collier. 2024. ASTRA Language Guide. <a href="https://guide.astralanguage.com/en/latest/" target="_blank" style="color:var(--color-green-700);">https://guide.astralanguage.com/</a></li>
+                <li>K. Beaumont and R. Collier. 2025. Fully Embedded Learning in BDI Agents Programmed in ASTRA. In <em>Agents and MAS Development</em>. Springer, Ch. 10, 261–286.</li>
+                <li>K. Beaumont, E. Yan, and R. Collier. 2025. Towards an Ontology for Uniform Representations of Agent State. In <em>HyperAgents Workshop 2025</em> (CEUR-WS vol. 4084). 103–116.</li>
+                <li>O. Boissier, R. H. Bordini, J. F. Hübner, A. Ricci, and A. Santi. 2013. Multi-agent Oriented Programming with JaCaMo. <em>Sci. Comput. Program.</em> 78, 6, 747–761.</li>
+                <li>R. H. Bordini and J. F. Hübner. 2006. BDI Agent Programming in AgentSpeak using Jason. In <em>CLIMA VI</em> (LNAI 3900). Springer, 143–164.</li>
+                <li>R. H. Bordini, J. F. Hübner, and M. Wooldridge. 2007. <em>Programming Multi-Agent Systems in AgentSpeak using Jason</em>. Wiley, Chichester, UK.</li>
                 <li>R. H. Bordini and J. F. Hübner. 2024. Jason: AgentSpeak(L) Interpreter. <a href="http://jason-lang.github.io/" target="_blank" style="color:var(--color-green-700);">http://jason-lang.github.io/</a></li>
+                <li>M. E. Bratman, D. J. Israel, and M. E. Pollack. 1988. Plans and Resource-Bounded Practical Reasoning. <em>Computational Intelligence</em> 4, 349–355.</li>
+                <li>D. Briola, R. Collier, A. Ferrando, V. Mascardi, and A. Ricci. 2025. Agent Toolkits Anno 2025: Where We Are, Where We Go. In <em>Agents and MAS Development</em>. Springer, Ch. 1, 1–25.</li>
+                <li>P. R. Cohen and H. J. Levesque. 1990. Intention is Choice with Commitment. <em>Artificial Intelligence</em> 42, 2–3, 213–261.</li>
+                <li>R. Collier. 2024. ASTRA Language Guide. <a href="https://guide.astralanguage.com/en/latest/" target="_blank" style="color:var(--color-green-700);">https://guide.astralanguage.com/</a></li>
+                <li>R. W. Collier, S. E. Russell, and D. Lillis. 2015. Reflecting on Agent Programming with AgentSpeak(L). In <em>PRIMA 2015</em> (LNCS 9387). Springer, 351–366.</li>
+                <li>R. Collier, K. Beaumont, and A. Ciortea. 2026. astra-langchain4j: Experiences Combining LLMs and Agent Programming. In <em>EUMAS 2025</em> (LNCS 16258–16259). Springer.</li>
+                <li>R. Collier, K. Beaumont, and A. Ciortea. 2026. Towards a Distinct Programming Style for AgentSpeak(L). In <em>EUMAS 2025</em> (LNCS 16258–16259). Springer.</li>
+                <li>M. Dastani. 2008. 2APL: A Practical Agent Programming Language. <em>Auton. Agents Multi-Agent Syst.</em> 16, 3, 214–248.</li>
+                <li>A. Ferrando, A. Gatti, and V. Mascardi. 2025. MEDiTATe: From BDI to Neuroscience, and Back. In <em>EMAS 2025</em> (LNAI 16407). 117–140.</li>
+                <li>A. Gatti, V. Mascardi, and A. Ferrando. 2025. ChatBDI: Think BDI, Talk LLM. In <em>Proc. AAMAS 2025</em>. IFAAMAS, Detroit, MI, 2541–2543.</li>
+                <li>M. P. Georgeff and A. L. Lansky. 1987. Reactive Reasoning and Planning. In <em>Proc. AAAI-87</em>. Seattle, WA, 677–682.</li>
+                <li>A. R. Hevner, S. T. March, J. Park, and S. Ram. 2004. Design Science in Information Systems Research. <em>MIS Quarterly</em> 28, 1, 75–105.</li>
+                <li>A. Y. Ichida, F. Meneguzzi, and R. C. Cardoso. 2024. BDI Agents in Natural Language Environments. In <em>Proc. AAMAS 2024</em>. IFAAMAS, Auckland, New Zealand, 880–888.</li>
+                <li>D. Kyriakidis and R. Collier. 2026. Generative Layers. <a href="https://www.generativelayers.com/" target="_blank" style="color:var(--color-green-700);">https://www.generativelayers.com/</a></li>
                 <li>D. Kyriakidis. 2026. ASTRA Diagnostics for VS Code. <a href="https://gitlab.com/kyriakidis.demetrios/astra-diagnostics-vscode" target="_blank" style="color:var(--color-green-700);">https://gitlab.com/kyriakidis.demetrios/astra-diagnostics-vscode</a></li>
                 <li>D. Kyriakidis. 2026. Jason Diagnostics for VS Code. <a href="https://gitlab.com/kyriakidis.demetrios/jason-diagnostics-vscode" target="_blank" style="color:var(--color-green-700);">https://gitlab.com/kyriakidis.demetrios/jason-diagnostics-vscode</a></li>
+                <li>LangChain4j. 2024. LangChain4j Documentation. <a href="https://docs.langchain4j.dev/" target="_blank" style="color:var(--color-green-700);">https://docs.langchain4j.dev/</a></li>
+                <li>P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. Küttler, M. Lewis, W. Yih, T. Rocktäschel, S. Riedel, and D. Kiela. 2020. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. In <em>Advances in Neural Information Processing Systems</em> 33 (NeurIPS 2020). 9459–9474.</li>
+                <li>A. Madaan, N. Tandon, P. Gupta, S. Hallinan, L. Gao, S. Wiegreffe, U. Alon, N. Dziri, S. Prabhumoye, Y. Yang, S. Gupta, B. P. Majumder, K. Hermann, S. Welleck, A. Yazdanbakhsh, and P. Clark. 2023. Self-Refine: Iterative Refinement with Self-Feedback. In <em>Advances in Neural Information Processing Systems</em> 36 (NeurIPS 2023). 46534–46594.</li>
+                <li>OpenAI. 2023. GPT-4 Technical Report. arXiv:2303.08774.</li>
+                <li>K. Peffers, T. Tuunanen, M. A. Rothenberger, and S. Chatterjee. 2007. A Design Science Research Methodology for Information Systems Research. <em>J. Manage. Inf. Syst.</em> 24, 3, 45–77.</li>
+                <li>M. E. Pollack and M. Ringuette. 1990. Introducing the Tileworld: Experimentally Evaluating Agent Architectures. In <em>Proc. AAAI-90</em>. Boston, MA, 183–189.</li>
+                <li>A. S. Rao and M. P. Georgeff. 1995. BDI Agents: From Theory to Practice. In <em>Proc. 1st Int. Conf. Multi-Agent Systems (ICMAS-95)</em>. San Francisco, CA, 312–319.</li>
+                <li>A. S. Rao. 1996. AgentSpeak(L): BDI Agents Speak Out in a Logical Computable Language. In <em>MAAMAW 1996</em> (LNAI 1038). Springer, 42–55.</li>
+                <li>A. Ricci, M. Piunti, and M. Viroli. 2011. Environment Programming in Multi-Agent Systems: An Artifact-Based Perspective. <em>Auton. Agents Multi-Agent Syst.</em> 23, 2, 158–192.</li>
+                <li>A. Ricci, R. H. Bordini, J. F. Hübner, and R. Collier. 2019. AgentSpeak(ER): Enhanced Encapsulation in Agent Plans. In <em>EMAS 2018</em> (LNAI 11375). Springer, 34–51.</li>
+                <li>A. Ricci, S. Mariani, F. Zambonelli, S. Burattini, and C. Castelfranchi. 2024. The Cognitive Hourglass: Agent Abstractions in the Large Models Era. In <em>Proc. AAMAS 2024</em>. IFAAMAS, Auckland, New Zealand, 2706–2711.</li>
+                <li>S. Sardina and L. Padgham. 2011. A BDI Agent Programming Language with Failure Handling, Declarative Goals, and Planning. <em>Auton. Agents Multi-Agent Syst.</em> 23, 1, 18–70.</li>
+                <li>Y. Shavit, S. Agarwal, M. Brundage, S. Adler, C. O'Keefe, R. Campbell, T. Lee, P. Mishkin, T. Eloundou, A. Hickey, K. Slama, L. Ahmad, P. McMillan, A. Beutel, A. Passos, and D. G. Robinson. 2023. Practices for Governing Agentic AI Systems. OpenAI White Paper.</li>
+                <li>A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin. 2017. Attention Is All You Need. In <em>Advances in Neural Information Processing Systems</em> 30 (NeurIPS 2017). 6000–6010.</li>
+                <li>Y. Wang, W. Zhong, Y. Huang, E. Shi, M. Yang, J. Chen, H. Li, Y. Ma, Q. Wang, and Z. Zheng. 2025. Agents in Software Engineering: Survey, Landscape, and Vision. <em>Autom. Softw. Eng.</em> 32, 2, art. 70.</li>
+                <li>J. Wei, X. Wang, D. Schuurmans, M. Bosma, B. Ichter, F. Xia, E. Chi, Q. V. Le, and D. Zhou. 2022. Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. In <em>Advances in Neural Information Processing Systems</em> 35 (NeurIPS 2022). 24824–24837.</li>
+                <li>M. Wooldridge and N. R. Jennings. 1995. Intelligent Agents: Theory and Practice. <em>The Knowledge Engineering Review</em> 10, 2, 115–152.</li>
+                <li>Z. Xi, W. Chen, X. Guo, W. He, Y. Ding, B. Hong, M. Zhang, J. Wang, S. Jin, E. Zhou, R. Zheng, X. Fan, X. Wang, L. Xiong, Y. Zhou, W. Wang, C. Jiang, Y. Zou, X. Liu, Z. Yin, S. Dou, R. Weng, W. Qin, Y. Zheng, X. Qiu, X. Huang, Q. Zhang, and T. Gui. 2025. The Rise and Potential of Large Language Model Based Agents: A Survey. <em>Sci. China Inf. Sci.</em> 68, 2, art. 121101.</li>
+                <li>F. Zambonelli, N. R. Jennings, and M. Wooldridge. 2003. Developing Multiagent Systems: The Gaia Methodology. <em>ACM Trans. Softw. Eng. Methodol.</em> 12, 3, 317–370.</li>
               </ol>
             </div>
           </div>
