@@ -92,7 +92,6 @@
           <p style="font-size:15px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
             Large Language Models act as probabilistic generators, producing outputs that cannot be trusted implicitly. Generative Layers addresses this by keeping raw outputs as candidate material outside the host agent's belief base. The host agent operates as a symbolic gatekeeper: it inspects fields, records peer review or other evidence, previews admissibility, and then records a final accept or reject decision. Acceptance does not automatically insert a BDI belief; it makes the candidate accepted GL-side knowledge, after which the host agent may explicitly materialise selected fields using its own belief-update or domain-action mechanisms.
           </p>
-          <a class="repo-link" href="https://github.com/generativelayers/examples/tree/main" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View current examples repository</a>
         </div>
         <div class="pattern-summary">
           <div class="card"><strong>Candidate lifecycle</strong><div class="pattern-status">LLM result -> candidate -> evidence/admissibility -> explicit accept/reject.</div></div>
