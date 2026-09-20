@@ -47,7 +47,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js"></script>
-  <style>.badge-private{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:#fef3cd;color:#856404;border:1px solid #ffc107;margin-left:6px;vertical-align:middle}</style>
+  <style>.badge-private{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:#fef3cd;color:#856404;border:1px solid #ffc107;margin-left:6px;vertical-align:middle}.repo-card.disabled{opacity:.5;pointer-events:none;cursor:default;filter:grayscale(30%)}</style>
 </head>
 <body>
 
@@ -87,7 +87,7 @@
       <h2 style="margin-top:24px"><i class="fa-brands fa-github" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Core Repositories</h2>
 
       <div class="repo-grid" id="github-repositories">
-        <a class="repo-card" href="#">
+        <a class="repo-card disabled" href="#">
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
             <span class="badge-lang badge-java">Java</span>
@@ -99,7 +99,7 @@
             <span class="repo-meta"><i class="fa-brands fa-github"></i> GitHub</span>
           </div>
         </a>
-        <a class="repo-card" href="#">
+        <a class="repo-card disabled" href="#">
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
             <span class="badge-lang badge-agentspeak">AgentSpeak</span>
@@ -117,7 +117,7 @@
       <h2 style="margin-top:48px"><i class="fa-solid fa-screwdriver-wrench" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Companion Tools</h2>
 
       <div class="repo-grid">
-        <a class="repo-card" href="#" style="border-left-color:#e24329">
+        <a class="repo-card disabled" href="#" style="border-left-color:#e24329">
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> astra-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
@@ -129,7 +129,7 @@
             <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
           </div>
         </a>
-        <a class="repo-card" href="#" style="border-left-color:#e24329">
+        <a class="repo-card disabled" href="#" style="border-left-color:#e24329">
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> jason-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
