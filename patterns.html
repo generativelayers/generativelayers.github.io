@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js"></script>
+  <script src="js/inline-sources.js"></script>
   <script defer src="js/run-code-links.js"></script>
   <style>
     .pattern-summary { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0; }
@@ -213,6 +214,13 @@
     }
 
     const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/examples/main/';
+    function escapeHtml(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    async function loadSource(path) {
+      if (window.__INLINE_SOURCES && window.__INLINE_SOURCES[path]) return window.__INLINE_SOURCES[path];
+      const response = await fetch(RAW_BASE + path, { cache:'no-cache' });
+      if (!response.ok) throw new Error('Could not load ' + path);
+      return response.text();
+    }
     const PATTERNS = [
       { id:'simple-validation', title:'Pattern 1 - Simple Validation', icon:'fa-check-circle', description:'Validates response structure and records an explicit accept or reject outcome. Any host belief update remains a separate agent-program step.', checks:['Schema format','Candidate validity','Explicit accept/reject'], files:{ ASTRA:'astra/acceptance-patterns/pattern-1-simple-validation/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-1-simple-validation/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-1-simple-validation/src/agt/main.asl' } },
       { id:'content-inspection', title:'Pattern 2 - Content Inspection', icon:'fa-magnifying-glass', description:'Validates response structure and inspects extracted fields against the agent\'s symbolic domain constraints before any adoption decision.', checks:['Schema validity','Known category','Reject unknown content'], files:{ ASTRA:'astra/acceptance-patterns/pattern-2-content-inspection/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-2-content-inspection/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-2-content-inspection/src/agt/main.asl' } },
@@ -224,8 +232,6 @@
       { id:'iterative-refinement', title:'Pattern 8 - Iterative Refinement', icon:'fa-arrows-rotate', description:'Executes a feedback loop where validation errors feed back into the prompt, accepting only the final refined candidate.', checks:['Draft text passed forward','Check text passed forward','Final candidate accepted'], files:{ ASTRA:'astra/acceptance-patterns/pattern-8-iterative-refinement/src/main/astra/PatternRunner.astra', Jason:'jason/acceptance-patterns/pattern-8-iterative-refinement/src/main/asl/main.asl', JaCaMo:'jacamo/acceptance-patterns/pattern-8-iterative-refinement/src/agt/main.asl' } }
     ];
 
-    function escapeHtml(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-    async function loadSource(path) { const response = await fetch(RAW_BASE + path, { cache:'no-cache' }); if (!response.ok) throw new Error('Could not load ' + path); return response.text(); }
     function toArray(val) { return Array.isArray(val) ? val : [val]; }
     function basename(path) { return path.split('/').pop(); }
 
