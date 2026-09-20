@@ -13,17 +13,19 @@
   const CLIENT_ID = '814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com';
   let initialRenderDone = false;
 
-  // When auth is disabled, hide the panel and make all auth functions no-ops
+  // When auth is disabled, keep the panel hidden and make all auth functions no-ops
   if (!REQUIRE_LOGIN) {
-    document.addEventListener('DOMContentLoaded', () => {
-      const panel = document.getElementById('glAuthPanel');
-      if (panel) panel.style.display = 'none';
-    });
     window.handleGoogleLogin = function() {};
     window.__glRefreshTokenIfNeeded = function() { return Promise.resolve(false); };
     window.glRenderAuthPanel = function() {};
     return;
   }
+
+  // Auth is enabled — unhide the panel (starts hidden in HTML to prevent flash)
+  document.addEventListener('DOMContentLoaded', () => {
+    const panel = document.getElementById('glAuthPanel');
+    if (panel) panel.style.display = '';
+  });
 
   function parseJwt(token) {
     try {
