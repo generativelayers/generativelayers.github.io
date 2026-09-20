@@ -47,7 +47,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js"></script>
-  <style>.badge-private{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:#e8eaf6;color:#3949ab;border:1px solid #7986cb;margin-left:6px;vertical-align:middle}.repo-card-notice{font-size:12px;color:var(--color-text-muted);font-style:italic;margin-top:8px}</style>
+  <style>.badge-private{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;margin-left:6px;vertical-align:middle}.review-banner{background:var(--color-green-50,#f0fdf4);border:1px solid var(--color-green-200,#bbf7d0);border-radius:8px;padding:12px 16px;font-size:13.5px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:20px;display:flex;align-items:center;gap:10px}</style>
 </head>
 <body>
 
@@ -83,6 +83,7 @@
     <!-- Main -->
     <main class="main">
       <h1>Repositories</h1>
+      <div class="review-banner"><i class="fa-solid fa-lock" style="font-size:16px;color:var(--color-green-700);flex-shrink:0"></i>All source repositories are temporarily private during the peer review process. They will be made public upon acceptance.</div>
 
       <h2 style="margin-top:24px"><i class="fa-brands fa-github" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Core Repositories</h2>
 
@@ -91,9 +92,9 @@
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
             <span class="badge-lang badge-java">Java</span>
-            <span class="badge-private">Under Review</span>
+            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
-          <p>The core Java framework containing the transactional governance kernel, the out-of-band policy engine, and integration adapters.</p><div class="repo-card-notice">Source code is private during the review process.</div>
+          <p>The core Java framework containing the transactional governance kernel, the out-of-band policy engine, and integration adapters.</p>
           <div class="repo-card-footer">
             <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
             <span class="repo-meta"><i class="fa-brands fa-github"></i> GitHub</span>
@@ -103,9 +104,9 @@
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
             <span class="badge-lang badge-agentspeak">AgentSpeak</span>
-            <span class="badge-private">Under Review</span>
+            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
-          <p>A suite of multi-agent BDI system examples across multiple runtime environments.</p><div class="repo-card-notice">Source code is private during the review process.</div>
+          <p>A suite of multi-agent BDI system examples across multiple runtime environments.</p>
           <div class="repo-card-footer">
             <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> Apache 2.0</span>
             <span class="repo-meta"><i class="fa-brands fa-github"></i> GitHub</span>
@@ -121,9 +122,9 @@
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> astra-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
-            <span class="badge-private">Under Review</span>
+            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
-          <p>Provides syntactic validation and semantics checking.</p><div class="repo-card-notice">Source code is private during the review process.</div>
+          <p>Provides syntactic validation and semantics checking.</p>
           <div class="repo-card-footer">
             <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> MIT</span>
             <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
@@ -133,9 +134,9 @@
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> jason-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
-            <span class="badge-private">Under Review</span>
+            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
-          <p>Provides syntactic validation and semantics checking.</p><div class="repo-card-notice">Source code is private during the review process.</div>
+          <p>Provides syntactic validation and semantics checking.</p>
           <div class="repo-card-footer">
             <span class="repo-meta"><i class="fa-solid fa-scale-balanced"></i> MIT</span>
             <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
