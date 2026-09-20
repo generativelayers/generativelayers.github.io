@@ -280,7 +280,109 @@ rule +!maybe_accept(string cid, string adm, string item) {
         </div>
       </section>
 
-</main>
+      <!-- Future Directions -->
+      <section class="info-panel" id="future-directions">
+        <h2><i class="fa-solid fa-telescope" style="margin-right:8px;color:var(--color-green-700);font-size:20px;"></i>Future Directions</h2>
+        <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:20px;">
+          The following scenarios show more ambitious uses of the same GL ideas. They were not implemented or evaluated, but they illustrate the range of systems that the GL lifecycle and governance model could support. BDI is important in these scenarios because GL does not prescribe how the whole system must be implemented, while BDI already provides mature semantics.
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;">
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-rotate" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.1 &mdash; Self-Revising Agent</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">An ASTRA agent asks a language model to revise part of its own program. The revised code remains candidate material until the agent examines it and decides whether to keep it.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> ASTRA plans and recompilation.<br>
+              <strong>GL:</strong> call, candidate, get, accept, reject. <em>Patterns 6 &amp; 8.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-brain" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.2 &mdash; AI and Symbolic Knowledge</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">AI processes reports, documents or other unstructured information before suggesting facts or links between them. The resulting material remains as candidate material until BDI agents decide what should become symbolic knowledge.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> belief bases, test goals, plan context conditions.<br>
+              <strong>GL:</strong> call, candidate, get, judge, knowledge, accept, reject. <em>Pattern 6.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-sitemap" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.3 &mdash; BDI Orchestration of Agentic AI</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">A BDI agent supervises several agentic AI systems. One generates work, another tests it and another reviews it, while the BDI agent determines whether another round is needed or the result can be accepted.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> goals, FIPA communication, plan control.<br>
+              <strong>GL:</strong> call, candidate, judge, accept, reject, explain. <em>Patterns 5 &amp; 8.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-users-rectangle" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.4 &mdash; Autonomous Reviewer Organisation</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">A group of reviewer agents operates without human approval. Different agents generate, criticise, verify and reassess the same material before an authorised agent makes the final decision.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> FIPA Request/Inform, organisational roles.<br>
+              <strong>GL:</strong> call, candidate, judge, accept, reject, explain. <em>Patterns 4, 5 &amp; 7.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-code-branch" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.5 &mdash; Autonomous AI Software Organisation</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">Requirements, architecture, coding, testing and review agents work as an autonomous software organisation. Generated designs or code remain candidates until the relevant agents approve their use.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> FIPA communication, Moise roles, plan execution.<br>
+              <strong>GL:</strong> call, candidate, get, judge, accept, reject, explain. <em>Patterns 5, 6 &amp; 8.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-flask-vial" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.6 &mdash; Autonomous Scientific Institute</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">Researcher agents generate hypotheses while other agents examine evidence, criticise methods or propose alternatives. A large number of ideas remain under review without becoming accepted organisational knowledge.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> FIPA communication, organisational roles.<br>
+              <strong>GL:</strong> repeated call/candidate, judge, accept, reject, explain. <em>Patterns 4, 5, 7 &amp; 8.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-globe" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.7 &mdash; AI-Generated Symbolic World Model</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">AI continuously interprets large amounts of changing information and suggests updates to a symbolic model of the environment. BDI agents check these proposals against observations before using them.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> CArtAgO artifacts, observable properties, test goals.<br>
+              <strong>GL:</strong> call, candidate, get, judge, knowledge, accept, reject. <em>Pattern 6.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-truck-fast" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.8 &mdash; Autonomous Global Logistics</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">Agents represent warehouses, vehicles, suppliers and regional controllers. AI generates forecasts, routes and contingency plans while different levels of the organisation decide what should affect actual operations.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> CArtAgO artifacts, FIPA communication, Moise roles.<br>
+              <strong>GL:</strong> call, candidate, judge, accept, reject, explain. <em>Patterns 5, 6 &amp; 7.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-shield-halved" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.9 &mdash; National Intelligence Analysis</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">Different agents analyse reports from different sources, while generative models produce interpretations, summaries or competing assessments. Reviewer agents compare them with existing information before anything becomes accepted organisational knowledge.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> organisational roles, FIPA communication, belief-based checks.<br>
+              <strong>GL:</strong> call, candidate, get, judge, accept, reject, explain. <em>Patterns 4, 5 &amp; 6.</em>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;">
+            <h3 style="margin:0 0 6px;font-size:15px;"><i class="fa-solid fa-arrows-spin" style="margin-right:6px;color:var(--color-green-700);font-size:13px;"></i>B.10 &mdash; Self-Evolving Organisation</h3>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0 0 8px;">A JaCaMo organisation generates proposals for new roles, responsibilities or coordination rules. The proposal remains candidate material until the existing organisation decides whether it should be adopted.</p>
+            <div style="font-size:12px;color:var(--color-text-muted);line-height:1.6;">
+              <strong>BDI:</strong> Moise roles, organisational rules.<br>
+              <strong>GL:</strong> candidate, judge, decide, accept, reject. <em>Patterns 5 &amp; 7.</em>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <script>
