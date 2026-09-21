@@ -15,7 +15,7 @@
     const isPom = pathEl.textContent.trim().endsWith('pom.xml');
 
     if (isPom) {
-      editor.style.filter = 'blur(4px)';
+      editor.style.filter = 'blur(10px)';
       editor.style.pointerEvents = 'none';
       editor.style.userSelect = 'none';
 
