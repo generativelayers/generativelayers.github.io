@@ -1,80 +1,50 @@
 /**
  * blur-deps.js
- * When pom.xml is displayed in the code editor, overlays a small blur
- * on the GL dependency lines. The textarea value is NOT modified —
- * the code runs exactly as before. Purely cosmetic for review period.
+ * When pom.xml is the active file in the code runner, blurs the entire
+ * editor area and shows a "redacted during review" overlay.
+ * The textarea value is NOT modified — code runs exactly as before.
  */
 (() => {
-  const BLUR_TEXT = 'com.generativelayers';
   let overlay = null;
 
-  function getEditorAndPath() {
-    const editor = document.getElementById('fileEditor');
+  function update() {
     const pathEl = document.getElementById('currentFile');
-    if (!editor || !pathEl) return null;
-    return { editor, path: pathEl.textContent.trim() };
-  }
-
-  function updateOverlay() {
-    const ctx = getEditorAndPath();
-    if (!ctx) return;
-
-    // Only show overlay when pom.xml is active
-    if (!ctx.path.endsWith('pom.xml')) {
-      if (overlay) overlay.style.display = 'none';
-      return;
-    }
-
-    const val = ctx.editor.value;
-    const lines = val.split('\n');
-    let startLine = -1, endLine = -1;
-
-    // Find the GL dependency block
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes(BLUR_TEXT) && startLine === -1) {
-        // Go back to find <dependency> opening
-        for (let j = i; j >= 0; j--) {
-          if (lines[j].includes('<dependency>')) { startLine = j; break; }
-        }
-        if (startLine === -1) startLine = i;
-      }
-      if (startLine !== -1 && lines[i].includes('</dependency>') && i >= startLine) {
-        endLine = i;
-        break;
-      }
-    }
-
-    if (startLine === -1 || endLine === -1) {
-      if (overlay) overlay.style.display = 'none';
-      return;
-    }
-
-    // Calculate pixel positions
-    const style = window.getComputedStyle(ctx.editor);
-    const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5;
-    const paddingTop = parseFloat(style.paddingTop) || 0;
-    const top = paddingTop + (startLine * lineHeight) - ctx.editor.scrollTop;
-    const height = (endLine - startLine + 1) * lineHeight;
-
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.style.cssText = 'position:absolute;left:0;right:0;backdrop-filter:blur(5px);background:rgba(11,18,32,0.6);pointer-events:none;z-index:5;display:flex;align-items:center;justify-content:center;transition:top 0.1s,height 0.1s;';
-      overlay.innerHTML = '<span style="color:#6ee7b7;font-size:11px;font-weight:600;letter-spacing:0.5px;opacity:0.8;"><i class="fa-solid fa-lock" style="margin-right:5px;font-size:10px;"></i>REDACTED DURING REVIEW</span>';
-      ctx.editor.parentElement.style.position = 'relative';
-      ctx.editor.parentElement.appendChild(overlay);
-    }
-
-    overlay.style.display = 'flex';
-    overlay.style.top = Math.max(0, top) + 'px';
-    overlay.style.height = height + 'px';
-  }
-
-  // Run on file switch, scroll, and periodically
-  document.addEventListener('DOMContentLoaded', () => {
-    setInterval(updateOverlay, 300);
     const editor = document.getElementById('fileEditor');
-    if (editor) {
-      editor.addEventListener('scroll', updateOverlay);
+    if (!pathEl || !editor) return;
+
+    const isPom = pathEl.textContent.trim().endsWith('pom.xml');
+
+    if (isPom) {
+      editor.style.filter = 'blur(4px)';
+      editor.style.pointerEvents = 'none';
+      editor.style.userSelect = 'none';
+
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:none;';
+        overlay.innerHTML = '<div style="background:rgba(11,18,32,0.85);border:1px solid #1f2937;border-radius:10px;padding:16px 24px;text-align:center;pointer-events:none;"><i class="fa-solid fa-lock" style="font-size:18px;color:#6ee7b7;margin-bottom:6px;display:block;"></i><div style="color:#d1fae5;font-size:13px;font-weight:700;">Build file redacted during review</div><div style="color:#6b7280;font-size:11px;margin-top:4px;">Dependency coordinates hidden — code execution is unaffected</div></div>';
+        const wrap = editor.closest('.runner-editor-wrap');
+        if (wrap) {
+          wrap.style.position = 'relative';
+          wrap.appendChild(overlay);
+        }
+      }
+      overlay.style.display = 'flex';
+    } else {
+      editor.style.filter = '';
+      editor.style.pointerEvents = '';
+      editor.style.userSelect = '';
+      if (overlay) overlay.style.display = 'none';
     }
+  }
+
+  // Watch for file switches
+  const obs = new MutationObserver(update);
+  document.addEventListener('DOMContentLoaded', () => {
+    const pathEl = document.getElementById('currentFile');
+    if (pathEl) obs.observe(pathEl, { childList: true, characterData: true, subtree: true });
+    // Also poll as fallback
+    setInterval(update, 500);
+    update();
   });
 })();
