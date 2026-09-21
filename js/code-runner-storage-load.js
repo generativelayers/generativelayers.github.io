@@ -71,16 +71,19 @@
 
     if (!editor) return false;
 
-    // Auto-rename agent class to match default filename (Main.astra)
+    // Auto-rename agent class to match default filename (ASTRA only)
+    var cfg = window.GL_PLATFORM_CONFIG || {};
+    var defaultFile = cfg.defaultFile || '/astra/Main.astra';
+    var platformLabel = cfg.label || 'ASTRA';
     let src = payload.source;
-    if (/agent\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/.test(src)) {
+    if (cfg.id === 'astra' && /agent\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/.test(src)) {
       src = src.replace(/agent\s+[A-Za-z_][A-Za-z0-9_]*/, 'agent Main');
     }
     editor.value = src;
     editor.dispatchEvent(new Event('input', { bubbles: true }));
 
-    if (currentFile) currentFile.textContent = '/astra/Main.astra';
-    if (output) output.textContent = `Loaded: ${payload.title || 'ASTRA example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
+    if (currentFile) currentFile.textContent = defaultFile;
+    if (output) output.textContent = `Loaded: ${payload.title || platformLabel + ' example'}\nCheck required API keys if the example uses an LLM provider, then press "Run Project".`;
     if (status) status.textContent = 'Example loaded';
     if (metaStatus) metaStatus.textContent = 'Loaded';
     if (metaReturnCode) metaReturnCode.textContent = '—';
