@@ -7,6 +7,22 @@
 (() => {
   if (!window.GL_UNDER_REVIEW) return;
 
+  // On load, if pom.xml is selected, switch to the first source file
+  let switched = false;
+  function switchAwayFromPom() {
+    if (switched) return;
+    const pathEl = document.getElementById('currentFile');
+    if (!pathEl) return;
+    if (pathEl.textContent.trim().endsWith('pom.xml')) {
+      const firstSource = document.querySelector('.runner-file[data-path]:not([data-path="/pom.xml"])');
+      if (firstSource) { firstSource.click(); switched = true; }
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(switchAwayFromPom, 300);
+    setTimeout(switchAwayFromPom, 800);
+  });
+
   let coverOverlay = null;
 
   function update() {
