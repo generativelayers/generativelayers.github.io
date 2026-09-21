@@ -7,8 +7,8 @@
 (() => {
   'use strict';
 
-  // Set to true to require Google Sign-In, false to disable auth entirely
-  const REQUIRE_LOGIN = false;
+  // Auth is disabled during review mode (controlled by js/review-config.js)
+  const REQUIRE_LOGIN = !(window.GL_UNDER_REVIEW === true);
 
   const CLIENT_ID = '814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com';
   let initialRenderDone = false;

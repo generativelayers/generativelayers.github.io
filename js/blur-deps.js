@@ -6,6 +6,9 @@
  * The textarea value is NOT modified — code runs exactly as before.
  */
 (() => {
+  // Only active during review mode
+  if (!window.GL_UNDER_REVIEW) return;
+
   let blurOverlay = null;
 
   function update() {
