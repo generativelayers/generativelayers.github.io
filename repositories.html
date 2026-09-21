@@ -158,6 +158,20 @@
       this.classList.remove('open');
     });
   </script>
+  <script>
+    if (window.GL_UNDER_REVIEW) {
+      document.querySelectorAll('.repo-card').forEach(function(card) {
+        card.dataset.realHref = card.href;
+        card.href = '#';
+        card.removeAttribute('target');
+        card.addEventListener('click', function(e) { e.preventDefault(); });
+      });
+    } else {
+      var b = document.getElementById('repoBanner');
+      if (b) b.style.display = 'none';
+      document.querySelectorAll('.badge-private').forEach(function(el) { el.style.display = 'none'; });
+    }
+  </script>
 
 </body>
 </html>
