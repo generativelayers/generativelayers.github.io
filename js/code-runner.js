@@ -1484,6 +1484,9 @@
       if (data && data.files && typeof data.files === 'object') {
         files = data.files;
         currentPath = data.currentPath || Object.keys(files)[0] || DEFAULT_FILE;
+        if (window.GL_UNDER_REVIEW && currentPath === BUILD_FILE) {
+          currentPath = Object.keys(files).find(function(p) { return p !== BUILD_FILE; }) || DEFAULT_FILE;
+        }
         if (Array.isArray(data.emptyFolders)) emptyFolders = new Set(data.emptyFolders);
         return true;
       }
