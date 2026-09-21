@@ -18,6 +18,14 @@
       editor.style.filter = 'blur(10px)';
       editor.style.pointerEvents = 'none';
       editor.style.userSelect = 'none';
+      editor.readOnly = true;
+      editor.blur();
+
+      if (!editor.__blurCopyBlock) {
+        editor.__blurCopyBlock = (e) => e.preventDefault();
+        editor.addEventListener('copy', editor.__blurCopyBlock);
+        editor.addEventListener('cut', editor.__blurCopyBlock);
+      }
 
       if (!overlay) {
         overlay = document.createElement('div');
@@ -34,6 +42,13 @@
       editor.style.filter = '';
       editor.style.pointerEvents = '';
       editor.style.userSelect = '';
+      editor.readOnly = false;
+
+      if (editor.__blurCopyBlock) {
+        editor.removeEventListener('copy', editor.__blurCopyBlock);
+        editor.removeEventListener('cut', editor.__blurCopyBlock);
+        editor.__blurCopyBlock = null;
+      }
       if (overlay) overlay.style.display = 'none';
     }
   }
