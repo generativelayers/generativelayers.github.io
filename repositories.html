@@ -89,7 +89,7 @@
       <h2 style="margin-top:24px"><i class="fa-brands fa-github" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Core Repositories</h2>
 
       <div class="repo-grid" id="github-repositories">
-        <a class="repo-card" href="#">
+        <a class="repo-card" href="https://github.com/generativelayers/generativelayers" target="_blank">
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-cube" style="font-size:14px;margin-right:6px"></i> framework</h3>
             <span class="badge-lang badge-java">Java</span>
@@ -101,7 +101,7 @@
             <span class="repo-meta"><i class="fa-brands fa-github"></i> GitHub</span>
           </div>
         </a>
-        <a class="repo-card" href="#">
+        <a class="repo-card" href="https://github.com/generativelayers/examples" target="_blank">
           <div class="repo-card-header">
             <h3><i class="fa-solid fa-code" style="font-size:14px;margin-right:6px"></i> examples</h3>
             <span class="badge-lang badge-agentspeak">AgentSpeak</span>
@@ -119,11 +119,10 @@
       <h2 style="margin-top:48px"><i class="fa-solid fa-screwdriver-wrench" style="font-size:22px;margin-right:8px;color:var(--color-text-muted)"></i>Companion Tools</h2>
 
       <div class="repo-grid">
-        <a class="repo-card" href="#" style="border-left-color:#e24329">
+        <a class="repo-card" href="https://gitlab.com/kyriakidis.demetrios/astra-diagnostics-vscode" style="border-left-color:#e24329">
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> astra-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
-            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
           <p>Provides syntactic validation and semantics checking.</p>
           <div class="repo-card-footer">
@@ -131,11 +130,10 @@
             <span class="repo-meta"><i class="fa-brands fa-gitlab" style="font-size:12px"></i> GitLab</span>
           </div>
         </a>
-        <a class="repo-card" href="#" style="border-left-color:#e24329">
+        <a class="repo-card" href="https://gitlab.com/kyriakidis.demetrios/jason-diagnostics-vscode" style="border-left-color:#e24329">
           <div class="repo-card-header">
             <h3 style="color:#e24329"><i class="fa-brands fa-gitlab" style="font-size:14px;margin-right:6px"></i> jason-diagnostics</h3>
             <span class="badge-lang badge-vscode">VS Code</span>
-            <span class="badge-private"><i class="fa-solid fa-lock" style="font-size:9px"></i> Review</span>
           </div>
           <p>Provides syntactic validation and semantics checking.</p>
           <div class="repo-card-footer">
@@ -157,29 +155,6 @@
       document.getElementById('sidebar').classList.remove('open');
       this.classList.remove('open');
     });
-  </script>
-  <script>
-    if (!window.GL_UNDER_REVIEW) {
-      // Hide review banner
-      var b = document.getElementById('repoBanner');
-      if (b) b.style.display = 'none';
-      // Hide all review badges
-      document.querySelectorAll('.badge-private').forEach(function(el) { el.style.display = 'none'; });
-      // Restore repo links (currently # during review)
-      var links = {
-        'framework': 'https://github.com/generativelayers/generativelayers',
-        'examples': 'https://github.com/generativelayers/examples',
-        'website': 'https://github.com/generativelayers/generativelayers.github.io',
-        'docs': 'https://github.com/generativelayers/docs'
-      };
-      document.querySelectorAll('.repo-card').forEach(function(card) {
-        var h3 = card.querySelector('h3');
-        if (h3) {
-          var name = h3.textContent.trim().toLowerCase();
-          if (links[name]) card.href = links[name];
-        }
-      });
-    }
   </script>
 
 </body>
