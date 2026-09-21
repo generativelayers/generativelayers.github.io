@@ -19,18 +19,25 @@
     if (!editorWrap) return;
 
     if (isPom) {
-      // Block all interaction with the editor
+      // Completely hide editor content
       editor.readOnly = true;
       editor.blur();
+      editor.style.visibility = 'hidden';
       editor.style.pointerEvents = 'none';
       editor.style.userSelect = 'none';
 
-      // Also block the syntax highlight overlay
+      // Also hide the syntax highlight overlay and clip the wrap
+      const hlWrap = editor.closest('.hl-editor-wrap');
       const hlOverlay = editorWrap.querySelector('.hl-overlay');
       if (hlOverlay) {
+        hlOverlay.style.visibility = 'hidden';
         hlOverlay.style.pointerEvents = 'none';
         hlOverlay.style.userSelect = 'none';
       }
+      if (hlWrap) {
+        hlWrap.style.overflow = 'hidden';
+      }
+      editorWrap.style.overflow = 'hidden';
 
       if (!editor.__blurCopyBlock) {
         editor.__blurCopyBlock = (e) => e.preventDefault();
@@ -49,14 +56,21 @@
       coverOverlay.style.display = 'flex';
     } else {
       editor.readOnly = false;
+      editor.style.visibility = '';
       editor.style.pointerEvents = '';
       editor.style.userSelect = '';
 
+      const hlWrap = editor.closest('.hl-editor-wrap');
       const hlOverlay = editorWrap.querySelector('.hl-overlay');
       if (hlOverlay) {
+        hlOverlay.style.visibility = '';
         hlOverlay.style.pointerEvents = '';
         hlOverlay.style.userSelect = '';
       }
+      if (hlWrap) {
+        hlWrap.style.overflow = '';
+      }
+      editorWrap.style.overflow = '';
 
       if (editor.__blurCopyBlock) {
         editor.removeEventListener('copy', editor.__blurCopyBlock);
