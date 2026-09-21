@@ -6,4 +6,4 @@
  * 
  * To restore everything after review: set UNDER_REVIEW = false
  */
-window.GL_UNDER_REVIEW = true;
+window.GL_UNDER_REVIEW = false;
