@@ -179,52 +179,7 @@ function normalizeProviderFreeTierLabels() {
 }
 
 function installProviderOrdering() {
-  if (currentPageName() !== 'providers.html') return;
-
-  const priority = ['gemini', 'cerebras', 'groq', 'openai', 'deepseek'];
-  const tbody = document.querySelector('tr[onclick*="toggleProviderSetup"]')?.parentElement;
-
-  if (tbody) {
-    priority.forEach(provider => {
-      const row = document.querySelector(`tr[onclick*="toggleProviderSetup('${provider}')"]`);
-      const setup = document.getElementById(`setup-${provider}`);
-      if (row) tbody.appendChild(row);
-      if (setup) tbody.appendChild(setup);
-    });
-  }
-
-  const cards = Array.from(document.querySelectorAll('#providers > .card'));
-  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('openai/gpt-oss-120b'));
-  const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
-
-  if (parent && firstProviderCard) {
-    priority.forEach(provider => {
-      const card = providerCards[provider];
-      if (card) parent.insertBefore(card, firstProviderCard);
-    });
-  }
-
-  if (providerCards.gemini) {
-    const heading = providerCards.gemini.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-diamond" style="margin-right:6px;"></i>Gemini (Primary Option)';
-  }
-
-  if (providerCards.groq) {
-    const heading = providerCards.groq.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq';
-  }
-
-  if (providerCards.cerebras) {
-    const heading = providerCards.cerebras.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras';
-  }
-
-  const switchingExample = document.querySelector('#detail-provider-switching pre code');
-  if (switchingExample) {
-    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
-    replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
-    replaceAllTextNodes('"gpt-oss-120b"', '"openai/gpt-oss-120b"', switchingExample);
-  }
+  // Provider order is now defined directly in the HTML source — no JS reordering needed.
 }
 
 function hideReferenceCounts() {
