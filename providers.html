@@ -107,7 +107,7 @@
                 <!-- Groq -->
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('groq')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://console.groq.com/keys" target="_blank" style="color:#f97316;" onclick="event.stopPropagation();">Groq</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">30 req/min, 14,400/day</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>openai/gpt-oss-120b</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('groq')"><i class="fa-solid fa-eye"></i></button></td>
@@ -121,10 +121,27 @@
                     </div>
                   </td>
                 </tr>
+                <!-- OpenRouter -->
+                <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('openrouter')">
+                  <td style="padding:10px 12px;font-weight:600;"><a href="https://openrouter.ai/keys" target="_blank" style="color:#a855f7;" onclick="event.stopPropagation();">OpenRouter</a></td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free models available</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>openai/gpt-4o-mini</code></td>
+                  <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
+                  <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('openrouter')"><i class="fa-solid fa-eye"></i></button></td>
+                </tr>
+                <tr id="setup-openrouter" style="display:none;">
+                  <td colspan="5" style="padding:0;">
+                    <div style="padding:12px 16px;border-top:1px solid var(--color-border-light);font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+                      <strong style="color:#a855f7;">OpenRouter</strong> &mdash; <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--color-green-700);">openrouter.ai/keys</a><br>
+                      Sign up (free) &rarr; Create API Key &rarr; Export as <code>OPENROUTER_API_KEY</code>
+                      <pre style="background:#1e1e24;padding:10px;border-radius:6px;font-size:12px;margin:8px 0 0;overflow-x:auto;"><code>export OPENROUTER_API_KEY=<span class="string">"sk-or-...your-key-here"</span></code></pre>
+                    </div>
+                  </td>
+                </tr>
                 <!-- Cerebras -->
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('cerebras')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://cloud.cerebras.ai" target="_blank" style="color:#ef4444;" onclick="event.stopPropagation();">Cerebras</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Free (no credit card)</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Depends</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-oss-120b</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('cerebras')"><i class="fa-solid fa-eye"></i></button></td>
@@ -141,7 +158,7 @@
                 <!-- Gemini -->
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('gemini')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://aistudio.google.com/apikey" target="_blank" style="color:#22c55e;" onclick="event.stopPropagation();">Gemini</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">15 req/min, 1,500/day</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Depends</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gemini-2.0-flash</code>, <code>gemini-2.5-flash</code></td>
                   <td style="padding:10px 12px;"><span style="color:#22c55e;font-weight:600;">✓ Tested</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('gemini')"><i class="fa-solid fa-eye"></i></button></td>
@@ -158,7 +175,7 @@
                 <!-- OpenAI -->
                 <tr style="border-bottom:1px solid var(--color-border-light);cursor:pointer;" onclick="toggleProviderSetup('openai')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.openai.com/api-keys" target="_blank" style="color:#3b82f6;" onclick="event.stopPropagation();">OpenAI</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Paid only</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Depends</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>gpt-4o</code>, <code>gpt-4o-mini</code></td>
                   <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('openai')"><i class="fa-solid fa-eye"></i></button></td>
@@ -175,7 +192,7 @@
                 <!-- DeepSeek -->
                 <tr style="cursor:pointer;" onclick="toggleProviderSetup('deepseek')">
                   <td style="padding:10px 12px;font-weight:600;"><a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#8b5cf6;" onclick="event.stopPropagation();">DeepSeek</a></td>
-                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Small initial credit</td>
+                  <td style="padding:10px 12px;color:var(--color-text-secondary);">Depends</td>
                   <td style="padding:10px 12px;color:var(--color-text-secondary);"><code>deepseek-chat</code></td>
                   <td style="padding:10px 12px;"><span style="color:var(--color-text-secondary);">Compatible</span></td>
                   <td style="padding:10px 12px;text-align:center;"><button class="concept-toggle-btn" aria-label="Show setup" style="flex-shrink:0;" onclick="event.stopPropagation();toggleProviderSetup('deepseek')"><i class="fa-solid fa-eye"></i></button></td>
@@ -270,49 +287,47 @@
         </div>
 
         <!-- Custom Provider -->
-        <div class="card" style="padding:0;margin-bottom:16px;border-left:3px solid #06b6d4;cursor:pointer;" onclick="toggleDetail('provider-custom')">
-          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <i class="fa-solid fa-wrench" style="font-size:14px;color:#06b6d4;flex-shrink:0;"></i>
-            <span style="font-weight:600;font-size:14px;flex:1;">Using Any Custom Provider (Zero Code Changes)</span>
-            <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();toggleDetail('provider-custom')"><i class="fa-solid fa-eye"></i></button>
+        <div class="card" style="padding:16px;margin-bottom:16px;border-left:3px solid #06b6d4;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#06b6d4;"><i class="fa-solid fa-plug" style="margin-right:6px;"></i>Connect to Any Provider (endpoint= approach)</div>
+          <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:12px;">
+            LLM providers and their API endpoints change frequently &mdash; new services launch, URLs are restructured, and providers merge or shut down. Because of this, the framework provides an agile <code>endpoint=</code> approach that lets you connect to <strong>any</strong> Chat Completions-compatible API without waiting for a framework update. Simply pass the endpoint URL directly in the bind configuration.
           </div>
-          <div class="pattern-detail" id="detail-provider-custom" style="display:none;" onclick="event.stopPropagation()">
-            <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-              <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:12px 0;">
-                Any endpoint conforming to the standard Chat Completions protocol is supported out of the box with zero framework modifications. Developers simply supply the target gateway URI, model identifier, and key environment variable, allowing immediate integration with Together AI, Fireworks, locally-hosted Ollama instances, LM Studio, Azure OpenAI, or custom model servers.
-              </p>
-              <div class="tabs-container">
-                <div class="tabs-header">
-                  <div class="tabs-buttons">
-                    <button class="tab-btn active" data-tab="prov-custom-astra">ASTRA</button>
-                    <button class="tab-btn" data-tab="prov-custom-jason">Jason</button>
-                    <button class="tab-btn" data-tab="prov-custom-jacamo">JaCaMo</button>
-                  </div>
-                </div>
-                <div class="tab-content active" id="prov-custom-astra">
-                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
-gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"your-model-name"</span>, <span class="string">"endpoint=https://api.your-provider.com/v1/chat/completions,apiKeyEnv=YOUR_API_KEY"</span>);</code></pre>
-                </div>
-                <div class="tab-content" id="prov-custom-jason">
-                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
-gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"your-model-name"</span>, <span class="string">"endpoint=https://api.your-provider.com/v1/chat/completions,apiKeyEnv=YOUR_API_KEY"</span>, Bid);</code></pre>
-                </div>
-                <div class="tab-content" id="prov-custom-jacamo">
-                  <pre><code><span class="comment">// Any OpenAI-compatible endpoint works</span>
-bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"your-model-name"</span>, <span class="string">"endpoint=https://api.your-provider.com/v1/chat/completions,apiKeyEnv=YOUR_API_KEY"</span>, Bid);</code></pre>
-                </div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-custom-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-custom-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-custom-jacamo">JaCaMo</button>
               </div>
-              <div class="card" style="padding:12px 16px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);margin-top:12px;">
-                <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:#06b6d4;"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>Example: xAI Grok, Mistral, Together AI</div>
-                <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;">
-                  Set the API key as an environment variable (e.g. <code>export GROK_API_KEY="xai-..."</code>), then bind:
-                  <pre style="background:#1e1e24;padding:10px;border-radius:5px;font-size:11px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// xAI Grok</span>
-gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"grok-2"</span>, <span class="string">"endpoint=https://api.x.ai/v1/chat/completions,apiKeyEnv=GROK_API_KEY"</span>);
+            </div>
+            <div class="tab-content active" id="prov-custom-astra">
+              <pre><code><span class="comment">// Any provider &mdash; pass the endpoint directly</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"myprovider"</span>, <span class="string">"any-model"</span>, <span class="string">"endpoint=https://api.myprovider.com/v1/chat/completions"</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-custom-jason">
+              <pre><code><span class="comment">// Any provider &mdash; pass the endpoint directly</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"myprovider"</span>, <span class="string">"any-model"</span>, <span class="string">"endpoint=https://api.myprovider.com/v1/chat/completions"</span>, Bid);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-custom-jacamo">
+              <pre><code><span class="comment">// Any provider &mdash; pass the endpoint directly</span>
+bind(<span class="string">"agent1"</span>, <span class="string">"myprovider"</span>, <span class="string">"any-model"</span>, <span class="string">"endpoint=https://api.myprovider.com/v1/chat/completions"</span>, Bid);</code></pre>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-muted);margin-top:10px;line-height:1.5;">
+            The API key is read from <code>{PROVIDER}_API_KEY</code> automatically (e.g. <code>MYPROVIDER_API_KEY</code>). Override with <code>apiKeyEnv=MY_CUSTOM_KEY</code> in the config string if needed.
+          </div>
+          <div class="card" style="padding:12px 16px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);margin-top:12px;">
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:#06b6d4;"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>Examples: Cloudflare, Together AI, Ollama, LM Studio</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;">
+              <pre style="background:#1e1e24;padding:10px;border-radius:5px;font-size:11px;margin:8px 0 0;overflow-x:auto;"><code><span class="comment">// Cloudflare Workers AI</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"cloudflare"</span>, <span class="string">"@cf/meta/llama-3.1-8b-instruct"</span>,
+    <span class="string">"endpoint=https://api.cloudflare.com/client/v4/accounts/YOUR_ID/ai/v1/chat/completions"</span>, Bid);
 
-<span class="comment">// Mistral</span>
-gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompletions"</span>, <span class="string">"mistral-large-latest"</span>, <span class="string">"endpoint=https://api.mistral.ai/v1/chat/completions,apiKeyEnv=MISTRAL_API_KEY"</span>);</code></pre>
-                </div>
-              </div>
+<span class="comment">// Together AI</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"together"</span>, <span class="string">"meta-llama/Meta-Llama-3-8B"</span>, <span class="string">""</span>, Bid);
+
+<span class="comment">// Local Ollama instance</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"ollama"</span>, <span class="string">"llama3"</span>, <span class="string">""</span>, Bid);</code></pre>
             </div>
           </div>
         </div>
@@ -342,7 +357,7 @@ gl.bind(<span class="string">"agent1"</span>, <span class="string">"chatcompleti
         <div class="card" style="padding:16px;border-left:3px solid #06b6d4;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;color:#06b6d4;"></i>Auto-Detection</div>
           <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
-            Omitting the provider parameter during binding triggers a fallback resolution sequence that scans the environment variables. The framework traverses the environment in a fixed priority hierarchy (<code>GROQ_API_KEY</code> &rarr; <code>CEREBRAS_API_KEY</code> &rarr; <code>GEMINI_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>) and automatically selects the first active key. If no external provider key is present, the framework falls back to a deterministic mock engine to support testing and local compilation without network dependencies.
+            Omitting the provider parameter during binding triggers a fallback resolution sequence that scans the environment variables. The framework traverses the environment in a fixed priority hierarchy (<code>GEMINI_API_KEY</code> &rarr; <code>CEREBRAS_API_KEY</code> &rarr; <code>GROQ_API_KEY</code> &rarr; <code>OPENAI_API_KEY</code> &rarr; <code>DEEPSEEK_API_KEY</code>) and automatically selects the first active key. If no external provider key is present, the framework falls back to a deterministic mock engine to support testing and local compilation without network dependencies.
           </div>
         </div>
       </section>
