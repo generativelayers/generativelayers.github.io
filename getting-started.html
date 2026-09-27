@@ -184,7 +184,7 @@ openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
               <i class="fa-solid fa-key" style="font-size:16px;color:#4ade80;flex-shrink:0;width:24px;text-align:center;"></i>
               <div style="flex:1;min-width:0;">
                 <span style="font-weight:600;font-size:14px;">API Key</span>
-                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">From any supported provider — Cerebras, Groq, Gemini, OpenAI, or DeepSeek.</span>
+                <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px;">From any Chat Completions-compatible provider.</span>
               </div>
               <button class="concept-toggle-btn" aria-label="Expand" style="flex-shrink:0;" onclick="event.stopPropagation();togglePrereq('apikey')">
                 <i class="fa-solid fa-eye"></i>
@@ -192,25 +192,28 @@ openjdk version <span class="string">"17.0.11"</span> 2024-04-16</code></pre>
             </div>
             <div class="prereq-details" id="prereq-apikey" style="display:none;" onclick="event.stopPropagation()">
               <div style="padding:0 16px 14px;border-top:1px solid var(--color-border-light);">
-                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Set your key as an environment variable:</div>
+                <div style="font-size:13px;color:var(--color-text-secondary);margin:12px 0 8px;">Set your key as an environment variable. The framework reads <code>{PROVIDER}_API_KEY</code> automatically:</div>
                 <div class="tabs-container" style="margin:0;">
-                  <pre style="padding:14px 18px;"><code><span class="comment"># Cerebras (free, no credit card)</span>
-$ export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span>
-
-<span class="comment"># Groq (free tier: 30 req/min)</span>
+                  <pre style="padding:14px 18px;"><code><span class="comment"># Groq (free)</span>
 $ export GROQ_API_KEY=<span class="string">"gsk_...your-key-here"</span>
 
-<span class="comment"># Gemini (free tier: 15 req/min)</span>
+<span class="comment"># OpenRouter (free models available)</span>
+$ export OPENROUTER_API_KEY=<span class="string">"sk-or-...your-key-here"</span>
+
+<span class="comment"># Cerebras (depends)</span>
+$ export CEREBRAS_API_KEY=<span class="string">"csk-...your-key-here"</span>
+
+<span class="comment"># SambaNova (depends)</span>
+$ export SAMBANOVA_API_KEY=<span class="string">"...your-key-here"</span>
+
+<span class="comment"># Gemini (depends)</span>
 $ export GEMINI_API_KEY=<span class="string">"AIzaSy...your-key-here"</span>
 
-<span class="comment"># OpenAI</span>
-$ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span>
-
-<span class="comment"># DeepSeek</span>
-$ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></code></pre>
+<span class="comment"># OpenAI, DeepSeek, Mistral, xAI, etc.</span>
+$ export OPENAI_API_KEY=<span class="string">"sk-proj-...your-key-here"</span></code></pre>
                 </div>
                 <div style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">
-                  Get a free key from <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener" style="color:var(--color-green-700);">Cerebras</a>, <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">Groq</a>, <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--color-green-700);">Google AI Studio</a>, <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">OpenAI</a>, or <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">DeepSeek</a>. See <a href="providers.html" style="color:var(--color-green-700);font-weight:600;">Providers</a> for full details.
+                  Get a key from <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">Groq</a>, <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color:var(--color-green-700);">OpenRouter</a>, <a href="https://cloud.cerebras.ai/" target="_blank" rel="noopener" style="color:var(--color-green-700);">Cerebras</a>, <a href="https://cloud.sambanova.ai/apis" target="_blank" rel="noopener" style="color:var(--color-green-700);">SambaNova</a>, or <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--color-green-700);">Google AI Studio</a>. See <a href="providers.html" style="color:var(--color-green-700);font-weight:600;">Providers</a> for full details.
                 </div>
               </div>
             </div>
@@ -238,7 +241,7 @@ $ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></cod
           <pre><code><span class="comment">// Jason — bind, call, validate, adopt</span>
 !start.
 +!start
-   &lt;- gl.bind(<span class="string">"agent1"</span>, <span class="string">"gemini"</span>, <span class="string">"gemini-2.5-flash"</span>, <span class="string">""</span>, Bid);
+   &lt;- gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"openai/gpt-oss-120b"</span>, <span class="string">""</span>, Bid);
       gl.call(Bid, <span class="string">"classify"</span>, <span class="string">"llm.answer"</span>, <span class="string">"ANSWER"</span>, <span class="string">"Classify: apple"</span>, <span class="string">"label,confidence"</span>, <span class="string">""</span>, Rid);
       !decided(Rid).
 +!decided(Rid)
@@ -257,6 +260,20 @@ $ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></cod
             <li><strong>get</strong> &mdash; Projects and extracts specific structured fields from the quarantined candidate.</li>
             <li><strong>accept</strong> &mdash; Records the agent&rsquo;s final decision to adopt the candidate; inserting accepted material into beliefs remains a separate explicit step.</li>
           </ol>
+        </div>
+
+        <div class="card" style="padding:16px;margin-top:16px;border-left:3px solid #60a5fa;">
+          <div style="font-weight:600;font-size:14px;margin-bottom:8px;"><i class="fa-solid fa-plug" style="margin-right:6px;color:#60a5fa;"></i>Connect to any provider</div>
+          <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 10px;line-height:1.6;">LLM providers and their APIs change frequently. The framework ships with built-in endpoints for popular providers, but you can also connect to <strong>any</strong> Chat Completions-compatible API by passing the endpoint directly:</p>
+          <div class="tabs-container" style="margin:0;">
+            <pre style="padding:14px 18px;"><code><span class="comment">// Built-in provider — just name it</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"groq"</span>, <span class="string">"openai/gpt-oss-120b"</span>, <span class="string">""</span>, Bid);
+
+<span class="comment">// Any provider — pass the endpoint directly</span>
+gl.bind(<span class="string">"agent1"</span>, <span class="string">"myprovider"</span>, <span class="string">"any-model"</span>,
+    <span class="string">"endpoint=https://api.myprovider.com/v1/chat/completions"</span>, Bid);</code></pre>
+          </div>
+          <p style="font-size:12px;color:var(--color-text-muted);margin:10px 0 0;line-height:1.5;">The API key is read from <code>{PROVIDER}_API_KEY</code> automatically (e.g. <code>MYPROVIDER_API_KEY</code>). You can override this with <code>apiKeyEnv=MY_CUSTOM_KEY</code> in the config string.</p>
         </div>
       </section>
 
@@ -332,7 +349,7 @@ $ export DEEPSEEK_API_KEY=<span class="string">"sk-...your-key-here"</span></cod
   <script>
     // Inject GL version from gl-version.js into all .gl-ver elements
     document.querySelectorAll('.gl-ver').forEach(function(el) {
-      el.textContent = window.GL_VERSION || '0.2.1';
+      el.textContent = window.GL_VERSION || '0.2.2';
     });
   </script>
 </body>
