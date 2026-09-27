@@ -238,6 +238,30 @@
           </div>
         </div>
 
+        <!-- OpenRouter -->
+        <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #a855f7;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#a855f7;"><i class="fa-solid fa-route" style="margin-right:6px;"></i>OpenRouter</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Routes requests across multiple model providers through a single API. Offers access to free models and simplifies multi-provider experimentation without managing individual API keys per provider.</div>
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <div class="tabs-buttons">
+                <button class="tab-btn active" data-tab="prov-openrouter-astra">ASTRA</button>
+                <button class="tab-btn" data-tab="prov-openrouter-jason">Jason</button>
+                <button class="tab-btn" data-tab="prov-openrouter-jacamo">JaCaMo</button>
+              </div>
+            </div>
+            <div class="tab-content active" id="prov-openrouter-astra">
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"openrouter"</span>, <span class="string">"openai/gpt-4o-mini"</span>, <span class="string">""</span>);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-openrouter-jason">
+              <pre><code>gl.bind(<span class="string">"agent1"</span>, <span class="string">"openrouter"</span>, <span class="string">"openai/gpt-4o-mini"</span>, <span class="string">""</span>, Bid);</code></pre>
+            </div>
+            <div class="tab-content" id="prov-openrouter-jacamo">
+              <pre><code>bind(<span class="string">"agent1"</span>, <span class="string">"openrouter"</span>, <span class="string">"openai/gpt-4o-mini"</span>, <span class="string">""</span>, Bid);</code></pre>
+            </div>
+          </div>
+        </div>
+
         <!-- Cerebras -->
         <div class="card" style="padding:16px;margin-bottom:12px;border-left:3px solid #ef4444;">
           <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:#ef4444;"><i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras</div>
