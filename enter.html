@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Access | Generative Layers</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0f1a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #e2e8f0;
+    }
+    .login-card {
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      padding: 44px 36px 40px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+    }
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+      opacity: .85;
+    }
+    .login-card h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .login-card .subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+    .field {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14px;
+      background: #0a0f1a;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: #e2e8f0;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus {
+      border-color: #22c55e;
+    }
+    .btn-enter {
+      width: 100%;
+      padding: 11px 0;
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-enter:hover { opacity: .9; }
+    .btn-enter:active { opacity: .8; }
+    .error-msg {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #ef4444;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <img class="login-logo" src="/icon/logo.png" alt="Generative Layers">
+    <h1>Reviewer Access</h1>
+    <p class="subtitle">Enter credentials to access the site.</p>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="off" spellcheck="false" autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="off">
+      </div>
+      <button class="btn-enter" type="submit">Enter</button>
+    </form>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var user = document.getElementById('username').value.trim();
+      var pass = document.getElementById('password').value.trim();
+
+      if (user === 'MAS' && pass === 'MAS') {
+        sessionStorage.setItem('gl_access', 'granted');
+        window.location.href = '/';
+      } else {
+        document.getElementById('errorMsg').textContent = 'Invalid credentials.';
+        document.getElementById('password').value = '';
+      }
+    });
+
+    // If already authenticated, redirect to home
+    if (sessionStorage.getItem('gl_access') === 'granted') {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
