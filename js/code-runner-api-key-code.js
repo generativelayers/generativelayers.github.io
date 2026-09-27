@@ -1,10 +1,20 @@
 (() => {
   const PROVIDERS = {
-    cerebras: { label: 'Cerebras', env: 'CEREBRAS_API_KEY' },
-    groq: { label: 'Groq', env: 'GROQ_API_KEY' },
-    gemini: { label: 'Gemini', env: 'GEMINI_API_KEY' },
-    openai: { label: 'OpenAI', env: 'OPENAI_API_KEY' },
-    deepseek: { label: 'DeepSeek', env: 'DEEPSEEK_API_KEY' }
+    cerebras:   { label: 'Cerebras',   env: 'CEREBRAS_API_KEY' },
+    groq:       { label: 'Groq',       env: 'GROQ_API_KEY' },
+    gemini:     { label: 'Gemini',     env: 'GEMINI_API_KEY' },
+    openai:     { label: 'OpenAI',     env: 'OPENAI_API_KEY' },
+    deepseek:   { label: 'DeepSeek',   env: 'DEEPSEEK_API_KEY' },
+    openrouter: { label: 'OpenRouter', env: 'OPENROUTER_API_KEY' },
+    sambanova:  { label: 'SambaNova',  env: 'SAMBANOVA_API_KEY' },
+    mistral:    { label: 'Mistral',    env: 'MISTRAL_API_KEY' },
+    xai:        { label: 'xAI',        env: 'XAI_API_KEY' },
+    together:   { label: 'Together',   env: 'TOGETHER_API_KEY' },
+    fireworks:  { label: 'Fireworks',  env: 'FIREWORKS_API_KEY' },
+    perplexity: { label: 'Perplexity', env: 'PERPLEXITY_API_KEY' },
+    nvidia:     { label: 'NVIDIA',     env: 'NVIDIA_API_KEY' },
+    hyperbolic: { label: 'Hyperbolic', env: 'HYPERBOLIC_API_KEY' },
+    ollama:     { label: 'Ollama',     env: 'OLLAMA_API_KEY' }
   };
 
   function stripLineComments(source) {
