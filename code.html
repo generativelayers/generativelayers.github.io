@@ -423,7 +423,7 @@
     if (loadToken) {
       const targetPlatform = requestedPlatform || 'astra';
       const frame = document.getElementById('frame-' + targetPlatform);
-      if (frame) frame.src = frameSources[targetPlatform] + '?load=' + encodeURIComponent(loadToken);
+      if (frame) frame.src = frameSources[targetPlatform] + '&load=' + encodeURIComponent(loadToken);
     }
 
     const hash = window.location.hash;
