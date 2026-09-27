@@ -179,42 +179,7 @@ function normalizeProviderFreeTierLabels() {
 }
 
 function installProviderOrdering() {
-  if (currentPageName() !== 'providers.html') return;
-
-  const groqRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'groq\')"]');
-  const groqSetup = document.getElementById('setup-groq');
-  const cerebrasRow = document.querySelector('tr[onclick*="toggleProviderSetup(\'cerebras\')"]');
-  const tbody = groqRow?.parentElement;
-
-  if (tbody && groqRow && cerebrasRow) {
-    tbody.insertBefore(groqRow, cerebrasRow);
-    if (groqSetup) tbody.insertBefore(groqSetup, cerebrasRow);
-  }
-
-  const cards = Array.from(document.querySelectorAll('#providers > .card'));
-  const groqCard = cards.find(card => card.textContent.includes('Groq') && card.textContent.includes('openai/gpt-oss-120b'));
-  const cerebrasCard = cards.find(card => card.textContent.includes('Cerebras') && card.textContent.includes('gpt-oss-120b'));
-
-  if (groqCard && cerebrasCard && cerebrasCard.parentElement) {
-    cerebrasCard.parentElement.insertBefore(groqCard, cerebrasCard);
-  }
-
-  if (groqCard) {
-    const heading = groqCard.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:6px;"></i>Groq (Recommended Free Option)';
-  }
-
-  if (cerebrasCard) {
-    const heading = cerebrasCard.querySelector('div[style*="font-size:14px"]');
-    if (heading) heading.innerHTML = '<i class="fa-solid fa-microchip" style="margin-right:6px;"></i>Cerebras';
-  }
-
-  const switchingExample = document.querySelector('#detail-provider-switching pre code');
-  if (switchingExample) {
-    replaceAllTextNodes('Bind to Cerebras, then verify', 'Bind to Groq, then verify', switchingExample);
-    replaceAllTextNodes('"cerebras"', '"groq"', switchingExample);
-    replaceAllTextNodes('"gpt-oss-120b"', '"openai/gpt-oss-120b"', switchingExample);
-  }
+  // Provider order is now defined directly in the HTML source — no JS reordering needed.
 }
 
 function hideReferenceCounts() {
