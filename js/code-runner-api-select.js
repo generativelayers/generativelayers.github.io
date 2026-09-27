@@ -14,28 +14,49 @@
   window.__glApiSelectV9Initialized = true;
 
   const PROVIDERS = {
-    cerebras: { label: 'Cerebras', env: 'CEREBRAS_API_KEY', color: '#38bdf8', icon: 'fa-microchip' },
-    groq: { label: 'Groq', env: 'GROQ_API_KEY', color: '#f97316', icon: 'fa-bolt' },
-    gemini: { label: 'Gemini', env: 'GEMINI_API_KEY', color: '#a78bfa', icon: 'fa-gem' },
-    openai: { label: 'OpenAI', env: 'OPENAI_API_KEY', color: '#34d399', icon: 'fa-robot' },
-    deepseek: { label: 'DeepSeek', env: 'DEEPSEEK_API_KEY', color: '#60a5fa', icon: 'fa-water' }
+    cerebras:   { label: 'Cerebras',   env: 'CEREBRAS_API_KEY',   color: '#38bdf8', icon: 'fa-microchip' },
+    groq:       { label: 'Groq',       env: 'GROQ_API_KEY',       color: '#f97316', icon: 'fa-bolt' },
+    gemini:     { label: 'Gemini',     env: 'GEMINI_API_KEY',     color: '#a78bfa', icon: 'fa-gem' },
+    openai:     { label: 'OpenAI',     env: 'OPENAI_API_KEY',     color: '#34d399', icon: 'fa-robot' },
+    deepseek:   { label: 'DeepSeek',   env: 'DEEPSEEK_API_KEY',   color: '#60a5fa', icon: 'fa-water' },
+    openrouter: { label: 'OpenRouter', env: 'OPENROUTER_API_KEY', color: '#a855f7', icon: 'fa-route' },
+    sambanova:  { label: 'SambaNova',  env: 'SAMBANOVA_API_KEY',  color: '#f472b6', icon: 'fa-server' },
+    mistral:    { label: 'Mistral',    env: 'MISTRAL_API_KEY',    color: '#fb923c', icon: 'fa-wind' },
+    xai:        { label: 'xAI',        env: 'XAI_API_KEY',        color: '#e2e8f0', icon: 'fa-xmark' },
+    together:   { label: 'Together',   env: 'TOGETHER_API_KEY',   color: '#4ade80', icon: 'fa-people-group' },
+    fireworks:  { label: 'Fireworks',  env: 'FIREWORKS_API_KEY',  color: '#f97316', icon: 'fa-fire' },
+    perplexity: { label: 'Perplexity', env: 'PERPLEXITY_API_KEY', color: '#22d3ee', icon: 'fa-circle-question' },
+    nvidia:     { label: 'NVIDIA',     env: 'NVIDIA_API_KEY',     color: '#84cc16', icon: 'fa-microchip' },
+    hyperbolic: { label: 'Hyperbolic', env: 'HYPERBOLIC_API_KEY', color: '#c084fc', icon: 'fa-infinity' },
+    ollama:     { label: 'Ollama',     env: 'OLLAMA_API_KEY',     color: '#94a3b8', icon: 'fa-desktop' }
   };
 
   const DEFAULT_MODELS = {
-    cerebras: 'gpt-oss-120b',
-    groq: 'openai/gpt-oss-120b',
-    gemini: 'gemini-2.0-flash',
-    openai: 'gpt-4o',
-    deepseek: 'deepseek-chat'
+    cerebras:   'gpt-oss-120b',
+    groq:       'openai/gpt-oss-120b',
+    gemini:     'gemini-2.0-flash',
+    openai:     'gpt-4o',
+    deepseek:   'deepseek-chat',
+    openrouter: 'openai/gpt-4o-mini',
+    sambanova:  'Meta-Llama-3.1-8B-Instruct',
+    mistral:    'mistral-small-latest',
+    xai:        'grok-2',
+    together:   'meta-llama/Meta-Llama-3-8B',
+    fireworks:  'accounts/fireworks/models/llama-v3p1-8b-instruct',
+    perplexity: 'llama-3.1-sonar-small-128k-online',
+    nvidia:     'meta/llama-3.1-8b-instruct',
+    hyperbolic: 'meta-llama/Meta-Llama-3-8B-Instruct',
+    ollama:     'llama3'
   };
 
   // Key prefix → provider mapping for auto-detection
   const KEY_PREFIXES = [
-    { prefix: 'gsk_',    provider: 'groq' },
-    { prefix: 'csk-',    provider: 'cerebras' },
-    { prefix: 'AIzaSy',  provider: 'gemini' },
+    { prefix: 'gsk_',     provider: 'groq' },
+    { prefix: 'csk-',     provider: 'cerebras' },
+    { prefix: 'AIzaSy',   provider: 'gemini' },
     { prefix: 'sk-proj-', provider: 'openai' },
-    { prefix: 'sk-',     provider: 'deepseek' }
+    { prefix: 'sk-or-',   provider: 'openrouter' },
+    { prefix: 'sk-',      provider: 'deepseek' }
   ];
 
   const GENERATION_METHODS = [
