@@ -99,6 +99,31 @@
 
     const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/expanded-examples/main/';
 
+    const INLINE_EXTENDED_SOURCES = {
+      'mathematician-scientist/src/main/astra/Main.astra': `/**
+ * Mathematician-Scientist
+ *
+ * ASTRA entry agent for the Generative Layers mathematical and scientific
+ * research example. Research behaviour and specialist agents will be added
+ * incrementally under this project.
+ */
+agent Main {
+    module gl.astra.GL gl;
+    module Console console;
+    module System S;
+
+    initial !start();
+
+    rule +!start() {
+        console.println("=== Mathematician-Scientist ===");
+        console.println("[GL] Available providers: " + gl.see());
+        console.println("[ASTRA] Research project initialised.");
+        S.exit();
+    }
+}
+`
+    };
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g,'&amp;')
@@ -117,6 +142,7 @@
     }
 
     async function loadSource(path) {
+      if (INLINE_EXTENDED_SOURCES[path]) return INLINE_EXTENDED_SOURCES[path];
       const response = await fetch(RAW_BASE + path, { cache:'no-cache' });
       if (!response.ok) throw new Error('Could not load ' + path);
       return response.text();
