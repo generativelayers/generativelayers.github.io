@@ -107,7 +107,7 @@
  * research example. Research behaviour and specialist agents will be added
  * incrementally under this project.
  */
-agent Main {
+agent Main extends ResearchOntology {
     module gl.astra.GL gl;
     module Console console;
     module System S;
@@ -119,6 +119,23 @@ agent Main {
         console.println("[GL] Available providers: " + gl.see());
         console.println("[ASTRA] Research project initialised.");
         S.exit();
+    }
+}
+`,
+      'mathematician-scientist/src/main/astra/ResearchOntology.astra': `/**
+ * Shared ontology for FIPA-ACL communication between the mathematical
+ * and scientific research agents.
+ */
+agent ResearchOntology {
+
+    types research_ontology {
+        formula research_request(string, string, string);
+        formula research_response(string, string, string, boolean);
+        formula proof_request(string, string, string);
+        formula proof_response(string, string, string, boolean);
+        formula conjecture(string, string, string);
+        formula verification_request(string, string, string);
+        formula verification_response(string, string, string, double);
     }
 }
 `
@@ -155,7 +172,10 @@ agent Main {
         icon:'fa-square-root-variable',
         description:'ASTRA research example combining Generative Layers with mathematical and scientific tooling.',
         files:{
-          ASTRA:'mathematician-scientist/src/main/astra/Main.astra'
+          ASTRA:[
+            'mathematician-scientist/src/main/astra/Main.astra',
+            'mathematician-scientist/src/main/astra/ResearchOntology.astra'
+          ]
         }
       }
     ];
