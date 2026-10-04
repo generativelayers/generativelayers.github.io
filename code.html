@@ -407,6 +407,24 @@
       injectApiHudLoader(frame);
       pushTokenToFrame(frame);
       setTimeout(() => pushTokenToFrame(frame), 500);
+
+      // For multi-file projects, push the complete payload directly into the
+      // selected same-origin runner iframe once its GLRunner API is ready.
+      const targetPlatform = requestedPlatform || 'astra';
+      if (incomingProjectPayload && frame.dataset.platform === targetPlatform) {
+        const deliver = () => {
+          try {
+            frame.contentWindow.postMessage(
+              { type: 'gl-load-code', payload: incomingProjectPayload },
+              window.location.origin
+            );
+          } catch (_) {}
+        };
+        setTimeout(deliver, 50);
+        setTimeout(deliver, 300);
+        setTimeout(deliver, 900);
+      }
+
       setTimeout(resizeFrames, 250);
       setTimeout(resizeFrames, 1200);
     }));
@@ -417,6 +435,20 @@
     const urlParams = new URLSearchParams(window.location.search);
     const requestedPlatform = urlParams.get('platform');
     const loadToken = urlParams.get('load');
+
+    // Reliable multi-file project handoff from examples/pattern pages.
+    // window.name survives same-tab navigation and avoids mobile storage quirks.
+    let incomingProjectPayload = null;
+    try {
+      const prefix = 'gl-runner-project:';
+      if (typeof window.name === 'string' && window.name.startsWith(prefix)) {
+        incomingProjectPayload = JSON.parse(window.name.slice(prefix.length));
+        window.name = '';
+      }
+    } catch (_) {
+      incomingProjectPayload = null;
+      try { window.name = ''; } catch (_) {}
+    }
     if (requestedPlatform && frameSources[requestedPlatform]) activatePlatform(requestedPlatform);
 
     // Forward ?load= token to the correct platform's iframe
