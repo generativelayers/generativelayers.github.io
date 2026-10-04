@@ -1546,8 +1546,30 @@
       files = {};
       const folder = SOURCE_FOLDER || '';
       Object.entries(fileMap).forEach(([name, src]) => {
-        // Build the full path: e.g. /jason/main.asl or /astra/Main.astra
-        const path = folder ? folder + '/' + name : '/' + name;
+        const clean = String(name || '').replace(/^\\/+/, '');
+        let path;
+
+        // Multi-file examples may provide explicit runner roots.
+        // ASTRA: astra/*.astra, java/*.java, resources/*, pom.xml
+        // Jason: asl/*.asl, java/*.java, resources/*, pom.xml
+        // JaCaMo: agt/*.asl, java/*.java, resources/*, pom.xml
+        if (clean === 'pom.xml') {
+          path = '/pom.xml';
+        } else if (/^(astra|asl|agt|java|resources)\\//.test(clean)) {
+          path = '/' + clean;
+        } else if (clean.startsWith('src/main/astra/')) {
+          path = '/astra/' + clean.slice('src/main/astra/'.length);
+        } else if (clean.startsWith('src/main/asl/')) {
+          path = '/asl/' + clean.slice('src/main/asl/'.length);
+        } else if (clean.startsWith('src/agt/')) {
+          path = '/agt/' + clean.slice('src/agt/'.length);
+        } else if (clean.startsWith('src/main/java/')) {
+          path = '/java/' + clean.slice('src/main/java/'.length);
+        } else if (clean.startsWith('src/main/resources/')) {
+          path = '/resources/' + clean.slice('src/main/resources/'.length);
+        } else {
+          path = folder ? folder + '/' + clean : '/' + clean;
+        }
         files[path] = src;
       });
       if (BUILD_FILE && !files[BUILD_FILE]) files[BUILD_FILE] = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
