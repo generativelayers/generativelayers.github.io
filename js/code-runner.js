@@ -1350,13 +1350,33 @@
   }
 
   function installIncomingSource() {
-    if (!window.location.hash.startsWith('#load=')) return;
-
     try {
+      // Multi-file projects are handed off through sessionStorage because
+      // putting a whole project into the URL would exceed practical URL limits.
+      const params = new URLSearchParams(window.location.search);
+      const loadToken = params.get('load');
+      if (loadToken) {
+        const key = 'gl-runner-payload:' + loadToken;
+        const raw = sessionStorage.getItem(key);
+        if (raw) {
+          const payload = JSON.parse(raw);
+          if (payload && payload.files && typeof payload.files === 'object') {
+            window.GLRunner.loadPayload(payload);
+            try { sessionStorage.removeItem(key); } catch (_) {}
+            window.setTimeout(() => (document.getElementById('run-code') || els.editor)
+              .scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            return;
+          }
+        }
+      }
+
+      // Single-file examples continue to use the legacy #load= payload.
+      if (!window.location.hash.startsWith('#load=')) return;
+
       const payload = JSON.parse(decodeURIComponent(window.location.hash.slice(6)));
       if (!payload.source) return;
-      // Stop any running execution before loading
-      // Auto-rename agent class to match default filename (Main.astra)
+
+      // Auto-rename a single ASTRA agent class to match Main.astra.
       let src = payload.source;
       if (PLATFORM === 'astra' && /agent\s+[A-Za-z_][A-Za-z0-9_]*\s*\{/.test(src)) {
         src = src.replace(/agent\s+[A-Za-z_][A-Za-z0-9_]*/, 'agent Main');
