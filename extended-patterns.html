@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="js/gate.js"></script>
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Extended Patterns | Generative Layers</title>
+  <meta name="description" content="Extended Generative Layers examples with runnable ASTRA and Jason source code.">
+  <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="js/search.js?v=20260927"></script>
+  <script defer src="js/run-code-links.js"></script>
+  <style>
+    .tabs-container pre { max-height:620px; overflow:auto; }
+    .pattern-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; cursor:pointer; }
+    .pattern-header-text { flex:1; }
+    .pattern-header h2 { margin:0; }
+    .pattern-header p { margin:6px 0 0; }
+    .pattern-toggle-btn {
+      flex-shrink:0; margin-top:4px; width:34px; height:34px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:none; border:1px solid var(--color-border); border-radius:8px;
+      cursor:pointer; color:var(--color-text-secondary);
+      transition:color .2s,border-color .2s;
+    }
+    .pattern-toggle-btn:hover { color:var(--color-green-700); border-color:var(--color-green-700); }
+    .pattern-detail { overflow:hidden; transition:max-height .35s ease; }
+    .pattern-detail[hidden] { display:none; }
+    .gl-file-pills { display:flex; gap:4px; padding:8px 12px 0; background:#0b1220; flex-wrap:wrap; }
+    .gl-file-pill {
+      padding:5px 12px; border:1px solid #1f2937; border-bottom:none;
+      border-radius:8px 8px 0 0; background:#111827; color:#94a3b8;
+      font-size:12px; font-weight:700;
+      font-family:'Fira Code',ui-monospace,monospace; cursor:pointer;
+      transition:background .15s,color .15s;
+    }
+    .gl-file-pill.active { background:#1e293b; color:#34d399; border-color:#34d399; }
+    .gl-file-pill:hover:not(.active) { color:#cbd5e1; background:#1a2332; }
+    .load-state { padding:18px; color:var(--color-text-secondary); }
+    @media (max-width:600px) {
+      .tabs-header { overflow-x:auto; padding:0 10px; }
+      .tab-btn { padding:12px 16px; }
+      .tabs-container pre { padding:18px; font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="header-inner">
+      <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+      <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input class="search" placeholder="Search…" aria-label="Search">
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="layout">
+    <aside class="side" id="sidebar">
+      <div class="side-label">Documentation</div>
+      <a href="index.html"><i class="fa-solid fa-house"></i><span>Introduction</span></a>
+      <a href="getting-started.html"><i class="fa-solid fa-rocket"></i><span>Getting Started</span></a>
+      <a href="framework.html"><i class="fa-solid fa-layer-group"></i><span>Framework</span></a>
+      <a href="patterns.html"><i class="fa-solid fa-shield-halved"></i><span>Patterns</span></a>
+      <a href="providers.html"><i class="fa-solid fa-plug"></i><span>Providers</span></a>
+      <a href="research.html"><i class="fa-solid fa-microscope"></i><span>Research</span></a>
+      <a href="repositories.html"><i class="fa-brands fa-github"></i><span>Repositories</span></a>
+    </aside>
+
+    <main class="main">
+      <h1>Extended Patterns</h1>
+      <div id="patterns-root">
+        <div class="load-state">Loading extended pattern source...</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    if (menuToggle && sidebar && sidebarBackdrop) {
+      menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+        sidebarBackdrop.classList.toggle('open');
+      });
+      sidebarBackdrop.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        this.classList.remove('open');
+      });
+    }
+
+    const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/expanded-examples/main/';
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function toArray(value) {
+      return Array.isArray(value) ? value : [value];
+    }
+
+    function basename(path) {
+      return path.split('/').pop();
+    }
+
+    async function loadSource(path) {
+      const response = await fetch(RAW_BASE + path, { cache:'no-cache' });
+      if (!response.ok) throw new Error('Could not load ' + path);
+      return response.text();
+    }
+
+    const EXTENDED_PATTERNS = [
+      {
+        id:'mathematician-scientist',
+        title:'Mathematician Scientist',
+        icon:'fa-square-root-variable',
+        description:'ASTRA research example combining Generative Layers with mathematical and scientific tooling.',
+        files:{
+          ASTRA:'mathematician-scientist/src/main/astra/Main.astra'
+        }
+      }
+    ];
+
+    function renderPattern(pattern) {
+      const buttons = Object.keys(pattern.files)
+        .map((name, i) =>
+          '<button class="tab-btn ' + (i === 0 ? 'active' : '') +
+          '" data-pattern="' + pattern.id +
+          '" data-platform="' + name + '">' + name + '</button>')
+        .join('');
+
+      const panels = Object.entries(pattern.files).map(([name, paths], i) => {
+        const arr = toArray(paths);
+        const pills = arr.length > 1
+          ? '<div class="gl-file-pills">' +
+            arr.map((path, fileIndex) =>
+              '<button class="gl-file-pill ' + (fileIndex === 0 ? 'active' : '') +
+              '" data-file-idx="' + fileIndex + '">' +
+              escapeHtml(basename(path)) + '</button>').join('') +
+            '</div>'
+          : '';
+
+        const blocks = arr.map((path, fileIndex) =>
+          '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
+          'data-file-idx="' + fileIndex + '">' +
+          '<code data-source="' + escapeHtml(path) +
+          '" data-filename="' + escapeHtml(basename(path)) + '">' +
+          'Loading ' + escapeHtml(basename(path)) + '...</code></pre>'
+        ).join('');
+
+        return '<div class="tab-content ' + (i === 0 ? 'active' : '') +
+          '" id="' + pattern.id + '-' + name + '">' +
+          pills + blocks + '</div>';
+      }).join('');
+
+      return '<section class="info-panel" id="pattern-' + pattern.id + '">' +
+        '<div class="pattern-header" onclick="togglePatternDetail(\'' + pattern.id + '\')">' +
+          '<div class="pattern-header-text">' +
+            '<h2><i class="fa-solid ' + pattern.icon +
+            '" style="margin-right:8px;color:var(--color-green-700);"></i>' +
+            escapeHtml(pattern.title) + '</h2>' +
+            '<p>' + escapeHtml(pattern.description) + '</p>' +
+          '</div>' +
+          '<button class="pattern-toggle-btn" type="button" aria-label="Expand" ' +
+          'onclick="event.stopPropagation();togglePatternDetail(\'' + pattern.id + '\')">' +
+            '<i class="fa-solid fa-eye"></i>' +
+          '</button>' +
+        '</div>' +
+        '<div class="pattern-detail" id="pattern-detail-' + pattern.id + '" hidden>' +
+          '<div class="tabs-container">' +
+            '<div class="tabs-header"><div class="tabs-buttons">' + buttons + '</div></div>' +
+            panels +
+          '</div>' +
+        '</div>' +
+      '</section>';
+    }
+
+    window.togglePatternDetail = function(id) {
+      const el = document.getElementById('pattern-detail-' + id);
+      if (!el) return;
+
+      if (el.hidden) {
+        el.hidden = false;
+        el.style.maxHeight = '0';
+        el.style.overflow = 'hidden';
+        requestAnimationFrame(() => {
+          el.style.maxHeight = el.scrollHeight + 'px';
+          setTimeout(() => {
+            el.style.maxHeight = 'none';
+            el.style.overflow = '';
+          }, 350);
+        });
+      } else {
+        el.style.maxHeight = el.scrollHeight + 'px';
+        el.style.overflow = 'hidden';
+        requestAnimationFrame(() => { el.style.maxHeight = '0'; });
+        setTimeout(() => {
+          el.hidden = true;
+          el.style.maxHeight = '';
+          el.style.overflow = '';
+        }, 350);
+      }
+    };
+
+    async function hydratePatterns() {
+      const root = document.getElementById('patterns-root');
+      if (!root) return;
+
+      root.innerHTML = EXTENDED_PATTERNS.map(renderPattern).join('');
+
+      root.addEventListener('click', event => {
+        const button = event.target.closest('.tab-btn');
+        if (!button) return;
+
+        const patternId = button.dataset.pattern;
+        const platform = button.dataset.platform;
+
+        root.querySelectorAll('.tab-btn[data-pattern="' + patternId + '"]')
+          .forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        root.querySelectorAll('[id^="' + patternId + '-"]')
+          .forEach(panel => panel.classList.remove('active'));
+
+        const panel = document.getElementById(patternId + '-' + platform);
+        if (panel) panel.classList.add('active');
+      });
+
+      root.addEventListener('click', event => {
+        const pill = event.target.closest('.gl-file-pill');
+        if (!pill) return;
+
+        const panel = pill.closest('.tab-content');
+        if (!panel) return;
+
+        const idx = pill.dataset.fileIdx;
+        panel.querySelectorAll('.gl-file-pill')
+          .forEach(item => item.classList.remove('active'));
+        pill.classList.add('active');
+
+        panel.querySelectorAll('pre[data-file-idx]')
+          .forEach(pre => { pre.hidden = pre.dataset.fileIdx !== idx; });
+      });
+
+      await Promise.all(
+        Array.from(root.querySelectorAll('code[data-source]')).map(async block => {
+          try {
+            block.textContent = (await loadSource(block.dataset.source)).trim();
+          } catch (error) {
+            block.textContent = 'Unable to load source.\n' + block.dataset.source;
+          }
+          delete block.dataset.glHighlighted;
+        })
+      );
+
+      if (window.__glStaticHighlight) window.__glStaticHighlight();
+      setTimeout(() => {
+        if (window.__glStaticHighlight) window.__glStaticHighlight();
+      }, 250);
+
+      if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) {
+        window.GLRunCodeLinks.scan();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', hydratePatterns);
+  </script>
+
+  <script defer src="js/static-highlight.js"></script>
+  <script defer src="js/scroll-reveal.js"></script>
+</body>
+</html>
