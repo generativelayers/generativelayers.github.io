@@ -161,7 +161,7 @@
           return '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
             'data-file-idx="' + fileIndex + '">' +
             '<code data-source="' + escapeHtml(path) +
-            '" data-filename="' + escapeHtml(basename(path)) + '">' +
+            '" data-filename="' + escapeHtml(path) + '">' +
             escapeHtml(source.trim()) + '</code></pre>';
         }).join('');
 
