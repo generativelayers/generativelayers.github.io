@@ -185,6 +185,13 @@
       stored = true;
     } catch (_) {}
 
+    // Same-tab navigation fallback that is independent of browser storage.
+    // code.html reads this value and posts the project directly to its runner iframe.
+    try {
+      window.name = 'gl-runner-project:' + serialized;
+      stored = true;
+    } catch (_) {}
+
     if (!stored) {
       console.warn('Could not persist multi-file runner payload.');
       return;
