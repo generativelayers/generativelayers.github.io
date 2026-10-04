@@ -1357,12 +1357,17 @@
       const loadToken = params.get('load');
       if (loadToken) {
         const key = 'gl-runner-payload:' + loadToken;
-        const raw = sessionStorage.getItem(key);
+        let raw = null;
+        try { raw = sessionStorage.getItem(key); } catch (_) {}
+        if (!raw) {
+          try { raw = localStorage.getItem(key); } catch (_) {}
+        }
         if (raw) {
           const payload = JSON.parse(raw);
           if (payload && payload.files && typeof payload.files === 'object') {
             window.GLRunner.loadPayload(payload);
             try { sessionStorage.removeItem(key); } catch (_) {}
+            try { localStorage.removeItem(key); } catch (_) {}
             window.setTimeout(() => (document.getElementById('run-code') || els.editor)
               .scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
             return;
