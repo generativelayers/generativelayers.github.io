@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js?v=20260927"></script>
-  <script defer src="js/run-code-links.js"></script>
+  <script defer src="js/run-code-links.js?v=20261004"></script>
   <style>
     .tabs-container pre { max-height:620px; overflow:auto; }
     .pattern-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; cursor:pointer; }
@@ -97,8 +97,6 @@
       });
     }
 
-    const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/expanded-examples/main/';
-
     const INLINE_EXTENDED_SOURCES = {
       'mathematician-scientist/src/main/astra/Main.astra': `/**
  * Mathematician-Scientist
@@ -158,13 +156,6 @@ agent ResearchOntology {
       return path.split('/').pop();
     }
 
-    async function loadSource(path) {
-      if (INLINE_EXTENDED_SOURCES[path]) return INLINE_EXTENDED_SOURCES[path];
-      const response = await fetch(RAW_BASE + path, { cache:'no-cache' });
-      if (!response.ok) throw new Error('Could not load ' + path);
-      return response.text();
-    }
-
     const EXTENDED_PATTERNS = [
       {
         id:'mathematician-scientist',
@@ -199,13 +190,20 @@ agent ResearchOntology {
             '</div>'
           : '';
 
-        const blocks = arr.map((path, fileIndex) =>
-          '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
-          'data-file-idx="' + fileIndex + '">' +
-          '<code data-source="' + escapeHtml(path) +
-          '" data-filename="' + escapeHtml(basename(path)) + '">' +
-          'Loading ' + escapeHtml(basename(path)) + '...</code></pre>'
-        ).join('');
+        const blocks = arr.map((path, fileIndex) => {
+          const source = INLINE_EXTENDED_SOURCES[path];
+          if (typeof source !== 'string') {
+            return '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
+              'data-file-idx="' + fileIndex + '"><code>' +
+              'Source is not embedded for ' + escapeHtml(basename(path)) +
+              '</code></pre>';
+          }
+          return '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
+            'data-file-idx="' + fileIndex + '">' +
+            '<code data-source="' + escapeHtml(path) +
+            '" data-filename="' + escapeHtml(basename(path)) + '">' +
+            escapeHtml(source.trim()) + '</code></pre>';
+        }).join('');
 
         return '<div class="tab-content ' + (i === 0 ? 'active' : '') +
           '" id="' + pattern.id + '-' + name + '">' +
@@ -261,7 +259,7 @@ agent ResearchOntology {
       }
     };
 
-    async function hydratePatterns() {
+    function hydratePatterns() {
       const root = document.getElementById('patterns-root');
       if (!root) return;
 
@@ -301,16 +299,9 @@ agent ResearchOntology {
           .forEach(pre => { pre.hidden = pre.dataset.fileIdx !== idx; });
       });
 
-      await Promise.all(
-        Array.from(root.querySelectorAll('code[data-source]')).map(async block => {
-          try {
-            block.textContent = (await loadSource(block.dataset.source)).trim();
-          } catch (error) {
-            block.textContent = 'Unable to load source.\n' + block.dataset.source;
-          }
-          delete block.dataset.glHighlighted;
-        })
-      );
+      root.querySelectorAll('code[data-source]').forEach(block => {
+        delete block.dataset.glHighlighted;
+      });
 
       if (window.__glStaticHighlight) window.__glStaticHighlight();
       setTimeout(() => {
