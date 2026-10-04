@@ -169,11 +169,31 @@
   function openRunnerMulti(fileMap, title, platform) {
     const payload = { title, files: fileMap };
     const token = 'p' + Date.now();
-    try { sessionStorage.setItem('gl-runner-payload:' + token, JSON.stringify(payload)); } catch (_) {}
+    const storageKey = 'gl-runner-payload:' + token;
+    const serialized = JSON.stringify(payload);
+
+    // Store in both scopes. The runner's storage loader already checks both.
+    // localStorage provides a more reliable handoff on mobile browsers where
+    // sessionStorage can be partitioned or lost during iframe navigation.
+    let stored = false;
+    try {
+      sessionStorage.setItem(storageKey, serialized);
+      stored = true;
+    } catch (_) {}
+    try {
+      localStorage.setItem(storageKey, serialized);
+      stored = true;
+    } catch (_) {}
+
+    if (!stored) {
+      console.warn('Could not persist multi-file runner payload.');
+      return;
+    }
+
     const page = platform === 'jason' ? 'code.html?platform=jason'
                : platform === 'jacamo' ? 'code.html?platform=jacamo'
                : 'code.html';
-    window.location.href = new URL(page + (page.includes('?') ? '&' : '?') + 'load=' + token, window.location.href).toString();
+    window.location.href = new URL(page + (page.includes('?') ? '&' : '?') + 'load=' + encodeURIComponent(token), window.location.href).toString();
   }
 
   // ── Button creation ─────────────────────────────────────────
