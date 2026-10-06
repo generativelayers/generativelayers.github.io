@@ -271,6 +271,63 @@
       if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) {
         window.GLRunCodeLinks.scan();
       }
+
+      // ── Reliable Run-button handler ──────────────────────────
+      // The standard multi-file transport (sessionStorage / window.name)
+      // is unreliable for large payloads across the code.html iframe
+      // architecture.  Instead, write the project directly into the
+      // ASTRA runner's own persistent localStorage key.  When the
+      // runner iframe boots, its loadFromStorage() picks it up with
+      // zero hand-off complexity.
+      root.addEventListener('click', function (e) {
+        var btn = e.target.closest('.gl-run-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        // Collect every file in the active tab panel
+        var panel = btn.closest('.tabs-container');
+        if (!panel) return;
+        var activeTab = panel.querySelector('.tab-content.active');
+        if (!activeTab) return;
+        var pres = activeTab.querySelectorAll('pre[data-file-idx]');
+        if (!pres.length) return;
+
+        var projectFiles = {};
+        pres.forEach(function (pre) {
+          var code = pre.querySelector('code');
+          if (!code) return;
+          var raw = code.textContent.replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
+          var name = (code.dataset.filename || '').replace(/^\/+/, '');
+
+          // Map to runner-internal paths (mirrors code-runner.js loadFiles)
+          var path;
+          if (name === 'pom.xml') {
+            path = '/pom.xml';
+          } else if (/^(astra|asl|agt|java|resources)\//.test(name)) {
+            path = '/' + name;
+          } else {
+            path = '/astra/' + name;
+          }
+          projectFiles[path] = raw;
+        });
+
+        // Note: if /pom.xml is not in the source files, the runner's
+        // init() will inject its default ASTRA pom automatically.
+
+        var projectData = JSON.stringify({
+          files: projectFiles,
+          currentPath: Object.keys(projectFiles).find(function(p) {
+            return p.endsWith('.astra');
+          }) || Object.keys(projectFiles)[0] || '/astra/Main.astra'
+        });
+
+        try { localStorage.setItem('gl_runner_astra_project', projectData); } catch (_) {}
+
+        // Navigate to the code runner (no ?load= token needed)
+        window.location.href = 'code.html';
+      }, true);   // ← capturing phase so we fire before run-code-links.js
     }
 
     document.addEventListener('DOMContentLoaded', hydratePatterns);
