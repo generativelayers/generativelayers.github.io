@@ -11,7 +11,6 @@
   const REQUIRE_LOGIN = !(window.GL_UNDER_REVIEW === true);
 
   const CLIENT_ID = '814105936155-1p1s8p59lobkb2ugjbsrmjc9fvulsj6e.apps.googleusercontent.com';
-  let initialRenderDone = false;
 
   // When auth is disabled, keep the panel hidden and make all auth functions no-ops
   if (!REQUIRE_LOGIN) {
@@ -42,15 +41,11 @@
 
   // Global callback as requested
   window.handleGoogleLogin = function(response) {
-    console.log("Google credential token:", response.credential);
-
     const payload = parseJwt(response.credential);
     if (!payload) {
       showToast('Authentication failed', 'error');
       return;
     }
-
-    console.log("Google user:", payload);
 
     localStorage.setItem("gl_google_user", JSON.stringify({
       name: payload.name,
@@ -98,9 +93,7 @@
     if (window.google && window.google.accounts && window.google.accounts.id) {
       google.accounts.id.disableAutoSelect();
       if (email) {
-        google.accounts.id.revoke(email, () => {
-          console.log('[Auth] Google credential revoked for', email);
-        });
+        google.accounts.id.revoke(email, () => {});
       }
     }
 
@@ -113,23 +106,26 @@
   function showToast(msg, type = 'info') {
     if (typeof window.showRunnerToast === 'function') {
       window.showRunnerToast(msg, type);
-    } else {
-      console.log(`[Auth] ${type}: ${msg}`);
     }
   }
 
+  // ── Concurrency guard: FedCM allows only one credentials.get at a time ──
   let _prompting = false;
+
   function silentTokenRefresh() {
-    // Ask Google Identity Services to re-prompt for a fresh credential
     if (_prompting) return;
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      _prompting = true;
+    if (!(window.google && window.google.accounts && window.google.accounts.id)) return;
+    // Only attempt if the user has previously signed in
+    const profile = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
+    if (!profile) return;
+    _prompting = true;
+    try {
       google.accounts.id.prompt((notification) => {
         _prompting = false;
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('[Auth] Silent re-auth not available, user may need to click sign-in');
-        }
+        // Silently ignore — user can click sign-in manually if needed
       });
+    } catch (_) {
+      _prompting = false;
     }
   }
 
@@ -140,7 +136,6 @@
     const token = localStorage.getItem('gl_user_token') || sessionStorage.getItem('gl_user_token');
     const profileStr = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
     let profile = null;
-    let tokenExpired = false;
 
     if (profileStr) {
       try { profile = JSON.parse(profileStr); } catch (_) {}
@@ -149,7 +144,6 @@
     if (token) {
       const payload = parseJwt(token);
       if (!payload || payload.exp * 1000 <= Date.now()) {
-        tokenExpired = true;
         // Clear the expired token but keep the profile so the user stays visually signed in
         localStorage.removeItem('gl_user_token');
         sessionStorage.removeItem('gl_user_token');
@@ -158,7 +152,6 @@
       }
     } else if (profile) {
       // Profile exists but no token — try silent refresh
-      tokenExpired = true;
       silentTokenRefresh();
     }
 
@@ -201,19 +194,27 @@
     }
   }
 
-  // Ensure GIS is initialized before first render
+  // ── GIS initialization (runs exactly once) ──
   let _gisInitDone = false;
+  let _monitorStarted = false;
+
   function initGIS() {
     if (_gisInitDone) return;
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      _gisInitDone = true;
-      google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: window.handleGoogleLogin
-      });
-    }
+    if (!(window.google && window.google.accounts && window.google.accounts.id)) return;
+    _gisInitDone = true;
+
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: window.handleGoogleLogin,
+      use_fedcm_for_prompt: true
+    });
+
     renderAuthPanel();
-    startTokenMonitor();
+
+    if (!_monitorStarted) {
+      _monitorStarted = true;
+      startTokenMonitor();
+    }
   }
 
   // Periodically check JWT expiry and silently refresh before it expires
@@ -226,7 +227,6 @@
       const expiresIn = payload.exp * 1000 - Date.now();
       // Refresh 2 minutes before expiry (or if already expired)
       if (expiresIn < 120000) {
-        console.log('[Auth] Token expiring/expired, refreshing silently...');
         silentTokenRefresh();
       }
     }, 30000); // Check every 30 seconds
@@ -236,20 +236,23 @@
   window.__glRefreshTokenIfNeeded = function() {
     return new Promise(resolve => {
       const profile = localStorage.getItem('gl_user_profile') || sessionStorage.getItem('gl_user_profile');
-      if (!profile) { resolve(false); return; }
-      if (window.google && window.google.accounts && window.google.accounts.id) {
-        // Store original callback, wrap to resolve promise
-        const origCallback = window.handleGoogleLogin;
-        window.handleGoogleLogin = function(response) {
-          origCallback(response);
-          resolve(true);
-        };
-        google.accounts.id.initialize({
-          client_id: CLIENT_ID,
-          callback: window.handleGoogleLogin
-        });
-        if (_prompting) { window.handleGoogleLogin = origCallback; resolve(false); return; }
-        _prompting = true;
+      if (!profile || _prompting) { resolve(false); return; }
+      if (!(window.google && window.google.accounts && window.google.accounts.id)) { resolve(false); return; }
+
+      // Wrap callback to resolve promise on success
+      const origCallback = window.handleGoogleLogin;
+      window.handleGoogleLogin = function(response) {
+        origCallback(response);
+        resolve(true);
+      };
+      // Re-initialize is required by GIS when changing callback
+      google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: window.handleGoogleLogin,
+        use_fedcm_for_prompt: true
+      });
+      _prompting = true;
+      try {
         google.accounts.id.prompt((notification) => {
           _prompting = false;
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
@@ -257,31 +260,42 @@
             resolve(false);
           }
         });
-        // Timeout fallback
-        setTimeout(() => { _prompting = false; window.handleGoogleLogin = origCallback; resolve(false); }, 5000);
-      } else {
+      } catch (_) {
+        _prompting = false;
+        window.handleGoogleLogin = origCallback;
         resolve(false);
       }
+      // Timeout fallback
+      setTimeout(() => { _prompting = false; window.handleGoogleLogin = origCallback; resolve(false); }, 5000);
     });
   };
 
-  // Initial render
+  // ── Bootstrap: wait for GIS SDK to load, then init once ──
+  function tryInit() {
+    if (_gisInitDone) return;
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      initGIS();
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      // GIS script may load after DOMContentLoaded, so retry
-      if (window.google && window.google.accounts) {
-        initGIS();
-      } else {
-        setTimeout(initGIS, 500);
-        setTimeout(initGIS, 1500);
-      }
+      tryInit();
+      if (!_gisInitDone) setTimeout(tryInit, 500);
+      if (!_gisInitDone) setTimeout(tryInit, 1500);
     });
   } else {
-    if (window.google && window.google.accounts) {
-      initGIS();
+    tryInit();
+    if (!_gisInitDone) setTimeout(tryInit, 500);
+    if (!_gisInitDone) setTimeout(tryInit, 1500);
+  }
+
+  // Render even before GIS loads (shows Login button)
+  if (!_gisInitDone) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderAuthPanel);
     } else {
-      setTimeout(initGIS, 500);
-      setTimeout(initGIS, 1500);
+      renderAuthPanel();
     }
   }
 
