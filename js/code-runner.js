@@ -1571,7 +1571,7 @@
       files = {};
       const folder = SOURCE_FOLDER || '';
       Object.entries(fileMap).forEach(([name, src]) => {
-        const clean = String(name || '').replace(/^\\/+/, '');
+        const clean = String(name || '').replace(/^\/+/, '');
         let path;
 
         // Multi-file examples may provide explicit runner roots.
@@ -1580,7 +1580,7 @@
         // JaCaMo: agt/*.asl, java/*.java, resources/*, pom.xml
         if (clean === 'pom.xml') {
           path = '/pom.xml';
-        } else if (/^(astra|asl|agt|java|resources)\\//.test(clean)) {
+        } else if (/^(astra|asl|agt|java|resources)\//.test(clean)) {
           path = '/' + clean;
         } else if (clean.startsWith('src/main/astra/')) {
           path = '/astra/' + clean.slice('src/main/astra/'.length);
