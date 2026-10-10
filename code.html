@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <script src="js/gate.js?v=20261010"></script>
+  <script src="js/gate.js"></script>
   <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="pragma" content="no-cache">
   <meta http-equiv="expires" content="0">
@@ -12,11 +12,11 @@
   <meta name="description" content="Run ASTRA, Jason, and JaCaMo code in the browser with Generative Layers.">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=20261010">
+  <link rel="stylesheet" href="style.css">
   <script src="js/review-config.js?v=5"></script>
   <script>if(!window.GL_UNDER_REVIEW){var s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.defer=true;document.head.appendChild(s);}</script>
-  <script defer src="js/gl-version.js?v=20261010"></script>
-  <script defer src="js/code-runner-auth.js?v=20261010"></script>
+  <script defer src="js/gl-version.js"></script>
+  <script defer src="js/code-runner-auth.js"></script>
   <script defer src="js/search.js?v=20260927"></script>
   <style>
     html,
@@ -272,7 +272,7 @@
       </div>
 
       <div class="runner-frame-container" id="frameContainer">
-        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html?v=20261010" data-platform="astra"></iframe>
+        <iframe class="runner-frame active" id="frame-astra" src="runner-astra.html" data-platform="astra"></iframe>
         <iframe class="runner-frame" id="frame-jason" data-platform="jason"></iframe>
         <iframe class="runner-frame" id="frame-jacamo" data-platform="jacamo"></iframe>
       </div>
@@ -295,9 +295,9 @@
     const tabs = document.querySelectorAll('.platform-tab');
     const frames = document.querySelectorAll('.runner-frame');
     const frameSources = {
-      astra: 'runner-astra.html?v=20261010',
-      jason: 'runner-jason.html?v=20261010',
-      jacamo: 'runner-jacamo.html?v=20261010'
+      astra: 'runner-astra.html',
+      jason: 'runner-jason.html',
+      jacamo: 'runner-jacamo.html'
     };
 
     function isTouchDesktopRunner() {
@@ -462,14 +462,14 @@
     if (hash.startsWith('#load-jason=')) {
       activatePlatform('jason');
       const jasonFrame = document.getElementById('frame-jason');
-      if (jasonFrame) jasonFrame.src = 'runner-jason.html?v=20261010#load=' + hash.slice('#load-jason='.length);
+      if (jasonFrame) jasonFrame.src = 'runner-jason.html#load=' + hash.slice('#load-jason='.length);
     } else if (hash.startsWith('#load-jacamo=')) {
       activatePlatform('jacamo');
       const jacamoFrame = document.getElementById('frame-jacamo');
-      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html?v=20261010#load=' + hash.slice('#load-jacamo='.length);
+      if (jacamoFrame) jacamoFrame.src = 'runner-jacamo.html#load=' + hash.slice('#load-jacamo='.length);
     } else if (hash.startsWith('#load=')) {
       const astraFrame = document.getElementById('frame-astra');
-      if (astraFrame) astraFrame.src = 'runner-astra.html?v=20261010' + hash;
+      if (astraFrame) astraFrame.src = 'runner-astra.html' + hash;
     }
   </script>
 </body>
