@@ -1143,7 +1143,7 @@
         headers['Authorization'] = 'Bearer ' + token;
       }
 
-      const response = await fetch(RUN_URL, {
+      let response = await fetch(RUN_URL, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-store',
