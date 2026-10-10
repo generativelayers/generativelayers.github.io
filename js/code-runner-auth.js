@@ -118,10 +118,14 @@
     }
   }
 
+  let _prompting = false;
   function silentTokenRefresh() {
     // Ask Google Identity Services to re-prompt for a fresh credential
+    if (_prompting) return;
     if (window.google && window.google.accounts && window.google.accounts.id) {
+      _prompting = true;
       google.accounts.id.prompt((notification) => {
+        _prompting = false;
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
           console.log('[Auth] Silent re-auth not available, user may need to click sign-in');
         }
@@ -198,8 +202,11 @@
   }
 
   // Ensure GIS is initialized before first render
+  let _gisInitDone = false;
   function initGIS() {
+    if (_gisInitDone) return;
     if (window.google && window.google.accounts && window.google.accounts.id) {
+      _gisInitDone = true;
       google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: window.handleGoogleLogin
@@ -241,14 +248,17 @@
           client_id: CLIENT_ID,
           callback: window.handleGoogleLogin
         });
+        if (_prompting) { window.handleGoogleLogin = origCallback; resolve(false); return; }
+        _prompting = true;
         google.accounts.id.prompt((notification) => {
+          _prompting = false;
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
             window.handleGoogleLogin = origCallback;
             resolve(false);
           }
         });
         // Timeout fallback
-        setTimeout(() => { window.handleGoogleLogin = origCallback; resolve(false); }, 5000);
+        setTimeout(() => { _prompting = false; window.handleGoogleLogin = origCallback; resolve(false); }, 5000);
       } else {
         resolve(false);
       }
