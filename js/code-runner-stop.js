@@ -214,6 +214,7 @@
         return response;
       } catch (error) {
         const wasStopped = stopRequested;
+        const runId = activeRunId;
         activeController = null;
         activeRunId = null;
         stopRequested = false;
