@@ -328,13 +328,18 @@ function installSearch() {
 }
 
 function initSharedPageScripts() {
-  installRunCodeNavigation();
-  installMobileFixes();
-  installMobileSidebarToggle();
-  normalizeProviderFreeTierLabels();
-  installProviderOrdering();
-  hideReferenceCounts();
-  installSearch();
+  const steps = [
+    ['RunCodeNavigation', installRunCodeNavigation],
+    ['MobileFixes', installMobileFixes],
+    ['MobileSidebarToggle', installMobileSidebarToggle],
+    ['ProviderFreeTierLabels', normalizeProviderFreeTierLabels],
+    ['ProviderOrdering', installProviderOrdering],
+    ['ReferenceCounts', hideReferenceCounts],
+    ['Search', installSearch]
+  ];
+  steps.forEach(([name, fn]) => {
+    try { fn(); } catch (e) { console.error('[GL] ' + name + ' failed:', e); }
+  });
 }
 
 if (document.readyState === 'loading') {
