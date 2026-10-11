@@ -1289,6 +1289,7 @@
           // Detect Maven compilation success — update diagnostics bar
           if (!window.__glCompilationConfirmed && line.indexOf('BUILD SUCCESS') >= 0) {
             window.__glCompilationConfirmed = true;
+            els.status.textContent = 'Running…';
             if (typeof window.__glDiagRefresh === 'function') window.__glDiagRefresh();
           }
         }
