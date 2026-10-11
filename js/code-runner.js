@@ -1033,6 +1033,9 @@
       const guiBtn = document.getElementById('showGuiButton');
       if (guiBtn) guiBtn.hidden = true;
       if (typeof window.__glGuiClose === 'function') window.__glGuiClose();
+      // Hide dashboard button
+      const dashBtn = document.getElementById('showDashboardButton');
+      if (dashBtn) dashBtn.hidden = true;
     }
   }
 
@@ -1088,6 +1091,10 @@
     const guiBtn = document.getElementById('showGuiButton');
     if (guiBtn) guiBtn.hidden = true;
     if (typeof window.__glGuiReset === 'function') window.__glGuiReset();
+
+    // Hide dashboard button from previous run
+    const dashBtn = document.getElementById('showDashboardButton');
+    if (dashBtn) dashBtn.hidden = true;
 
     // Live stopwatch — exposed globally so Stop button can freeze it
     if (window.__glElapsedTimer) clearInterval(window.__glElapsedTimer);
@@ -1240,6 +1247,25 @@
                   setTimeout(showBtn, 500);
                   setTimeout(showBtn, 1500);
                 }
+                if (meta.dashboard_port) {
+                  const dashUrl = 'https://code.generativelayers.com/dashboard/';
+                  const showDash = () => {
+                    let dashBtn = document.getElementById('showDashboardButton');
+                    if (!dashBtn) {
+                      dashBtn = document.createElement('button');
+                      dashBtn.id = 'showDashboardButton';
+                      dashBtn.className = 'gui-btn';
+                      dashBtn.type = 'button';
+                      dashBtn.innerHTML = '<i class="fa-solid fa-chart-line"></i><span>Dashboard</span>';
+                      dashBtn.addEventListener('click', () => window.open(dashUrl, '_blank'));
+                      const toolbar = document.querySelector('.runner-toolbar');
+                      if (toolbar) toolbar.appendChild(dashBtn);
+                    }
+                    dashBtn.hidden = false;
+                  };
+                  showDash();
+                  setTimeout(showDash, 500);
+                }
                 if (meta.gui_resize && meta.gui_width && meta.gui_height) {
                   if (typeof window.__glGuiResize === 'function') {
                     window.__glGuiResize(meta.gui_width, meta.gui_height);
@@ -1274,6 +1300,10 @@
               if (meta.gui_port) {
                 const guiBtn = document.getElementById('showGuiButton');
                 if (guiBtn) guiBtn.hidden = false;
+              }
+              if (meta.dashboard_port) {
+                const dashBtn = document.getElementById('showDashboardButton');
+                if (dashBtn) dashBtn.hidden = false;
               }
               buffer = '';
             }

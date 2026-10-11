@@ -8,13 +8,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Extended Patterns | Generative Layers</title>
-  <meta name="description" content="Extended Generative Layers examples with runnable ASTRA and Jason source code.">
+  <meta name="description" content="Extended multi-agent governance patterns for Generative Layers — Story-to-Book creative writing pipeline with ASTRA, CArtAgO, and real-time dashboard.">
+  <meta name="keywords" content="extended patterns, multi-agent, BDI agents, story-to-book, creative writing, Generative Layers, ASTRA, CArtAgO, governance">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.generativelayers.com/extended-patterns.html">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Generative Layers">
+  <meta property="og:title" content="Extended Patterns | Generative Layers">
+  <meta property="og:description" content="Extended multi-agent governance patterns with runnable ASTRA source code.">
+  <meta property="og:url" content="https://www.generativelayers.com/extended-patterns.html">
+  <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Extended Patterns | Generative Layers">
+  <meta name="twitter:description" content="Extended multi-agent governance patterns with runnable ASTRA source code.">
+  <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Extended Patterns for Governed LLM Integration",
+    "description": "Multi-agent governance patterns demonstrating creative writing pipelines, peer review workflows, and real-time dashboards using Generative Layers.",
+    "url": "https://www.generativelayers.com/extended-patterns.html",
+    "isPartOf": { "@type": "WebSite", "name": "Generative Layers", "url": "https://www.generativelayers.com/" }
+  }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script defer src="js/search.js"></script>
   <script defer src="js/run-code-links.js"></script>
   <style>
+    .pattern-summary { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:16px 0; }
+    .pattern-summary .card { padding:14px; }
+    .pattern-status { font-size:12px; color:var(--color-text-secondary); margin-top:6px; line-height:1.5; }
+    .repo-link { display:inline-flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; font-weight:700; }
+    .load-state { padding:18px; color:var(--color-text-secondary); }
     .tabs-container pre { max-height:620px; overflow:auto; }
     .pattern-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; cursor:pointer; }
     .pattern-header-text { flex:1; }
@@ -40,7 +68,6 @@
     }
     .gl-file-pill.active { background:#1e293b; color:#34d399; border-color:#34d399; }
     .gl-file-pill:hover:not(.active) { color:#cbd5e1; background:#1a2332; }
-    .load-state { padding:18px; color:var(--color-text-secondary); }
     @media (max-width:600px) {
       .tabs-header { overflow-x:auto; padding:0 10px; }
       .tab-btn { padding:12px 16px; }
@@ -53,10 +80,7 @@
     <div class="header-inner">
       <button class="menu-toggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
       <img class="header-logo" src="/icon/logo.png" alt="Generative Layers" width="36" height="36">
-      <div class="search-wrapper">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input class="search" placeholder="Search…" aria-label="Search">
-      </div>
+      <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass search-icon"></i><input class="search" placeholder="Search…" aria-label="Search"></div>
     </div>
   </header>
 
@@ -76,62 +100,89 @@
 
     <main class="main">
       <h1>Extended Patterns</h1>
-      <div id="patterns-root">
-        <div class="load-state">Loading extended pattern source...</div>
+      <p class="lead">Multi-agent governance patterns that go beyond single-agent acceptance flows. These examples demonstrate orchestrated pipelines, peer review workflows, shared artifacts, and real-time observability &mdash; all governed through the Generative Layers lifecycle.</p>
+
+      <section class="info-panel" id="about-extended">
+        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
+          <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
+            Extended patterns build on the <a href="patterns.html">core acceptance patterns</a> by composing multiple governed agents into collaborative pipelines. Source files are loaded from the current <a href="https://github.com/generativelayers/expanded-examples" target="_blank" rel="noopener">expanded-examples</a> repository.
+          </p>
+        </div>
+        <div class="pattern-summary">
+          <div class="card"><strong>Multi-agent pipelines</strong><div class="pattern-status">Orchestrator + workers with governed message passing.</div></div>
+          <div class="card"><strong>Shared artifacts</strong><div class="pattern-status">CArtAgO artifacts as coordinated workspaces with observable properties.</div></div>
+          <div class="card"><strong>Live from GitHub</strong><div class="pattern-status">Snippets below are loaded from the current expanded-examples repository.</div></div>
+        </div>
+      </section>
+
+      <div id="patterns-root" class="patterns-root">
+        <div class="load-state">Loading extended pattern examples from GitHub...</div>
       </div>
     </main>
   </div>
 
-  <script src="js/extended-mathematician-scientist-astra.js"></script>
-  <script src="js/extended-mathematician-scientist-java.js"></script>
+  <script src="js/inline-extended-sources.js"></script>
   <script>
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     if (menuToggle && sidebar && sidebarBackdrop) {
-      menuToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('open');
-        sidebarBackdrop.classList.toggle('open');
-      });
-      sidebarBackdrop.addEventListener('click', function() {
-        sidebar.classList.remove('open');
-        this.classList.remove('open');
-      });
+      menuToggle.addEventListener('click', function() { sidebar.classList.toggle('open'); sidebarBackdrop.classList.toggle('open'); });
+      sidebarBackdrop.addEventListener('click', function() { sidebar.classList.remove('open'); this.classList.remove('open'); });
     }
 
-    const INLINE_EXTENDED_SOURCES =
-      window.GL_EXTENDED_MATH_SCIENTIST_FILES || {};
+    const RAW_BASE = 'https://raw.githubusercontent.com/generativelayers/expanded-examples/main/';
 
     function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#039;');
+      return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     }
 
-    function toArray(value) {
-      return Array.isArray(value) ? value : [value];
+    async function loadSource(path) {
+      if (window.__INLINE_EXTENDED_SOURCES && window.__INLINE_EXTENDED_SOURCES[path]) return window.__INLINE_EXTENDED_SOURCES[path];
+      const response = await fetch(RAW_BASE + path, { cache:'no-cache' });
+      if (!response.ok) throw new Error('Could not load ' + path);
+      return response.text();
     }
 
-    function basename(path) {
-      return path.split('/').pop();
-    }
+    function toArray(val) { return Array.isArray(val) ? val : [val]; }
+    function basename(path) { return path.split('/').pop(); }
 
+    /* ─── Pattern definitions ─────────────────────────────────
+     *  To add Jason / JaCaMo tabs later, add entries to the
+     *  `files` object, e.g.:
+     *    Jason: ['jason/story-to-book/src/main/asl/main.asl', ...],
+     *    JaCaMo: ['jacamo/story-to-book/src/agt/main.asl', ...]
+     * ──────────────────────────────────────────────────────── */
     const EXTENDED_PATTERNS = [
       {
-        id:'mathematician-scientist',
-        title:'Mathematician Scientist',
-        icon:'fa-square-root-variable',
-        description:'ASTRA multi-agent mathematical research system using Generative Layers and direct CArtAgO instruments.',
-        files:{
-          ASTRA:Object.keys(INLINE_EXTENDED_SOURCES)
+        id: 'story-to-book',
+        title: 'Story-to-Book',
+        icon: 'fa-book-open',
+        description: 'Multi-agent creative writing pipeline. An orchestrator generates a book outline, a writer drafts chapters with coherence checking, and a reviewer critiques and revises — all governed through the GL lifecycle with shared CArtAgO artifacts and a real-time web dashboard.',
+        checks: [
+          'Orchestrated chapter pipeline with recursive loop',
+          'GL coherence evaluation (judge-to-block pattern)',
+          'Peer review with feedback verification',
+          'Shared manuscript workspace (CArtAgO artifact)',
+          'Real-time web dashboard on localhost:8080'
+        ],
+        files: {
+          ASTRA: [
+            'astra/story-to-book/pom.xml',
+            'astra/story-to-book/src/main/astra/Main.astra',
+            'astra/story-to-book/src/main/astra/Writer.astra',
+            'astra/story-to-book/src/main/astra/Reviewer.astra',
+            'astra/story-to-book/src/main/java/artifacts/ManuscriptArtifact.java',
+            'astra/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
+            'astra/story-to-book/src/main/java/dashboard/Dashboard.java',
+            'astra/story-to-book/src/main/java/dashboard/DashboardServer.java'
+          ]
         }
       }
     ];
 
-    function renderPattern(pattern) {
+    function renderPatternShell(pattern) {
+      const checks = pattern.checks.map(item => '<li>' + escapeHtml(item) + '</li>').join('');
       const buttons = Object.keys(pattern.files)
         .map((name, i) =>
           '<button class="tab-btn ' + (i === 0 ? 'active' : '') +
@@ -143,142 +194,102 @@
         const arr = toArray(paths);
         const pills = arr.length > 1
           ? '<div class="gl-file-pills">' +
-            arr.map((path, fileIndex) =>
-              '<button class="gl-file-pill ' + (fileIndex === 0 ? 'active' : '') +
-              '" data-file-idx="' + fileIndex + '">' +
-              escapeHtml(basename(path)) + '</button>').join('') +
+            arr.map((p, fi) =>
+              '<button class="gl-file-pill ' + (fi === 0 ? 'active' : '') +
+              '" data-pattern="' + pattern.id +
+              '" data-platform="' + name +
+              '" data-file-idx="' + fi + '">' + basename(p) + '</button>').join('') +
             '</div>'
           : '';
-
-        const blocks = arr.map((path, fileIndex) => {
-          const source = INLINE_EXTENDED_SOURCES[path];
-          if (typeof source !== 'string') {
-            return '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
-              'data-file-idx="' + fileIndex + '"><code>' +
-              'Source is not embedded for ' + escapeHtml(basename(path)) +
-              '</code></pre>';
-          }
-          return '<pre ' + (fileIndex > 0 ? 'hidden ' : '') +
-            'data-file-idx="' + fileIndex + '">' +
-            '<code data-source="' + escapeHtml(path) +
-            '" data-filename="' + escapeHtml(path) + '">' +
-            escapeHtml(source.trim()) + '</code></pre>';
-        }).join('');
-
+        const blocks = arr.map((p, fi) =>
+          '<pre ' + (fi > 0 ? 'hidden ' : '') + 'data-file-idx="' + fi + '">' +
+          '<code data-source="' + escapeHtml(p) +
+          '" data-filename="' + escapeHtml(basename(p)) + '">Loading ' + basename(p) + '...</code></pre>'
+        ).join('');
         return '<div class="tab-content ' + (i === 0 ? 'active' : '') +
-          '" id="' + pattern.id + '-' + name + '">' +
-          pills + blocks + '</div>';
+          '" id="' + pattern.id + '-' + name + '">' + pills + blocks + '</div>';
       }).join('');
 
-      return '<section class="info-panel" id="pattern-' + pattern.id + '">' +
-        '<div class="pattern-header" onclick="togglePatternDetail(\'' + pattern.id + '\')">' +
-          '<div class="pattern-header-text">' +
-            '<h2><i class="fa-solid ' + pattern.icon +
-            '" style="margin-right:8px;color:var(--color-green-700);"></i>' +
-            escapeHtml(pattern.title) + '</h2>' +
-            '<p>' + escapeHtml(pattern.description) + '</p>' +
-          '</div>' +
-          '<button class="pattern-toggle-btn" type="button" aria-label="Expand" ' +
-          'onclick="event.stopPropagation();togglePatternDetail(\'' + pattern.id + '\')">' +
-            '<i class="fa-solid fa-eye"></i>' +
-          '</button>' +
-        '</div>' +
-        '<div class="pattern-detail" id="pattern-detail-' + pattern.id + '" hidden>' +
-          '<div class="tabs-container">' +
-            '<div class="tabs-header"><div class="tabs-buttons">' + buttons + '</div></div>' +
-            panels +
-          '</div>' +
-        '</div>' +
-      '</section>';
+      return '<section class="info-panel" id="pattern-' + pattern.id + '">'
+        + '<div class="pattern-header" onclick="togglePatternDetail(\'' + pattern.id + '\')">'
+        + '<div class="pattern-header-text"><h2><i class="fa-solid ' + pattern.icon
+        + '" style="margin-right:8px;color:var(--color-green-700);"></i>'
+        + escapeHtml(pattern.title) + '</h2><p>' + escapeHtml(pattern.description) + '</p></div>'
+        + '<button class="pattern-toggle-btn" type="button" aria-label="Expand" '
+        + 'onclick="event.stopPropagation();togglePatternDetail(\'' + pattern.id + '\')">'
+        + '<i class="fa-solid fa-eye"></i></button>'
+        + '</div><div class="pattern-detail" id="pattern-detail-' + pattern.id + '" hidden>'
+        + '<div class="card" style="padding:16px;margin:12px 0;"><strong>Features</strong>'
+        + '<ul style="margin:8px 0 0 20px;color:var(--color-text-secondary);line-height:1.7;">' + checks + '</ul></div>'
+        + '<div class="tabs-container"><div class="tabs-header"><div class="tabs-buttons">' + buttons + '</div></div>'
+        + panels + '</div>'
+        + '</div></section>';
     }
 
     window.togglePatternDetail = function(id) {
       const el = document.getElementById('pattern-detail-' + id);
       if (!el) return;
-
       if (el.hidden) {
         el.hidden = false;
         el.style.maxHeight = '0';
         el.style.overflow = 'hidden';
         requestAnimationFrame(() => {
           el.style.maxHeight = el.scrollHeight + 'px';
-          setTimeout(() => {
-            el.style.maxHeight = 'none';
-            el.style.overflow = '';
-          }, 350);
+          setTimeout(() => { el.style.maxHeight = 'none'; el.style.overflow = ''; }, 350);
         });
       } else {
         el.style.maxHeight = el.scrollHeight + 'px';
         el.style.overflow = 'hidden';
         requestAnimationFrame(() => { el.style.maxHeight = '0'; });
-        setTimeout(() => {
-          el.hidden = true;
-          el.style.maxHeight = '';
-          el.style.overflow = '';
-        }, 350);
+        setTimeout(() => { el.hidden = true; el.style.maxHeight = ''; el.style.overflow = ''; }, 350);
       }
     };
 
-    function hydratePatterns() {
+    async function hydratePatterns() {
       const root = document.getElementById('patterns-root');
       if (!root) return;
 
-      root.innerHTML = EXTENDED_PATTERNS.map(renderPattern).join('');
+      root.innerHTML = EXTENDED_PATTERNS.map(renderPatternShell).join('');
 
+      // Platform tab switching
       root.addEventListener('click', event => {
         const button = event.target.closest('.tab-btn');
         if (!button) return;
-
         const patternId = button.dataset.pattern;
         const platform = button.dataset.platform;
-
-        root.querySelectorAll('.tab-btn[data-pattern="' + patternId + '"]')
-          .forEach(btn => btn.classList.remove('active'));
+        root.querySelectorAll('.tab-btn[data-pattern="' + patternId + '"]').forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
-
-        root.querySelectorAll('[id^="' + patternId + '-"]')
-          .forEach(panel => panel.classList.remove('active'));
-
+        root.querySelectorAll('[id^="' + patternId + '-"]').forEach(panel => panel.classList.remove('active'));
         const panel = document.getElementById(patternId + '-' + platform);
         if (panel) panel.classList.add('active');
       });
 
+      // File pill switching
       root.addEventListener('click', event => {
         const pill = event.target.closest('.gl-file-pill');
         if (!pill) return;
-
         const panel = pill.closest('.tab-content');
         if (!panel) return;
-
         const idx = pill.dataset.fileIdx;
-        panel.querySelectorAll('.gl-file-pill')
-          .forEach(item => item.classList.remove('active'));
+        panel.querySelectorAll('.gl-file-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
-
-        panel.querySelectorAll('pre[data-file-idx]')
-          .forEach(pre => { pre.hidden = pre.dataset.fileIdx !== idx; });
+        panel.querySelectorAll('pre[data-file-idx]').forEach(pre => { pre.hidden = pre.dataset.fileIdx !== idx; });
       });
 
-      root.querySelectorAll('code[data-source]').forEach(block => {
+      // Fetch all source files from GitHub
+      await Promise.all(Array.from(root.querySelectorAll('code[data-source]')).map(async block => {
+        try { block.textContent = (await loadSource(block.dataset.source)).trim(); }
+        catch (error) { block.textContent = 'Unable to load current source from expanded-examples repository.\n' + block.dataset.source; }
         delete block.dataset.glHighlighted;
-      });
+      }));
 
       if (window.__glStaticHighlight) window.__glStaticHighlight();
-      setTimeout(() => {
-        if (window.__glStaticHighlight) window.__glStaticHighlight();
-      }, 250);
+      setTimeout(() => { if (window.__glStaticHighlight) window.__glStaticHighlight(); }, 250);
+      if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) window.GLRunCodeLinks.scan();
 
-      if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) {
-        window.GLRunCodeLinks.scan();
-      }
-
-      // ── Reliable Run-button handler ──────────────────────────
-      // The standard multi-file transport (sessionStorage / window.name)
-      // is unreliable for large payloads across the code.html iframe
-      // architecture.  Instead, write the project directly into the
-      // ASTRA runner's own persistent localStorage key.  When the
-      // runner iframe boots, its loadFromStorage() picks it up with
-      // zero hand-off complexity.
+      // ── Run-button handler ──────────────────────────────────
+      // Write the project directly into the ASTRA runner's
+      // persistent localStorage key for the code.html runner.
       root.addEventListener('click', function (e) {
         var btn = e.target.closest('.gl-run-btn');
         if (!btn) return;
@@ -286,7 +297,6 @@
         e.preventDefault();
         e.stopImmediatePropagation();
 
-        // Collect every file in the active tab panel
         var panel = btn.closest('.tabs-container');
         if (!panel) return;
         var activeTab = panel.querySelector('.tab-content.active');
@@ -294,40 +304,34 @@
         var pres = activeTab.querySelectorAll('pre[data-file-idx]');
         if (!pres.length) return;
 
-        var projectFiles = {};
+        // Build file map matching code-runner.js expectations.
+        // Keys use runner-internal paths (astra/*, java/*, pom.xml).
+        var fileMap = {};
         pres.forEach(function (pre) {
           var code = pre.querySelector('code');
           if (!code) return;
           var raw = code.textContent.replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
-          var name = (code.dataset.filename || '').replace(/^\/+/, '');
+          var sourcePath = (code.dataset.source || code.dataset.filename || '').replace(/^\/+/, '');
 
-          // Map to runner-internal paths (mirrors code-runner.js loadFiles)
-          var path;
-          if (name === 'pom.xml') {
-            path = '/pom.xml';
-          } else if (/^(astra|asl|agt|java|resources)\//.test(name)) {
-            path = '/' + name;
-          } else {
-            path = '/astra/' + name;
-          }
-          projectFiles[path] = raw;
+          // Strip the expanded-examples prefix (e.g. 'astra/story-to-book/')
+          var path = sourcePath.replace(/^(?:astra|jason|jacamo)\/[^/]+\//, '');
+          // Strip 'src/main/' — code-runner.js adds it back when sending to server
+          path = path.replace(/^src\/main\//, '');
+
+          fileMap[path] = raw;
         });
 
-        // Note: if /pom.xml is not in the source files, the runner's
-        // init() will inject its default ASTRA pom automatically.
-
-        var projectData = JSON.stringify({
-          files: projectFiles,
-          currentPath: Object.keys(projectFiles).find(function(p) {
-            return p.endsWith('.astra');
-          }) || Object.keys(projectFiles)[0] || '/astra/Main.astra'
-        });
-
-        try { localStorage.setItem('gl_runner_astra_project', projectData); } catch (_) {}
-
-        // Navigate to the code runner (no ?load= token needed)
-        window.location.href = 'code.html';
-      }, true);   // ← capturing phase so we fire before run-code-links.js
+        // Navigate to code.html using the standard multi-file handoff
+        // (same mechanism as run-code-links.js openRunnerMulti)
+        var payload = { title: 'Story-to-Book Pipeline', files: fileMap };
+        var token = 'p' + Date.now();
+        var storageKey = 'gl-runner-payload:' + token;
+        var serialized = JSON.stringify(payload);
+        try { sessionStorage.setItem(storageKey, serialized); } catch (_) {}
+        try { localStorage.setItem(storageKey, serialized); } catch (_) {}
+        try { window.name = 'gl-runner-project:' + serialized; } catch (_) {}
+        window.location.href = 'code.html?load=' + encodeURIComponent(token);
+      }, true);
     }
 
     document.addEventListener('DOMContentLoaded', hydratePatterns);
