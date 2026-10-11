@@ -122,7 +122,8 @@
     try {
       google.accounts.id.prompt((notification) => {
         _prompting = false;
-        // Silently ignore — user can click sign-in manually if needed
+        // Re-render auth panel so UI reflects actual token state
+        renderAuthPanel();
       });
     } catch (_) {
       _prompting = false;
@@ -155,7 +156,14 @@
       silentTokenRefresh();
     }
 
-    if (profile) {
+    // Determine if the user has a valid (non-expired) token
+    const hasValidToken = !!(token && (() => {
+      const p = parseJwt(token);
+      return p && p.exp * 1000 > Date.now();
+    })());
+
+    if (profile && hasValidToken) {
+      // Fully authenticated — show profile + sign-out
       container.innerHTML = `
         <div class="gl-user-profile">
           <img class="gl-user-avatar" src="${profile.picture || '/icon/logo.png'}" alt="${profile.name}" referrerpolicy="no-referrer">
@@ -166,6 +174,40 @@
         </div>
       `;
       document.getElementById('glSignoutBtn').addEventListener('click', signOut);
+    } else if (profile && !hasValidToken) {
+      // Profile exists but token expired — show expired state with re-login action
+      container.innerHTML = `
+        <div class="gl-user-profile gl-session-expired">
+          <img class="gl-user-avatar" src="${profile.picture || '/icon/logo.png'}" alt="${profile.name}" referrerpolicy="no-referrer" style="opacity:0.5">
+          <span class="gl-user-name" title="Session expired — click to re-login" style="opacity:0.6">${profile.name}</span>
+          <button class="gl-btn-signin gl-btn-relogin" id="glReloginBtn" title="Session expired — click to re-login" style="margin-left:6px;font-size:11px;padding:3px 10px;">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Re-login</span>
+          </button>
+          <button class="gl-btn-signout" id="glSignoutBtn" title="Sign Out">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      `;
+      document.getElementById('glSignoutBtn').addEventListener('click', signOut);
+      document.getElementById('glReloginBtn').addEventListener('click', () => {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          let fallback = document.getElementById('glSigninFallback');
+          if (!fallback) {
+            fallback = document.createElement('div');
+            fallback.id = 'glSigninFallback';
+            fallback.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+            document.body.appendChild(fallback);
+          }
+          google.accounts.id.renderButton(fallback, {
+            theme: 'outline', size: 'large', type: 'standard'
+          });
+          setTimeout(() => {
+            const btn = fallback.querySelector('[role="button"]') || fallback.querySelector('div[style]');
+            if (btn) btn.click();
+          }, 100);
+        }
+      });
     } else {
       container.innerHTML = `
         <button class="gl-btn-signin" id="glSigninBtn" title="Sign in for unlimited runs and 20 min execution time">
