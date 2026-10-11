@@ -1287,7 +1287,13 @@
           els.output.textContent += line + '\n';
 
           // Detect Maven compilation success — update diagnostics bar
-          if (!window.__glCompilationConfirmed && line.indexOf('BUILD SUCCESS') >= 0) {
+          // ASTRA uses astra:deploy which runs inline (no BUILD SUCCESS while running),
+          // so also check for [Scheduler] or [INFO] --- astra: markers
+          if (!window.__glCompilationConfirmed && (
+              line.indexOf('BUILD SUCCESS') >= 0 ||
+              line.indexOf('[Scheduler]') >= 0 ||
+              line.indexOf('astra:deploy') >= 0
+          )) {
             window.__glCompilationConfirmed = true;
             els.status.textContent = 'Running…';
             if (typeof window.__glDiagRefresh === 'function') window.__glDiagRefresh();
