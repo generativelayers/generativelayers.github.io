@@ -156,14 +156,14 @@
         ],
         files: {
           ASTRA: [
-            'astra/story-to-book/pom.xml',
             'astra/story-to-book/src/main/astra/Main.astra',
             'astra/story-to-book/src/main/astra/Writer.astra',
             'astra/story-to-book/src/main/astra/Reviewer.astra',
             'astra/story-to-book/src/main/java/artifacts/ManuscriptArtifact.java',
             'astra/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
             'astra/story-to-book/src/main/java/dashboard/Dashboard.java',
-            'astra/story-to-book/src/main/java/dashboard/DashboardServer.java'
+            'astra/story-to-book/src/main/java/dashboard/DashboardServer.java',
+            'astra/story-to-book/pom.xml'
           ]
         }
       }
@@ -187,22 +187,31 @@
 
       const panels = Object.entries(pattern.files).map(([name, paths], i) => {
         const arr = toArray(paths);
-        const pills = arr.length > 1
+        // Only show .astra files as pills; pom.xml and .java are hidden but included for Run
+        const visible = arr.filter(p => p.endsWith('.astra'));
+        const hidden  = arr.filter(p => !p.endsWith('.astra'));
+        const pills = visible.length > 1
           ? '<div class="gl-file-pills">' +
-            arr.map((p, fi) =>
+            visible.map((p, fi) =>
               '<button class="gl-file-pill ' + (fi === 0 ? 'active' : '') +
               '" data-pattern="' + pattern.id +
               '" data-platform="' + name +
               '" data-file-idx="' + fi + '">' + basename(p) + '</button>').join('') +
             '</div>'
           : '';
-        const blocks = arr.map((p, fi) =>
+        const visibleBlocks = visible.map((p, fi) =>
           '<pre ' + (fi > 0 ? 'hidden ' : '') + 'data-file-idx="' + fi + '">' +
           '<code data-source="' + escapeHtml(p) +
           '" data-filename="' + escapeHtml(runnerPath(p)) + '">Loading ' + basename(p) + '...</code></pre>'
         ).join('');
+        // Hidden blocks for pom.xml and java files (included in Run payload)
+        const hiddenBlocks = hidden.map((p, fi) =>
+          '<pre hidden data-file-idx="' + (visible.length + fi) + '">' +
+          '<code data-source="' + escapeHtml(p) +
+          '" data-filename="' + escapeHtml(runnerPath(p)) + '"></code></pre>'
+        ).join('');
         return '<div class="tab-content ' + (i === 0 ? 'active' : '') +
-          '" id="' + pattern.id + '-' + name + '">' + pills + blocks + '</div>';
+          '" id="' + pattern.id + '-' + name + '">' + pills + visibleBlocks + hiddenBlocks + '</div>';
       }).join('');
 
       return '<section class="info-panel" id="pattern-' + pattern.id + '">'
