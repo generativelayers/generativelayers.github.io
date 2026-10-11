@@ -457,7 +457,7 @@
     hintEl.textContent = '';
     setEditorGlow(errors.length > 0);
 
-    if (errors.length) bar.setAttribute('data-open', '1');
+    // Don't auto-open panel — let user click to expand
 
     var sevIcons = {
       error: '<i class="fa-solid fa-circle-xmark gl-diag-sev e"></i>',

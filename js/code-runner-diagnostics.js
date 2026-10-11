@@ -714,7 +714,7 @@
     if (infos.length) parts.push(infos.length + ' hint' + (infos.length > 1 ? 's' : ''));
     setState(errors.length ? 'error' : warnings.length ? 'warn' : 'warn', parts.join(', '));
     setEditorGlow(errors.length > 0);
-    if (errors.length) bar.setAttribute('data-open', '1');
+    // Don't auto-open panel — let user click to expand
 
     var sevIcons = {
       error: '<i class="fa-solid fa-circle-xmark gl-diag-sev e"></i>',
