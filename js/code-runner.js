@@ -1083,6 +1083,7 @@
     }
 
     setRunning(true);
+    window.__glCompilationConfirmed = false;
     els.metaStatus.textContent = 'Running';
     els.metaReturnCode.textContent = '—';
     els.metaElapsed.textContent = '0.0s';
@@ -1284,6 +1285,12 @@
 
           // Append regular output line (with newline)
           els.output.textContent += line + '\n';
+
+          // Detect Maven compilation success — update diagnostics bar
+          if (!window.__glCompilationConfirmed && line.indexOf('BUILD SUCCESS') >= 0) {
+            window.__glCompilationConfirmed = true;
+            if (typeof window.__glDiagRefresh === 'function') window.__glDiagRefresh();
+          }
         }
 
         // Auto-scroll output to bottom

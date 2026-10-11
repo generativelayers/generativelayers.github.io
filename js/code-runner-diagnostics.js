@@ -680,9 +680,13 @@
   }
 
   function renderDiags(diags, compilerDone) {
-    // If the program is actively running, it compiled fine — hide diagnostics
+    // If the program is actively running, hide diagnostics and show compilation status
     if (isProgramRunning()) {
-      setState('ok', 'Running — compiled OK ✓');
+      if (window.__glCompilationConfirmed) {
+        setState('ok', 'Running — compiled OK ✓');
+      } else {
+        setState('checking', 'Compiling…');
+      }
       hintEl.textContent = '';
       setEditorGlow(false);
       panel.innerHTML = '';
@@ -756,6 +760,14 @@
     var lh = parseFloat(getComputedStyle(editor).lineHeight) || 20;
     editor.scrollTop = Math.max(0, (lineNum - 4) * lh);
   }
+
+
+  /* ── External refresh (called from code-runner.js on BUILD SUCCESS) ── */
+  window.__glDiagRefresh = function () {
+    if (!bar) return;
+    var merged = mergeDiags(lastClientDiags, lastServerDiags);
+    renderDiags(merged, lastServerDiags !== null);
+  };
 
   /* ── Boot ───────────────────────────────────────────────────── */
   if (document.readyState === 'loading') {
