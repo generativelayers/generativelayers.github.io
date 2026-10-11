@@ -102,18 +102,6 @@
       <h1>Extended Patterns</h1>
       <p class="lead">Multi-agent governance patterns that go beyond single-agent acceptance flows. These examples demonstrate orchestrated pipelines, peer review workflows, shared artifacts, and real-time observability &mdash; all governed through the Generative Layers lifecycle.</p>
 
-      <section class="info-panel" id="about-extended">
-        <div class="card" style="padding:20px;border-left:3px solid var(--color-green-700);margin-bottom:16px;">
-          <p style="font-size:14.5px;line-height:1.7;margin:0;color:var(--color-text-secondary);">
-            Extended patterns build on the <a href="patterns.html">core acceptance patterns</a> by composing multiple governed agents into collaborative pipelines. Source files are loaded from the current <a href="https://github.com/generativelayers/expanded-examples" target="_blank" rel="noopener">expanded-examples</a> repository.
-          </p>
-        </div>
-        <div class="pattern-summary">
-          <div class="card"><strong>Multi-agent pipelines</strong><div class="pattern-status">Orchestrator + workers with governed message passing.</div></div>
-          <div class="card"><strong>Shared artifacts</strong><div class="pattern-status">CArtAgO artifacts as coordinated workspaces with observable properties.</div></div>
-          <div class="card"><strong>Live from GitHub</strong><div class="pattern-status">Snippets below are loaded from the current expanded-examples repository.</div></div>
-        </div>
-      </section>
 
       <div id="patterns-root" class="patterns-root">
         <div class="load-state">Loading extended pattern examples from GitHub...</div>
@@ -181,6 +169,13 @@
       }
     ];
 
+
+    function runnerPath(p) {
+      // 'astra/story-to-book/src/main/astra/Main.astra' → 'astra/Main.astra'
+      // 'astra/story-to-book/pom.xml' → 'pom.xml'
+      return p.replace(/^(?:astra|jason|jacamo)\/[^/]+\//, '').replace(/^src\/main\//, '');
+    }
+
     function renderPatternShell(pattern) {
       const checks = pattern.checks.map(item => '<li>' + escapeHtml(item) + '</li>').join('');
       const buttons = Object.keys(pattern.files)
@@ -204,7 +199,7 @@
         const blocks = arr.map((p, fi) =>
           '<pre ' + (fi > 0 ? 'hidden ' : '') + 'data-file-idx="' + fi + '">' +
           '<code data-source="' + escapeHtml(p) +
-          '" data-filename="' + escapeHtml(basename(p)) + '">Loading ' + basename(p) + '...</code></pre>'
+          '" data-filename="' + escapeHtml(runnerPath(p)) + '">Loading ' + basename(p) + '...</code></pre>'
         ).join('');
         return '<div class="tab-content ' + (i === 0 ? 'active' : '') +
           '" id="' + pattern.id + '-' + name + '">' + pills + blocks + '</div>';
@@ -287,51 +282,7 @@
       setTimeout(() => { if (window.__glStaticHighlight) window.__glStaticHighlight(); }, 250);
       if (window.GLRunCodeLinks && window.GLRunCodeLinks.scan) window.GLRunCodeLinks.scan();
 
-      // ── Run-button handler ──────────────────────────────────
-      // Write the project directly into the ASTRA runner's
-      // persistent localStorage key for the code.html runner.
-      root.addEventListener('click', function (e) {
-        var btn = e.target.closest('.gl-run-btn');
-        if (!btn) return;
-
-        e.preventDefault();
-        e.stopImmediatePropagation();
-
-        var panel = btn.closest('.tabs-container');
-        if (!panel) return;
-        var activeTab = panel.querySelector('.tab-content.active');
-        if (!activeTab) return;
-        var pres = activeTab.querySelectorAll('pre[data-file-idx]');
-        if (!pres.length) return;
-
-        // Build file map matching code-runner.js expectations.
-        // Keys use runner-internal paths (astra/*, java/*, pom.xml).
-        var fileMap = {};
-        pres.forEach(function (pre) {
-          var code = pre.querySelector('code');
-          if (!code) return;
-          var raw = code.textContent.replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
-          var sourcePath = (code.dataset.source || code.dataset.filename || '').replace(/^\/+/, '');
-
-          // Strip the expanded-examples prefix (e.g. 'astra/story-to-book/')
-          var path = sourcePath.replace(/^(?:astra|jason|jacamo)\/[^/]+\//, '');
-          // Strip 'src/main/' — code-runner.js adds it back when sending to server
-          path = path.replace(/^src\/main\//, '');
-
-          fileMap[path] = raw;
-        });
-
-        // Navigate to code.html using the standard multi-file handoff
-        // (same mechanism as run-code-links.js openRunnerMulti)
-        var payload = { title: 'Story-to-Book Pipeline', files: fileMap };
-        var token = 'p' + Date.now();
-        var storageKey = 'gl-runner-payload:' + token;
-        var serialized = JSON.stringify(payload);
-        try { sessionStorage.setItem(storageKey, serialized); } catch (_) {}
-        try { localStorage.setItem(storageKey, serialized); } catch (_) {}
-        try { window.name = 'gl-runner-project:' + serialized; } catch (_) {}
-        window.location.href = 'code.html?load=' + encodeURIComponent(token);
-      }, true);
+      // Run buttons are handled by run-code-links.js (loaded via GLRunCodeLinks.scan)
     }
 
     document.addEventListener('DOMContentLoaded', hydratePatterns);
