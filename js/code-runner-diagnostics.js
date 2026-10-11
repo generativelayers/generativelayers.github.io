@@ -101,6 +101,12 @@
   var lastClientDiags = [];   // client-side lint results
   var lastServerDiags = null; // server compiler results (null = not yet received)
 
+  /** True when the program is actively running (STOP button is visible) */
+  function isProgramRunning() {
+    var btn = document.getElementById('runAstraButton');
+    return btn && btn.classList.contains('runner-stop-mode');
+  }
+
   /* ═══════════════════════════════════════════════════════════════
    *  LAYER 1: CLIENT-SIDE LINT CHECKS
    *  Ported from astra-diagnostics-vscode (syntactic-checks.ts)
@@ -523,6 +529,12 @@
       runBtn.addEventListener('click', function () {
         if (dirty) requestCheck('run');
       }, true);
+      // Watch for run state changes (STOP button toggle) to hide/show diagnostics
+      var runObs = new MutationObserver(function () {
+        var merged = mergeDiags(lastClientDiags, lastServerDiags);
+        renderDiags(merged, lastServerDiags !== null);
+      });
+      runObs.observe(runBtn, { attributes: true, attributeFilter: ['class'] });
     }
 
     dirty = true;
@@ -668,6 +680,16 @@
   }
 
   function renderDiags(diags, compilerDone) {
+    // If the program is actively running, it compiled fine — hide diagnostics
+    if (isProgramRunning()) {
+      setState('ok', 'Running — compiled OK ✓');
+      hintEl.textContent = '';
+      setEditorGlow(false);
+      panel.innerHTML = '';
+      bar.setAttribute('data-open', '0');
+      return;
+    }
+
     var errors = diags.filter(function (d) { return d.severity === 'error'; });
     var warnings = diags.filter(function (d) { return d.severity === 'warning'; });
     var infos = diags.filter(function (d) { return d.severity === 'info' || d.severity === 'hint'; });
