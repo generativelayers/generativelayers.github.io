@@ -36,20 +36,3 @@ for (const rel of FILES) {
 const js = 'window.__INLINE_EXTENDED_SOURCES = ' + JSON.stringify(sources, null, null) + ';\n';
 fs.writeFileSync(OUTPUT, js, 'utf8');
 console.log(`Wrote ${OUTPUT} (${js.length} bytes, ${FILES.length} files)`);
-
-// Auto-update cache buster in extended-patterns.html
-const crypto = require('crypto');
-const hash = crypto.createHash('md5').update(js).digest('hex').slice(0, 8);
-const htmlPath = path.join(__dirname, 'extended-patterns.html');
-if (fs.existsSync(htmlPath)) {
-  let html = fs.readFileSync(htmlPath, 'utf8');
-  const updated = html.replace(
-    /inline-extended-sources\.js\?cb=[a-f0-9]+/,
-    `inline-extended-sources.js?cb=${hash}`
-  );
-  if (updated !== html) {
-    fs.writeFileSync(htmlPath, updated, 'utf8');
-    console.log(`Updated cache buster in extended-patterns.html -> ?cb=${hash}`);
-  }
-}
-
