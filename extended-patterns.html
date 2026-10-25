@@ -8,20 +8,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Extended Patterns | Generative Layers</title>
-  <meta name="description" content="Extended multi-agent governance patterns for Generative Layers — Story-to-Book creative writing pipeline with ASTRA, CArtAgO, and real-time dashboard.">
-  <meta name="keywords" content="extended patterns, multi-agent, BDI agents, story-to-book, creative writing, Generative Layers, ASTRA, CArtAgO, governance">
+  <meta name="description" content="Extended multi-agent governance patterns for Generative Layers — Story-to-Book creative writing pipeline with ASTRA, Jason, JaCaMo, CArtAgO, and real-time dashboard.">
+  <meta name="keywords" content="extended patterns, multi-agent, BDI agents, story-to-book, creative writing, Generative Layers, ASTRA, Jason, JaCaMo, CArtAgO, governance">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.generativelayers.com/extended-patterns.html">
   <link rel="icon" href="/icon/icon.ico" type="image/x-icon">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Generative Layers">
   <meta property="og:title" content="Extended Patterns | Generative Layers">
-  <meta property="og:description" content="Extended multi-agent governance patterns with runnable ASTRA source code.">
+  <meta property="og:description" content="Extended multi-agent governance patterns with ASTRA, Jason, and JaCaMo source code.">
   <meta property="og:url" content="https://www.generativelayers.com/extended-patterns.html">
   <meta property="og:image" content="https://www.generativelayers.com/icon/logo.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Extended Patterns | Generative Layers">
-  <meta name="twitter:description" content="Extended multi-agent governance patterns with runnable ASTRA source code.">
+  <meta name="twitter:description" content="Extended multi-agent governance patterns with ASTRA, Jason, and JaCaMo source code.">
   <meta name="twitter:image" content="https://www.generativelayers.com/icon/logo.png">
   <script type="application/ld+json">
   {
@@ -135,12 +135,6 @@
     function toArray(val) { return Array.isArray(val) ? val : [val]; }
     function basename(path) { return path.split('/').pop(); }
 
-    /* ─── Pattern definitions ─────────────────────────────────
-     *  To add Jason / JaCaMo tabs later, add entries to the
-     *  `files` object, e.g.:
-     *    Jason: ['jason/story-to-book/src/main/asl/main.asl', ...],
-     *    JaCaMo: ['jacamo/story-to-book/src/agt/main.asl', ...]
-     * ──────────────────────────────────────────────────────── */
     const EXTENDED_PATTERNS = [
       {
         id: 'story-to-book',
@@ -152,7 +146,7 @@
           'GL coherence evaluation (judge-to-block pattern)',
           'Peer review with feedback verification',
           'Shared manuscript workspace (CArtAgO artifact)',
-          'Real-time web dashboard on localhost:8080'
+          'Real-time web dashboard on localhost:8082'
         ],
         files: {
           ASTRA: [
@@ -164,6 +158,26 @@
             'astra/story-to-book/src/main/java/dashboard/Dashboard.java',
             'astra/story-to-book/src/main/java/dashboard/DashboardServer.java',
             'astra/story-to-book/pom.xml'
+          ],
+          Jason: [
+            'jason/story-to-book/src/main/asl/main.asl',
+            'jason/story-to-book/src/main/asl/writer.asl',
+            'jason/story-to-book/src/main/asl/reviewer.asl',
+            'jason/story-to-book/src/main/asl/config.asl',
+            'jason/story-to-book/src/main/java/store/ManuscriptStore.java',
+            'jason/story-to-book/src/main/java/dashboard/DashboardServer.java',
+            'jason/story-to-book/pom.xml'
+          ],
+          JaCaMo: [
+            'jacamo/story-to-book/src/agt/main.asl',
+            'jacamo/story-to-book/src/agt/writer.asl',
+            'jacamo/story-to-book/src/agt/reviewer.asl',
+            'jacamo/story-to-book/src/main/java/artifacts/ManuscriptArtifact.java',
+            'jacamo/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
+            'jacamo/story-to-book/src/main/java/dashboard/DashboardArtifact.java',
+            'jacamo/story-to-book/src/main/java/dashboard/DashboardServer.java',
+            'jacamo/story-to-book/story_to_book.mas2j',
+            'jacamo/story-to-book/pom.xml'
           ]
         }
       }
@@ -187,9 +201,9 @@
 
       const panels = Object.entries(pattern.files).map(([name, paths], i) => {
         const arr = toArray(paths);
-        // Only show .astra files as pills; pom.xml and .java are hidden but included for Run
-        const visible = arr.filter(p => p.endsWith('.astra'));
-        const hidden  = arr.filter(p => !p.endsWith('.astra'));
+        // Show agent source files as pills; pom.xml, .mas2j and .java are hidden but included for Run
+        const visible = arr.filter(p => p.endsWith('.astra') || p.endsWith('.asl'));
+        const hidden  = arr.filter(p => !p.endsWith('.astra') && !p.endsWith('.asl'));
         const pills = visible.length > 1
           ? '<div class="gl-file-pills">' +
             visible.map((p, fi) =>
