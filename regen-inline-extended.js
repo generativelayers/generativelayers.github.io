@@ -12,6 +12,7 @@ const OUTPUT = path.join(__dirname, 'js', 'inline-extended-sources.js');
 
 // Files to include (relative to expanded-examples/)
 const FILES = [
+  // ASTRA
   'astra/story-to-book/pom.xml',
   'astra/story-to-book/src/main/astra/Main.astra',
   'astra/story-to-book/src/main/astra/Writer.astra',
@@ -20,6 +21,24 @@ const FILES = [
   'astra/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
   'astra/story-to-book/src/main/java/dashboard/Dashboard.java',
   'astra/story-to-book/src/main/java/dashboard/DashboardServer.java',
+  // Jason
+  'jason/story-to-book/pom.xml',
+  'jason/story-to-book/src/main/asl/main.asl',
+  'jason/story-to-book/src/main/asl/writer.asl',
+  'jason/story-to-book/src/main/asl/reviewer.asl',
+  'jason/story-to-book/src/main/asl/config.asl',
+  'jason/story-to-book/src/main/java/store/ManuscriptStore.java',
+  'jason/story-to-book/src/main/java/dashboard/DashboardServer.java',
+  // JaCaMo
+  'jacamo/story-to-book/pom.xml',
+  'jacamo/story-to-book/story_to_book.mas2j',
+  'jacamo/story-to-book/src/agt/main.asl',
+  'jacamo/story-to-book/src/agt/writer.asl',
+  'jacamo/story-to-book/src/agt/reviewer.asl',
+  'jacamo/story-to-book/src/main/java/artifacts/ManuscriptArtifact.java',
+  'jacamo/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
+  'jacamo/story-to-book/src/main/java/dashboard/DashboardArtifact.java',
+  'jacamo/story-to-book/src/main/java/dashboard/DashboardServer.java',
 ];
 
 const sources = {};
