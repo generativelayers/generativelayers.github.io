@@ -308,7 +308,7 @@
     var diags = [];
     var stripped = stripComments(source);
     var multiAgent = isMultiAgentProject(stripped);
-    checkUnclosedBrackets(stripped, diags);
+    if (!multiAgent) checkUnclosedBrackets(stripped, diags);
     checkEmptyPlanBody(stripped, diags);
     checkDuplicateBelief(stripped, diags);
     if (!multiAgent) checkGoalWithoutPlan(stripped, diags);
