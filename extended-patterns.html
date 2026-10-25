@@ -185,9 +185,12 @@
 
 
     function runnerPath(p) {
-      // 'astra/story-to-book/src/main/astra/Main.astra' → 'astra/Main.astra'
+      // Strip only the platform/project-name prefix:
+      // 'astra/story-to-book/src/main/astra/Main.astra' → 'src/main/astra/Main.astra'
+      // 'jason/story-to-book/src/main/asl/main.asl' → 'src/main/asl/main.asl'
+      // 'jacamo/story-to-book/src/agt/main.asl' → 'src/agt/main.asl'
       // 'astra/story-to-book/pom.xml' → 'pom.xml'
-      return p.replace(/^(?:astra|jason|jacamo)\/[^/]+\//, '').replace(/^src\/main\//, '');
+      return p.replace(/^(?:astra|jason|jacamo)\/[^/]+\//, '');
     }
 
     function renderPatternShell(pattern) {
