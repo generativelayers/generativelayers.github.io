@@ -1118,27 +1118,22 @@
           body.pom_xml = files[BUILD_FILE];
         }
       }
-      // Jason/JaCaMo: auto-generate mas2j (unless user provided one)
+      // Jason/JaCaMo: always auto-generate mas2j from actual .asl files present
+      // (the base project's default_project.mas2j only lists 'agents: main;'
+      //  which breaks multi-agent projects like story-to-book)
       if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
-        const userMas2j = Object.keys(files).find(p => p.endsWith('.mas2j'));
-        if (userMas2j) {
-          // User provided a .mas2j file — send it explicitly
-          body.mas2j = files[userMas2j];
-          body.mas2j_name = userMas2j.replace(/^\//, '');
-        } else {
-          // Auto-generate from .asl files
-          const agents = Object.keys(files)
-            .filter(p => p.endsWith(SOURCE_EXT) && p !== BUILD_FILE)
-            .map(p => p.replace(/^\//, '').replace(SOURCE_EXT, '').replace(/\//g, '.'));
-          if (agents.length > 0) {
-            const aslPath = SERVER_ASL_DIR;
-            if (PLATFORM === 'jacamo') {
-              const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
-              body.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
-            } else {
-              const agentLines = agents.map(a => `        ${a};`).join('\n');
-              body.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
-            }
+        const agents = Object.keys(files)
+          .filter(p => p.endsWith(SOURCE_EXT) && p !== BUILD_FILE)
+          .map(p => p.replace(/^\//, '').replace(SOURCE_EXT, '').replace(/\\//g, '.'))
+          .map(a => a.split('.').pop());  // basename only
+        if (agents.length > 0) {
+          const aslPath = SERVER_ASL_DIR;
+          if (PLATFORM === 'jacamo') {
+            const agentLines = agents.map(a => `        ${a}  agentArchClass jaca.CAgentArch;`).join('\n');
+            body.mas2j = `MAS default_project {\n    environment: jaca.CartagoEnvironment\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
+          } else {
+            const agentLines = agents.map(a => `        ${a};`).join('\n');
+            body.mas2j = `MAS default_project {\n    agents:\n${agentLines}\n    aslSourcePath: "${aslPath}";\n}\n`;
           }
         }
       }
