@@ -535,7 +535,7 @@
   }
 
   function cleanPathName(kind, rawName) {
-    let name = String(rawName || '').trim().replace(/\\/g, '/').replace(/^\/+/, '');
+    let name = String(rawName || '').trim().replace(/\//g, '/').replace(/^\/+/, '');
     if (!FLAT_ROOT) {
       if (SOURCE_FOLDER) name = name.replace(new RegExp(`^${SOURCE_FOLDER.slice(1)}\\/`, 'i'), '');
       if (AUX_FOLDER) name = name.replace(new RegExp(`^${AUX_FOLDER.slice(1)}\\/`, 'i'), '');
@@ -657,7 +657,7 @@
     try {
       // Preserve parent directory: replace only the last segment
       const parentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
-      const cleanedName = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+      const cleanedName = raw.trim().replace(/\//g, '/').replace(/^\/+|\/+$/g, '');
       if (!cleanedName) throw new Error('Filename is empty.');
       if (cleanedName.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleanedName)) throw new Error('Invalid filename.');
 
@@ -885,7 +885,7 @@
     const folderName = folderPath.split('/').pop();
     const raw = await glPrompt('Rename folder', folderName);
     if (raw === null) return;
-    const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    const cleaned = raw.trim().replace(/\//g, '/').replace(/^\/+|\/+$/g, '');
     if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
       await glAlert('Invalid folder name.'); return;
     }
@@ -984,7 +984,7 @@
   async function createFolder(parentPath) {
     const raw = await glPrompt('New folder name', 'newFolder');
     if (raw === null) return;
-    const cleaned = raw.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    const cleaned = raw.trim().replace(/\//g, '/').replace(/^\/+|\/+$/g, '');
     if (!cleaned || cleaned.includes('..') || !/^[A-Za-z0-9_.$/-]+$/.test(cleaned)) {
       await glAlert('Invalid folder name.'); return;
     }
@@ -1124,7 +1124,7 @@
       if (PLATFORM === 'jason' || PLATFORM === 'jacamo') {
         const agents = Object.keys(files)
           .filter(p => p.endsWith(SOURCE_EXT) && p !== BUILD_FILE)
-          .map(p => p.replace(/^\//, '').replace(SOURCE_EXT, '').replace(/\\//g, '.'))
+          .map(p => p.replace(/^\//, '').replace(SOURCE_EXT, '').split('/').join('.'))
           .map(a => a.split('.').pop());  // basename only
         if (agents.length > 0) {
           const aslPath = SERVER_ASL_DIR;
