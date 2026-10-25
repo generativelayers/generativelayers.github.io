@@ -194,8 +194,7 @@
 
   /** Check for missing initial goal */
   function checkMissingInitialGoal(stripped, diags) {
-    // Multi-file projects use { include("config.asl") } which provides the initial goal
-    if (/\{\s*include\s*\(/.test(stripped)) return;
+    if (isMultiAgentProject(stripped)) return;
     var hasPlan = /^\s*(?:@\w+\s+)?\+!/m.test(stripped);
     if (!hasPlan) return;
     var hasInitGoal = /^\s*![a-z_]\w*\s*(?:\([^)]*\))?\s*\./m.test(stripped);
@@ -227,9 +226,7 @@
 
   /** Check for missing failure handlers */
   function checkMissingFailureHandler(stripped, diags) {
-    // Multi-file projects (with includes) have goals handled by other agents
-    // — failure handlers there produce too many false positives
-    if (/\{\s*include\s*\(/.test(stripped)) return;
+    if (isMultiAgentProject(stripped)) return;
     var achieveGoals = {};
     var achieveRe = /^\s*(?:@\w+\s+)?\+!([a-z_]\w*)(?:\s*\(|\s|$)/gm;
     var failRe = /^\s*(?:@\w+\s+)?-!([a-z_]\w*)(?:\s*\(|\s|$)/gm;
@@ -295,18 +292,30 @@
     }
   }
 
+  /** Detect multi-agent / multi-file project patterns */
+  function isMultiAgentProject(stripped) {
+    // Jason multi-file: { include("config.asl") }
+    if (/\{\s*include\s*\(/.test(stripped)) return true;
+    // JaCaMo: CArtAgO artifact operations
+    if (/makeArtifact\s*\(/.test(stripped)) return true;
+    // Multi-agent: message passing
+    if (/\.send\s*\(/.test(stripped)) return true;
+    return false;
+  }
+
   /** Run all checks */
   function runChecks(source) {
     var diags = [];
     var stripped = stripComments(source);
+    var multiAgent = isMultiAgentProject(stripped);
     checkUnclosedBrackets(stripped, diags);
     checkEmptyPlanBody(stripped, diags);
     checkDuplicateBelief(stripped, diags);
-    checkGoalWithoutPlan(stripped, diags);
-    checkMissingInitialGoal(stripped, diags);
+    if (!multiAgent) checkGoalWithoutPlan(stripped, diags);
+    if (!multiAgent) checkMissingInitialGoal(stripped, diags);
     checkSendMissingTarget(stripped, diags);
     checkSendInvalidPerformative(stripped, diags);
-    checkMissingFailureHandler(stripped, diags);
+    if (!multiAgent) checkMissingFailureHandler(stripped, diags);
     checkMissingPeriod(stripped, diags);
     checkContextContradiction(stripped, diags);
     return diags;
