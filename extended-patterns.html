@@ -207,9 +207,10 @@
 
       const panels = Object.entries(pattern.files).map(([name, paths], i) => {
         const arr = toArray(paths);
-        // Show agent source files as pills; pom.xml, .mas2j and .java are hidden but included for Run
-        const visible = arr.filter(p => p.endsWith('.astra') || p.endsWith('.asl'));
-        const hidden  = arr.filter(p => !p.endsWith('.astra') && !p.endsWith('.asl'));
+        // Show agent source files as pills; config, pom.xml, .mas2j and .java are hidden but included for Run
+        const isAgent = p => (p.endsWith('.astra') || p.endsWith('.asl')) && !basename(p).startsWith('config');
+        const visible = arr.filter(isAgent);
+        const hidden  = arr.filter(p => !isAgent(p));
         const pills = visible.length > 1
           ? '<div class="gl-file-pills">' +
             visible.map((p, fi) =>
