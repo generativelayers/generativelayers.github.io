@@ -103,11 +103,22 @@
 
   /** Check unclosed brackets */
   function checkUnclosedBrackets(stripped, diags) {
+    // Strip { include(...) } directives — they are not plan bodies
+    var cleaned = stripped.replace(/\{\s*include\s*\([^)]*\)\s*\}/g, function(m) { return ' '.repeat(m.length); });
     var stack = [];
     var pairs = { '(': ')', '{': '}', '[': ']' };
     var closing = { ')': '(', '}': '{', ']': '[' };
-    for (var i = 0; i < stripped.length; i++) {
-      var ch = stripped[i];
+    // Track string boundaries to avoid counting brackets inside strings
+    var inString = false;
+    var stringChar = '';
+    for (var i = 0; i < cleaned.length; i++) {
+      var ch = cleaned[i];
+      if (inString) {
+        if (ch === '\\') { i++; continue; }
+        if (ch === stringChar) inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; stringChar = ch; continue; }
       if (ch in pairs) {
         stack.push({ ch: ch, offset: i });
       } else if (ch in closing) {
@@ -183,6 +194,8 @@
 
   /** Check for missing initial goal */
   function checkMissingInitialGoal(stripped, diags) {
+    // Multi-file projects use { include("config.asl") } which provides the initial goal
+    if (/\{\s*include\s*\(/.test(stripped)) return;
     var hasPlan = /^\s*(?:@\w+\s+)?\+!/m.test(stripped);
     if (!hasPlan) return;
     var hasInitGoal = /^\s*![a-z_]\w*\s*(?:\([^)]*\))?\s*\./m.test(stripped);
@@ -214,6 +227,9 @@
 
   /** Check for missing failure handlers */
   function checkMissingFailureHandler(stripped, diags) {
+    // Multi-file projects (with includes) have goals handled by other agents
+    // — failure handlers there produce too many false positives
+    if (/\{\s*include\s*\(/.test(stripped)) return;
     var achieveGoals = {};
     var achieveRe = /^\s*(?:@\w+\s+)?\+!([a-z_]\w*)(?:\s*\(|\s|$)/gm;
     var failRe = /^\s*(?:@\w+\s+)?-!([a-z_]\w*)(?:\s*\(|\s|$)/gm;
