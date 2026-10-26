@@ -183,6 +183,32 @@
             'jacamo/story-to-book/pom.xml'
           ]
         }
+      },
+      {
+        id: 'story-to-book-expanded',
+        title: 'Story-to-Book Expanded',
+        icon: 'fa-book',
+        description: 'Scaled-up multi-agent creative writing pipeline that generates a full-length book: 5 chapters with 20 paragraphs each. Demonstrates GL governance at scale with unlimited token generation, extended conversation context, and configurable retry policies — all orchestrated through ASTRA agents with CArtAgO shared artifacts.',
+        checks: [
+          '5 chapters × 20 paragraphs (100 paragraphs total)',
+          'Unlimited token generation (no maxTokens cap)',
+          'GL coherence evaluation per chapter',
+          'Sequential chapter pipeline with recursive paragraph loop',
+          'Shared manuscript workspace (CArtAgO artifact)',
+          'Real-time web dashboard on localhost:8082'
+        ],
+        files: {
+          ASTRA: [
+            'astra/story-to-book-expanded/src/main/astra/Main.astra',
+            'astra/story-to-book-expanded/src/main/astra/Writer.astra',
+            'astra/story-to-book-expanded/src/main/astra/Reviewer.astra',
+            'astra/story-to-book-expanded/src/main/java/artifacts/ManuscriptArtifact.java',
+            'astra/story-to-book-expanded/src/main/java/artifacts/PromptConfigArtifact.java',
+            'astra/story-to-book-expanded/src/main/java/dashboard/Dashboard.java',
+            'astra/story-to-book-expanded/src/main/java/dashboard/DashboardServer.java',
+            'astra/story-to-book-expanded/pom.xml'
+          ]
+        }
       }
     ];
 
