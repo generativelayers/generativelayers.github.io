@@ -1138,6 +1138,7 @@
         }
       }
       if (Object.keys(keyState.apiKeys).length > 0) body.api_keys = keyState.apiKeys;
+      if (window.GL_MAX_TIME) body.max_time = window.GL_MAX_TIME;
 
       let retried = false;
       const headers = { 'Content-Type': 'application/json' };

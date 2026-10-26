@@ -168,6 +168,7 @@
   /** Open code runner with a multi-file project payload */
   function openRunnerMulti(fileMap, title, platform) {
     const payload = { title, files: fileMap };
+    if (window.GL_MAX_TIME) payload.max_time = window.GL_MAX_TIME;
     const token = 'p' + Date.now();
     const storageKey = 'gl-runner-payload:' + token;
     const serialized = JSON.stringify(payload);

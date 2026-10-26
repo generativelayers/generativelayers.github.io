@@ -49,6 +49,7 @@
 
     // Multi-file payload: { title, files: { "main.asl": "...", "reviewer.asl": "..." } }
     if (payload.files && typeof payload.files === 'object') {
+      if (payload.max_time) window.GL_MAX_TIME = payload.max_time;
       if (typeof window.GLRunner !== 'undefined' && window.GLRunner.loadFiles) {
         window.GLRunner.loadFiles(payload.files, payload.title);
         return true;
