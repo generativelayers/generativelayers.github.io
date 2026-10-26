@@ -1,6 +1,6 @@
 (() => {
   /* ── Platform config ───────────────────────────────────── */
-  const V = window.GL_VERSION || '0.2.4';
+  const V = window.GL_VERSION || '0.2.5';
   const CFG = window.GL_PLATFORM_CONFIG || {};
   const PLATFORM = window.GL_PLATFORM || 'astra';
   const FLAT_ROOT = !!CFG.flatRoot;
