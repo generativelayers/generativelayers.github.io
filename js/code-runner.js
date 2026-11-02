@@ -16,6 +16,11 @@
   const SERVER_ASL_DIR = CFG.serverAslDir || 'src/main/asl';
   const SERVER_JAVA_DIR = CFG.serverJavaDir || 'src/main/java';
   const STORAGE_KEY_CFG = (CFG.storagePrefix || 'gl-astra-') + 'project';
+  // A saved, imported or pasted pom keeps the GL version it was written with;
+  // runs always use the current release, so an old pom never reaches the VPS.
+  const withCurrentGl = (pom) => String(pom).replace(
+    /(<artifactId>\s*generative-layers-core\s*<\/artifactId>\s*<version>)\s*\d[^<]*(<\/version>)/g,
+    `$1${V}$2`);
 
   // ── Auth token from parent page (via postMessage) ──────
   // Parent page (code.html) pushes the Google token into the iframe
@@ -1113,6 +1118,8 @@
       };
       // Only send pom_xml when the user has modified it from the default
       if (BUILD_FILE && files[BUILD_FILE]) {
+        files[BUILD_FILE] = withCurrentGl(files[BUILD_FILE]);
+        if (currentPath === BUILD_FILE) els.editor.value = files[BUILD_FILE];
         const defaultPom = DEFAULT_POMS[PLATFORM] || DEFAULT_POMS.astra;
         if (files[BUILD_FILE].trim() !== defaultPom.trim()) {
           body.pom_xml = files[BUILD_FILE];
@@ -1558,6 +1565,7 @@
       const data = JSON.parse(raw);
       if (data && data.files && typeof data.files === 'object') {
         files = data.files;
+        if (BUILD_FILE && files[BUILD_FILE]) files[BUILD_FILE] = withCurrentGl(files[BUILD_FILE]);
         currentPath = data.currentPath || Object.keys(files)[0] || DEFAULT_FILE;
         if (window.GL_UNDER_REVIEW && currentPath === BUILD_FILE) {
           currentPath = Object.keys(files).find(function(p) { return p !== BUILD_FILE; }) || DEFAULT_FILE;
