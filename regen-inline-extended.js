@@ -42,6 +42,17 @@ const FILES = [
   'jacamo/story-to-book/src/main/java/artifacts/PromptConfigArtifact.java',
   'jacamo/story-to-book/src/main/java/dashboard/DashboardArtifact.java',
   'jacamo/story-to-book/src/main/java/dashboard/DashboardServer.java',
+  // ASTRA (expanded)
+  'astra/story-to-book-expanded/src/main/astra/Main.astra',
+  'astra/story-to-book-expanded/src/main/astra/Writer.astra',
+  'astra/story-to-book-expanded/src/main/astra/Reviewer.astra',
+  'astra/story-to-book-expanded/src/main/java/artifacts/ManuscriptArtifact.java',
+  'astra/story-to-book-expanded/src/main/java/artifacts/PromptConfigArtifact.java',
+  'astra/story-to-book-expanded/src/main/java/dashboard/Dashboard.java',
+  'astra/story-to-book-expanded/src/main/java/dashboard/DashboardServer.java',
+  'astra/story-to-book-expanded/pom.xml',
+  // Jason (project file)
+  'jason/story-to-book/src/main/resources/story_to_book.mas2j',
 ];
 
 const sources = {};
